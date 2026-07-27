@@ -2,7 +2,9 @@
 
 컴퓨터
 터미널 열고 
+
 npm install 입력
+
 npx expo start 입력
 (QR코드가 올라옴)
 
