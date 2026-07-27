@@ -744,133 +744,508 @@ def gps_current_page():
 <html lang="ko">
 <head>
     <meta charset="utf-8">
+
     <meta
         name="viewport"
         content="width=device-width, initial-scale=1"
     >
 
-    <title>현재 위치 저장</title>
+    <title>내 주변 복지시설</title>
 
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
         body {
+            margin: 0;
+            background: #f5f7fa;
             font-family: Arial, sans-serif;
-            max-width: 600px;
-            margin: 50px auto;
-            padding: 20px;
+            color: #222;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 24px 16px 50px;
+        }
+
+        h1 {
+            margin-bottom: 8px;
+            font-size: 27px;
+        }
+
+        .description {
+            margin-top: 0;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        .control-card {
+            margin-top: 20px;
+            padding: 18px;
+            background: white;
+            border-radius: 14px;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 7px;
+            font-weight: bold;
         }
 
         input,
+        select,
         button {
             width: 100%;
-            box-sizing: border-box;
-            padding: 12px;
-            margin-top: 10px;
+            padding: 13px;
+            margin-bottom: 12px;
+            border: 1px solid #d8dce2;
+            border-radius: 9px;
             font-size: 16px;
         }
 
         button {
+            border: none;
+            background: #2563eb;
+            color: white;
+            font-weight: bold;
             cursor: pointer;
         }
 
-        pre {
-            background: #f3f3f3;
-            padding: 15px;
+        button:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .status {
+            margin-top: 14px;
+            padding: 14px;
+            background: #eef3ff;
+            border-radius: 10px;
+            line-height: 1.5;
             white-space: pre-wrap;
-            border-radius: 8px;
+        }
+
+        .error {
+            background: #fff0f0;
+            color: #b42318;
+        }
+
+        .success {
+            background: #ecfdf3;
+            color: #067647;
+        }
+
+        .facility-list {
+            margin-top: 20px;
+        }
+
+        .facility-card {
+            margin-bottom: 13px;
+            padding: 17px;
+            background: white;
+            border-radius: 13px;
+            box-shadow: 0 2px 9px rgba(0, 0, 0, 0.07);
+        }
+
+        .facility-name {
+            margin: 0 0 8px;
+            font-size: 19px;
+        }
+
+        .facility-address {
+            margin: 0 0 8px;
+            color: #555;
+            line-height: 1.45;
+        }
+
+        .facility-distance {
+            margin: 0;
+            color: #2563eb;
+            font-weight: bold;
+        }
+
+        .empty {
+            padding: 20px;
+            text-align: center;
+            background: white;
+            border-radius: 13px;
+            color: #666;
         }
     </style>
 </head>
 
 <body>
-    <h2>현재 위치 자동 저장</h2>
+    <main class="container">
+        <h1>내 주변 복지시설</h1>
 
-    <input
-        id="subjectId"
-        type="number"
-        min="1"
-        value="1"
-        placeholder="보호 대상자 ID"
-    >
+        <p class="description">
+            현재 위치를 자동으로 확인한 뒤 가까운 복지시설을 보여줍니다.
+        </p>
 
-    <button onclick="saveLocation()">
-        현재 위치 가져와서 저장
-    </button>
+        <section class="control-card">
+            <label for="subjectId">
+                보호 대상자 ID
+            </label>
 
-    <pre id="result">대기 중</pre>
+            <input
+                id="subjectId"
+                type="number"
+                min="1"
+                value="1"
+                placeholder="보호 대상자 ID"
+            >
+
+            <label for="radius">
+                검색 반경
+            </label>
+
+            <select id="radius">
+                <option value="3">3km 이내</option>
+                <option value="5">5km 이내</option>
+                <option value="10" selected>10km 이내</option>
+                <option value="20">20km 이내</option>
+                <option value="50">50km 이내</option>
+            </select>
+
+            <button
+                id="locationButton"
+                type="button"
+                onclick="startLocationSearch()"
+            >
+                현재 위치로 시설 찾기
+            </button>
+
+            <div
+                id="status"
+                class="status"
+            >
+                위치 확인을 준비하고 있습니다.
+            </div>
+        </section>
+
+        <section
+            id="facilityList"
+            class="facility-list"
+        ></section>
+    </main>
 
     <script>
-        function saveLocation() {
-            const result = document.getElementById("result");
+        const statusElement =
+            document.getElementById("status");
+
+        const facilityListElement =
+            document.getElementById("facilityList");
+
+        const locationButton =
+            document.getElementById("locationButton");
+
+        let watchId = null;
+        let lastSavedTime = 0;
+
+
+        function setStatus(message, type = "") {
+            statusElement.textContent = message;
+            statusElement.className = "status";
+
+            if (type) {
+                statusElement.classList.add(type);
+            }
+        }
+
+
+        function escapeHtml(value) {
+            return String(value)
+                .replaceAll("&", "&amp;")
+                .replaceAll("<", "&lt;")
+                .replaceAll(">", "&gt;")
+                .replaceAll('"', "&quot;")
+                .replaceAll("'", "&#039;");
+        }
+
+
+        function renderFacilities(facilities) {
+            facilityListElement.innerHTML = "";
+
+            if (!facilities || facilities.length === 0) {
+                facilityListElement.innerHTML = `
+                    <div class="empty">
+                        선택한 반경 안에 등록된 복지시설이 없습니다.
+                    </div>
+                `;
+
+                return;
+            }
+
+            facilities.forEach((facility, index) => {
+                const card = document.createElement("article");
+
+                card.className = "facility-card";
+
+                const latitude =
+                    encodeURIComponent(facility.latitude);
+
+                const longitude =
+                    encodeURIComponent(facility.longitude);
+
+                const facilityName =
+                    encodeURIComponent(facility.name);
+
+                card.innerHTML = `
+                    <h2 class="facility-name">
+                        ${index + 1}.
+                        ${escapeHtml(facility.name)}
+                    </h2>
+
+                    <p class="facility-address">
+                        ${escapeHtml(facility.address)}
+                    </p>
+
+                    <p class="facility-distance">
+                        현재 위치에서
+                        ${facility.distance_km.toFixed(2)}km
+                    </p>
+
+                    <p>
+                        <a
+                            href="https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            지도에서 보기
+                        </a>
+                    </p>
+                `;
+
+                facilityListElement.appendChild(card);
+            });
+        }
+
+
+        async function saveGps(
+            subjectId,
+            latitude,
+            longitude
+        ) {
+            const response = await fetch(
+                "/gps-records",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        subject_id: subjectId,
+                        latitude: latitude,
+                        longitude: longitude
+                    })
+                }
+            );
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                const detail =
+                    result.detail || "GPS 저장에 실패했습니다.";
+
+                throw new Error(detail);
+            }
+
+            return result;
+        }
+
+
+        async function loadNearbyFacilities(
+            latitude,
+            longitude
+        ) {
+            const radius =
+                document.getElementById("radius").value;
+
+            const params = new URLSearchParams({
+                latitude: latitude,
+                longitude: longitude,
+                radius_km: radius,
+                limit: 10
+            });
+
+            const response = await fetch(
+                `/facilities/nearby?${params.toString()}`
+            );
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                const detail =
+                    result.detail ||
+                    "주변 시설을 불러오지 못했습니다.";
+
+                throw new Error(detail);
+            }
+
+            return result;
+        }
+
+
+        async function handlePosition(position) {
+            const now = Date.now();
+
+            /*
+            watchPosition은 위치를 계속 전달할 수 있으므로
+            서버 저장은 최소 10초 간격으로 제한한다.
+            */
+            if (now - lastSavedTime < 10000) {
+                return;
+            }
+
+            lastSavedTime = now;
+
             const subjectId = Number(
                 document.getElementById("subjectId").value
             );
 
-            if (!subjectId) {
-                result.textContent =
-                    "보호 대상자 ID를 입력하세요.";
+            if (!subjectId || subjectId < 1) {
+                setStatus(
+                    "보호 대상자 ID를 입력해주세요.",
+                    "error"
+                );
+
+                locationButton.disabled = false;
+                return;
+            }
+
+            const latitude =
+                position.coords.latitude;
+
+            const longitude =
+                position.coords.longitude;
+
+            try {
+                setStatus(
+                    "현재 위치를 확인했습니다.\\n"
+                    + "GPS를 저장하고 주변 시설을 찾는 중입니다."
+                );
+
+                await saveGps(
+                    subjectId,
+                    latitude,
+                    longitude
+                );
+
+                const facilities =
+                    await loadNearbyFacilities(
+                        latitude,
+                        longitude
+                    );
+
+                renderFacilities(facilities);
+
+                setStatus(
+                    "현재 위치 저장 완료\\n"
+                    + `가까운 시설 ${facilities.length}개를 찾았습니다.\\n`
+                    + "위치가 변경되면 목록도 자동으로 갱신됩니다.",
+                    "success"
+                );
+
+            } catch (error) {
+                setStatus(
+                    error.message,
+                    "error"
+                );
+
+                locationButton.disabled = false;
+            }
+        }
+
+
+        function handleLocationError(error) {
+            let message =
+                "현재 위치를 가져오지 못했습니다.";
+
+            if (error.code === error.PERMISSION_DENIED) {
+                message =
+                    "위치 권한이 거부되었습니다.\\n"
+                    + "브라우저 설정에서 이 사이트의 위치 권한을 "
+                    + "허용한 뒤 다시 눌러주세요.";
+            }
+
+            if (error.code === error.POSITION_UNAVAILABLE) {
+                message =
+                    "현재 위치 정보를 사용할 수 없습니다.";
+            }
+
+            if (error.code === error.TIMEOUT) {
+                message =
+                    "위치 확인 시간이 초과되었습니다. "
+                    + "다시 시도해주세요.";
+            }
+
+            setStatus(message, "error");
+            locationButton.disabled = false;
+        }
+
+
+        function startLocationSearch() {
+            const subjectId = Number(
+                document.getElementById("subjectId").value
+            );
+
+            if (!subjectId || subjectId < 1) {
+                setStatus(
+                    "보호 대상자 ID를 입력해주세요.",
+                    "error"
+                );
+
                 return;
             }
 
             if (!navigator.geolocation) {
-                result.textContent =
-                    "이 브라우저는 GPS를 지원하지 않습니다.";
+                setStatus(
+                    "이 브라우저는 위치 기능을 지원하지 않습니다.",
+                    "error"
+                );
+
                 return;
             }
 
-            result.textContent = "현재 위치 확인 중...";
+            if (watchId !== null) {
+                navigator.geolocation.clearWatch(watchId);
+            }
 
-            navigator.geolocation.getCurrentPosition(
-                async (position) => {
-                    try {
-                        const response = await fetch(
-                            "/gps-records",
-                            {
-                                method: "POST",
-                                headers: {
-                                    "Content-Type": "application/json"
-                                },
-                                body: JSON.stringify({
-                                    subject_id: subjectId,
-                                    latitude:
-                                        position.coords.latitude,
-                                    longitude:
-                                        position.coords.longitude
-                                })
-                            }
-                        );
+            locationButton.disabled = true;
+            locationButton.textContent =
+                "실시간 위치 추적 중";
 
-                        const data = await response.json();
+            setStatus(
+                "위치 권한을 확인하고 있습니다."
+            );
 
-                        result.textContent = response.ok
-                            ? "저장 성공\\n"
-                                + JSON.stringify(data, null, 2)
-                            : "저장 실패\\n"
-                                + JSON.stringify(data, null, 2);
-
-                    } catch (error) {
-                        result.textContent =
-                            "서버 요청 오류: " + error.message;
-                    }
-                },
-
-                (error) => {
-                    result.textContent =
-                        "위치 권한 또는 GPS 오류: "
-                        + error.message;
-                },
-
+            watchId = navigator.geolocation.watchPosition(
+                handlePosition,
+                handleLocationError,
                 {
                     enableHighAccuracy: true,
-                    timeout: 10000,
-                    maximumAge: 0
+                    timeout: 15000,
+                    maximumAge: 5000
                 }
             );
         }
+
+
+        /*
+        페이지가 열리면 자동으로 위치 확인을 시작한다.
+        브라우저에서 위치 권한 팝업이 나타날 수 있다.
+        */
+        window.addEventListener(
+            "load",
+            startLocationSearch
+        );
     </script>
 </body>
 </html>
 """
-
 
 # =========================================================
 # 5. 전라남도 복지시설 동기화·조회
