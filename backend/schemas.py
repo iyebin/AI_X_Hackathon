@@ -46,6 +46,28 @@ class GPSResponse(GPSCreate):
     measured_at: datetime
     model_config = ConfigDict(from_attributes=True)
 
+class SubjectUpdate(BaseModel):
+    name: str | None = None
+    phone: str | None = None
+    special_notes: str | None = None
+
+
+class GuardianUpdate(BaseModel):
+    name: str | None = None
+    phone: str | None = None
+
+
+class LinkUpdate(BaseModel):
+    subject_id: int | None = None
+    guardian_id: int | None = None
+    relationship_type: str | None = None
+
+
+class GPSUpdate(BaseModel):
+    subject_id: int | None = None
+    latitude: float | None = Field(default=None, ge=-90, le=90)
+    longitude: float | None = Field(default=None, ge=-180, le=180)
+    measured_at: datetime | None = None
 
 class FacilityResponse(BaseModel):
     id: int
