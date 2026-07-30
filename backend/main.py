@@ -19,7 +19,7 @@ Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="안심하랑께 백엔드",
-    version="1.1.0",
+    version="1.2.0",
 )
 
 
@@ -57,6 +57,49 @@ def haversine_km(
     )
 
     return earth_radius * 2 * asin(sqrt(value))
+
+
+def find_nearby_facilities(
+    latitude: float,
+    longitude: float,
+    radius_km: float,
+    limit: int,
+    db: Session,
+) -> list[dict]:
+    """전달받은 좌표를 기준으로 가까운 시설을 계산한다."""
+
+    result = []
+
+    facilities = db.scalars(
+        select(models.Facility)
+    ).all()
+
+    for facility in facilities:
+        distance = haversine_km(
+            latitude,
+            longitude,
+            facility.latitude,
+            facility.longitude,
+        )
+
+        if distance <= radius_km:
+            result.append(
+                {
+                    "id": facility.id,
+                    "external_id": facility.external_id,
+                    "name": facility.name,
+                    "address": facility.address,
+                    "latitude": facility.latitude,
+                    "longitude": facility.longitude,
+                    "distance_km": round(distance, 3),
+                }
+            )
+
+    result.sort(
+        key=lambda item: item["distance_km"]
+    )
+
+    return result[:limit]
 
 
 # =========================================================
@@ -201,21 +244,18 @@ def delete_subject(
             detail="보호 대상자가 없습니다.",
         )
 
-    # 보호 대상자의 GPS 기록 삭제
     db.execute(
         delete(models.GPSRecord).where(
             models.GPSRecord.subject_id == subject_id
         )
     )
 
-    # 보호 대상자와 보호자의 연결 관계 삭제
     db.execute(
         delete(models.SubjectGuardian).where(
             models.SubjectGuardian.subject_id == subject_id
         )
     )
 
-    # 보호 대상자 삭제
     db.delete(subject)
     db.commit()
 
@@ -344,7 +384,6 @@ def delete_guardian(
             detail="보호자가 없습니다.",
         )
 
-    # 보호자와 보호 대상자의 연결 관계만 삭제
     db.execute(
         delete(models.SubjectGuardian).where(
             models.SubjectGuardian.guardian_id == guardian_id
@@ -716,7 +755,8 @@ def latest_location(
             models.GPSRecord.subject_id == subject_id
         )
         .order_by(
-            models.GPSRecord.measured_at.desc()
+            models.GPSRecord.measured_at.desc(),
+            models.GPSRecord.id.desc(),
         )
         .limit(1)
     )
@@ -731,7 +771,7 @@ def latest_location(
 
 
 # =========================================================
-# 브라우저에서 현재 위치 가져와 GPS 저장
+# 브라우저에서 현재 위치 가져와 GPS 저장 후 시설 자동 조회
 # =========================================================
 
 @app.get(
@@ -882,7 +922,8 @@ def gps_current_page():
         <h1>내 주변 복지시설</h1>
 
         <p class="description">
-            현재 위치를 자동으로 확인한 뒤 가까운 복지시설을 보여줍니다.
+            현재 위치를 자동으로 확인하고 저장한 뒤,
+            가까운 복지시설을 바로 보여줍니다.
         </p>
 
         <section class="control-card">
@@ -990,9 +1031,6 @@ def gps_current_page():
                 const longitude =
                     encodeURIComponent(facility.longitude);
 
-                const facilityName =
-                    encodeURIComponent(facility.name);
-
                 card.innerHTML = `
                     <h2 class="facility-name">
                         ${index + 1}.
@@ -1057,22 +1095,17 @@ def gps_current_page():
         }
 
 
-        async function loadNearbyFacilities(
-            latitude,
-            longitude
-        ) {
+        async function loadNearbyFacilities(subjectId) {
             const radius =
                 document.getElementById("radius").value;
 
             const params = new URLSearchParams({
-                latitude: latitude,
-                longitude: longitude,
                 radius_km: radius,
                 limit: 10
             });
 
             const response = await fetch(
-                `/facilities/nearby?${params.toString()}`
+                `/facilities/nearest/${subjectId}?${params.toString()}`
             );
 
             const result = await response.json();
@@ -1092,10 +1125,6 @@ def gps_current_page():
         async function handlePosition(position) {
             const now = Date.now();
 
-            /*
-            watchPosition은 위치를 계속 전달할 수 있으므로
-            서버 저장은 최소 10초 간격으로 제한한다.
-            */
             if (now - lastSavedTime < 10000) {
                 return;
             }
@@ -1135,10 +1164,7 @@ def gps_current_page():
                 );
 
                 const facilities =
-                    await loadNearbyFacilities(
-                        latitude,
-                        longitude
-                    );
+                    await loadNearbyFacilities(subjectId);
 
                 renderFacilities(facilities);
 
@@ -1234,10 +1260,6 @@ def gps_current_page():
         }
 
 
-        /*
-        페이지가 열리면 자동으로 위치 확인을 시작한다.
-        브라우저에서 위치 권한 팝업이 나타날 수 있다.
-        */
         window.addEventListener(
             "load",
             startLocationSearch
@@ -1246,6 +1268,7 @@ def gps_current_page():
 </body>
 </html>
 """
+
 
 # =========================================================
 # 5. 전라남도 복지시설 동기화·조회
@@ -1309,27 +1332,65 @@ def list_facilities(
     ).all()
 
 
+# =========================================================
+# 6. 저장된 최신 GPS 기준 가까운 복지시설 조회
+# =========================================================
+
 @app.get(
-    "/facilities/{facility_id}",
-    response_model=schemas.FacilityResponse,
+    "/facilities/nearest/{subject_id}",
+    response_model=list[schemas.NearbyFacilityResponse],
 )
-def get_facility(
-    facility_id: int,
+def nearest_facilities_by_subject(
+    subject_id: int,
+    radius_km: float = Query(
+        default=10,
+        gt=0,
+        le=100,
+    ),
+    limit: int = Query(
+        default=5,
+        ge=1,
+        le=50,
+    ),
     db: Session = Depends(get_db),
 ):
-    facility = db.get(models.Facility, facility_id)
+    subject = db.get(models.Subject, subject_id)
 
-    if facility is None:
+    if subject is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="복지시설이 없습니다.",
+            detail="보호 대상자가 없습니다.",
         )
 
-    return facility
+    latest_gps = db.scalar(
+        select(models.GPSRecord)
+        .where(
+            models.GPSRecord.subject_id == subject_id
+        )
+        .order_by(
+            models.GPSRecord.measured_at.desc(),
+            models.GPSRecord.id.desc(),
+        )
+        .limit(1)
+    )
+
+    if latest_gps is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="저장된 GPS 위치가 없습니다.",
+        )
+
+    return find_nearby_facilities(
+        latitude=latest_gps.latitude,
+        longitude=latest_gps.longitude,
+        radius_km=radius_km,
+        limit=limit,
+        db=db,
+    )
 
 
 # =========================================================
-# 6. 현재 위치 기준 가까운 복지시설 조회
+# 7. 위도·경도 직접 입력용 시설 조회(테스트용)
 # =========================================================
 
 @app.get(
@@ -1351,35 +1412,31 @@ def nearby_facilities(
     ),
     db: Session = Depends(get_db),
 ):
-    result = []
-
-    facilities = db.scalars(
-        select(models.Facility)
-    ).all()
-
-    for facility in facilities:
-        distance = haversine_km(
-            latitude,
-            longitude,
-            facility.latitude,
-            facility.longitude,
-        )
-
-        if distance <= radius_km:
-            result.append(
-                {
-                    "id": facility.id,
-                    "external_id": facility.external_id,
-                    "name": facility.name,
-                    "address": facility.address,
-                    "latitude": facility.latitude,
-                    "longitude": facility.longitude,
-                    "distance_km": round(distance, 3),
-                }
-            )
-
-    result.sort(
-        key=lambda item: item["distance_km"]
+    return find_nearby_facilities(
+        latitude=latitude,
+        longitude=longitude,
+        radius_km=radius_km,
+        limit=limit,
+        db=db,
     )
 
-    return result[:limit]
+
+# 반드시 /facilities/nearest/{subject_id}와
+# /facilities/nearby보다 아래에 둔다.
+@app.get(
+    "/facilities/{facility_id}",
+    response_model=schemas.FacilityResponse,
+)
+def get_facility(
+    facility_id: int,
+    db: Session = Depends(get_db),
+):
+    facility = db.get(models.Facility, facility_id)
+
+    if facility is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="복지시설이 없습니다.",
+        )
+
+    return facility
