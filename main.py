@@ -409,11 +409,7 @@ def find_nearest_institutions(
     }
 
 
-@app.get(
-    "/facilities/nearest",
-    tags=["현재 위치 기반 기관 검색"],
-    deprecated=True,
-)
+
 def find_nearest_facilities_compatibility(
     latitude: float = Query(ge=-90, le=90),
     longitude: float = Query(ge=-180, le=180),
@@ -1206,13 +1202,6 @@ def save_gps(
     return gps_record
 
 
-@app.post(
-    "/gps/save",
-    response_model=schemas.GPSResponse,
-    status_code=status.HTTP_201_CREATED,
-    tags=["GPS"],
-    deprecated=True,
-)
 def save_gps_compatibility(
     gps_data: schemas.GPSCreate,
     db: Session = Depends(get_db),
