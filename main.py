@@ -238,7 +238,7 @@ async def test_api():
     data = await fetch_facilities()
     return {
         "count": len(data),
-        "sample": data[:3]
+        "facilities": data
     }
 
 @app.get(
