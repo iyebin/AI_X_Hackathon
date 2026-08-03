@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
+from facility_api import fetch_facilities
 
 import models
 import schemas
@@ -105,6 +106,49 @@ def calculate_type_match_score(
     return 0.2
 
 
+def infer_institution_type(name: str) -> models.InstitutionType:
+    """시설명에 포함된 단어로 기관 유형을 자동 분류합니다."""
+    normalized_name = name.replace(" ", "").lower()
+
+    if any(
+        keyword in normalized_name
+        for keyword in ["아동", "어린이", "청소년", "지역아동", "보육"]
+    ):
+        return models.InstitutionType.CHILD
+
+    if any(
+        keyword in normalized_name
+        for keyword in ["치매", "기억"]
+    ):
+        return models.InstitutionType.DEMENTIA
+
+    if any(
+        keyword in normalized_name
+        for keyword in ["노인", "어르신", "경로", "요양", "재가복지"]
+    ):
+        return models.InstitutionType.ELDERLY
+
+    if any(
+        keyword in normalized_name
+        for keyword in ["장애인", "장애", "재활"]
+    ):
+        return models.InstitutionType.DISABILITY
+
+    if any(
+        keyword in normalized_name
+        for keyword in ["경찰", "파출소", "지구대"]
+    ):
+        return models.InstitutionType.POLICE
+
+    if any(
+        keyword in normalized_name
+        for keyword in ["병원", "의료원", "보건소", "의원"]
+    ):
+        return models.InstitutionType.HOSPITAL
+
+    return models.InstitutionType.GENERAL
+
+
 def institution_to_result(
     institution: models.Institution,
     distance_km: float,
@@ -189,6 +233,13 @@ def create_guardian(
     db.refresh(guardian)
     return guardian
 
+@app.get("/test-api")
+async def test_api():
+    data = await fetch_facilities()
+    return {
+        "count": len(data),
+        "sample": data[:3]
+    }
 
 @app.get(
     "/guardians",
@@ -406,6 +457,153 @@ def find_nearest_facilities_compatibility(
 
     results.sort(key=lambda item: item["distance_km"])
     return results[:limit]
+
+
+@app.get(
+    "/institutions/openapi-test",
+    tags=["공공데이터 기관 가져오기"],
+)
+async def test_institution_openapi():
+    """공공데이터 API 연결과 파싱 결과를 확인합니다. DB에는 저장하지 않습니다."""
+    try:
+        facilities = await fetch_facilities()
+        return {
+            "message": "공공데이터 API 연결 성공",
+            "count": len(facilities),
+            "sample": facilities[:5],
+        }
+    except RuntimeError as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(
+            status_code=500,
+            detail=f"예상하지 못한 오류가 발생했습니다: {exc}",
+        ) from exc
+
+
+@app.post(
+    "/institutions/import-openapi",
+    tags=["공공데이터 기관 가져오기"],
+)
+async def import_institutions_from_openapi(
+    update_existing: bool = Query(
+        default=True,
+        description="이미 등록된 기관을 최신 공공데이터로 업데이트할지 여부",
+    ),
+    db: Session = Depends(get_db),
+):
+    """
+    공공데이터포털 사회복지시설 목록을 가져와 institutions 테이블에 저장합니다.
+
+    - institution_code: 공공데이터 external_id
+    - 중복 기관: update_existing=True이면 업데이트
+    - 좌표가 없는 시설: 건너뜀
+    """
+    try:
+        facilities = await fetch_facilities()
+    except RuntimeError as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(
+            status_code=500,
+            detail=f"공공데이터 호출 중 오류가 발생했습니다: {exc}",
+        ) from exc
+
+    created_count = 0
+    updated_count = 0
+    skipped_count = 0
+
+    try:
+        for facility in facilities:
+            external_id = str(facility.get("external_id", "")).strip()
+            name = str(facility.get("name", "")).strip()
+            address = facility.get("address")
+            latitude = facility.get("latitude")
+            longitude = facility.get("longitude")
+
+            if not external_id or not name:
+                skipped_count += 1
+                continue
+
+            if latitude is None or longitude is None:
+                skipped_count += 1
+                continue
+
+            existing = (
+                db.query(models.Institution)
+                .filter(models.Institution.institution_code == external_id)
+                .first()
+            )
+
+            institution_type = infer_institution_type(name)
+
+            if existing:
+                if not update_existing:
+                    skipped_count += 1
+                    continue
+
+                existing.name = name
+                existing.address = address
+                existing.latitude = latitude
+                existing.longitude = longitude
+                existing.institution_type = institution_type
+                updated_count += 1
+                continue
+
+            db.add(
+                models.Institution(
+                    institution_code=external_id,
+                    name=name,
+                    institution_type=institution_type,
+                    address=address,
+                    phone=None,
+                    operating_hours=None,
+                    latitude=latitude,
+                    longitude=longitude,
+                )
+            )
+            created_count += 1
+
+        db.commit()
+    except Exception as exc:
+        db.rollback()
+        raise HTTPException(
+            status_code=500,
+            detail=f"기관 데이터 저장 중 오류가 발생했습니다: {exc}",
+        ) from exc
+
+    total_in_database = db.query(models.Institution).count()
+
+    return {
+        "message": "공공데이터 기관 목록 저장 완료",
+        "api_result_count": len(facilities),
+        "created_count": created_count,
+        "updated_count": updated_count,
+        "skipped_count": skipped_count,
+        "total_in_database": total_in_database,
+    }
+
+
+@app.get(
+    "/institutions/count",
+    tags=["기관"],
+)
+def count_institutions(db: Session = Depends(get_db)):
+    total = db.query(models.Institution).count()
+    with_coordinates = (
+        db.query(models.Institution)
+        .filter(
+            models.Institution.latitude.isnot(None),
+            models.Institution.longitude.isnot(None),
+        )
+        .count()
+    )
+
+    return {
+        "total": total,
+        "with_coordinates": with_coordinates,
+        "without_coordinates": total - with_coordinates,
+    }
 
 
 @app.get(
