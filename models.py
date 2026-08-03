@@ -1,4 +1,5 @@
 from enum import Enum
+from sqlalchemy.dialects.postgresql import ENUM as PGEnum
 
 from sqlalchemy import (
     Boolean,
@@ -82,10 +83,14 @@ class Institution(Base):
     institution_code = Column(String(100), nullable=False, unique=True, index=True)
     name = Column(String(200), nullable=False)
     institution_type = Column(
-        SqlEnum(InstitutionType, native_enum=False),
-        nullable=False,
-        default=InstitutionType.GENERAL,
-    )
+    PGEnum(
+        InstitutionType,
+        name="institutiontype",
+        create_type=False,
+    ),
+    nullable=False,
+    default=InstitutionType.GENERAL,
+)
     address = Column(String(255), nullable=True)
     phone = Column(String(30), nullable=True)
     operating_hours = Column(String(255), nullable=True)
