@@ -1,3 +1,35 @@
+
+# 안심하랑께 백엔드
+
+## 실행
+
+```bash
+pip install -r requirements.txt
+python -m uvicorn main:app --reload
+```
+
+Swagger:
+- http://127.0.0.1:8000/docs
+
+GPS 테스트:
+- http://127.0.0.1:8000/gps-current
+
+## Render 설정
+
+- Root Directory: `backend`
+- Build Command: `pip install -r requirements.txt`
+- Start Command: `uvicorn main:app --host 0.0.0.0 --port $PORT`
+
+## 주요 테스트 순서
+
+1. `POST /institutions`
+2. `POST /subjects`
+3. `POST /guardians`
+4. `POST /guardian-registrations`
+5. `POST /gps`
+6. `GET /subjects/{subject_id}/institutions/nearest`
+7. `GET /subjects/{subject_id}/institutions/recommended`
+
 # AI_X_Hackathon
 전남대학교 AICOSS에서 주최하는 2026 AI+X 산학협력 문제발굴 해커톤에 참여하는 '슝슝슝'팀입니다.
 
@@ -19,3 +51,7 @@ LM-TAD 모델에 대한 페이지는 다음과 같습니다.
 
 https://github.com/jonathankabala/LMTAD
 <img width="1252" height="678" alt="image" src="https://github.com/user-attachments/assets/25a4bb2e-7293-4d46-9426-f628b254023c" />
+=======
+We are Team "슝슝슝," participating in the 2026 AI+X Industry-Academia Hackathon Project hosted by Chonnam National University's AICOSS.
+>>>>>>> team/backend
+>>>>>>> main
