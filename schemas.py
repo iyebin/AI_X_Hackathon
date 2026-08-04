@@ -163,7 +163,47 @@ class GuardianRegistrationResponse(ORMModel):
     protection_end_date: Optional[date]
     created_at: datetime
 
+# =========================================================
+# 보호자-보호대상자 연결 상세 응답
+# =========================================================
+class GuardianSummary(ORMModel):
+    id: int
+    name: str
+    gender: GenderType
+    phone: str
+    birth_date: Optional[date]
+    address: Optional[str]
 
+
+class SubjectSummary(ORMModel):
+    id: int
+    name: str
+    gender: GenderType
+    phone: Optional[str]
+    birth_date: Optional[date]
+    address: Optional[str]
+    subject_type: SubjectType
+    special_notes: Optional[str]
+    institution_id: Optional[int]
+
+
+class GuardianRegistrationDetailResponse(BaseModel):
+    guardian_id: int
+    subject_id: int
+
+    relationship_code: str
+    guardian_role_code: Optional[str]
+
+    is_primary: bool
+    contact_priority: int
+    living_together: bool
+
+    protection_start_date: Optional[date]
+    protection_end_date: Optional[date]
+    created_at: datetime
+
+    guardian: GuardianSummary
+    subject: SubjectSummary
 class InstitutionManagerCreate(BaseModel):
     institution_id: int
     name: str = Field(min_length=1, max_length=100)

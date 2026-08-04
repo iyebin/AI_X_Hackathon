@@ -308,7 +308,73 @@ def delete_guardian(guardian_id: int, db: Session = Depends(get_db)):
     db.commit()
     return {"message": "보호자가 삭제되었습니다.", "guardian_id": guardian_id}
 
+@app.get(
+    "/subjects/{subject_id}/guardians",
+    response_model=List[schemas.GuardianRegistrationDetailResponse],
+    tags=["보호자 등록 관계"],
+)
+def get_guardians_of_subject(
+    subject_id: int,
+    db: Session = Depends(get_db),
+):
+    subject = db.get(models.Subject, subject_id)
 
+    if not subject:
+        raise HTTPException(
+            status_code=404,
+            detail="보호대상자를 찾을 수 없습니다.",
+        )
+
+    registrations = (
+        db.query(models.GuardianRegistration)
+        .filter(
+            models.GuardianRegistration.subject_id == subject_id
+        )
+        .order_by(
+            models.GuardianRegistration.contact_priority,
+            models.GuardianRegistration.guardian_id,
+        )
+        .all()
+    )
+
+    return [
+        guardian_registration_to_detail(registration)
+        for registration in registrations
+    ]
+
+@app.get(
+    "/guardians/{guardian_id}/subjects",
+    response_model=List[schemas.GuardianRegistrationDetailResponse],
+    tags=["보호자 등록 관계"],
+)
+def get_subjects_of_guardian(
+    guardian_id: int,
+    db: Session = Depends(get_db),
+):
+    guardian = db.get(models.Guardian, guardian_id)
+
+    if not guardian:
+        raise HTTPException(
+            status_code=404,
+            detail="보호자를 찾을 수 없습니다.",
+        )
+
+    registrations = (
+        db.query(models.GuardianRegistration)
+        .filter(
+            models.GuardianRegistration.guardian_id == guardian_id
+        )
+        .order_by(
+            models.GuardianRegistration.contact_priority,
+            models.GuardianRegistration.subject_id,
+        )
+        .all()
+    )
+
+    return [
+        guardian_registration_to_detail(registration)
+        for registration in registrations
+    ]
 # =========================================================
 # 기관 CRUD 및 현재 위치 검색
 # 주의: /institutions/nearest는 /institutions/{institution_id}보다 위에 둠
@@ -757,7 +823,50 @@ def update_subject(
                 )
 
     apply_updates(subject, subject_data)
+def guardian_registration_to_detail(
+    registration: models.GuardianRegistration,
+) -> dict:
+    """
+    보호자-보호대상자 연결 정보에
+    양쪽 사용자 상세 정보를 함께 담아 반환합니다.
+    """
 
+    guardian = registration.guardian
+    subject = registration.subject
+
+    return {
+        "guardian_id": registration.guardian_id,
+        "subject_id": registration.subject_id,
+        "relationship_code": registration.relationship_code,
+        "guardian_role_code": registration.guardian_role_code,
+        "is_primary": registration.is_primary,
+        "contact_priority": registration.contact_priority,
+        "living_together": registration.living_together,
+        "protection_start_date": registration.protection_start_date,
+        "protection_end_date": registration.protection_end_date,
+        "created_at": registration.created_at,
+
+        "guardian": {
+            "id": guardian.id,
+            "name": guardian.name,
+            "gender": guardian.gender,
+            "phone": guardian.phone,
+            "birth_date": guardian.birth_date,
+            "address": guardian.address,
+        },
+
+        "subject": {
+            "id": subject.id,
+            "name": subject.name,
+            "gender": subject.gender,
+            "phone": subject.phone,
+            "birth_date": subject.birth_date,
+            "address": subject.address,
+            "subject_type": subject.subject_type,
+            "special_notes": subject.special_notes,
+            "institution_id": subject.institution_id,
+        },
+    }
     try:
         db.commit()
         db.refresh(subject)
@@ -784,7 +893,7 @@ def delete_subject(subject_id: int, db: Session = Depends(get_db)):
 # =========================================================
 @app.post(
     "/guardian-registrations",
-    response_model=schemas.GuardianRegistrationResponse,
+    response_model=schemas.GuardianRegistrationDetailResponse,
     status_code=status.HTTP_201_CREATED,
     tags=["보호자 등록 관계"],
 )
@@ -821,14 +930,14 @@ def create_guardian_registration(
         **registration_data.model_dump()
     )
     db.add(registration)
-    db.commit()
-    db.refresh(registration)
-    return registration
+db.commit()
+db.refresh(registration)
 
+return guardian_registration_to_detail(registration)
 
 @app.get(
     "/guardian-registrations",
-    response_model=List[schemas.GuardianRegistrationResponse],
+    response_model=List[schemas.GuardianRegistrationDetailResponse],
     tags=["보호자 등록 관계"],
 )
 def list_guardian_registrations(
@@ -848,8 +957,12 @@ def list_guardian_registrations(
             models.GuardianRegistration.subject_id == subject_id
         )
 
-    return query.all()
+    registrations = query.all()
 
+    return [
+    guardian_registration_to_detail(registration)
+    for registration in registrations
+]
 
 @app.patch(
     "/guardian-registrations/{guardian_id}/{subject_id}",
@@ -890,7 +1003,8 @@ def update_guardian_registration(
 
     db.commit()
     db.refresh(registration)
-    return registration
+
+    return guardian_registration_to_detail(registration)
 
 
 @app.delete(

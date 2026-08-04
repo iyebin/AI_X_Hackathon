@@ -123,10 +123,14 @@ class Subject(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(100), nullable=False)
     gender = Column(
-        SqlEnum(GenderType, native_enum=False),
-        nullable=False,
-        default=GenderType.UNKNOWN,
-    )
+    SqlEnum(
+        GenderType,
+        name="gendertype",
+        native_enum=True,
+    ),
+    nullable=False,
+    default=GenderType.UNKNOWN,
+)
     phone = Column(String(30), nullable=True, unique=True, index=True)
     birth_date = Column(Date, nullable=True)
     address = Column(String(255), nullable=True)
