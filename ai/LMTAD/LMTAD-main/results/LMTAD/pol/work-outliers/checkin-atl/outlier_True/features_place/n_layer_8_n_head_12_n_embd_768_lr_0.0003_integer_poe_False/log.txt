@@ -1,0 +1,808 @@
+loading the data...
+outliers: [546, 644, 347, 62, 551, 992, 554, 949, 900, 57]
+inlcude outliers: True
+context size: 143
+number of parameters: 57.414M
+num decayed parameter tensors: 34, with 57,510,912 parameters
+num non-decayed parameter tensors: 17, with 13,056 parameters
+using fused AdamW: True
+-------------------------------------------------------------------------------------
+|step 0:  val loss 6.8282|
+|epoch 1/50 | batch 1/388: loss 6.8775 	| time 12023.38ms|
+|epoch 1/50 | batch 51/388: loss 2.1879 	| time 407.43ms|
+|epoch 1/50 | batch 101/388: loss 0.7862 	| time 403.90ms|
+|epoch 1/50 | batch 151/388: loss 0.7136 	| time 420.60ms|
+|epoch 1/50 | batch 201/388: loss 0.6753 	| time 406.46ms|
+|epoch 1/50 | batch 251/388: loss 0.6538 	| time 403.66ms|
+|epoch 1/50 | batch 301/388: loss 0.6317 	| time 395.95ms|
+|epoch 1/50 | batch 351/388: loss 0.5963 	| time 409.99ms|
+|step 387:  val loss 0.5775|
+
+saving checkpoint to /data/intern01/LMTAD/results/LMTAD/pol/work-outliers/checkin-atl/outlier_True/features_place/n_layer_8_n_head_12_n_embd_768_lr_0.0003_integer_poe_False
+| red agent results -> avarage f1: 0.340 | avarage pr_auc: 0.376
+-------------------------------------------------------------------------------------
+|save_model_count: 0 | lr: 2.3219999999999998e-05
+-------------------------------------------------------------------------------------
+|step 0:  val loss 0.5780|
+|epoch 2/50 | batch 1/388: loss 0.5854 	| time 10551.35ms|
+|epoch 2/50 | batch 51/388: loss 0.5840 	| time 400.67ms|
+|epoch 2/50 | batch 101/388: loss 0.5678 	| time 415.40ms|
+|epoch 2/50 | batch 151/388: loss 0.5609 	| time 400.48ms|
+|epoch 2/50 | batch 201/388: loss 0.5568 	| time 424.96ms|
+|epoch 2/50 | batch 251/388: loss 0.5641 	| time 405.99ms|
+|epoch 2/50 | batch 301/388: loss 0.5377 	| time 426.41ms|
+|epoch 2/50 | batch 351/388: loss 0.5255 	| time 428.59ms|
+|step 387:  val loss 0.5071|
+
+saving checkpoint to /data/intern01/LMTAD/results/LMTAD/pol/work-outliers/checkin-atl/outlier_True/features_place/n_layer_8_n_head_12_n_embd_768_lr_0.0003_integer_poe_False
+| red agent results -> avarage f1: 0.473 | avarage pr_auc: 0.543
+-------------------------------------------------------------------------------------
+|save_model_count: 0 | lr: 4.65e-05
+-------------------------------------------------------------------------------------
+|step 0:  val loss 0.5155|
+|epoch 3/50 | batch 1/388: loss 0.5246 	| time 11661.99ms|
+|epoch 3/50 | batch 51/388: loss 0.5164 	| time 425.09ms|
+|epoch 3/50 | batch 101/388: loss 0.5208 	| time 398.05ms|
+|epoch 3/50 | batch 151/388: loss 0.5105 	| time 401.88ms|
+|epoch 3/50 | batch 201/388: loss 0.5149 	| time 423.05ms|
+|epoch 3/50 | batch 251/388: loss 0.4965 	| time 402.70ms|
+|epoch 3/50 | batch 301/388: loss 0.4977 	| time 432.61ms|
+|epoch 3/50 | batch 351/388: loss 0.4967 	| time 419.70ms|
+|step 387:  val loss 0.4826|
+
+saving checkpoint to /data/intern01/LMTAD/results/LMTAD/pol/work-outliers/checkin-atl/outlier_True/features_place/n_layer_8_n_head_12_n_embd_768_lr_0.0003_integer_poe_False
+| red agent results -> avarage f1: 0.578 | avarage pr_auc: 0.623
+-------------------------------------------------------------------------------------
+|save_model_count: 0 | lr: 6.978e-05
+-------------------------------------------------------------------------------------
+|step 0:  val loss 0.4829|
+|epoch 4/50 | batch 1/388: loss 0.4903 	| time 10474.92ms|
+|epoch 4/50 | batch 51/388: loss 0.4812 	| time 407.19ms|
+|epoch 4/50 | batch 101/388: loss 0.4680 	| time 416.74ms|
+|epoch 4/50 | batch 151/388: loss 0.4812 	| time 436.92ms|
+|epoch 4/50 | batch 201/388: loss 0.4574 	| time 404.54ms|
+|epoch 4/50 | batch 251/388: loss 0.4610 	| time 392.82ms|
+|epoch 4/50 | batch 301/388: loss 0.4676 	| time 401.21ms|
+|epoch 4/50 | batch 351/388: loss 0.4661 	| time 402.61ms|
+|step 387:  val loss 0.4553|
+
+saving checkpoint to /data/intern01/LMTAD/results/LMTAD/pol/work-outliers/checkin-atl/outlier_True/features_place/n_layer_8_n_head_12_n_embd_768_lr_0.0003_integer_poe_False
+| red agent results -> avarage f1: 0.644 | avarage pr_auc: 0.689
+-------------------------------------------------------------------------------------
+|save_model_count: 0 | lr: 9.306e-05
+-------------------------------------------------------------------------------------
+|step 0:  val loss 0.4605|
+|epoch 5/50 | batch 1/388: loss 0.4606 	| time 12059.12ms|
+|epoch 5/50 | batch 51/388: loss 0.4543 	| time 430.34ms|
+|epoch 5/50 | batch 101/388: loss 0.4611 	| time 414.20ms|
+|epoch 5/50 | batch 151/388: loss 0.4586 	| time 428.74ms|
+|epoch 5/50 | batch 201/388: loss 0.4578 	| time 427.84ms|
+|epoch 5/50 | batch 251/388: loss 0.4586 	| time 406.20ms|
+|epoch 5/50 | batch 301/388: loss 0.4497 	| time 425.33ms|
+|epoch 5/50 | batch 351/388: loss 0.4586 	| time 421.31ms|
+|step 387:  val loss 0.4529|
+
+saving checkpoint to /data/intern01/LMTAD/results/LMTAD/pol/work-outliers/checkin-atl/outlier_True/features_place/n_layer_8_n_head_12_n_embd_768_lr_0.0003_integer_poe_False
+| red agent results -> avarage f1: 0.689 | avarage pr_auc: 0.701
+-------------------------------------------------------------------------------------
+|save_model_count: 0 | lr: 0.00011634
+-------------------------------------------------------------------------------------
+|step 0:  val loss 0.4558|
+|epoch 6/50 | batch 1/388: loss 0.4599 	| time 10601.10ms|
+|epoch 6/50 | batch 51/388: loss 0.4642 	| time 427.51ms|
+|epoch 6/50 | batch 101/388: loss 0.4589 	| time 401.02ms|
+|epoch 6/50 | batch 151/388: loss 0.4519 	| time 408.16ms|
+|epoch 6/50 | batch 201/388: loss 0.4562 	| time 419.06ms|
+|epoch 6/50 | batch 251/388: loss 0.4557 	| time 422.27ms|
+|epoch 6/50 | batch 301/388: loss 0.4586 	| time 403.86ms|
+|epoch 6/50 | batch 351/388: loss 0.4607 	| time 425.47ms|
+|step 387:  val loss 0.4566|
+
+saving checkpoint to /data/intern01/LMTAD/results/LMTAD/pol/work-outliers/checkin-atl/outlier_True/features_place/n_layer_8_n_head_12_n_embd_768_lr_0.0003_integer_poe_False
+| red agent results -> avarage f1: 0.627 | avarage pr_auc: 0.686
+-------------------------------------------------------------------------------------
+|save_model_count: 0 | lr: 0.00013962
+-------------------------------------------------------------------------------------
+|step 0:  val loss 0.4569|
+|epoch 7/50 | batch 1/388: loss 0.4563 	| time 10693.35ms|
+|epoch 7/50 | batch 51/388: loss 0.4601 	| time 451.17ms|
+|epoch 7/50 | batch 101/388: loss 0.4469 	| time 450.49ms|
+|epoch 7/50 | batch 151/388: loss 0.4506 	| time 407.91ms|
+|epoch 7/50 | batch 201/388: loss 0.4558 	| time 396.47ms|
+|epoch 7/50 | batch 251/388: loss 0.4562 	| time 387.46ms|
+|epoch 7/50 | batch 301/388: loss 0.4553 	| time 422.82ms|
+|epoch 7/50 | batch 351/388: loss 0.4476 	| time 405.73ms|
+|step 387:  val loss 0.4531|
+
+saving checkpoint to /data/intern01/LMTAD/results/LMTAD/pol/work-outliers/checkin-atl/outlier_True/features_place/n_layer_8_n_head_12_n_embd_768_lr_0.0003_integer_poe_False
+| red agent results -> avarage f1: 0.629 | avarage pr_auc: 0.689
+-------------------------------------------------------------------------------------
+|save_model_count: 0 | lr: 0.00016289999999999998
+-------------------------------------------------------------------------------------
+|step 0:  val loss 0.4532|
+|epoch 8/50 | batch 1/388: loss 0.4488 	| time 11958.20ms|
+|epoch 8/50 | batch 51/388: loss 0.4530 	| time 411.61ms|
+|epoch 8/50 | batch 101/388: loss 0.4533 	| time 419.81ms|
+|epoch 8/50 | batch 151/388: loss 0.4487 	| time 1749.12ms|
+|epoch 8/50 | batch 201/388: loss 0.4553 	| time 405.38ms|
+|epoch 8/50 | batch 251/388: loss 0.4503 	| time 412.67ms|
+|epoch 8/50 | batch 301/388: loss 0.4553 	| time 402.23ms|
+|epoch 8/50 | batch 351/388: loss 0.4612 	| time 401.41ms|
+|step 387:  val loss 0.4507|
+
+saving checkpoint to /data/intern01/LMTAD/results/LMTAD/pol/work-outliers/checkin-atl/outlier_True/features_place/n_layer_8_n_head_12_n_embd_768_lr_0.0003_integer_poe_False
+| red agent results -> avarage f1: 0.647 | avarage pr_auc: 0.672
+-------------------------------------------------------------------------------------
+|save_model_count: 0 | lr: 0.00018617999999999998
+-------------------------------------------------------------------------------------
+|step 0:  val loss 0.4523|
+|epoch 9/50 | batch 1/388: loss 0.4438 	| time 10577.84ms|
+|epoch 9/50 | batch 51/388: loss 0.4554 	| time 396.97ms|
+|epoch 9/50 | batch 101/388: loss 0.4588 	| time 414.83ms|
+|epoch 9/50 | batch 151/388: loss 0.4627 	| time 425.49ms|
+|epoch 9/50 | batch 201/388: loss 0.4530 	| time 408.22ms|
+|epoch 9/50 | batch 251/388: loss 0.4615 	| time 444.47ms|
+|epoch 9/50 | batch 301/388: loss 0.4476 	| time 411.84ms|
+|epoch 9/50 | batch 351/388: loss 0.4436 	| time 424.13ms|
+|step 387:  val loss 0.4474|
+
+saving checkpoint to /data/intern01/LMTAD/results/LMTAD/pol/work-outliers/checkin-atl/outlier_True/features_place/n_layer_8_n_head_12_n_embd_768_lr_0.0003_integer_poe_False
+| red agent results -> avarage f1: 0.735 | avarage pr_auc: 0.708
+-------------------------------------------------------------------------------------
+|save_model_count: 0 | lr: 0.00020946
+-------------------------------------------------------------------------------------
+|step 0:  val loss 0.4497|
+|epoch 10/50 | batch 1/388: loss 0.4455 	| time 12028.81ms|
+|epoch 10/50 | batch 51/388: loss 0.4556 	| time 397.62ms|
+|epoch 10/50 | batch 101/388: loss 0.4467 	| time 403.78ms|
+|epoch 10/50 | batch 151/388: loss 0.4628 	| time 409.11ms|
+|epoch 10/50 | batch 201/388: loss 0.4571 	| time 417.19ms|
+|epoch 10/50 | batch 251/388: loss 0.4489 	| time 412.88ms|
+|epoch 10/50 | batch 301/388: loss 0.4473 	| time 406.06ms|
+|epoch 10/50 | batch 351/388: loss 0.4480 	| time 401.01ms|
+|step 387:  val loss 0.4484|
+
+saving checkpoint to /data/intern01/LMTAD/results/LMTAD/pol/work-outliers/checkin-atl/outlier_True/features_place/n_layer_8_n_head_12_n_embd_768_lr_0.0003_integer_poe_False
+| red agent results -> avarage f1: 0.593 | avarage pr_auc: 0.687
+-------------------------------------------------------------------------------------
+|save_model_count: 0 | lr: 0.00023274
+-------------------------------------------------------------------------------------
+|step 0:  val loss 0.4503|
+|epoch 11/50 | batch 1/388: loss 0.4542 	| time 10686.56ms|
+|epoch 11/50 | batch 51/388: loss 0.4414 	| time 408.34ms|
+|epoch 11/50 | batch 101/388: loss 0.4564 	| time 1739.16ms|
+|epoch 11/50 | batch 151/388: loss 0.4529 	| time 432.33ms|
+|epoch 11/50 | batch 201/388: loss 0.4418 	| time 422.42ms|
+|epoch 11/50 | batch 251/388: loss 0.4516 	| time 418.91ms|
+|epoch 11/50 | batch 301/388: loss 0.4480 	| time 420.40ms|
+|epoch 11/50 | batch 351/388: loss 0.4495 	| time 412.86ms|
+|step 387:  val loss 0.4490|
+
+saving checkpoint to /data/intern01/LMTAD/results/LMTAD/pol/work-outliers/checkin-atl/outlier_True/features_place/n_layer_8_n_head_12_n_embd_768_lr_0.0003_integer_poe_False
+| red agent results -> avarage f1: 0.610 | avarage pr_auc: 0.688
+-------------------------------------------------------------------------------------
+|save_model_count: 0 | lr: 0.00025602
+-------------------------------------------------------------------------------------
+|step 0:  val loss 0.4504|
+|epoch 12/50 | batch 1/388: loss 0.4499 	| time 11774.18ms|
+|epoch 12/50 | batch 51/388: loss 0.4432 	| time 398.33ms|
+|epoch 12/50 | batch 101/388: loss 0.4553 	| time 395.77ms|
+|epoch 12/50 | batch 151/388: loss 0.4556 	| time 420.07ms|
+|epoch 12/50 | batch 201/388: loss 0.4418 	| time 410.70ms|
+|epoch 12/50 | batch 251/388: loss 0.4473 	| time 403.99ms|
+|epoch 12/50 | batch 301/388: loss 0.4545 	| time 409.87ms|
+|epoch 12/50 | batch 351/388: loss 0.4473 	| time 398.98ms|
+|step 387:  val loss 0.4483|
+
+saving checkpoint to /data/intern01/LMTAD/results/LMTAD/pol/work-outliers/checkin-atl/outlier_True/features_place/n_layer_8_n_head_12_n_embd_768_lr_0.0003_integer_poe_False
+| red agent results -> avarage f1: 0.722 | avarage pr_auc: 0.680
+-------------------------------------------------------------------------------------
+|save_model_count: 0 | lr: 0.00027929999999999996
+-------------------------------------------------------------------------------------
+|step 0:  val loss 0.4492|
+|epoch 13/50 | batch 1/388: loss 0.4536 	| time 10433.35ms|
+|epoch 13/50 | batch 51/388: loss 0.4445 	| time 401.32ms|
+|epoch 13/50 | batch 101/388: loss 0.4506 	| time 403.26ms|
+|epoch 13/50 | batch 151/388: loss 0.4516 	| time 421.84ms|
+|epoch 13/50 | batch 201/388: loss 0.4425 	| time 421.83ms|
+|epoch 13/50 | batch 251/388: loss 0.4496 	| time 423.56ms|
+|epoch 13/50 | batch 301/388: loss 0.4511 	| time 407.95ms|
+|epoch 13/50 | batch 351/388: loss 0.4468 	| time 442.78ms|
+|step 387:  val loss 0.4483|
+
+saving checkpoint to /data/intern01/LMTAD/results/LMTAD/pol/work-outliers/checkin-atl/outlier_True/features_place/n_layer_8_n_head_12_n_embd_768_lr_0.0003_integer_poe_False
+| red agent results -> avarage f1: 0.683 | avarage pr_auc: 0.662
+-------------------------------------------------------------------------------------
+|save_model_count: 0 | lr: 0.00029999959279337777
+-------------------------------------------------------------------------------------
+|step 0:  val loss 0.4503|
+|epoch 14/50 | batch 1/388: loss 0.4456 	| time 10618.05ms|
+|epoch 14/50 | batch 51/388: loss 0.4526 	| time 401.76ms|
+|epoch 14/50 | batch 101/388: loss 0.4464 	| time 424.44ms|
+|epoch 14/50 | batch 151/388: loss 0.4475 	| time 409.88ms|
+|epoch 14/50 | batch 201/388: loss 0.4521 	| time 421.47ms|
+|epoch 14/50 | batch 251/388: loss 0.4558 	| time 583.87ms|
+|epoch 14/50 | batch 301/388: loss 0.4530 	| time 408.23ms|
+|epoch 14/50 | batch 351/388: loss 0.4479 	| time 424.20ms|
+|step 387:  val loss 0.4473|
+
+saving checkpoint to /data/intern01/LMTAD/results/LMTAD/pol/work-outliers/checkin-atl/outlier_True/features_place/n_layer_8_n_head_12_n_embd_768_lr_0.0003_integer_poe_False
+| red agent results -> avarage f1: 0.671 | avarage pr_auc: 0.687
+-------------------------------------------------------------------------------------
+|save_model_count: 0 | lr: 0.000299959091764754
+-------------------------------------------------------------------------------------
+|step 0:  val loss 0.4501|
+|epoch 15/50 | batch 1/388: loss 0.4502 	| time 12012.44ms|
+|epoch 15/50 | batch 51/388: loss 0.4490 	| time 388.97ms|
+|epoch 15/50 | batch 101/388: loss 0.4582 	| time 406.19ms|
+|epoch 15/50 | batch 151/388: loss 0.4440 	| time 426.16ms|
+|epoch 15/50 | batch 201/388: loss 0.4451 	| time 419.99ms|
+|epoch 15/50 | batch 251/388: loss 0.4507 	| time 406.26ms|
+|epoch 15/50 | batch 301/388: loss 0.4520 	| time 427.43ms|
+|epoch 15/50 | batch 351/388: loss 0.4447 	| time 463.48ms|
+|step 387:  val loss 0.4462|
+
+saving checkpoint to /data/intern01/LMTAD/results/LMTAD/pol/work-outliers/checkin-atl/outlier_True/features_place/n_layer_8_n_head_12_n_embd_768_lr_0.0003_integer_poe_False
+| red agent results -> avarage f1: 0.714 | avarage pr_auc: 0.658
+-------------------------------------------------------------------------------------
+|save_model_count: 0 | lr: 0.0002998523046787941
+-------------------------------------------------------------------------------------
+|step 0:  val loss 0.4480|
+|epoch 16/50 | batch 1/388: loss 0.4497 	| time 10444.69ms|
+|epoch 16/50 | batch 51/388: loss 0.4380 	| time 423.22ms|
+|epoch 16/50 | batch 101/388: loss 0.4542 	| time 414.66ms|
+|epoch 16/50 | batch 151/388: loss 0.4433 	| time 413.73ms|
+|epoch 16/50 | batch 201/388: loss 0.4512 	| time 418.57ms|
+|epoch 16/50 | batch 251/388: loss 0.4488 	| time 397.52ms|
+|epoch 16/50 | batch 301/388: loss 0.4467 	| time 420.40ms|
+|epoch 16/50 | batch 351/388: loss 0.4430 	| time 401.40ms|
+|step 387:  val loss 0.4475|
+
+saving checkpoint to /data/intern01/LMTAD/results/LMTAD/pol/work-outliers/checkin-atl/outlier_True/features_place/n_layer_8_n_head_12_n_embd_768_lr_0.0003_integer_poe_False
+| red agent results -> avarage f1: 0.691 | avarage pr_auc: 0.642
+-------------------------------------------------------------------------------------
+|save_model_count: 0 | lr: 0.0002996792839846872
+-------------------------------------------------------------------------------------
+|step 0:  val loss 0.4474|
+|epoch 17/50 | batch 1/388: loss 0.4433 	| time 10649.47ms|
+|epoch 17/50 | batch 51/388: loss 0.4466 	| time 438.29ms|
+|epoch 17/50 | batch 101/388: loss 0.4451 	| time 420.61ms|
+|epoch 17/50 | batch 151/388: loss 0.4488 	| time 422.06ms|
+|epoch 17/50 | batch 201/388: loss 0.4534 	| time 404.60ms|
+|epoch 17/50 | batch 251/388: loss 0.4474 	| time 406.71ms|
+|epoch 17/50 | batch 301/388: loss 0.4415 	| time 418.67ms|
+|epoch 17/50 | batch 351/388: loss 0.4416 	| time 411.83ms|
+|step 387:  val loss 0.4454|
+
+saving checkpoint to /data/intern01/LMTAD/results/LMTAD/pol/work-outliers/checkin-atl/outlier_True/features_place/n_layer_8_n_head_12_n_embd_768_lr_0.0003_integer_poe_False
+| red agent results -> avarage f1: 0.647 | avarage pr_auc: 0.684
+-------------------------------------------------------------------------------------
+|save_model_count: 0 | lr: 0.00029944011466270006
+-------------------------------------------------------------------------------------
+|step 0:  val loss 0.4450|
+|epoch 18/50 | batch 1/388: loss 0.4394 	| time 11029.50ms|
+|epoch 18/50 | batch 51/388: loss 0.4393 	| time 413.76ms|
+|epoch 18/50 | batch 101/388: loss 0.4465 	| time 396.38ms|
+|epoch 18/50 | batch 151/388: loss 0.4442 	| time 414.27ms|
+|epoch 18/50 | batch 201/388: loss 0.4415 	| time 418.92ms|
+|epoch 18/50 | batch 251/388: loss 0.4424 	| time 410.29ms|
+|epoch 18/50 | batch 301/388: loss 0.4458 	| time 429.50ms|
+|epoch 18/50 | batch 351/388: loss 0.4480 	| time 440.47ms|
+|step 387:  val loss 0.4457|
+
+saving checkpoint to /data/intern01/LMTAD/results/LMTAD/pol/work-outliers/checkin-atl/outlier_True/features_place/n_layer_8_n_head_12_n_embd_768_lr_0.0003_integer_poe_False
+| red agent results -> avarage f1: 0.618 | avarage pr_auc: 0.640
+-------------------------------------------------------------------------------------
+|save_model_count: 0 | lr: 0.00029913491418243917
+-------------------------------------------------------------------------------------
+|step 0:  val loss 0.4475|
+|epoch 19/50 | batch 1/388: loss 0.4430 	| time 10444.65ms|
+|epoch 19/50 | batch 51/388: loss 0.4468 	| time 423.91ms|
+|epoch 19/50 | batch 101/388: loss 0.4379 	| time 412.94ms|
+|epoch 19/50 | batch 151/388: loss 0.4408 	| time 403.36ms|
+|epoch 19/50 | batch 201/388: loss 0.4523 	| time 409.54ms|
+|epoch 19/50 | batch 251/388: loss 0.4367 	| time 416.45ms|
+|epoch 19/50 | batch 301/388: loss 0.4515 	| time 402.79ms|
+|epoch 19/50 | batch 351/388: loss 0.4453 	| time 410.62ms|
+|step 387:  val loss 0.4464|
+
+saving checkpoint to /data/intern01/LMTAD/results/LMTAD/pol/work-outliers/checkin-atl/outlier_True/features_place/n_layer_8_n_head_12_n_embd_768_lr_0.0003_integer_poe_False
+| red agent results -> avarage f1: 0.704 | avarage pr_auc: 0.650
+-------------------------------------------------------------------------------------
+|save_model_count: 0 | lr: 0.00029876383244515443
+-------------------------------------------------------------------------------------
+|step 0:  val loss 0.4474|
+|epoch 20/50 | batch 1/388: loss 0.4393 	| time 11913.00ms|
+|epoch 20/50 | batch 51/388: loss 0.4377 	| time 402.75ms|
+|epoch 20/50 | batch 101/388: loss 0.4404 	| time 403.55ms|
+|epoch 20/50 | batch 151/388: loss 0.4507 	| time 400.41ms|
+|epoch 20/50 | batch 201/388: loss 0.4448 	| time 399.71ms|
+|epoch 20/50 | batch 251/388: loss 0.4473 	| time 397.18ms|
+|epoch 20/50 | batch 301/388: loss 0.4464 	| time 409.57ms|
+|epoch 20/50 | batch 351/388: loss 0.4548 	| time 398.40ms|
+|step 387:  val loss 0.4451|
+
+saving checkpoint to /data/intern01/LMTAD/results/LMTAD/pol/work-outliers/checkin-atl/outlier_True/features_place/n_layer_8_n_head_12_n_embd_768_lr_0.0003_integer_poe_False
+| red agent results -> avarage f1: 0.700 | avarage pr_auc: 0.665
+-------------------------------------------------------------------------------------
+|save_model_count: 0 | lr: 0.00029832705171011414
+-------------------------------------------------------------------------------------
+|step 0:  val loss 0.4486|
+|epoch 21/50 | batch 1/388: loss 0.4429 	| time 10584.94ms|
+|epoch 21/50 | batch 51/388: loss 0.4511 	| time 403.27ms|
+|epoch 21/50 | batch 101/388: loss 0.4441 	| time 401.80ms|
+|epoch 21/50 | batch 151/388: loss 0.4400 	| time 417.18ms|
+|epoch 21/50 | batch 201/388: loss 0.4450 	| time 419.27ms|
+|epoch 21/50 | batch 251/388: loss 0.4492 	| time 417.61ms|
+|epoch 21/50 | batch 301/388: loss 0.4538 	| time 388.32ms|
+|epoch 21/50 | batch 351/388: loss 0.4359 	| time 394.04ms|
+|step 387:  val loss 0.4456|
+
+saving checkpoint to /data/intern01/LMTAD/results/LMTAD/pol/work-outliers/checkin-atl/outlier_True/features_place/n_layer_8_n_head_12_n_embd_768_lr_0.0003_integer_poe_False
+| red agent results -> avarage f1: 0.618 | avarage pr_auc: 0.632
+-------------------------------------------------------------------------------------
+|save_model_count: 0 | lr: 0.00029782478650508705
+-------------------------------------------------------------------------------------
+|step 0:  val loss 0.4469|
+|epoch 22/50 | batch 1/388: loss 0.4456 	| time 10513.53ms|
+|epoch 22/50 | batch 51/388: loss 0.4413 	| time 421.02ms|
+|epoch 22/50 | batch 101/388: loss 0.4411 	| time 398.42ms|
+|epoch 22/50 | batch 151/388: loss 0.4507 	| time 438.53ms|
+|epoch 22/50 | batch 201/388: loss 0.4396 	| time 424.43ms|
+|epoch 22/50 | batch 251/388: loss 0.4448 	| time 413.57ms|
+|epoch 22/50 | batch 301/388: loss 0.4466 	| time 411.78ms|
+|epoch 22/50 | batch 351/388: loss 0.4450 	| time 424.47ms|
+|step 387:  val loss 0.4478|
+
+saving checkpoint to /data/intern01/LMTAD/results/LMTAD/pol/work-outliers/checkin-atl/outlier_True/features_place/n_layer_8_n_head_12_n_embd_768_lr_0.0003_integer_poe_False
+| red agent results -> avarage f1: 0.646 | avarage pr_auc: 0.651
+-------------------------------------------------------------------------------------
+|save_model_count: 0 | lr: 0.000297257283520976
+-------------------------------------------------------------------------------------
+|step 0:  val loss 0.4455|
+|epoch 23/50 | batch 1/388: loss 0.4476 	| time 10453.44ms|
+|epoch 23/50 | batch 51/388: loss 0.4500 	| time 402.42ms|
+|epoch 23/50 | batch 101/388: loss 0.4341 	| time 417.12ms|
+|epoch 23/50 | batch 151/388: loss 0.4434 	| time 397.75ms|
+|epoch 23/50 | batch 201/388: loss 0.4484 	| time 439.46ms|
+|epoch 23/50 | batch 251/388: loss 0.4534 	| time 395.50ms|
+|epoch 23/50 | batch 301/388: loss 0.4517 	| time 418.02ms|
+|epoch 23/50 | batch 351/388: loss 0.4382 	| time 398.18ms|
+|step 387:  val loss 0.4456|
+
+saving checkpoint to /data/intern01/LMTAD/results/LMTAD/pol/work-outliers/checkin-atl/outlier_True/features_place/n_layer_8_n_head_12_n_embd_768_lr_0.0003_integer_poe_False
+| red agent results -> avarage f1: 0.666 | avarage pr_auc: 0.644
+-------------------------------------------------------------------------------------
+|save_model_count: 0 | lr: 0.0002966248214906537
+-------------------------------------------------------------------------------------
+|step 0:  val loss 0.4464|
+|epoch 24/50 | batch 1/388: loss 0.4440 	| time 10452.05ms|
+|epoch 24/50 | batch 51/388: loss 0.4397 	| time 410.16ms|
+|epoch 24/50 | batch 101/388: loss 0.4385 	| time 423.14ms|
+|epoch 24/50 | batch 151/388: loss 0.4436 	| time 434.41ms|
+|epoch 24/50 | batch 201/388: loss 0.4420 	| time 409.87ms|
+|epoch 24/50 | batch 251/388: loss 0.4521 	| time 435.95ms|
+|epoch 24/50 | batch 301/388: loss 0.4414 	| time 404.56ms|
+|epoch 24/50 | batch 351/388: loss 0.4420 	| time 417.47ms|
+|step 387:  val loss 0.4483|
+
+saving checkpoint to /data/intern01/LMTAD/results/LMTAD/pol/work-outliers/checkin-atl/outlier_True/features_place/n_layer_8_n_head_12_n_embd_768_lr_0.0003_integer_poe_False
+| red agent results -> avarage f1: 0.660 | avarage pr_auc: 0.677
+-------------------------------------------------------------------------------------
+|save_model_count: 0 | lr: 0.0002959277110520612
+-------------------------------------------------------------------------------------
+|step 0:  val loss 0.4450|
+|epoch 25/50 | batch 1/388: loss 0.4437 	| time 11909.59ms|
+|epoch 25/50 | batch 51/388: loss 0.4349 	| time 417.59ms|
+|epoch 25/50 | batch 101/388: loss 0.4427 	| time 424.04ms|
+|epoch 25/50 | batch 151/388: loss 0.4443 	| time 1760.63ms|
+|epoch 25/50 | batch 201/388: loss 0.4336 	| time 418.21ms|
+|epoch 25/50 | batch 251/388: loss 0.4402 	| time 445.53ms|
+|epoch 25/50 | batch 301/388: loss 0.4372 	| time 399.97ms|
+|epoch 25/50 | batch 351/388: loss 0.4360 	| time 428.04ms|
+|step 387:  val loss 0.4466|
+
+saving checkpoint to /data/intern01/LMTAD/results/LMTAD/pol/work-outliers/checkin-atl/outlier_True/features_place/n_layer_8_n_head_12_n_embd_768_lr_0.0003_integer_poe_False
+| red agent results -> avarage f1: 0.675 | avarage pr_auc: 0.626
+-------------------------------------------------------------------------------------
+|save_model_count: 0 | lr: 0.00029516629459563627
+-------------------------------------------------------------------------------------
+|step 0:  val loss 0.4483|
+|epoch 26/50 | batch 1/388: loss 0.4402 	| time 10626.51ms|
+|epoch 26/50 | batch 51/388: loss 0.4456 	| time 395.20ms|
+|epoch 26/50 | batch 101/388: loss 0.4431 	| time 406.55ms|
+|epoch 26/50 | batch 151/388: loss 0.4415 	| time 418.96ms|
+|epoch 26/50 | batch 201/388: loss 0.4462 	| time 433.91ms|
+|epoch 26/50 | batch 251/388: loss 0.4492 	| time 402.53ms|
+|epoch 26/50 | batch 301/388: loss 0.4398 	| time 401.42ms|
+|epoch 26/50 | batch 351/388: loss 0.4469 	| time 422.26ms|
+|step 387:  val loss 0.4454|
+
+saving checkpoint to /data/intern01/LMTAD/results/LMTAD/pol/work-outliers/checkin-atl/outlier_True/features_place/n_layer_8_n_head_12_n_embd_768_lr_0.0003_integer_poe_False
+| red agent results -> avarage f1: 0.697 | avarage pr_auc: 0.660
+-------------------------------------------------------------------------------------
+|save_model_count: 0 | lr: 0.0002943409460961458
+-------------------------------------------------------------------------------------
+|step 0:  val loss 0.4455|
+|epoch 27/50 | batch 1/388: loss 0.4425 	| time 11987.15ms|
+|epoch 27/50 | batch 51/388: loss 0.4434 	| time 426.30ms|
+|epoch 27/50 | batch 101/388: loss 0.4460 	| time 426.10ms|
+|epoch 27/50 | batch 151/388: loss 0.4480 	| time 398.53ms|
+|epoch 27/50 | batch 201/388: loss 0.4505 	| time 396.50ms|
+|epoch 27/50 | batch 251/388: loss 0.4481 	| time 420.15ms|
+|epoch 27/50 | batch 301/388: loss 0.4448 	| time 419.92ms|
+|epoch 27/50 | batch 351/388: loss 0.4380 	| time 412.14ms|
+|step 387:  val loss 0.4457|
+
+saving checkpoint to /data/intern01/LMTAD/results/LMTAD/pol/work-outliers/checkin-atl/outlier_True/features_place/n_layer_8_n_head_12_n_embd_768_lr_0.0003_integer_poe_False
+| red agent results -> avarage f1: 0.669 | avarage pr_auc: 0.660
+-------------------------------------------------------------------------------------
+|save_model_count: 0 | lr: 0.00029345207092900576
+-------------------------------------------------------------------------------------
+|step 0:  val loss 0.4475|
+|epoch 28/50 | batch 1/388: loss 0.4461 	| time 10386.87ms|
+|epoch 28/50 | batch 51/388: loss 0.4451 	| time 397.88ms|
+|epoch 28/50 | batch 101/388: loss 0.4358 	| time 427.58ms|
+|epoch 28/50 | batch 151/388: loss 0.4489 	| time 419.34ms|
+|epoch 28/50 | batch 201/388: loss 0.4456 	| time 401.08ms|
+|epoch 28/50 | batch 251/388: loss 0.4478 	| time 398.42ms|
+|epoch 28/50 | batch 301/388: loss 0.4492 	| time 398.04ms|
+|epoch 28/50 | batch 351/388: loss 0.4339 	| time 428.19ms|
+|step 387:  val loss 0.4468|
+
+saving checkpoint to /data/intern01/LMTAD/results/LMTAD/pol/work-outliers/checkin-atl/outlier_True/features_place/n_layer_8_n_head_12_n_embd_768_lr_0.0003_integer_poe_False
+| red agent results -> avarage f1: 0.630 | avarage pr_auc: 0.649
+-------------------------------------------------------------------------------------
+|save_model_count: 0 | lr: 0.00029250010567117825
+-------------------------------------------------------------------------------------
+|step 0:  val loss 0.4466|
+|epoch 29/50 | batch 1/388: loss 0.4419 	| time 10319.79ms|
+|epoch 29/50 | batch 51/388: loss 0.4417 	| time 398.87ms|
+|epoch 29/50 | batch 101/388: loss 0.4467 	| time 416.89ms|
+|epoch 29/50 | batch 151/388: loss 0.4409 	| time 407.48ms|
+|epoch 29/50 | batch 201/388: loss 0.4501 	| time 399.98ms|
+|epoch 29/50 | batch 251/388: loss 0.4420 	| time 409.36ms|
+|epoch 29/50 | batch 301/388: loss 0.4501 	| time 408.13ms|
+|epoch 29/50 | batch 351/388: loss 0.4388 	| time 437.78ms|
+|step 387:  val loss 0.4455|
+
+saving checkpoint to /data/intern01/LMTAD/results/LMTAD/pol/work-outliers/checkin-atl/outlier_True/features_place/n_layer_8_n_head_12_n_embd_768_lr_0.0003_integer_poe_False
+| red agent results -> avarage f1: 0.675 | avarage pr_auc: 0.608
+-------------------------------------------------------------------------------------
+|save_model_count: 0 | lr: 0.00029148551788674387
+-------------------------------------------------------------------------------------
+|step 0:  val loss 0.4439|
+|epoch 30/50 | batch 1/388: loss 0.4418 	| time 10783.11ms|
+|epoch 30/50 | batch 51/388: loss 0.4379 	| time 401.51ms|
+|epoch 30/50 | batch 101/388: loss 0.4412 	| time 404.73ms|
+|epoch 30/50 | batch 151/388: loss 0.4371 	| time 419.25ms|
+|epoch 30/50 | batch 201/388: loss 0.4374 	| time 449.59ms|
+|epoch 30/50 | batch 251/388: loss 0.4381 	| time 434.01ms|
+|epoch 30/50 | batch 301/388: loss 0.4423 	| time 398.48ms|
+|epoch 30/50 | batch 351/388: loss 0.4488 	| time 420.84ms|
+|step 387:  val loss 0.4449|
+
+saving checkpoint to /data/intern01/LMTAD/results/LMTAD/pol/work-outliers/checkin-atl/outlier_True/features_place/n_layer_8_n_head_12_n_embd_768_lr_0.0003_integer_poe_False
+| red agent results -> avarage f1: 0.675 | avarage pr_auc: 0.634
+-------------------------------------------------------------------------------------
+|save_model_count: 0 | lr: 0.0002904088058972546
+-------------------------------------------------------------------------------------
+|step 0:  val loss 0.4460|
+|epoch 31/50 | batch 1/388: loss 0.4408 	| time 10697.79ms|
+|epoch 31/50 | batch 51/388: loss 0.4370 	| time 427.35ms|
+|epoch 31/50 | batch 101/388: loss 0.4470 	| time 428.88ms|
+|epoch 31/50 | batch 151/388: loss 0.4453 	| time 400.52ms|
+|epoch 31/50 | batch 201/388: loss 0.4438 	| time 419.56ms|
+|epoch 31/50 | batch 251/388: loss 0.4449 	| time 415.20ms|
+|epoch 31/50 | batch 301/388: loss 0.4456 	| time 401.06ms|
+|epoch 31/50 | batch 351/388: loss 0.4422 	| time 397.25ms|
+|step 387:  val loss 0.4463|
+
+saving checkpoint to /data/intern01/LMTAD/results/LMTAD/pol/work-outliers/checkin-atl/outlier_True/features_place/n_layer_8_n_head_12_n_embd_768_lr_0.0003_integer_poe_False
+| red agent results -> avarage f1: 0.701 | avarage pr_auc: 0.665
+-------------------------------------------------------------------------------------
+|save_model_count: 0 | lr: 0.00028927049853697966
+-------------------------------------------------------------------------------------
+|step 0:  val loss 0.4439|
+|epoch 32/50 | batch 1/388: loss 0.4397 	| time 11928.04ms|
+|epoch 32/50 | batch 51/388: loss 0.4408 	| time 398.44ms|
+|epoch 32/50 | batch 101/388: loss 0.4474 	| time 421.03ms|
+|epoch 32/50 | batch 151/388: loss 0.4487 	| time 475.02ms|
+|epoch 32/50 | batch 201/388: loss 0.4401 	| time 412.33ms|
+|epoch 32/50 | batch 251/388: loss 0.4439 	| time 415.10ms|
+|epoch 32/50 | batch 301/388: loss 0.4466 	| time 416.78ms|
+|epoch 32/50 | batch 351/388: loss 0.4356 	| time 408.94ms|
+|step 387:  val loss 0.4442|
+
+saving checkpoint to /data/intern01/LMTAD/results/LMTAD/pol/work-outliers/checkin-atl/outlier_True/features_place/n_layer_8_n_head_12_n_embd_768_lr_0.0003_integer_poe_False
+| red agent results -> avarage f1: 0.693 | avarage pr_auc: 0.648
+-------------------------------------------------------------------------------------
+|save_model_count: 0 | lr: 0.000288071154893165
+-------------------------------------------------------------------------------------
+|step 0:  val loss 0.4442|
+|epoch 33/50 | batch 1/388: loss 0.4462 	| time 10568.15ms|
+|epoch 33/50 | batch 51/388: loss 0.4378 	| time 434.37ms|
+|epoch 33/50 | batch 101/388: loss 0.4441 	| time 418.24ms|
+|epoch 33/50 | batch 151/388: loss 0.4401 	| time 424.66ms|
+|epoch 33/50 | batch 201/388: loss 0.4519 	| time 391.30ms|
+|epoch 33/50 | batch 251/388: loss 0.4491 	| time 432.84ms|
+|epoch 33/50 | batch 301/388: loss 0.4477 	| time 399.49ms|
+|epoch 33/50 | batch 351/388: loss 0.4477 	| time 393.70ms|
+|step 387:  val loss 0.4448|
+
+saving checkpoint to /data/intern01/LMTAD/results/LMTAD/pol/work-outliers/checkin-atl/outlier_True/features_place/n_layer_8_n_head_12_n_embd_768_lr_0.0003_integer_poe_False
+| red agent results -> avarage f1: 0.625 | avarage pr_auc: 0.634
+-------------------------------------------------------------------------------------
+|save_model_count: 0 | lr: 0.0002868113640314344
+-------------------------------------------------------------------------------------
+|step 0:  val loss 0.4473|
+|epoch 34/50 | batch 1/388: loss 0.4304 	| time 12419.15ms|
+|epoch 34/50 | batch 51/388: loss 0.4476 	| time 587.12ms|
+|epoch 34/50 | batch 101/388: loss 0.4393 	| time 410.43ms|
+|epoch 34/50 | batch 151/388: loss 0.4410 	| time 421.56ms|
+|epoch 34/50 | batch 201/388: loss 0.4366 	| time 401.77ms|
+|epoch 34/50 | batch 251/388: loss 0.4404 	| time 400.75ms|
+|epoch 34/50 | batch 301/388: loss 0.4439 	| time 420.79ms|
+|epoch 34/50 | batch 351/388: loss 0.4430 	| time 420.57ms|
+|step 387:  val loss 0.4441|
+
+saving checkpoint to /data/intern01/LMTAD/results/LMTAD/pol/work-outliers/checkin-atl/outlier_True/features_place/n_layer_8_n_head_12_n_embd_768_lr_0.0003_integer_poe_False
+| red agent results -> avarage f1: 0.629 | avarage pr_auc: 0.642
+-------------------------------------------------------------------------------------
+|save_model_count: 0 | lr: 0.00028549174470646503
+-------------------------------------------------------------------------------------
+|step 0:  val loss 0.4454|
+|epoch 35/50 | batch 1/388: loss 0.4426 	| time 10316.21ms|
+|epoch 35/50 | batch 51/388: loss 0.4412 	| time 437.19ms|
+|epoch 35/50 | batch 101/388: loss 0.4360 	| time 410.16ms|
+|epoch 35/50 | batch 151/388: loss 0.4341 	| time 437.37ms|
+|epoch 35/50 | batch 201/388: loss 0.4503 	| time 398.10ms|
+|epoch 35/50 | batch 251/388: loss 0.4481 	| time 419.35ms|
+|epoch 35/50 | batch 301/388: loss 0.4530 	| time 399.83ms|
+|epoch 35/50 | batch 351/388: loss 0.4471 	| time 423.10ms|
+|step 387:  val loss 0.4445|
+
+saving checkpoint to /data/intern01/LMTAD/results/LMTAD/pol/work-outliers/checkin-atl/outlier_True/features_place/n_layer_8_n_head_12_n_embd_768_lr_0.0003_integer_poe_False
+| red agent results -> avarage f1: 0.681 | avarage pr_auc: 0.652
+-------------------------------------------------------------------------------------
+|save_model_count: 0 | lr: 0.0002841129450580829
+-------------------------------------------------------------------------------------
+|step 0:  val loss 0.4469|
+|epoch 36/50 | batch 1/388: loss 0.4352 	| time 11857.38ms|
+|epoch 36/50 | batch 51/388: loss 0.4398 	| time 397.75ms|
+|epoch 36/50 | batch 101/388: loss 0.4423 	| time 410.77ms|
+|epoch 36/50 | batch 151/388: loss 0.4411 	| time 411.97ms|
+|epoch 36/50 | batch 201/388: loss 0.4500 	| time 423.66ms|
+|epoch 36/50 | batch 251/388: loss 0.4392 	| time 427.71ms|
+|epoch 36/50 | batch 301/388: loss 0.4494 	| time 377.82ms|
+|epoch 36/50 | batch 351/388: loss 0.4405 	| time 411.14ms|
+|step 387:  val loss 0.4447|
+
+saving checkpoint to /data/intern01/LMTAD/results/LMTAD/pol/work-outliers/checkin-atl/outlier_True/features_place/n_layer_8_n_head_12_n_embd_768_lr_0.0003_integer_poe_False
+| red agent results -> avarage f1: 0.662 | avarage pr_auc: 0.651
+-------------------------------------------------------------------------------------
+|save_model_count: 0 | lr: 0.0002826756422929241
+-------------------------------------------------------------------------------------
+|step 0:  val loss 0.4455|
+|epoch 37/50 | batch 1/388: loss 0.4402 	| time 10395.62ms|
+|epoch 37/50 | batch 51/388: loss 0.4321 	| time 429.24ms|
+|epoch 37/50 | batch 101/388: loss 0.4394 	| time 422.14ms|
+|epoch 37/50 | batch 151/388: loss 0.4386 	| time 404.90ms|
+|epoch 37/50 | batch 201/388: loss 0.4399 	| time 400.62ms|
+|epoch 37/50 | batch 251/388: loss 0.4522 	| time 426.05ms|
+|epoch 37/50 | batch 301/388: loss 0.4367 	| time 403.82ms|
+|epoch 37/50 | batch 351/388: loss 0.4390 	| time 400.91ms|
+|step 387:  val loss 0.4449|
+
+saving checkpoint to /data/intern01/LMTAD/results/LMTAD/pol/work-outliers/checkin-atl/outlier_True/features_place/n_layer_8_n_head_12_n_embd_768_lr_0.0003_integer_poe_False
+| red agent results -> avarage f1: 0.625 | avarage pr_auc: 0.643
+-------------------------------------------------------------------------------------
+|save_model_count: 0 | lr: 0.0002811805423518204
+-------------------------------------------------------------------------------------
+|step 0:  val loss 0.4445|
+|epoch 38/50 | batch 1/388: loss 0.4395 	| time 10327.23ms|
+|epoch 38/50 | batch 51/388: loss 0.4396 	| time 443.64ms|
+|epoch 38/50 | batch 101/388: loss 0.4456 	| time 415.89ms|
+|epoch 38/50 | batch 151/388: loss 0.4423 	| time 401.08ms|
+|epoch 38/50 | batch 201/388: loss 0.4498 	| time 400.68ms|
+|epoch 38/50 | batch 251/388: loss 0.4419 	| time 404.26ms|
+|epoch 38/50 | batch 301/388: loss 0.4461 	| time 414.67ms|
+|epoch 38/50 | batch 351/388: loss 0.4452 	| time 403.88ms|
+|step 387:  val loss 0.4440|
+
+saving checkpoint to /data/intern01/LMTAD/results/LMTAD/pol/work-outliers/checkin-atl/outlier_True/features_place/n_layer_8_n_head_12_n_embd_768_lr_0.0003_integer_poe_False
+| red agent results -> avarage f1: 0.612 | avarage pr_auc: 0.625
+-------------------------------------------------------------------------------------
+|save_model_count: 0 | lr: 0.00027962837956307186
+-------------------------------------------------------------------------------------
+|step 0:  val loss 0.4462|
+|epoch 39/50 | batch 1/388: loss 0.4376 	| time 12364.81ms|
+|epoch 39/50 | batch 51/388: loss 0.4351 	| time 422.37ms|
+|epoch 39/50 | batch 101/388: loss 0.4470 	| time 407.81ms|
+|epoch 39/50 | batch 151/388: loss 0.4410 	| time 412.77ms|
+|epoch 39/50 | batch 201/388: loss 0.4442 	| time 421.69ms|
+|epoch 39/50 | batch 251/388: loss 0.4448 	| time 419.53ms|
+|epoch 39/50 | batch 301/388: loss 0.4426 	| time 409.18ms|
+|epoch 39/50 | batch 351/388: loss 0.4372 	| time 438.60ms|
+|step 387:  val loss 0.4462|
+
+saving checkpoint to /data/intern01/LMTAD/results/LMTAD/pol/work-outliers/checkin-atl/outlier_True/features_place/n_layer_8_n_head_12_n_embd_768_lr_0.0003_integer_poe_False
+| red agent results -> avarage f1: 0.588 | avarage pr_auc: 0.651
+-------------------------------------------------------------------------------------
+|save_model_count: 0 | lr: 0.00027801991628177627
+-------------------------------------------------------------------------------------
+|step 0:  val loss 0.4454|
+|epoch 40/50 | batch 1/388: loss 0.4432 	| time 11213.50ms|
+|epoch 40/50 | batch 51/388: loss 0.4406 	| time 421.54ms|
+|epoch 40/50 | batch 101/388: loss 0.4403 	| time 403.06ms|
+|epoch 40/50 | batch 151/388: loss 0.4512 	| time 423.61ms|
+|epoch 40/50 | batch 201/388: loss 0.4399 	| time 397.54ms|
+|epoch 40/50 | batch 251/388: loss 0.4436 	| time 419.29ms|
+|epoch 40/50 | batch 301/388: loss 0.4506 	| time 413.72ms|
+|epoch 40/50 | batch 351/388: loss 0.4403 	| time 400.64ms|
+|step 387:  val loss 0.4449|
+
+saving checkpoint to /data/intern01/LMTAD/results/LMTAD/pol/work-outliers/checkin-atl/outlier_True/features_place/n_layer_8_n_head_12_n_embd_768_lr_0.0003_integer_poe_False
+| red agent results -> avarage f1: 0.662 | avarage pr_auc: 0.632
+-------------------------------------------------------------------------------------
+|save_model_count: 0 | lr: 0.00027635594251539363
+-------------------------------------------------------------------------------------
+|step 0:  val loss 0.4455|
+|epoch 41/50 | batch 1/388: loss 0.4451 	| time 11892.61ms|
+|epoch 41/50 | batch 51/388: loss 0.4419 	| time 407.14ms|
+|epoch 41/50 | batch 101/388: loss 0.4351 	| time 428.94ms|
+|epoch 41/50 | batch 151/388: loss 0.4411 	| time 420.19ms|
+|epoch 41/50 | batch 201/388: loss 0.4400 	| time 400.05ms|
+|epoch 41/50 | batch 251/388: loss 0.4389 	| time 402.58ms|
+|epoch 41/50 | batch 301/388: loss 0.4438 	| time 398.25ms|
+|epoch 41/50 | batch 351/388: loss 0.4399 	| time 418.48ms|
+|step 387:  val loss 0.4449|
+
+saving checkpoint to /data/intern01/LMTAD/results/LMTAD/pol/work-outliers/checkin-atl/outlier_True/features_place/n_layer_8_n_head_12_n_embd_768_lr_0.0003_integer_poe_False
+| red agent results -> avarage f1: 0.669 | avarage pr_auc: 0.659
+-------------------------------------------------------------------------------------
+|save_model_count: 0 | lr: 0.00027463727553572856
+-------------------------------------------------------------------------------------
+|step 0:  val loss 0.4440|
+|epoch 42/50 | batch 1/388: loss 0.4441 	| time 10364.42ms|
+|epoch 42/50 | batch 51/388: loss 0.4403 	| time 401.61ms|
+|epoch 42/50 | batch 101/388: loss 0.4413 	| time 400.24ms|
+|epoch 42/50 | batch 151/388: loss 0.4430 	| time 418.39ms|
+|epoch 42/50 | batch 201/388: loss 0.4338 	| time 428.13ms|
+|epoch 42/50 | batch 251/388: loss 0.4364 	| time 402.73ms|
+|epoch 42/50 | batch 301/388: loss 0.4391 	| time 401.72ms|
+|epoch 42/50 | batch 351/388: loss 0.4394 	| time 399.58ms|
+|step 387:  val loss 0.4458|
+
+saving checkpoint to /data/intern01/LMTAD/results/LMTAD/pol/work-outliers/checkin-atl/outlier_True/features_place/n_layer_8_n_head_12_n_embd_768_lr_0.0003_integer_poe_False
+| red agent results -> avarage f1: 0.657 | avarage pr_auc: 0.635
+-------------------------------------------------------------------------------------
+|save_model_count: 0 | lr: 0.00027286475947752205
+-------------------------------------------------------------------------------------
+|step 0:  val loss 0.4446|
+|epoch 43/50 | batch 1/388: loss 0.4424 	| time 12372.81ms|
+|epoch 43/50 | batch 51/388: loss 0.4419 	| time 405.36ms|
+|epoch 43/50 | batch 101/388: loss 0.4455 	| time 401.35ms|
+|epoch 43/50 | batch 151/388: loss 0.4439 	| time 400.92ms|
+|epoch 43/50 | batch 201/388: loss 0.4363 	| time 418.12ms|
+|epoch 43/50 | batch 251/388: loss 0.4334 	| time 411.68ms|
+|epoch 43/50 | batch 301/388: loss 0.4409 	| time 403.84ms|
+|epoch 43/50 | batch 351/388: loss 0.4387 	| time 404.31ms|
+|step 387:  val loss 0.4452|
+
+saving checkpoint to /data/intern01/LMTAD/results/LMTAD/pol/work-outliers/checkin-atl/outlier_True/features_place/n_layer_8_n_head_12_n_embd_768_lr_0.0003_integer_poe_False
+| red agent results -> avarage f1: 0.667 | avarage pr_auc: 0.616
+-------------------------------------------------------------------------------------
+|save_model_count: 0 | lr: 0.00027103926492384864
+-------------------------------------------------------------------------------------
+|step 0:  val loss 0.4452|
+|epoch 44/50 | batch 1/388: loss 0.4529 	| time 10288.50ms|
+|epoch 44/50 | batch 51/388: loss 0.4381 	| time 408.21ms|
+|epoch 44/50 | batch 101/388: loss 0.4452 	| time 398.37ms|
+|epoch 44/50 | batch 151/388: loss 0.4434 	| time 399.23ms|
+|epoch 44/50 | batch 201/388: loss 0.4366 	| time 428.27ms|
+|epoch 44/50 | batch 251/388: loss 0.4391 	| time 400.63ms|
+|epoch 44/50 | batch 301/388: loss 0.4423 	| time 402.87ms|
+|epoch 44/50 | batch 351/388: loss 0.4552 	| time 403.29ms|
+|step 387:  val loss 0.4444|
+
+saving checkpoint to /data/intern01/LMTAD/results/LMTAD/pol/work-outliers/checkin-atl/outlier_True/features_place/n_layer_8_n_head_12_n_embd_768_lr_0.0003_integer_poe_False
+| red agent results -> avarage f1: 0.646 | avarage pr_auc: 0.629
+-------------------------------------------------------------------------------------
+|save_model_count: 0 | lr: 0.00026916168847852427
+-------------------------------------------------------------------------------------
+|step 0:  val loss 0.4447|
+|epoch 45/50 | batch 1/388: loss 0.4337 	| time 11416.19ms|
+|epoch 45/50 | batch 51/388: loss 0.4304 	| time 421.41ms|
+|epoch 45/50 | batch 101/388: loss 0.4472 	| time 447.61ms|
+|epoch 45/50 | batch 151/388: loss 0.4403 	| time 403.88ms|
+|epoch 45/50 | batch 201/388: loss 0.4414 	| time 417.83ms|
+|epoch 45/50 | batch 251/388: loss 0.4491 	| time 399.93ms|
+|epoch 45/50 | batch 301/388: loss 0.4367 	| time 402.51ms|
+|epoch 45/50 | batch 351/388: loss 0.4458 	| time 421.73ms|
+|step 387:  val loss 0.4435|
+
+saving checkpoint to /data/intern01/LMTAD/results/LMTAD/pol/work-outliers/checkin-atl/outlier_True/features_place/n_layer_8_n_head_12_n_embd_768_lr_0.0003_integer_poe_False
+| red agent results -> avarage f1: 0.685 | avarage pr_auc: 0.641
+-------------------------------------------------------------------------------------
+|save_model_count: 0 | lr: 0.00026723295232573276
+-------------------------------------------------------------------------------------
+|step 0:  val loss 0.4434|
+|epoch 46/50 | batch 1/388: loss 0.4379 	| time 10648.11ms|
+|epoch 46/50 | batch 51/388: loss 0.4477 	| time 416.96ms|
+|epoch 46/50 | batch 101/388: loss 0.4376 	| time 410.35ms|
+|epoch 46/50 | batch 151/388: loss 0.4479 	| time 391.17ms|
+|epoch 46/50 | batch 201/388: loss 0.4434 	| time 401.88ms|
+|epoch 46/50 | batch 251/388: loss 0.4440 	| time 402.54ms|
+|epoch 46/50 | batch 301/388: loss 0.4479 	| time 407.87ms|
+|epoch 46/50 | batch 351/388: loss 0.4379 	| time 402.96ms|
+|step 387:  val loss 0.4449|
+
+saving checkpoint to /data/intern01/LMTAD/results/LMTAD/pol/work-outliers/checkin-atl/outlier_True/features_place/n_layer_8_n_head_12_n_embd_768_lr_0.0003_integer_poe_False
+| red agent results -> avarage f1: 0.645 | avarage pr_auc: 0.616
+-------------------------------------------------------------------------------------
+|save_model_count: 0 | lr: 0.00026525400377708946
+-------------------------------------------------------------------------------------
+|step 0:  val loss 0.4433|
+|epoch 47/50 | batch 1/388: loss 0.4379 	| time 10574.69ms|
+|epoch 47/50 | batch 51/388: loss 0.4383 	| time 419.76ms|
+|epoch 47/50 | batch 101/388: loss 0.4392 	| time 410.65ms|
+|epoch 47/50 | batch 151/388: loss 0.4378 	| time 410.35ms|
+|epoch 47/50 | batch 201/388: loss 0.4468 	| time 411.09ms|
+|epoch 47/50 | batch 251/388: loss 0.4510 	| time 395.38ms|
+|epoch 47/50 | batch 301/388: loss 0.4426 	| time 420.02ms|
+|epoch 47/50 | batch 351/388: loss 0.4340 	| time 419.15ms|
+|step 387:  val loss 0.4480|
+
+saving checkpoint to /data/intern01/LMTAD/results/LMTAD/pol/work-outliers/checkin-atl/outlier_True/features_place/n_layer_8_n_head_12_n_embd_768_lr_0.0003_integer_poe_False
+| red agent results -> avarage f1: 0.647 | avarage pr_auc: 0.665
+-------------------------------------------------------------------------------------
+|save_model_count: 0 | lr: 0.0002632258148063623
+-------------------------------------------------------------------------------------
+|step 0:  val loss 0.4459|
+|epoch 48/50 | batch 1/388: loss 0.4417 	| time 11907.90ms|
+|epoch 48/50 | batch 51/388: loss 0.4422 	| time 416.99ms|
+|epoch 48/50 | batch 101/388: loss 0.4446 	| time 414.37ms|
+|epoch 48/50 | batch 151/388: loss 0.4389 	| time 407.19ms|
+|epoch 48/50 | batch 201/388: loss 0.4404 	| time 388.94ms|
+|epoch 48/50 | batch 251/388: loss 0.4371 	| time 423.50ms|
+|epoch 48/50 | batch 301/388: loss 0.4331 	| time 422.77ms|
+|epoch 48/50 | batch 351/388: loss 0.4435 	| time 425.87ms|
+|step 387:  val loss 0.4461|
+
+saving checkpoint to /data/intern01/LMTAD/results/LMTAD/pol/work-outliers/checkin-atl/outlier_True/features_place/n_layer_8_n_head_12_n_embd_768_lr_0.0003_integer_poe_False
+| red agent results -> avarage f1: 0.672 | avarage pr_auc: 0.637
+-------------------------------------------------------------------------------------
+|save_model_count: 0 | lr: 0.000261149381572081
+-------------------------------------------------------------------------------------
+|step 0:  val loss 0.4453|
+|epoch 49/50 | batch 1/388: loss 0.4428 	| time 10588.82ms|
+|epoch 49/50 | batch 51/388: loss 0.4376 	| time 400.49ms|
+|epoch 49/50 | batch 101/388: loss 0.4488 	| time 419.49ms|
+|epoch 49/50 | batch 151/388: loss 0.4435 	| time 403.18ms|
+|epoch 49/50 | batch 201/388: loss 0.4407 	| time 425.31ms|
+|epoch 49/50 | batch 251/388: loss 0.4513 	| time 422.73ms|
+|epoch 49/50 | batch 301/388: loss 0.4355 	| time 423.62ms|
+|epoch 49/50 | batch 351/388: loss 0.4419 	| time 419.67ms|
+|step 387:  val loss 0.4454|
+
+saving checkpoint to /data/intern01/LMTAD/results/LMTAD/pol/work-outliers/checkin-atl/outlier_True/features_place/n_layer_8_n_head_12_n_embd_768_lr_0.0003_integer_poe_False
+| red agent results -> avarage f1: 0.670 | avarage pr_auc: 0.623
+-------------------------------------------------------------------------------------
+|save_model_count: 0 | lr: 0.0002590257239282666
+-------------------------------------------------------------------------------------
+|step 0:  val loss 0.4453|
+|epoch 50/50 | batch 1/388: loss 0.4411 	| time 11680.97ms|
+|epoch 50/50 | batch 51/388: loss 0.4449 	| time 396.94ms|
+|epoch 50/50 | batch 101/388: loss 0.4412 	| time 400.88ms|
+|epoch 50/50 | batch 151/388: loss 0.4404 	| time 401.82ms|
+|epoch 50/50 | batch 201/388: loss 0.4471 	| time 414.97ms|
+|epoch 50/50 | batch 251/388: loss 0.4425 	| time 421.06ms|
+|epoch 50/50 | batch 301/388: loss 0.4450 	| time 402.13ms|
+|epoch 50/50 | batch 351/388: loss 0.4389 	| time 420.99ms|
+|step 387:  val loss 0.4445|
+
+saving checkpoint to /data/intern01/LMTAD/results/LMTAD/pol/work-outliers/checkin-atl/outlier_True/features_place/n_layer_8_n_head_12_n_embd_768_lr_0.0003_integer_poe_False
+| red agent results -> avarage f1: 0.605 | avarage pr_auc: 0.637
+-------------------------------------------------------------------------------------
+|save_model_count: 0 | lr: 0.0002568558849235237
