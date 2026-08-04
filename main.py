@@ -1,27 +1,35 @@
-from math import asin, cos, radians, sin, sqrt
+import math
+from typing import List
 
-from fastapi import Depends, FastAPI, HTTPException, Query, Response, status
+from fastapi import Depends, FastAPI, HTTPException, Query, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
-from sqlalchemy import delete, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
+from facility_api import fetch_facilities
 
 import models
 import schemas
 from database import Base, engine, get_db
-from facility_api import fetch_facilities, request_raw_xml
 
 
-# models.py에 정의된 테이블 생성
 Base.metadata.create_all(bind=engine)
 
-
 app = FastAPI(
-    title="안심하랑께 백엔드",
-    version="1.2.0",
-)
+    title="안심하랑께 백엔드 API",
+    description="""
+보호대상자, 보호자, 기관, 기관 관리자, GPS 정보를 관리합니다.
 
+핵심 기능:
+- 보호대상자/보호자 등록 및 연결
+- 기관/기관 관리자 등록
+- GPS 위치 저장
+- 현재 위치 기반 주변 기관 검색
+- 보호대상자 유형과 거리 기반 맞춤 기관 추천
+- 브라우저 현재 위치 테스트 페이지
+""",
+    version="3.0.0",
+)
 
 app.add_middleware(
     CORSMiddleware,
@@ -32,1411 +40,1670 @@ app.add_middleware(
 )
 
 
-# =========================================================
-# 공통 함수
-# =========================================================
+def apply_updates(db_object, update_data):
+    values = update_data.model_dump(exclude_unset=True)
+    for field, value in values.items():
+        setattr(db_object, field, value)
+
 
 def haversine_km(
-    lat1: float,
-    lon1: float,
-    lat2: float,
-    lon2: float,
+    latitude1: float,
+    longitude1: float,
+    latitude2: float,
+    longitude2: float,
 ) -> float:
-    """두 위도·경도 사이의 거리를 km 단위로 계산한다."""
+    earth_radius_km = 6371.0
 
-    earth_radius = 6371.0
+    lat1 = math.radians(latitude1)
+    lon1 = math.radians(longitude1)
+    lat2 = math.radians(latitude2)
+    lon2 = math.radians(longitude2)
 
-    dlat = radians(lat2 - lat1)
-    dlon = radians(lon2 - lon1)
+    delta_lat = lat2 - lat1
+    delta_lon = lon2 - lon1
 
     value = (
-        sin(dlat / 2) ** 2
-        + cos(radians(lat1))
-        * cos(radians(lat2))
-        * sin(dlon / 2) ** 2
+        math.sin(delta_lat / 2) ** 2
+        + math.cos(lat1)
+        * math.cos(lat2)
+        * math.sin(delta_lon / 2) ** 2
     )
 
-    return earth_radius * 2 * asin(sqrt(value))
+    central_angle = 2 * math.atan2(
+        math.sqrt(value),
+        math.sqrt(1 - value),
+    )
+
+    return earth_radius_km * central_angle
 
 
-def find_nearby_facilities(
-    latitude: float,
-    longitude: float,
-    radius_km: float,
-    limit: int,
+def calculate_type_match_score(
+    subject_type: models.SubjectType,
+    institution_type: models.InstitutionType,
+) -> float:
+    exact_matches = {
+        models.SubjectType.CHILD: models.InstitutionType.CHILD,
+        models.SubjectType.DEMENTIA: models.InstitutionType.DEMENTIA,
+        models.SubjectType.ELDERLY: models.InstitutionType.ELDERLY,
+        models.SubjectType.DISABILITY: models.InstitutionType.DISABILITY,
+        models.SubjectType.GENERAL: models.InstitutionType.GENERAL,
+    }
+
+    expected_type = exact_matches.get(subject_type)
+
+    if expected_type == institution_type:
+        return 1.0
+
+    if institution_type == models.InstitutionType.GENERAL:
+        return 0.7
+
+    if institution_type in {
+        models.InstitutionType.POLICE,
+        models.InstitutionType.HOSPITAL,
+    }:
+        return 0.5
+
+    return 0.2
+
+
+def infer_institution_type(name: str) -> models.InstitutionType:
+    """시설명에 포함된 단어로 기관 유형을 자동 분류합니다."""
+    normalized_name = name.replace(" ", "").lower()
+
+    if any(
+        keyword in normalized_name
+        for keyword in ["아동", "어린이", "청소년", "지역아동", "보육"]
+    ):
+        return models.InstitutionType.CHILD
+
+    if any(
+        keyword in normalized_name
+        for keyword in ["치매", "기억"]
+    ):
+        return models.InstitutionType.DEMENTIA
+
+    if any(
+        keyword in normalized_name
+        for keyword in ["노인", "어르신", "경로", "요양", "재가복지"]
+    ):
+        return models.InstitutionType.ELDERLY
+
+    if any(
+        keyword in normalized_name
+        for keyword in ["장애인", "장애", "재활"]
+    ):
+        return models.InstitutionType.DISABILITY
+
+    if any(
+        keyword in normalized_name
+        for keyword in ["경찰", "파출소", "지구대"]
+    ):
+        return models.InstitutionType.POLICE
+
+    if any(
+        keyword in normalized_name
+        for keyword in ["병원", "의료원", "보건소", "의원"]
+    ):
+        return models.InstitutionType.HOSPITAL
+
+    return models.InstitutionType.GENERAL
+
+
+def institution_to_result(
+    institution: models.Institution,
+    distance_km: float,
+) -> dict:
+    return {
+        "id": institution.id,
+        "institution_code": institution.institution_code,
+        "name": institution.name,
+        "institution_type": institution.institution_type.value,
+        "address": institution.address,
+        "phone": institution.phone,
+        "operating_hours": institution.operating_hours,
+        "latitude": institution.latitude,
+        "longitude": institution.longitude,
+        "distance_km": round(distance_km, 3),
+    }
+
+
+def get_latest_gps_or_404(
     db: Session,
-) -> list[dict]:
-    """전달받은 좌표를 기준으로 가까운 시설을 계산한다."""
+    subject_id: int,
+) -> models.GPSRecord:
+    gps_record = (
+        db.query(models.GPSRecord)
+        .filter(models.GPSRecord.subject_id == subject_id)
+        .order_by(
+            models.GPSRecord.measured_at.desc(),
+            models.GPSRecord.id.desc(),
+        )
+        .first()
+    )
 
-    result = []
+    if not gps_record:
+        raise HTTPException(
+            status_code=404,
+            detail="저장된 GPS 위치가 없습니다.",
+        )
 
-    facilities = db.scalars(
-        select(models.Facility)
-    ).all()
+    return gps_record
 
-    for facility in facilities:
+
+@app.get("/", tags=["기본"])
+def root():
+    return {
+        "message": "안심하랑께 백엔드 서버가 실행 중입니다.",
+        "version": "3.0.0",
+        "swagger": "/docs",
+        "gps_test_page": "/gps-current",
+    }
+
+
+@app.get("/health", tags=["기본"])
+def health_check():
+    return {"status": "ok"}
+
+
+# =========================================================
+# 보호자 CRUD
+# =========================================================
+@app.post(
+    "/guardians",
+    response_model=schemas.GuardianResponse,
+    status_code=status.HTTP_201_CREATED,
+    tags=["보호자"],
+)
+def create_guardian(
+    guardian_data: schemas.GuardianCreate,
+    db: Session = Depends(get_db),
+):
+    existing = (
+        db.query(models.Guardian)
+        .filter(models.Guardian.phone == guardian_data.phone)
+        .first()
+    )
+
+    if existing:
+        raise HTTPException(status_code=409, detail="이미 등록된 보호자 연락처입니다.")
+
+    guardian = models.Guardian(**guardian_data.model_dump())
+    db.add(guardian)
+    db.commit()
+    db.refresh(guardian)
+    return guardian
+
+@app.get("/test-api")
+async def test_api():
+    data = await fetch_facilities()
+    return {
+        "count": len(data),
+        "facilities": data
+    }
+
+@app.get(
+    "/guardians",
+    response_model=List[schemas.GuardianResponse],
+    tags=["보호자"],
+)
+def list_guardians(
+    skip: int = Query(default=0, ge=0),
+    limit: int = Query(default=100, ge=1, le=500),
+    db: Session = Depends(get_db),
+):
+    return (
+        db.query(models.Guardian)
+        .order_by(models.Guardian.id)
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
+
+
+@app.get(
+    "/guardians/{guardian_id}",
+    response_model=schemas.GuardianResponse,
+    tags=["보호자"],
+)
+def get_guardian(guardian_id: int, db: Session = Depends(get_db)):
+    guardian = db.get(models.Guardian, guardian_id)
+    if not guardian:
+        raise HTTPException(status_code=404, detail="보호자를 찾을 수 없습니다.")
+    return guardian
+
+
+@app.patch(
+    "/guardians/{guardian_id}",
+    response_model=schemas.GuardianResponse,
+    tags=["보호자"],
+)
+def update_guardian(
+    guardian_id: int,
+    guardian_data: schemas.GuardianUpdate,
+    db: Session = Depends(get_db),
+):
+    guardian = db.get(models.Guardian, guardian_id)
+    if not guardian:
+        raise HTTPException(status_code=404, detail="보호자를 찾을 수 없습니다.")
+
+    apply_updates(guardian, guardian_data)
+
+    try:
+        db.commit()
+        db.refresh(guardian)
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(status_code=409, detail="이미 사용 중인 연락처입니다.")
+
+    return guardian
+
+
+@app.delete("/guardians/{guardian_id}", tags=["보호자"])
+def delete_guardian(guardian_id: int, db: Session = Depends(get_db)):
+    guardian = db.get(models.Guardian, guardian_id)
+    if not guardian:
+        raise HTTPException(status_code=404, detail="보호자를 찾을 수 없습니다.")
+
+    db.delete(guardian)
+    db.commit()
+    return {"message": "보호자가 삭제되었습니다.", "guardian_id": guardian_id}
+
+@app.get(
+    "/subjects/{subject_id}/guardians",
+    response_model=List[schemas.GuardianRegistrationDetailResponse],
+    tags=["보호자 등록 관계"],
+)
+def get_guardians_of_subject(
+    subject_id: int,
+    db: Session = Depends(get_db),
+):
+    subject = db.get(models.Subject, subject_id)
+
+    if not subject:
+        raise HTTPException(
+            status_code=404,
+            detail="보호대상자를 찾을 수 없습니다.",
+        )
+
+    registrations = (
+        db.query(models.GuardianRegistration)
+        .filter(
+            models.GuardianRegistration.subject_id == subject_id
+        )
+        .order_by(
+            models.GuardianRegistration.contact_priority,
+            models.GuardianRegistration.guardian_id,
+        )
+        .all()
+    )
+
+    return [
+        guardian_registration_to_detail(registration)
+        for registration in registrations
+    ]
+
+@app.get(
+    "/guardians/{guardian_id}/subjects",
+    response_model=List[schemas.GuardianRegistrationDetailResponse],
+    tags=["보호자 등록 관계"],
+)
+def get_subjects_of_guardian(
+    guardian_id: int,
+    db: Session = Depends(get_db),
+):
+    guardian = db.get(models.Guardian, guardian_id)
+
+    if not guardian:
+        raise HTTPException(
+            status_code=404,
+            detail="보호자를 찾을 수 없습니다.",
+        )
+
+    registrations = (
+        db.query(models.GuardianRegistration)
+        .filter(
+            models.GuardianRegistration.guardian_id == guardian_id
+        )
+        .order_by(
+            models.GuardianRegistration.contact_priority,
+            models.GuardianRegistration.subject_id,
+        )
+        .all()
+    )
+
+    return [
+        guardian_registration_to_detail(registration)
+        for registration in registrations
+    ]
+# =========================================================
+# 기관 CRUD 및 현재 위치 검색
+# 주의: /institutions/nearest는 /institutions/{institution_id}보다 위에 둠
+# =========================================================
+@app.post(
+    "/institutions",
+    response_model=schemas.InstitutionResponse,
+    status_code=status.HTTP_201_CREATED,
+    tags=["기관"],
+)
+def create_institution(
+    institution_data: schemas.InstitutionCreate,
+    db: Session = Depends(get_db),
+):
+    existing = (
+        db.query(models.Institution)
+        .filter(
+            models.Institution.institution_code
+            == institution_data.institution_code
+        )
+        .first()
+    )
+
+    if existing:
+        raise HTTPException(status_code=409, detail="이미 등록된 기관 코드입니다.")
+
+    institution = models.Institution(**institution_data.model_dump())
+    db.add(institution)
+    db.commit()
+    db.refresh(institution)
+    return institution
+
+
+@app.get(
+    "/institutions",
+    response_model=List[schemas.InstitutionResponse],
+    tags=["기관"],
+)
+def list_institutions(
+    skip: int = Query(default=0, ge=0),
+    limit: int = Query(default=100, ge=1, le=500),
+    db: Session = Depends(get_db),
+):
+    return (
+        db.query(models.Institution)
+        .order_by(models.Institution.id)
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
+
+
+@app.get(
+    "/institutions/nearest",
+    tags=["현재 위치 기반 기관 검색"],
+)
+def find_nearest_institutions(
+    latitude: float = Query(ge=-90, le=90),
+    longitude: float = Query(ge=-180, le=180),
+    radius_km: float = Query(default=10.0, gt=0, le=100),
+    limit: int = Query(default=5, ge=1, le=100),
+    institution_type: models.InstitutionType | None = None,
+    db: Session = Depends(get_db),
+):
+    query = db.query(models.Institution).filter(
+        models.Institution.latitude.isnot(None),
+        models.Institution.longitude.isnot(None),
+    )
+
+    if institution_type is not None:
+        query = query.filter(
+            models.Institution.institution_type == institution_type
+        )
+
+    results = []
+
+    for institution in query.all():
         distance = haversine_km(
             latitude,
             longitude,
-            facility.latitude,
-            facility.longitude,
+            institution.latitude,
+            institution.longitude,
         )
 
         if distance <= radius_km:
-            result.append(
+            results.append(institution_to_result(institution, distance))
+
+    results.sort(key=lambda item: item["distance_km"])
+
+    return {
+        "search_location": {
+            "latitude": latitude,
+            "longitude": longitude,
+        },
+        "radius_km": radius_km,
+        "count": min(len(results), limit),
+        "institutions": results[:limit],
+    }
+
+
+
+def find_nearest_facilities_compatibility(
+    latitude: float = Query(ge=-90, le=90),
+    longitude: float = Query(ge=-180, le=180),
+    radius_km: float = Query(default=10.0, gt=0, le=100),
+    limit: int = Query(default=5, ge=1, le=100),
+    db: Session = Depends(get_db),
+):
+    institutions = (
+        db.query(models.Institution)
+        .filter(
+            models.Institution.latitude.isnot(None),
+            models.Institution.longitude.isnot(None),
+        )
+        .all()
+    )
+
+    results = []
+
+    for institution in institutions:
+        distance = haversine_km(
+            latitude,
+            longitude,
+            institution.latitude,
+            institution.longitude,
+        )
+
+        if distance <= radius_km:
+            results.append(
                 {
-                    "id": facility.id,
-                    "external_id": facility.external_id,
-                    "name": facility.name,
-                    "address": facility.address,
-                    "latitude": facility.latitude,
-                    "longitude": facility.longitude,
+                    "id": institution.id,
+                    "external_id": institution.institution_code,
+                    "name": institution.name,
+                    "facility_type": institution.institution_type.value,
+                    "address": institution.address,
+                    "phone": institution.phone,
+                    "latitude": institution.latitude,
+                    "longitude": institution.longitude,
                     "distance_km": round(distance, 3),
                 }
             )
 
-    result.sort(
-        key=lambda item: item["distance_km"]
-    )
-
-    return result[:limit]
+    results.sort(key=lambda item: item["distance_km"])
+    return results[:limit]
 
 
-# =========================================================
-# 기본 서버 확인
-# =========================================================
-
-@app.get("/")
-def root():
-    return {
-        "message": "서버 작동 중",
-        "docs": "/docs",
-        "gps_page": "/gps-current",
-    }
-
-
-# =========================================================
-# 공공데이터 API 원본 확인
-# =========================================================
-
-@app.get("/facilities/raw")
-async def facilities_raw():
-    """공공데이터 API 원본 응답과 XML 태그 확인용."""
-
+@app.get(
+    "/institutions/openapi-test",
+    tags=["공공데이터 기관 가져오기"],
+)
+async def test_institution_openapi():
+    """공공데이터 API 연결과 파싱 결과를 확인합니다. DB에는 저장하지 않습니다."""
     try:
-        body, content_type = await request_raw_xml(
-            page_index=1,
-            page_size=10,
-        )
-
+        facilities = await fetch_facilities()
+        return {
+            "message": "공공데이터 API 연결 성공",
+            "count": len(facilities),
+            "sample": facilities[:5],
+        }
+    except RuntimeError as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
     except Exception as exc:
         raise HTTPException(
-            status_code=status.HTTP_502_BAD_GATEWAY,
-            detail=str(exc),
-        )
+            status_code=500,
+            detail=f"예상하지 못한 오류가 발생했습니다: {exc}",
+        ) from exc
+
+
+@app.post(
+    "/institutions/import-openapi",
+    tags=["공공데이터 기관 가져오기"],
+)
+async def import_institutions_from_openapi(
+    update_existing: bool = Query(
+        default=True,
+        description="이미 등록된 기관을 최신 공공데이터로 업데이트할지 여부",
+    ),
+    db: Session = Depends(get_db),
+):
+    """
+    공공데이터포털 사회복지시설 목록을 가져와 institutions 테이블에 저장합니다.
+
+    - institution_code: 공공데이터 external_id
+    - 중복 기관: update_existing=True이면 업데이트
+    - 좌표가 없는 시설: 건너뜀
+    """
+    try:
+        facilities = await fetch_facilities()
+    except RuntimeError as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(
+            status_code=500,
+            detail=f"공공데이터 호출 중 오류가 발생했습니다: {exc}",
+        ) from exc
+
+    created_count = 0
+    updated_count = 0
+    skipped_count = 0
+
+    try:
+        for facility in facilities:
+            external_id = str(facility.get("external_id", "")).strip()
+            name = str(facility.get("name", "")).strip()
+            address = facility.get("address")
+            latitude = facility.get("latitude")
+            longitude = facility.get("longitude")
+
+            if not external_id or not name:
+                skipped_count += 1
+                continue
+
+            if latitude is None or longitude is None:
+                skipped_count += 1
+                continue
+
+            existing = (
+                db.query(models.Institution)
+                .filter(models.Institution.institution_code == external_id)
+                .first()
+            )
+
+            institution_type = infer_institution_type(name)
+
+            if existing:
+                if not update_existing:
+                    skipped_count += 1
+                    continue
+
+                existing.name = name
+                existing.address = address
+                existing.latitude = latitude
+                existing.longitude = longitude
+                existing.institution_type = institution_type
+                updated_count += 1
+                continue
+
+            db.add(
+                models.Institution(
+                    institution_code=external_id,
+                    name=name,
+                    institution_type=institution_type,
+                    address=address,
+                    phone=None,
+                    operating_hours=None,
+                    latitude=latitude,
+                    longitude=longitude,
+                )
+            )
+            created_count += 1
+
+        db.commit()
+    except Exception as exc:
+        db.rollback()
+        raise HTTPException(
+            status_code=500,
+            detail=f"기관 데이터 저장 중 오류가 발생했습니다: {exc}",
+        ) from exc
+
+    total_in_database = db.query(models.Institution).count()
 
     return {
-        "content_type": content_type,
-        "body": body[:10000],
+        "message": "공공데이터 기관 목록 저장 완료",
+        "api_result_count": len(facilities),
+        "created_count": created_count,
+        "updated_count": updated_count,
+        "skipped_count": skipped_count,
+        "total_in_database": total_in_database,
     }
 
 
-# =========================================================
-# 1. 보호 대상자 등록·조회·수정·삭제
-# =========================================================
+@app.get(
+    "/institutions/count",
+    tags=["기관"],
+)
+def count_institutions(db: Session = Depends(get_db)):
+    total = db.query(models.Institution).count()
+    with_coordinates = (
+        db.query(models.Institution)
+        .filter(
+            models.Institution.latitude.isnot(None),
+            models.Institution.longitude.isnot(None),
+        )
+        .count()
+    )
 
+    return {
+        "total": total,
+        "with_coordinates": with_coordinates,
+        "without_coordinates": total - with_coordinates,
+    }
+
+
+@app.get(
+    "/institutions/{institution_id}",
+    response_model=schemas.InstitutionResponse,
+    tags=["기관"],
+)
+def get_institution(institution_id: int, db: Session = Depends(get_db)):
+    institution = db.get(models.Institution, institution_id)
+    if not institution:
+        raise HTTPException(status_code=404, detail="기관을 찾을 수 없습니다.")
+    return institution
+
+
+@app.patch(
+    "/institutions/{institution_id}",
+    response_model=schemas.InstitutionResponse,
+    tags=["기관"],
+)
+def update_institution(
+    institution_id: int,
+    institution_data: schemas.InstitutionUpdate,
+    db: Session = Depends(get_db),
+):
+    institution = db.get(models.Institution, institution_id)
+    if not institution:
+        raise HTTPException(status_code=404, detail="기관을 찾을 수 없습니다.")
+
+    update_values = institution_data.model_dump(exclude_unset=True)
+
+    new_latitude = update_values.get("latitude", institution.latitude)
+    new_longitude = update_values.get("longitude", institution.longitude)
+
+    if (new_latitude is None) != (new_longitude is None):
+        raise HTTPException(
+            status_code=400,
+            detail="위도와 경도는 함께 입력해야 합니다.",
+        )
+
+    apply_updates(institution, institution_data)
+
+    try:
+        db.commit()
+        db.refresh(institution)
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(status_code=409, detail="이미 사용 중인 기관 코드입니다.")
+
+    return institution
+
+
+@app.delete("/institutions/{institution_id}", tags=["기관"])
+def delete_institution(institution_id: int, db: Session = Depends(get_db)):
+    institution = db.get(models.Institution, institution_id)
+    if not institution:
+        raise HTTPException(status_code=404, detail="기관을 찾을 수 없습니다.")
+
+    db.delete(institution)
+    db.commit()
+    return {"message": "기관이 삭제되었습니다.", "institution_id": institution_id}
+
+
+# =========================================================
+# 보호대상자 CRUD
+# =========================================================
 @app.post(
     "/subjects",
     response_model=schemas.SubjectResponse,
     status_code=status.HTTP_201_CREATED,
+    tags=["보호대상자"],
 )
 def create_subject(
-    data: schemas.SubjectCreate,
+    subject_data: schemas.SubjectCreate,
     db: Session = Depends(get_db),
 ):
-    subject = models.Subject(**data.model_dump())
+    if subject_data.institution_id is not None:
+        institution = db.get(models.Institution, subject_data.institution_id)
+        if not institution:
+            raise HTTPException(status_code=404, detail="지정한 기관을 찾을 수 없습니다.")
 
+    if subject_data.phone:
+        existing = (
+            db.query(models.Subject)
+            .filter(models.Subject.phone == subject_data.phone)
+            .first()
+        )
+        if existing:
+            raise HTTPException(
+                status_code=409,
+                detail="이미 등록된 보호대상자 연락처입니다.",
+            )
+
+    subject = models.Subject(**subject_data.model_dump())
     db.add(subject)
     db.commit()
     db.refresh(subject)
-
     return subject
 
 
 @app.get(
     "/subjects",
-    response_model=list[schemas.SubjectResponse],
+    response_model=List[schemas.SubjectResponse],
+    tags=["보호대상자"],
 )
 def list_subjects(
+    skip: int = Query(default=0, ge=0),
+    limit: int = Query(default=100, ge=1, le=500),
     db: Session = Depends(get_db),
 ):
-    return db.scalars(
-        select(models.Subject).order_by(models.Subject.id)
-    ).all()
+    return (
+        db.query(models.Subject)
+        .order_by(models.Subject.id)
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
 
 
 @app.get(
     "/subjects/{subject_id}",
     response_model=schemas.SubjectResponse,
+    tags=["보호대상자"],
 )
-def get_subject(
-    subject_id: int,
-    db: Session = Depends(get_db),
-):
+def get_subject(subject_id: int, db: Session = Depends(get_db)):
     subject = db.get(models.Subject, subject_id)
-
-    if subject is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="보호 대상자가 없습니다.",
-        )
-
+    if not subject:
+        raise HTTPException(status_code=404, detail="보호대상자를 찾을 수 없습니다.")
     return subject
 
 
 @app.patch(
     "/subjects/{subject_id}",
     response_model=schemas.SubjectResponse,
+    tags=["보호대상자"],
 )
 def update_subject(
     subject_id: int,
-    data: schemas.SubjectUpdate,
+    subject_data: schemas.SubjectUpdate,
     db: Session = Depends(get_db),
 ):
     subject = db.get(models.Subject, subject_id)
+    if not subject:
+        raise HTTPException(status_code=404, detail="보호대상자를 찾을 수 없습니다.")
 
-    if subject is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="보호 대상자가 없습니다.",
-        )
+    update_values = subject_data.model_dump(exclude_unset=True)
 
-    update_data = data.model_dump(exclude_unset=True)
+    if "institution_id" in update_values:
+        institution_id = update_values["institution_id"]
+        if institution_id is not None:
+            institution = db.get(models.Institution, institution_id)
+            if not institution:
+                raise HTTPException(
+                    status_code=404,
+                    detail="지정한 기관을 찾을 수 없습니다.",
+                )
 
-    if not update_data:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="수정할 정보를 하나 이상 입력해주세요.",
-        )
+    apply_updates(subject, subject_data)
+def guardian_registration_to_detail(
+    registration: models.GuardianRegistration,
+) -> dict:
+    """
+    보호자-보호대상자 연결 정보에
+    양쪽 사용자 상세 정보를 함께 담아 반환합니다.
+    """
 
-    for field, value in update_data.items():
-        setattr(subject, field, value)
+    guardian = registration.guardian
+    subject = registration.subject
 
-    db.commit()
-    db.refresh(subject)
+    return {
+        "guardian_id": registration.guardian_id,
+        "subject_id": registration.subject_id,
+        "relationship_code": registration.relationship_code,
+        "guardian_role_code": registration.guardian_role_code,
+        "is_primary": registration.is_primary,
+        "contact_priority": registration.contact_priority,
+        "living_together": registration.living_together,
+        "protection_start_date": registration.protection_start_date,
+        "protection_end_date": registration.protection_end_date,
+        "created_at": registration.created_at,
+
+        "guardian": {
+            "id": guardian.id,
+            "name": guardian.name,
+            "gender": guardian.gender,
+            "phone": guardian.phone,
+            "birth_date": guardian.birth_date,
+            "address": guardian.address,
+        },
+
+        "subject": {
+            "id": subject.id,
+            "name": subject.name,
+            "gender": subject.gender,
+            "phone": subject.phone,
+            "birth_date": subject.birth_date,
+            "address": subject.address,
+            "subject_type": subject.subject_type,
+            "special_notes": subject.special_notes,
+            "institution_id": subject.institution_id,
+        },
+    }
+    try:
+        db.commit()
+        db.refresh(subject)
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(status_code=409, detail="이미 사용 중인 연락처입니다.")
 
     return subject
 
 
-@app.delete(
-    "/subjects/{subject_id}",
-    status_code=status.HTTP_204_NO_CONTENT,
-)
-def delete_subject(
-    subject_id: int,
-    db: Session = Depends(get_db),
-):
+@app.delete("/subjects/{subject_id}", tags=["보호대상자"])
+def delete_subject(subject_id: int, db: Session = Depends(get_db)):
     subject = db.get(models.Subject, subject_id)
-
-    if subject is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="보호 대상자가 없습니다.",
-        )
-
-    db.execute(
-        delete(models.GPSRecord).where(
-            models.GPSRecord.subject_id == subject_id
-        )
-    )
-
-    db.execute(
-        delete(models.SubjectGuardian).where(
-            models.SubjectGuardian.subject_id == subject_id
-        )
-    )
+    if not subject:
+        raise HTTPException(status_code=404, detail="보호대상자를 찾을 수 없습니다.")
 
     db.delete(subject)
     db.commit()
-
-    return Response(status_code=status.HTTP_204_NO_CONTENT)
+    return {"message": "보호대상자가 삭제되었습니다.", "subject_id": subject_id}
 
 
 # =========================================================
-# 2. 보호자 등록·조회·수정·삭제
+# 보호자 ↔ 보호대상자 연결
 # =========================================================
-
 @app.post(
-    "/guardians",
-    response_model=schemas.GuardianResponse,
+    "/guardian-registrations",
+    response_model=schemas.GuardianRegistrationDetailResponse,
     status_code=status.HTTP_201_CREATED,
+    tags=["보호자 등록 관계"],
 )
-def create_guardian(
-    data: schemas.GuardianCreate,
+def create_guardian_registration(
+    registration_data: schemas.GuardianRegistrationCreate,
     db: Session = Depends(get_db),
 ):
-    guardian = models.Guardian(**data.model_dump())
+    guardian = db.get(models.Guardian, registration_data.guardian_id)
+    subject = db.get(models.Subject, registration_data.subject_id)
 
-    db.add(guardian)
+    if not guardian:
+        raise HTTPException(status_code=404, detail="보호자를 찾을 수 없습니다.")
+    if not subject:
+        raise HTTPException(status_code=404, detail="보호대상자를 찾을 수 없습니다.")
 
-    try:
-        db.commit()
-        db.refresh(guardian)
-
-    except IntegrityError:
-        db.rollback()
-
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="이미 등록된 보호자 연락처입니다.",
+    existing = (
+        db.query(models.GuardianRegistration)
+        .filter(
+            models.GuardianRegistration.guardian_id
+            == registration_data.guardian_id,
+            models.GuardianRegistration.subject_id
+            == registration_data.subject_id,
         )
-
-    return guardian
-
-
-@app.get(
-    "/guardians",
-    response_model=list[schemas.GuardianResponse],
-)
-def list_guardians(
-    db: Session = Depends(get_db),
-):
-    return db.scalars(
-        select(models.Guardian).order_by(models.Guardian.id)
-    ).all()
-
-
-@app.get(
-    "/guardians/{guardian_id}",
-    response_model=schemas.GuardianResponse,
-)
-def get_guardian(
-    guardian_id: int,
-    db: Session = Depends(get_db),
-):
-    guardian = db.get(models.Guardian, guardian_id)
-
-    if guardian is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="보호자가 없습니다.",
-        )
-
-    return guardian
-
-
-@app.patch(
-    "/guardians/{guardian_id}",
-    response_model=schemas.GuardianResponse,
-)
-def update_guardian(
-    guardian_id: int,
-    data: schemas.GuardianUpdate,
-    db: Session = Depends(get_db),
-):
-    guardian = db.get(models.Guardian, guardian_id)
-
-    if guardian is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="보호자가 없습니다.",
-        )
-
-    update_data = data.model_dump(exclude_unset=True)
-
-    if not update_data:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="수정할 정보를 하나 이상 입력해주세요.",
-        )
-
-    for field, value in update_data.items():
-        setattr(guardian, field, value)
-
-    try:
-        db.commit()
-        db.refresh(guardian)
-
-    except IntegrityError:
-        db.rollback()
-
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="이미 등록된 보호자 연락처입니다.",
-        )
-
-    return guardian
-
-
-@app.delete(
-    "/guardians/{guardian_id}",
-    status_code=status.HTTP_204_NO_CONTENT,
-)
-def delete_guardian(
-    guardian_id: int,
-    db: Session = Depends(get_db),
-):
-    guardian = db.get(models.Guardian, guardian_id)
-
-    if guardian is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="보호자가 없습니다.",
-        )
-
-    db.execute(
-        delete(models.SubjectGuardian).where(
-            models.SubjectGuardian.guardian_id == guardian_id
-        )
+        .first()
     )
 
-    db.delete(guardian)
+    if existing:
+        raise HTTPException(
+            status_code=409,
+            detail="이미 연결된 보호자와 보호대상자입니다.",
+        )
+
+    registration = models.GuardianRegistration(
+        **registration_data.model_dump()
+    )
+    db.add(registration)
     db.commit()
+    db.refresh(registration)
 
-    return Response(status_code=status.HTTP_204_NO_CONTENT)
-
-
-# =========================================================
-# 3. 보호 대상자와 보호자 연결·조회·수정·삭제
-# =========================================================
-
-@app.post(
-    "/subject-guardians",
-    response_model=schemas.LinkResponse,
-    status_code=status.HTTP_201_CREATED,
-)
-def connect_subject_guardian(
-    data: schemas.LinkCreate,
-    db: Session = Depends(get_db),
-):
-    subject = db.get(models.Subject, data.subject_id)
-
-    if subject is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="보호 대상자가 없습니다.",
-        )
-
-    guardian = db.get(models.Guardian, data.guardian_id)
-
-    if guardian is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="보호자가 없습니다.",
-        )
-
-    link = models.SubjectGuardian(**data.model_dump())
-
-    db.add(link)
-
-    try:
-        db.commit()
-        db.refresh(link)
-
-    except IntegrityError:
-        db.rollback()
-
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="이미 연결된 관계입니다.",
-        )
-
-    return link
-
+    return guardian_registration_to_detail(registration)
 
 @app.get(
-    "/subject-guardians",
-    response_model=list[schemas.LinkResponse],
+    "/guardian-registrations",
+    response_model=List[schemas.GuardianRegistrationDetailResponse],
+    tags=["보호자 등록 관계"],
 )
-def list_links(
+def list_guardian_registrations(
+    guardian_id: int | None = None,
+    subject_id: int | None = None,
     db: Session = Depends(get_db),
 ):
-    return db.scalars(
-        select(models.SubjectGuardian).order_by(
-            models.SubjectGuardian.id
+    query = db.query(models.GuardianRegistration)
+
+    if guardian_id is not None:
+        query = query.filter(
+            models.GuardianRegistration.guardian_id == guardian_id
         )
-    ).all()
-
-
-@app.get(
-    "/subject-guardians/{link_id}",
-    response_model=schemas.LinkResponse,
-)
-def get_subject_guardian_link(
-    link_id: int,
-    db: Session = Depends(get_db),
-):
-    link = db.get(models.SubjectGuardian, link_id)
-
-    if link is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="연결 관계가 없습니다.",
-        )
-
-    return link
-
-
-@app.patch(
-    "/subject-guardians/{link_id}",
-    response_model=schemas.LinkResponse,
-)
-def update_subject_guardian_link(
-    link_id: int,
-    data: schemas.LinkUpdate,
-    db: Session = Depends(get_db),
-):
-    link = db.get(models.SubjectGuardian, link_id)
-
-    if link is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="연결 관계가 없습니다.",
-        )
-
-    update_data = data.model_dump(exclude_unset=True)
-
-    if not update_data:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="수정할 정보를 하나 이상 입력해주세요.",
-        )
-
-    if "subject_id" in update_data:
-        subject = db.get(
-            models.Subject,
-            update_data["subject_id"],
-        )
-
-        if subject is None:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="변경할 보호 대상자가 없습니다.",
-            )
-
-    if "guardian_id" in update_data:
-        guardian = db.get(
-            models.Guardian,
-            update_data["guardian_id"],
-        )
-
-        if guardian is None:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="변경할 보호자가 없습니다.",
-            )
-
-    for field, value in update_data.items():
-        setattr(link, field, value)
-
-    try:
-        db.commit()
-        db.refresh(link)
-
-    except IntegrityError:
-        db.rollback()
-
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="이미 연결된 관계입니다.",
-        )
-
-    return link
-
-
-@app.delete(
-    "/subject-guardians/{link_id}",
-    status_code=status.HTTP_204_NO_CONTENT,
-)
-def delete_subject_guardian_link(
-    link_id: int,
-    db: Session = Depends(get_db),
-):
-    link = db.get(models.SubjectGuardian, link_id)
-
-    if link is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="연결 관계가 없습니다.",
-        )
-
-    db.delete(link)
-    db.commit()
-
-    return Response(status_code=status.HTTP_204_NO_CONTENT)
-
-
-# =========================================================
-# 4. GPS 저장·조회·수정·삭제
-# =========================================================
-
-@app.post(
-    "/gps-records",
-    response_model=schemas.GPSResponse,
-    status_code=status.HTTP_201_CREATED,
-)
-def save_gps(
-    data: schemas.GPSCreate,
-    db: Session = Depends(get_db),
-):
-    subject = db.get(models.Subject, data.subject_id)
-
-    if subject is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="보호 대상자가 없습니다.",
-        )
-
-    record = models.GPSRecord(**data.model_dump())
-
-    db.add(record)
-    db.commit()
-    db.refresh(record)
-
-    return record
-
-
-@app.get(
-    "/gps-records",
-    response_model=list[schemas.GPSResponse],
-)
-def list_gps_records(
-    subject_id: int | None = Query(default=None, ge=1),
-    db: Session = Depends(get_db),
-):
-    query = select(models.GPSRecord)
 
     if subject_id is not None:
-        query = query.where(
-            models.GPSRecord.subject_id == subject_id
+        query = query.filter(
+            models.GuardianRegistration.subject_id == subject_id
         )
 
-    query = query.order_by(
-        models.GPSRecord.measured_at.desc()
-    )
+    registrations = query.all()
 
-    return db.scalars(query).all()
-
-
-@app.get(
-    "/gps-records/{gps_id}",
-    response_model=schemas.GPSResponse,
-)
-def get_gps_record(
-    gps_id: int,
-    db: Session = Depends(get_db),
-):
-    record = db.get(models.GPSRecord, gps_id)
-
-    if record is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="GPS 기록이 없습니다.",
-        )
-
-    return record
-
+    return [
+    guardian_registration_to_detail(registration)
+    for registration in registrations
+]
 
 @app.patch(
-    "/gps-records/{gps_id}",
-    response_model=schemas.GPSResponse,
+    "/guardian-registrations/{guardian_id}/{subject_id}",
+    response_model=schemas.GuardianRegistrationResponse,
+    tags=["보호자 등록 관계"],
 )
-def update_gps_record(
-    gps_id: int,
-    data: schemas.GPSUpdate,
+def update_guardian_registration(
+    guardian_id: int,
+    subject_id: int,
+    registration_data: schemas.GuardianRegistrationUpdate,
     db: Session = Depends(get_db),
 ):
-    record = db.get(models.GPSRecord, gps_id)
+    registration = (
+        db.query(models.GuardianRegistration)
+        .filter(
+            models.GuardianRegistration.guardian_id == guardian_id,
+            models.GuardianRegistration.subject_id == subject_id,
+        )
+        .first()
+    )
 
-    if record is None:
+    if not registration:
+        raise HTTPException(status_code=404, detail="보호 관계를 찾을 수 없습니다.")
+
+    apply_updates(registration, registration_data)
+
+    if (
+        registration.protection_start_date
+        and registration.protection_end_date
+        and registration.protection_end_date
+        < registration.protection_start_date
+    ):
+        db.rollback()
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="GPS 기록이 없습니다.",
+            status_code=400,
+            detail="보호 종료일은 보호 시작일보다 빠를 수 없습니다.",
         )
-
-    update_data = data.model_dump(exclude_unset=True)
-
-    if not update_data:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="수정할 정보를 하나 이상 입력해주세요.",
-        )
-
-    if "subject_id" in update_data:
-        subject = db.get(
-            models.Subject,
-            update_data["subject_id"],
-        )
-
-        if subject is None:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="변경할 보호 대상자가 없습니다.",
-            )
-
-    for field, value in update_data.items():
-        setattr(record, field, value)
 
     db.commit()
-    db.refresh(record)
+    db.refresh(registration)
 
-    return record
+    return guardian_registration_to_detail(registration)
 
 
 @app.delete(
-    "/gps-records/{gps_id}",
-    status_code=status.HTTP_204_NO_CONTENT,
+    "/guardian-registrations/{guardian_id}/{subject_id}",
+    tags=["보호자 등록 관계"],
 )
-def delete_gps_record(
-    gps_id: int,
-    db: Session = Depends(get_db),
-):
-    record = db.get(models.GPSRecord, gps_id)
-
-    if record is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="GPS 기록이 없습니다.",
-        )
-
-    db.delete(record)
-    db.commit()
-
-    return Response(status_code=status.HTTP_204_NO_CONTENT)
-
-
-@app.delete("/subjects/{subject_id}/gps-records")
-def delete_subject_gps_records(
+def delete_guardian_registration(
+    guardian_id: int,
     subject_id: int,
     db: Session = Depends(get_db),
 ):
-    subject = db.get(models.Subject, subject_id)
-
-    if subject is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="보호 대상자가 없습니다.",
+    registration = (
+        db.query(models.GuardianRegistration)
+        .filter(
+            models.GuardianRegistration.guardian_id == guardian_id,
+            models.GuardianRegistration.subject_id == subject_id,
         )
-
-    result = db.execute(
-        delete(models.GPSRecord).where(
-            models.GPSRecord.subject_id == subject_id
-        )
+        .first()
     )
 
+    if not registration:
+        raise HTTPException(status_code=404, detail="보호 관계를 찾을 수 없습니다.")
+
+    db.delete(registration)
     db.commit()
 
     return {
-        "message": "해당 보호 대상자의 GPS 기록을 모두 삭제했습니다.",
+        "message": "보호자와 보호대상자의 연결이 삭제되었습니다.",
+        "guardian_id": guardian_id,
         "subject_id": subject_id,
-        "deleted_count": result.rowcount,
     }
 
 
-@app.get(
-    "/subjects/{subject_id}/latest-location",
-    response_model=schemas.GPSResponse,
+# =========================================================
+# 기관 관리자 CRUD
+# =========================================================
+@app.post(
+    "/institution-managers",
+    response_model=schemas.InstitutionManagerResponse,
+    status_code=status.HTTP_201_CREATED,
+    tags=["기관 관리자"],
 )
-def latest_location(
+def create_institution_manager(
+    manager_data: schemas.InstitutionManagerCreate,
+    db: Session = Depends(get_db),
+):
+    institution = db.get(models.Institution, manager_data.institution_id)
+    if not institution:
+        raise HTTPException(status_code=404, detail="기관을 찾을 수 없습니다.")
+
+    manager = models.InstitutionManager(**manager_data.model_dump())
+    db.add(manager)
+    db.commit()
+    db.refresh(manager)
+    return manager
+
+
+@app.get(
+    "/institution-managers",
+    response_model=List[schemas.InstitutionManagerResponse],
+    tags=["기관 관리자"],
+)
+def list_institution_managers(
+    institution_id: int | None = None,
+    db: Session = Depends(get_db),
+):
+    query = db.query(models.InstitutionManager)
+
+    if institution_id is not None:
+        query = query.filter(
+            models.InstitutionManager.institution_id == institution_id
+        )
+
+    return query.order_by(models.InstitutionManager.id).all()
+
+
+@app.get(
+    "/institution-managers/{manager_id}",
+    response_model=schemas.InstitutionManagerResponse,
+    tags=["기관 관리자"],
+)
+def get_institution_manager(
+    manager_id: int,
+    db: Session = Depends(get_db),
+):
+    manager = db.get(models.InstitutionManager, manager_id)
+    if not manager:
+        raise HTTPException(status_code=404, detail="기관 관리자를 찾을 수 없습니다.")
+    return manager
+
+
+@app.patch(
+    "/institution-managers/{manager_id}",
+    response_model=schemas.InstitutionManagerResponse,
+    tags=["기관 관리자"],
+)
+def update_institution_manager(
+    manager_id: int,
+    manager_data: schemas.InstitutionManagerUpdate,
+    db: Session = Depends(get_db),
+):
+    manager = db.get(models.InstitutionManager, manager_id)
+    if not manager:
+        raise HTTPException(status_code=404, detail="기관 관리자를 찾을 수 없습니다.")
+
+    update_values = manager_data.model_dump(exclude_unset=True)
+
+    if "institution_id" in update_values:
+        institution = db.get(
+            models.Institution,
+            update_values["institution_id"],
+        )
+        if not institution:
+            raise HTTPException(
+                status_code=404,
+                detail="변경할 기관을 찾을 수 없습니다.",
+            )
+
+    apply_updates(manager, manager_data)
+    db.commit()
+    db.refresh(manager)
+    return manager
+
+
+@app.delete("/institution-managers/{manager_id}", tags=["기관 관리자"])
+def delete_institution_manager(
+    manager_id: int,
+    db: Session = Depends(get_db),
+):
+    manager = db.get(models.InstitutionManager, manager_id)
+    if not manager:
+        raise HTTPException(status_code=404, detail="기관 관리자를 찾을 수 없습니다.")
+
+    db.delete(manager)
+    db.commit()
+    return {"message": "기관 관리자가 삭제되었습니다.", "manager_id": manager_id}
+
+
+# =========================================================
+# 기관 관리자 ↔ 보호대상자 연결
+# =========================================================
+@app.post(
+    "/manager-assignments",
+    response_model=schemas.ManagerAssignmentResponse,
+    status_code=status.HTTP_201_CREATED,
+    tags=["담당 관리자 등록 관계"],
+)
+def create_manager_assignment(
+    assignment_data: schemas.ManagerAssignmentCreate,
+    db: Session = Depends(get_db),
+):
+    manager = db.get(models.InstitutionManager, assignment_data.manager_id)
+    subject = db.get(models.Subject, assignment_data.subject_id)
+
+    if not manager:
+        raise HTTPException(status_code=404, detail="기관 관리자를 찾을 수 없습니다.")
+    if not subject:
+        raise HTTPException(status_code=404, detail="보호대상자를 찾을 수 없습니다.")
+
+    existing = (
+        db.query(models.ManagerAssignment)
+        .filter(
+            models.ManagerAssignment.manager_id
+            == assignment_data.manager_id,
+            models.ManagerAssignment.subject_id
+            == assignment_data.subject_id,
+        )
+        .first()
+    )
+
+    if existing:
+        raise HTTPException(
+            status_code=409,
+            detail="이미 배정된 관리자와 보호대상자입니다.",
+        )
+
+    assignment = models.ManagerAssignment(**assignment_data.model_dump())
+    db.add(assignment)
+    db.commit()
+    db.refresh(assignment)
+    return assignment
+
+
+@app.get(
+    "/manager-assignments",
+    response_model=List[schemas.ManagerAssignmentResponse],
+    tags=["담당 관리자 등록 관계"],
+)
+def list_manager_assignments(
+    manager_id: int | None = None,
+    subject_id: int | None = None,
+    db: Session = Depends(get_db),
+):
+    query = db.query(models.ManagerAssignment)
+
+    if manager_id is not None:
+        query = query.filter(
+            models.ManagerAssignment.manager_id == manager_id
+        )
+
+    if subject_id is not None:
+        query = query.filter(
+            models.ManagerAssignment.subject_id == subject_id
+        )
+
+    return query.all()
+
+
+@app.patch(
+    "/manager-assignments/{manager_id}/{subject_id}",
+    response_model=schemas.ManagerAssignmentResponse,
+    tags=["담당 관리자 등록 관계"],
+)
+def update_manager_assignment(
+    manager_id: int,
+    subject_id: int,
+    assignment_data: schemas.ManagerAssignmentUpdate,
+    db: Session = Depends(get_db),
+):
+    assignment = (
+        db.query(models.ManagerAssignment)
+        .filter(
+            models.ManagerAssignment.manager_id == manager_id,
+            models.ManagerAssignment.subject_id == subject_id,
+        )
+        .first()
+    )
+
+    if not assignment:
+        raise HTTPException(
+            status_code=404,
+            detail="담당 관리자 배정 정보를 찾을 수 없습니다.",
+        )
+
+    apply_updates(assignment, assignment_data)
+
+    if (
+        assignment.assignment_start_date
+        and assignment.assignment_end_date
+        and assignment.assignment_end_date
+        < assignment.assignment_start_date
+    ):
+        db.rollback()
+        raise HTTPException(
+            status_code=400,
+            detail="담당 종료일은 담당 시작일보다 빠를 수 없습니다.",
+        )
+
+    db.commit()
+    db.refresh(assignment)
+    return assignment
+
+
+@app.delete(
+    "/manager-assignments/{manager_id}/{subject_id}",
+    tags=["담당 관리자 등록 관계"],
+)
+def delete_manager_assignment(
+    manager_id: int,
+    subject_id: int,
+    db: Session = Depends(get_db),
+):
+    assignment = (
+        db.query(models.ManagerAssignment)
+        .filter(
+            models.ManagerAssignment.manager_id == manager_id,
+            models.ManagerAssignment.subject_id == subject_id,
+        )
+        .first()
+    )
+
+    if not assignment:
+        raise HTTPException(
+            status_code=404,
+            detail="담당 관리자 배정 정보를 찾을 수 없습니다.",
+        )
+
+    db.delete(assignment)
+    db.commit()
+
+    return {
+        "message": "담당 관리자 배정이 삭제되었습니다.",
+        "manager_id": manager_id,
+        "subject_id": subject_id,
+    }
+
+
+# =========================================================
+# GPS 저장/조회
+# =========================================================
+@app.post(
+    "/gps",
+    response_model=schemas.GPSResponse,
+    status_code=status.HTTP_201_CREATED,
+    tags=["GPS"],
+)
+def save_gps(
+    gps_data: schemas.GPSCreate,
+    db: Session = Depends(get_db),
+):
+    subject = db.get(models.Subject, gps_data.subject_id)
+    if not subject:
+        raise HTTPException(status_code=404, detail="보호대상자를 찾을 수 없습니다.")
+
+    gps_record = models.GPSRecord(**gps_data.model_dump())
+    db.add(gps_record)
+    db.commit()
+    db.refresh(gps_record)
+    return gps_record
+
+
+def save_gps_compatibility(
+    gps_data: schemas.GPSCreate,
+    db: Session = Depends(get_db),
+):
+    return save_gps(gps_data, db)
+
+
+@app.get(
+    "/gps/latest/{subject_id}",
+    response_model=schemas.GPSResponse,
+    tags=["GPS"],
+)
+def get_latest_gps(
     subject_id: int,
     db: Session = Depends(get_db),
 ):
     subject = db.get(models.Subject, subject_id)
+    if not subject:
+        raise HTTPException(status_code=404, detail="보호대상자를 찾을 수 없습니다.")
 
-    if subject is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="보호 대상자가 없습니다.",
-        )
+    return get_latest_gps_or_404(db, subject_id)
 
-    record = db.scalar(
-        select(models.GPSRecord)
-        .where(
-            models.GPSRecord.subject_id == subject_id
-        )
+
+@app.get(
+    "/gps/history/{subject_id}",
+    response_model=List[schemas.GPSResponse],
+    tags=["GPS"],
+)
+def get_gps_history(
+    subject_id: int,
+    limit: int = Query(default=100, ge=1, le=1000),
+    db: Session = Depends(get_db),
+):
+    subject = db.get(models.Subject, subject_id)
+    if not subject:
+        raise HTTPException(status_code=404, detail="보호대상자를 찾을 수 없습니다.")
+
+    return (
+        db.query(models.GPSRecord)
+        .filter(models.GPSRecord.subject_id == subject_id)
         .order_by(
             models.GPSRecord.measured_at.desc(),
             models.GPSRecord.id.desc(),
         )
-        .limit(1)
+        .limit(limit)
+        .all()
     )
 
-    if record is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="저장된 GPS 위치가 없습니다.",
+
+# =========================================================
+# 보호대상자의 최신 GPS 기준 주변 기관 검색
+# =========================================================
+@app.get(
+    "/subjects/{subject_id}/institutions/nearest",
+    tags=["현재 위치 기반 기관 검색"],
+)
+def find_nearest_institutions_by_subject(
+    subject_id: int,
+    radius_km: float = Query(default=10.0, gt=0, le=100),
+    limit: int = Query(default=5, ge=1, le=100),
+    db: Session = Depends(get_db),
+):
+    subject = db.get(models.Subject, subject_id)
+    if not subject:
+        raise HTTPException(status_code=404, detail="보호대상자를 찾을 수 없습니다.")
+
+    latest_gps = get_latest_gps_or_404(db, subject_id)
+
+    institutions = (
+        db.query(models.Institution)
+        .filter(
+            models.Institution.latitude.isnot(None),
+            models.Institution.longitude.isnot(None),
+        )
+        .all()
+    )
+
+    results = []
+
+    for institution in institutions:
+        distance = haversine_km(
+            latest_gps.latitude,
+            latest_gps.longitude,
+            institution.latitude,
+            institution.longitude,
         )
 
-    return record
+        if distance <= radius_km:
+            results.append(institution_to_result(institution, distance))
+
+    results.sort(key=lambda item: item["distance_km"])
+
+    return {
+        "subject": {
+            "id": subject.id,
+            "name": subject.name,
+            "subject_type": subject.subject_type.value,
+        },
+        "current_location": {
+            "latitude": latest_gps.latitude,
+            "longitude": latest_gps.longitude,
+            "measured_at": latest_gps.measured_at,
+        },
+        "radius_km": radius_km,
+        "count": min(len(results), limit),
+        "institutions": results[:limit],
+    }
+
+
+@app.get(
+    "/subjects/{subject_id}/institutions/recommended",
+    tags=["맞춤 기관 추천"],
+)
+def recommend_institutions_for_subject(
+    subject_id: int,
+    radius_km: float = Query(default=20.0, gt=0, le=100),
+    limit: int = Query(default=5, ge=1, le=100),
+    db: Session = Depends(get_db),
+):
+    subject = db.get(models.Subject, subject_id)
+    if not subject:
+        raise HTTPException(status_code=404, detail="보호대상자를 찾을 수 없습니다.")
+
+    latest_gps = get_latest_gps_or_404(db, subject_id)
+
+    institutions = (
+        db.query(models.Institution)
+        .filter(
+            models.Institution.latitude.isnot(None),
+            models.Institution.longitude.isnot(None),
+        )
+        .all()
+    )
+
+    recommendations = []
+
+    for institution in institutions:
+        distance = haversine_km(
+            latest_gps.latitude,
+            latest_gps.longitude,
+            institution.latitude,
+            institution.longitude,
+        )
+
+        if distance > radius_km:
+            continue
+
+        type_score = calculate_type_match_score(
+            subject.subject_type,
+            institution.institution_type,
+        )
+
+        distance_score = max(0.0, 1.0 - distance / radius_km)
+        recommendation_score = type_score * 0.6 + distance_score * 0.4
+
+        result = institution_to_result(institution, distance)
+        result.update(
+            {
+                "type_match_score": round(type_score, 3),
+                "distance_score": round(distance_score, 3),
+                "recommendation_score": round(recommendation_score, 3),
+            }
+        )
+        recommendations.append(result)
+
+    recommendations.sort(
+        key=lambda item: (
+            -item["recommendation_score"],
+            item["distance_km"],
+        )
+    )
+
+    return {
+        "subject": {
+            "id": subject.id,
+            "name": subject.name,
+            "subject_type": subject.subject_type.value,
+        },
+        "current_location": {
+            "latitude": latest_gps.latitude,
+            "longitude": latest_gps.longitude,
+            "measured_at": latest_gps.measured_at,
+        },
+        "weights": {
+            "type_match": 0.6,
+            "distance": 0.4,
+        },
+        "radius_km": radius_km,
+        "count": min(len(recommendations), limit),
+        "recommendations": recommendations[:limit],
+    }
 
 
 # =========================================================
-# 브라우저에서 현재 위치 가져와 GPS 저장 후 시설 자동 조회
+# 브라우저 현재 위치 테스트 페이지
 # =========================================================
-
 @app.get(
     "/gps-current",
     response_class=HTMLResponse,
+    tags=["GPS 테스트 페이지"],
 )
 def gps_current_page():
     return """
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="utf-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1"
-    >
-
-    <title>내 주변 복지시설</title>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>현재 위치 기반 기관 검색</title>
     <style>
-        * {
-            box-sizing: border-box;
-        }
-
         body {
-            margin: 0;
-            background: #f5f7fa;
+            max-width: 760px;
+            margin: 40px auto;
+            padding: 20px;
             font-family: Arial, sans-serif;
-            color: #222;
+            line-height: 1.6;
         }
-
-        .container {
-            max-width: 700px;
-            margin: 0 auto;
-            padding: 24px 16px 50px;
-        }
-
-        h1 {
-            margin-bottom: 8px;
-            font-size: 27px;
-        }
-
-        .description {
-            margin-top: 0;
-            color: #666;
-            line-height: 1.5;
-        }
-
-        .control-card {
-            margin-top: 20px;
-            padding: 18px;
-            background: white;
-            border-radius: 14px;
-            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
-        }
-
-        label {
-            display: block;
-            margin-bottom: 7px;
-            font-weight: bold;
-        }
-
-        input,
-        select,
-        button {
+        input, button {
+            box-sizing: border-box;
             width: 100%;
-            padding: 13px;
-            margin-bottom: 12px;
-            border: 1px solid #d8dce2;
-            border-radius: 9px;
+            margin: 8px 0;
+            padding: 12px;
             font-size: 16px;
         }
-
         button {
-            border: none;
-            background: #2563eb;
-            color: white;
-            font-weight: bold;
             cursor: pointer;
         }
-
-        button:disabled {
-            background: #9ca3af;
-            cursor: not-allowed;
-        }
-
-        .status {
-            margin-top: 14px;
-            padding: 14px;
-            background: #eef3ff;
-            border-radius: 10px;
-            line-height: 1.5;
+        pre {
+            overflow-x: auto;
+            padding: 16px;
+            border-radius: 8px;
+            background: #f4f4f4;
             white-space: pre-wrap;
-        }
-
-        .error {
-            background: #fff0f0;
-            color: #b42318;
-        }
-
-        .success {
-            background: #ecfdf3;
-            color: #067647;
-        }
-
-        .facility-list {
-            margin-top: 20px;
-        }
-
-        .facility-card {
-            margin-bottom: 13px;
-            padding: 17px;
-            background: white;
-            border-radius: 13px;
-            box-shadow: 0 2px 9px rgba(0, 0, 0, 0.07);
-        }
-
-        .facility-name {
-            margin: 0 0 8px;
-            font-size: 19px;
-        }
-
-        .facility-address {
-            margin: 0 0 8px;
-            color: #555;
-            line-height: 1.45;
-        }
-
-        .facility-distance {
-            margin: 0;
-            color: #2563eb;
-            font-weight: bold;
-        }
-
-        .empty {
-            padding: 20px;
-            text-align: center;
-            background: white;
-            border-radius: 13px;
-            color: #666;
         }
     </style>
 </head>
-
 <body>
-    <main class="container">
-        <h1>내 주변 복지시설</h1>
+    <h1>현재 위치 기반 기관 검색</h1>
 
-        <p class="description">
-            현재 위치를 자동으로 확인하고 저장한 뒤,
-            가까운 복지시설을 바로 보여줍니다.
-        </p>
+    <label for="subjectId">보호대상자 ID</label>
+    <input id="subjectId" type="number" min="1" value="1">
 
-        <section class="control-card">
-            <label for="subjectId">
-                보호 대상자 ID
-            </label>
+    <label for="radiusKm">검색 반경(km)</label>
+    <input id="radiusKm" type="number" min="1" max="100" value="10">
 
-            <input
-                id="subjectId"
-                type="number"
-                min="1"
-                value="1"
-                placeholder="보호 대상자 ID"
-            >
+    <button onclick="saveLocation()">현재 위치 저장</button>
+    <button onclick="saveAndFindNearest()">현재 위치 저장 후 주변 기관 찾기</button>
+    <button onclick="findNearest()">저장된 위치로 주변 기관 찾기</button>
+    <button onclick="findRecommended()">맞춤 기관 추천받기</button>
 
-            <label for="radius">
-                검색 반경
-            </label>
-
-            <select id="radius">
-                <option value="3">3km 이내</option>
-                <option value="5">5km 이내</option>
-                <option value="10" selected>10km 이내</option>
-                <option value="20">20km 이내</option>
-                <option value="50">50km 이내</option>
-            </select>
-
-            <button
-                id="locationButton"
-                type="button"
-                onclick="startLocationSearch()"
-            >
-                현재 위치로 시설 찾기
-            </button>
-
-            <div
-                id="status"
-                class="status"
-            >
-                위치 확인을 준비하고 있습니다.
-            </div>
-        </section>
-
-        <section
-            id="facilityList"
-            class="facility-list"
-        ></section>
-    </main>
+    <h2>결과</h2>
+    <pre id="result">아직 실행하지 않았습니다.</pre>
 
     <script>
-        const statusElement =
-            document.getElementById("status");
+        const resultElement = document.getElementById("result");
 
-        const facilityListElement =
-            document.getElementById("facilityList");
-
-        const locationButton =
-            document.getElementById("locationButton");
-
-        let watchId = null;
-        let lastSavedTime = 0;
-
-
-        function setStatus(message, type = "") {
-            statusElement.textContent = message;
-            statusElement.className = "status";
-
-            if (type) {
-                statusElement.classList.add(type);
+        function getSubjectId() {
+            const value = Number(document.getElementById("subjectId").value);
+            if (!value || value < 1) {
+                throw new Error("올바른 보호대상자 ID를 입력하세요.");
             }
+            return value;
         }
 
-
-        function escapeHtml(value) {
-            return String(value)
-                .replaceAll("&", "&amp;")
-                .replaceAll("<", "&lt;")
-                .replaceAll(">", "&gt;")
-                .replaceAll('"', "&quot;")
-                .replaceAll("'", "&#039;");
-        }
-
-
-        function renderFacilities(facilities) {
-            facilityListElement.innerHTML = "";
-
-            if (!facilities || facilities.length === 0) {
-                facilityListElement.innerHTML = `
-                    <div class="empty">
-                        선택한 반경 안에 등록된 복지시설이 없습니다.
-                    </div>
-                `;
-
-                return;
+        function getRadiusKm() {
+            const value = Number(document.getElementById("radiusKm").value);
+            if (!value || value <= 0) {
+                throw new Error("올바른 검색 반경을 입력하세요.");
             }
-
-            facilities.forEach((facility, index) => {
-                const card = document.createElement("article");
-
-                card.className = "facility-card";
-
-                const latitude =
-                    encodeURIComponent(facility.latitude);
-
-                const longitude =
-                    encodeURIComponent(facility.longitude);
-
-                card.innerHTML = `
-                    <h2 class="facility-name">
-                        ${index + 1}.
-                        ${escapeHtml(facility.name)}
-                    </h2>
-
-                    <p class="facility-address">
-                        ${escapeHtml(facility.address)}
-                    </p>
-
-                    <p class="facility-distance">
-                        현재 위치에서
-                        ${facility.distance_km.toFixed(2)}km
-                    </p>
-
-                    <p>
-                        <a
-                            href="https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                        >
-                            지도에서 보기
-                        </a>
-                    </p>
-                `;
-
-                facilityListElement.appendChild(card);
-            });
+            return value;
         }
 
+        function getCurrentPosition() {
+            return new Promise((resolve, reject) => {
+                if (!navigator.geolocation) {
+                    reject(new Error("현재 브라우저는 위치 기능을 지원하지 않습니다."));
+                    return;
+                }
 
-        async function saveGps(
-            subjectId,
-            latitude,
-            longitude
-        ) {
-            const response = await fetch(
-                "/gps-records",
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
+                navigator.geolocation.getCurrentPosition(
+                    resolve,
+                    (error) => {
+                        if (error.code === 1) {
+                            reject(
+                                new Error(
+                                    "위치 권한이 거부되었습니다. 브라우저 사이트 설정에서 위치 권한을 허용하세요."
+                                )
+                            );
+                            return;
+                        }
+                        reject(new Error("현재 위치를 가져오지 못했습니다."));
                     },
-                    body: JSON.stringify({
-                        subject_id: subjectId,
-                        latitude: latitude,
-                        longitude: longitude
-                    })
-                }
-            );
-
-            const result = await response.json();
-
-            if (!response.ok) {
-                const detail =
-                    result.detail || "GPS 저장에 실패했습니다.";
-
-                throw new Error(detail);
-            }
-
-            return result;
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 15000,
+                        maximumAge: 0
+                    }
+                );
+            });
         }
 
+        async function saveLocation() {
+            const subjectId = getSubjectId();
+            resultElement.textContent = "현재 위치를 가져오는 중입니다...";
 
-        async function loadNearbyFacilities(subjectId) {
-            const radius =
-                document.getElementById("radius").value;
+            const position = await getCurrentPosition();
 
-            const params = new URLSearchParams({
-                radius_km: radius,
-                limit: 10
+            const response = await fetch("/gps", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({
+                    subject_id: subjectId,
+                    latitude: position.coords.latitude,
+                    longitude: position.coords.longitude
+                })
             });
 
-            const response = await fetch(
-                `/facilities/nearest/${subjectId}?${params.toString()}`
-            );
-
-            const result = await response.json();
+            const data = await response.json();
 
             if (!response.ok) {
-                const detail =
-                    result.detail ||
-                    "주변 시설을 불러오지 못했습니다.";
-
-                throw new Error(detail);
+                throw new Error(data.detail || "GPS 저장 실패");
             }
 
-            return result;
+            resultElement.textContent = JSON.stringify(data, null, 2);
+            return data;
         }
 
+        async function findNearest() {
+            const subjectId = getSubjectId();
+            const radiusKm = getRadiusKm();
 
-        async function handlePosition(position) {
-            const now = Date.now();
+            resultElement.textContent = "주변 기관을 검색하는 중입니다...";
 
-            if (now - lastSavedTime < 10000) {
-                return;
-            }
-
-            lastSavedTime = now;
-
-            const subjectId = Number(
-                document.getElementById("subjectId").value
+            const response = await fetch(
+                `/subjects/${subjectId}/institutions/nearest?radius_km=${radiusKm}&limit=10`
             );
 
-            if (!subjectId || subjectId < 1) {
-                setStatus(
-                    "보호 대상자 ID를 입력해주세요.",
-                    "error"
-                );
+            const data = await response.json();
 
-                locationButton.disabled = false;
-                return;
+            if (!response.ok) {
+                throw new Error(data.detail || "기관 검색 실패");
             }
 
-            const latitude =
-                position.coords.latitude;
+            resultElement.textContent = JSON.stringify(data, null, 2);
+        }
 
-            const longitude =
-                position.coords.longitude;
+        async function saveAndFindNearest() {
+            await saveLocation();
+            await findNearest();
+        }
 
+        async function findRecommended() {
+            const subjectId = getSubjectId();
+            const radiusKm = getRadiusKm();
+
+            resultElement.textContent = "맞춤 기관을 추천하는 중입니다...";
+
+            const response = await fetch(
+                `/subjects/${subjectId}/institutions/recommended?radius_km=${radiusKm}&limit=10`
+            );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.detail || "맞춤 추천 실패");
+            }
+
+            resultElement.textContent = JSON.stringify(data, null, 2);
+        }
+
+        async function runSafely(action) {
             try {
-                setStatus(
-                    "현재 위치를 확인했습니다.\\n"
-                    + "GPS를 저장하고 주변 시설을 찾는 중입니다."
-                );
-
-                await saveGps(
-                    subjectId,
-                    latitude,
-                    longitude
-                );
-
-                const facilities =
-                    await loadNearbyFacilities(subjectId);
-
-                renderFacilities(facilities);
-
-                setStatus(
-                    "현재 위치 저장 완료\\n"
-                    + `가까운 시설 ${facilities.length}개를 찾았습니다.\\n`
-                    + "위치가 변경되면 목록도 자동으로 갱신됩니다.",
-                    "success"
-                );
-
+                await action();
             } catch (error) {
-                setStatus(
-                    error.message,
-                    "error"
-                );
-
-                locationButton.disabled = false;
+                resultElement.textContent = "오류: " + error.message;
             }
         }
 
+        const originalSaveLocation = saveLocation;
+        const originalSaveAndFindNearest = saveAndFindNearest;
+        const originalFindNearest = findNearest;
+        const originalFindRecommended = findRecommended;
 
-        function handleLocationError(error) {
-            let message =
-                "현재 위치를 가져오지 못했습니다.";
-
-            if (error.code === error.PERMISSION_DENIED) {
-                message =
-                    "위치 권한이 거부되었습니다.\\n"
-                    + "브라우저 설정에서 이 사이트의 위치 권한을 "
-                    + "허용한 뒤 다시 눌러주세요.";
-            }
-
-            if (error.code === error.POSITION_UNAVAILABLE) {
-                message =
-                    "현재 위치 정보를 사용할 수 없습니다.";
-            }
-
-            if (error.code === error.TIMEOUT) {
-                message =
-                    "위치 확인 시간이 초과되었습니다. "
-                    + "다시 시도해주세요.";
-            }
-
-            setStatus(message, "error");
-            locationButton.disabled = false;
-        }
-
-
-        function startLocationSearch() {
-            const subjectId = Number(
-                document.getElementById("subjectId").value
-            );
-
-            if (!subjectId || subjectId < 1) {
-                setStatus(
-                    "보호 대상자 ID를 입력해주세요.",
-                    "error"
-                );
-
-                return;
-            }
-
-            if (!navigator.geolocation) {
-                setStatus(
-                    "이 브라우저는 위치 기능을 지원하지 않습니다.",
-                    "error"
-                );
-
-                return;
-            }
-
-            if (watchId !== null) {
-                navigator.geolocation.clearWatch(watchId);
-            }
-
-            locationButton.disabled = true;
-            locationButton.textContent =
-                "실시간 위치 추적 중";
-
-            setStatus(
-                "위치 권한을 확인하고 있습니다."
-            );
-
-            watchId = navigator.geolocation.watchPosition(
-                handlePosition,
-                handleLocationError,
-                {
-                    enableHighAccuracy: true,
-                    timeout: 15000,
-                    maximumAge: 5000
-                }
-            );
-        }
-
-
-        window.addEventListener(
-            "load",
-            startLocationSearch
-        );
+        saveLocation = () => runSafely(originalSaveLocation);
+        saveAndFindNearest = () => runSafely(originalSaveAndFindNearest);
+        findNearest = () => runSafely(originalFindNearest);
+        findRecommended = () => runSafely(originalFindRecommended);
     </script>
 </body>
 </html>
 """
-
-
-# =========================================================
-# 5. 전라남도 복지시설 동기화·조회
-# =========================================================
-
-@app.post("/facilities/sync")
-async def sync_facilities(
-    db: Session = Depends(get_db),
-):
-    try:
-        api_items = await fetch_facilities()
-
-    except Exception as exc:
-        raise HTTPException(
-            status_code=status.HTTP_502_BAD_GATEWAY,
-            detail=str(exc),
-        )
-
-    created = 0
-    updated = 0
-
-    for data in api_items:
-        facility = db.scalar(
-            select(models.Facility).where(
-                models.Facility.external_id
-                == data["external_id"]
-            )
-        )
-
-        if facility is None:
-            db.add(models.Facility(**data))
-            created += 1
-
-        else:
-            facility.name = data["name"]
-            facility.address = data["address"]
-            facility.latitude = data["latitude"]
-            facility.longitude = data["longitude"]
-            updated += 1
-
-    db.commit()
-
-    return {
-        "received": len(api_items),
-        "created": created,
-        "updated": updated,
-    }
-
-
-@app.get(
-    "/facilities",
-    response_model=list[schemas.FacilityResponse],
-)
-def list_facilities(
-    db: Session = Depends(get_db),
-):
-    return db.scalars(
-        select(models.Facility).order_by(
-            models.Facility.name
-        )
-    ).all()
-
-
-# =========================================================
-# 6. 저장된 최신 GPS 기준 가까운 복지시설 조회
-# =========================================================
-
-@app.get(
-    "/facilities/nearest/{subject_id}",
-    response_model=list[schemas.NearbyFacilityResponse],
-)
-def nearest_facilities_by_subject(
-    subject_id: int,
-    radius_km: float = Query(
-        default=10,
-        gt=0,
-        le=100,
-    ),
-    limit: int = Query(
-        default=5,
-        ge=1,
-        le=50,
-    ),
-    db: Session = Depends(get_db),
-):
-    subject = db.get(models.Subject, subject_id)
-
-    if subject is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="보호 대상자가 없습니다.",
-        )
-
-    latest_gps = db.scalar(
-        select(models.GPSRecord)
-        .where(
-            models.GPSRecord.subject_id == subject_id
-        )
-        .order_by(
-            models.GPSRecord.measured_at.desc(),
-            models.GPSRecord.id.desc(),
-        )
-        .limit(1)
-    )
-
-    if latest_gps is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="저장된 GPS 위치가 없습니다.",
-        )
-
-    return find_nearby_facilities(
-        latitude=latest_gps.latitude,
-        longitude=latest_gps.longitude,
-        radius_km=radius_km,
-        limit=limit,
-        db=db,
-    )
-
-
-# =========================================================
-# 7. 위도·경도 직접 입력용 시설 조회(테스트용)
-# =========================================================
-
-@app.get(
-    "/facilities/nearby",
-    response_model=list[schemas.NearbyFacilityResponse],
-)
-def nearby_facilities(
-    latitude: float = Query(ge=-90, le=90),
-    longitude: float = Query(ge=-180, le=180),
-    radius_km: float = Query(
-        default=10,
-        gt=0,
-        le=100,
-    ),
-    limit: int = Query(
-        default=5,
-        ge=1,
-        le=50,
-    ),
-    db: Session = Depends(get_db),
-):
-    return find_nearby_facilities(
-        latitude=latitude,
-        longitude=longitude,
-        radius_km=radius_km,
-        limit=limit,
-        db=db,
-    )
-
-
-# 반드시 /facilities/nearest/{subject_id}와
-# /facilities/nearby보다 아래에 둔다.
-@app.get(
-    "/facilities/{facility_id}",
-    response_model=schemas.FacilityResponse,
-)
-def get_facility(
-    facility_id: int,
-    db: Session = Depends(get_db),
-):
-    facility = db.get(models.Facility, facility_id)
-
-    if facility is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="복지시설이 없습니다.",
-        )
-
-    return facility
