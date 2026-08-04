@@ -160,7 +160,6 @@ def institution_to_result(
         "institution_type": institution.institution_type.value,
         "address": institution.address,
         "phone": institution.phone,
-        "operating_hours": institution.operating_hours,
         "latitude": institution.latitude,
         "longitude": institution.longitude,
         "distance_km": round(distance_km, 3),
@@ -581,7 +580,6 @@ async def import_institutions_from_openapi(
             name = str(facility.get("name", "")).strip()
             address = facility.get("address")
             phone = facility.get("phone")
-            operating_hours = facility.get("operating_hours")
             latitude = facility.get("latitude")
             longitude = facility.get("longitude")
 
@@ -609,7 +607,6 @@ async def import_institutions_from_openapi(
                 existing.name = name
                 existing.address = address
                 existing.phone = phone
-                existing.operating_hours = operating_hours
                 existing.latitude = latitude
                 existing.longitude = longitude
                 existing.institution_type = institution_type
@@ -623,7 +620,6 @@ async def import_institutions_from_openapi(
                     institution_type=institution_type,
                     address=address,
                     phone=phone,
-                    operating_hours=operating_hours,
                     latitude=latitude,
                     longitude=longitude,
                 )

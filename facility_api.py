@@ -396,10 +396,6 @@ def parse_facilities_from_root(
             data,
             PHONE_ALIASES,
         )
-        operating_hours = pick(
-            data,
-            OPERATING_HOURS_ALIASES,
-        )
         capacity = pick(
             data,
             CAPACITY_ALIASES,
@@ -438,7 +434,6 @@ def parse_facilities_from_root(
         "latitude": latitude,
         "longitude": longitude,
         "phone": phone,
-        "operating_hours": operating_hours,
         "capacity": capacity,
     }
 )
