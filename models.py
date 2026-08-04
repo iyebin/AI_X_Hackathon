@@ -53,10 +53,14 @@ class Guardian(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(100), nullable=False)
     gender = Column(
-        SqlEnum(GenderType, native_enum=False),
-        nullable=False,
-        default=GenderType.UNKNOWN,
-    )
+    SqlEnum(
+        GenderType,
+        name="gendertype",
+        native_enum=True,
+    ),
+    nullable=False,
+    default=GenderType.UNKNOWN,
+)
     phone = Column(String(30), nullable=False, unique=True, index=True)
     birth_date = Column(Date, nullable=True)
     address = Column(String(255), nullable=True)
@@ -83,10 +87,10 @@ class Institution(Base):
     institution_code = Column(String(100), nullable=False, unique=True, index=True)
     name = Column(String(200), nullable=False)
     institution_type = Column(
-    PGEnum(
+    SqlEnum(
         InstitutionType,
         name="institutiontype",
-        create_type=False,
+        native_enum=True,
     ),
     nullable=False,
     default=InstitutionType.GENERAL,
@@ -127,10 +131,14 @@ class Subject(Base):
     birth_date = Column(Date, nullable=True)
     address = Column(String(255), nullable=True)
     subject_type = Column(
-        SqlEnum(SubjectType, native_enum=False),
-        nullable=False,
-        default=SubjectType.GENERAL,
-    )
+    SqlEnum(
+        SubjectType,
+        name="subjecttype",
+        native_enum=True,
+    ),
+    nullable=False,
+    default=SubjectType.GENERAL,
+)
     special_notes = Column(Text, nullable=True)
 
     institution_id = Column(
