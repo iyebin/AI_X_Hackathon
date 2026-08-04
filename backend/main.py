@@ -580,6 +580,8 @@ async def import_institutions_from_openapi(
             external_id = str(facility.get("external_id", "")).strip()
             name = str(facility.get("name", "")).strip()
             address = facility.get("address")
+            phone = facility.get("phone")
+            operating_hours = facility.get("operating_hours")
             latitude = facility.get("latitude")
             longitude = facility.get("longitude")
 
@@ -606,6 +608,8 @@ async def import_institutions_from_openapi(
 
                 existing.name = name
                 existing.address = address
+                existing.phone = phone
+                existing.operating_hours = operating_hours
                 existing.latitude = latitude
                 existing.longitude = longitude
                 existing.institution_type = institution_type
@@ -618,8 +622,8 @@ async def import_institutions_from_openapi(
                     name=name,
                     institution_type=institution_type,
                     address=address,
-                    phone=None,
-                    operating_hours=None,
+                    phone=phone,
+                    operating_hours=operating_hours,
                     latitude=latitude,
                     longitude=longitude,
                 )
