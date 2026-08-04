@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 안심하랑께 백엔드
 
 ## 실행
@@ -28,3 +29,7 @@ GPS 테스트:
 5. `POST /gps`
 6. `GET /subjects/{subject_id}/institutions/nearest`
 7. `GET /subjects/{subject_id}/institutions/recommended`
+=======
+# AI_X_Hackathon
+We are Team "슝슝슝," participating in the 2026 AI+X Industry-Academia Hackathon Project hosted by Chonnam National University's AICOSS.
+>>>>>>> team/backend
