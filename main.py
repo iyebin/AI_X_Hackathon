@@ -930,10 +930,10 @@ def create_guardian_registration(
         **registration_data.model_dump()
     )
     db.add(registration)
-db.commit()
-db.refresh(registration)
+    db.commit()
+    db.refresh(registration)
 
-return guardian_registration_to_detail(registration)
+    return guardian_registration_to_detail(registration)
 
 @app.get(
     "/guardian-registrations",
