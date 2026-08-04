@@ -383,7 +383,7 @@ def parse_facilities_from_root(
             data,
             PHONE_ALIASES,
         )
-capacity = pick(
+        capacity = pick(
             data,
             CAPACITY_ALIASES,
         )
