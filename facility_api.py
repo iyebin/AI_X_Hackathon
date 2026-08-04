@@ -180,19 +180,6 @@ PHONE_ALIASES = [
     "전화번호",
     "연락처",
 ]
-OPERATING_HOURS_ALIASES = [
-    "operatingHours",
-    "operationHours",
-    "businessHours",
-    "useTime",
-    "serviceHours",
-    "openTime",
-    "closeTime",
-    "운영시간",
-    "이용시간",
-    "운영시간안내",
-    "개방시간",
-]
 
 CAPACITY_ALIASES = [
     "capacity",
