@@ -14,6 +14,49 @@ from database import Base, engine, get_db
 
 Base.metadata.create_all(bind=engine)
 
+tags_metadata = [
+    {
+        "name": "기본",
+        "description": "서버 실행 상태를 확인합니다.",
+    },
+    {
+        "name": "기관",
+        "description": "기관 데이터 가져오기와 기관 CRUD를 관리합니다.",
+    },
+    {
+        "name": "보호대상자",
+        "description": "보호대상자를 등록·조회·수정·삭제합니다.",
+    },
+    {
+        "name": "보호자",
+        "description": "보호자를 등록·조회·수정·삭제합니다.",
+    },
+    {
+        "name": "보호자 등록 관계",
+        "description": "보호자와 보호대상자를 연결합니다.",
+    },
+    {
+        "name": "기관 관리자",
+        "description": "기관 소속 관리자를 관리합니다.",
+    },
+    {
+        "name": "담당 관리자 등록 관계",
+        "description": "기관 관리자를 보호대상자에게 배정합니다.",
+    },
+    {
+        "name": "GPS",
+        "description": "보호대상자의 위치를 저장하고 조회합니다.",
+    },
+    {
+        "name": "현재 위치 기반 기관 검색",
+        "description": "좌표 또는 최신 GPS 위치로 가까운 기관을 검색합니다.",
+    },
+    {
+        "name": "맞춤 기관 추천",
+        "description": "보호대상자 유형과 거리를 이용해 기관을 추천합니다.",
+    },
+]
+
 app = FastAPI(
     title="안심하랑께 백엔드 API",
     description="""
@@ -25,9 +68,9 @@ app = FastAPI(
 - GPS 위치 저장
 - 현재 위치 기반 주변 기관 검색
 - 보호대상자 유형과 거리 기반 맞춤 기관 추천
-- 브라우저 현재 위치 테스트 페이지
 """,
     version="3.0.0",
+    openapi_tags=tags_metadata,
 )
 
 app.add_middleware(
@@ -194,7 +237,6 @@ def root():
         "message": "안심하랑께 백엔드 서버가 실행 중입니다.",
         "version": "3.0.0",
         "swagger": "/docs",
-        "gps_test_page": "/gps-current",
     }
 
 
@@ -514,7 +556,7 @@ def find_nearest_facilities_compatibility(
 
 @app.post(
     "/institutions/import-openapi",
-    tags=["공공데이터 기관 가져오기"],
+    tags=["기관"],
 )
 async def import_institutions_from_openapi(
     update_existing: bool = Query(
@@ -793,6 +835,15 @@ def update_subject(
                 )
 
     apply_updates(subject, subject_data)
+    try:
+            db.commit()
+            db.refresh(subject)
+    except IntegrityError:
+            db.rollback()
+            raise HTTPException(status_code=409, detail="이미 사용 중인 연락처입니다.")
+
+    return subject
+        
 def guardian_registration_to_detail(
     registration: models.GuardianRegistration,
 ) -> dict:
@@ -837,14 +888,7 @@ def guardian_registration_to_detail(
             "institution_id": subject.institution_id,
         },
     }
-    try:
-        db.commit()
-        db.refresh(subject)
-    except IntegrityError:
-        db.rollback()
-        raise HTTPException(status_code=409, detail="이미 사용 중인 연락처입니다.")
 
-    return subject
 
 
 @app.delete("/subjects/{subject_id}", tags=["보호대상자"])
