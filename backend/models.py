@@ -1,90 +1,391 @@
-from datetime import datetime
+from enum import Enum
 
-from sqlalchemy import DateTime, Float, ForeignKey, String, Text, UniqueConstraint
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy import (
+    Boolean,
+    Column,
+    Date,
+    DateTime,
+    Enum as SqlEnum,
+    Float,
+    ForeignKey,
+    Integer,
+    String,
+    Text,
+    UniqueConstraint,
+)
+from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
 
 from database import Base
 
 
-class Subject(Base):
-    __tablename__ = "subjects"
+class GenderType(str, Enum):
+    MALE = "male"
+    FEMALE = "female"
+    OTHER = "other"
+    UNKNOWN = "unknown"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str] = mapped_column(String(50), nullable=False)
-    phone: Mapped[str | None] = mapped_column(String(20), nullable=True)
-    special_notes: Mapped[str | None] = mapped_column(Text, nullable=True)
 
-    guardian_links: Mapped[list["SubjectGuardian"]] = relationship(
-        back_populates="subject",
-        cascade="all, delete-orphan",
-    )
-    gps_records: Mapped[list["GPSRecord"]] = relationship(
-        back_populates="subject",
-        cascade="all, delete-orphan",
-    )
+class SubjectType(str, Enum):
+    CHILD = "child"
+    DEMENTIA = "dementia"
+    ELDERLY = "elderly"
+    DISABILITY = "disability"
+    GENERAL = "general"
+    OTHER = "other"
+
+
+class InstitutionType(str, Enum):
+    CHILD = "child"
+    DEMENTIA = "dementia"
+    ELDERLY = "elderly"
+    DISABILITY = "disability"
+    GENERAL = "general"
+    POLICE = "police"
+    HOSPITAL = "hospital"
+    OTHER = "other"
 
 
 class Guardian(Base):
     __tablename__ = "guardians"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str] = mapped_column(String(50), nullable=False)
-    phone: Mapped[str] = mapped_column(String(20), nullable=False, unique=True)
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(100), nullable=False)
 
-    subject_links: Mapped[list["SubjectGuardian"]] = relationship(
+    gender = Column(
+        SqlEnum(
+            GenderType,
+            name="gendertype",
+            native_enum=True,
+        ),
+        nullable=False,
+        default=GenderType.UNKNOWN,
+    )
+
+    phone = Column(String(30), nullable=False, unique=True, index=True)
+    birth_date = Column(Date, nullable=True)
+    address = Column(String(255), nullable=True)
+
+    created_at = Column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        nullable=False,
+    )
+    updated_at = Column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+        nullable=False,
+    )
+
+    subject_registrations = relationship(
+        "GuardianRegistration",
         back_populates="guardian",
         cascade="all, delete-orphan",
+        passive_deletes=True,
     )
 
 
-class SubjectGuardian(Base):
-    __tablename__ = "subject_guardians"
+class Institution(Base):
+    __tablename__ = "institutions"
+
+    id = Column(Integer, primary_key=True, index=True)
+    institution_code = Column(
+        String(100),
+        nullable=False,
+        unique=True,
+        index=True,
+    )
+    name = Column(String(200), nullable=False)
+
+    institution_type = Column(
+        SqlEnum(
+            InstitutionType,
+            name="institutiontype",
+            native_enum=True,
+        ),
+        nullable=False,
+        default=InstitutionType.GENERAL,
+    )
+
+    address = Column(String(255), nullable=True)
+    phone = Column(String(30), nullable=True)
+    operating_hours = Column(String(255), nullable=True)
+    latitude = Column(Float, nullable=True)
+    longitude = Column(Float, nullable=True)
+
+    created_at = Column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        nullable=False,
+    )
+    updated_at = Column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+        nullable=False,
+    )
+
+    subjects = relationship(
+        "Subject",
+        back_populates="institution",
+        passive_deletes=True,
+    )
+    managers = relationship(
+        "InstitutionManager",
+        back_populates="institution",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
+
+
+class Subject(Base):
+    __tablename__ = "subjects"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(100), nullable=False)
+
+    gender = Column(
+        SqlEnum(
+            GenderType,
+            name="gendertype",
+            native_enum=True,
+        ),
+        nullable=False,
+        default=GenderType.UNKNOWN,
+    )
+
+    phone = Column(String(30), nullable=True, unique=True, index=True)
+    birth_date = Column(Date, nullable=True)
+    address = Column(String(255), nullable=True)
+
+    subject_type = Column(
+        SqlEnum(
+            SubjectType,
+            name="subjecttype",
+            native_enum=True,
+        ),
+        nullable=False,
+        default=SubjectType.GENERAL,
+    )
+
+    special_notes = Column(Text, nullable=True)
+
+    institution_id = Column(
+        Integer,
+        ForeignKey(
+            "institutions.id",
+            ondelete="SET NULL",
+        ),
+        nullable=True,
+        index=True,
+    )
+
+    created_at = Column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        nullable=False,
+    )
+    updated_at = Column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+        nullable=False,
+    )
+
+    institution = relationship(
+        "Institution",
+        back_populates="subjects",
+    )
+    guardian_registrations = relationship(
+        "GuardianRegistration",
+        back_populates="subject",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
+    manager_assignments = relationship(
+        "ManagerAssignment",
+        back_populates="subject",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
+    gps_records = relationship(
+        "GPSRecord",
+        back_populates="subject",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
+
+
+class GuardianRegistration(Base):
+    __tablename__ = "guardian_registrations"
+
+    guardian_id = Column(
+        Integer,
+        ForeignKey(
+            "guardians.id",
+            ondelete="CASCADE",
+        ),
+        primary_key=True,
+    )
+    subject_id = Column(
+        Integer,
+        ForeignKey(
+            "subjects.id",
+            ondelete="CASCADE",
+        ),
+        primary_key=True,
+    )
+
+    relationship_code = Column(String(50), nullable=False)
+    guardian_role_code = Column(String(50), nullable=True)
+    is_primary = Column(Boolean, nullable=False, default=False)
+    contact_priority = Column(Integer, nullable=False, default=1)
+    living_together = Column(Boolean, nullable=False, default=False)
+    protection_start_date = Column(Date, nullable=True)
+    protection_end_date = Column(Date, nullable=True)
+
+    created_at = Column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        nullable=False,
+    )
+
+    guardian = relationship(
+        "Guardian",
+        back_populates="subject_registrations",
+    )
+    subject = relationship(
+        "Subject",
+        back_populates="guardian_registrations",
+    )
+
     __table_args__ = (
-        UniqueConstraint("subject_id", "guardian_id", name="uq_subject_guardian"),
+        UniqueConstraint(
+            "guardian_id",
+            "subject_id",
+            name="uq_guardian_subject",
+        ),
     )
 
-    id: Mapped[int] = mapped_column(primary_key=True)
-    subject_id: Mapped[int] = mapped_column(
-        ForeignKey("subjects.id", ondelete="CASCADE"),
-        nullable=False,
-    )
-    guardian_id: Mapped[int] = mapped_column(
-        ForeignKey("guardians.id", ondelete="CASCADE"),
-        nullable=False,
-    )
-    relationship_type: Mapped[str] = mapped_column(String(30), nullable=False)
 
-    subject: Mapped["Subject"] = relationship(back_populates="guardian_links")
-    guardian: Mapped["Guardian"] = relationship(back_populates="subject_links")
+class InstitutionManager(Base):
+    __tablename__ = "institution_managers"
+
+    id = Column(Integer, primary_key=True, index=True)
+
+    institution_id = Column(
+        Integer,
+        ForeignKey(
+            "institutions.id",
+            ondelete="CASCADE",
+        ),
+        nullable=False,
+        index=True,
+    )
+
+    name = Column(String(100), nullable=False)
+    phone = Column(String(30), nullable=False)
+    position = Column(String(100), nullable=True)
+
+    created_at = Column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        nullable=False,
+    )
+    updated_at = Column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+        nullable=False,
+    )
+
+    institution = relationship(
+        "Institution",
+        back_populates="managers",
+    )
+    subject_assignments = relationship(
+        "ManagerAssignment",
+        back_populates="manager",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
+
+
+class ManagerAssignment(Base):
+    __tablename__ = "manager_assignments"
+
+    manager_id = Column(
+        Integer,
+        ForeignKey(
+            "institution_managers.id",
+            ondelete="CASCADE",
+        ),
+        primary_key=True,
+    )
+    subject_id = Column(
+        Integer,
+        ForeignKey(
+            "subjects.id",
+            ondelete="CASCADE",
+        ),
+        primary_key=True,
+    )
+
+    is_primary_manager = Column(Boolean, nullable=False, default=False)
+    assignment_start_date = Column(Date, nullable=True)
+    assignment_end_date = Column(Date, nullable=True)
+
+    created_at = Column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        nullable=False,
+    )
+
+    manager = relationship(
+        "InstitutionManager",
+        back_populates="subject_assignments",
+    )
+    subject = relationship(
+        "Subject",
+        back_populates="manager_assignments",
+    )
+
+    __table_args__ = (
+        UniqueConstraint(
+            "manager_id",
+            "subject_id",
+            name="uq_manager_subject",
+        ),
+    )
 
 
 class GPSRecord(Base):
     __tablename__ = "gps_records"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
-    subject_id: Mapped[int] = mapped_column(
-        ForeignKey("subjects.id", ondelete="CASCADE"),
+    id = Column(Integer, primary_key=True, index=True)
+
+    subject_id = Column(
+        Integer,
+        ForeignKey(
+            "subjects.id",
+            ondelete="CASCADE",
+        ),
         nullable=False,
         index=True,
     )
-    latitude: Mapped[float] = mapped_column(Float, nullable=False)
-    longitude: Mapped[float] = mapped_column(Float, nullable=False)
-    measured_at: Mapped[datetime] = mapped_column(
-        DateTime,
-        default=datetime.utcnow,
+
+    latitude = Column(Float, nullable=False)
+    longitude = Column(Float, nullable=False)
+
+    measured_at = Column(
+        DateTime(timezone=True),
+        server_default=func.now(),
         nullable=False,
         index=True,
     )
 
-    subject: Mapped["Subject"] = relationship(back_populates="gps_records")
-
-
-class Facility(Base):
-    __tablename__ = "facilities"
-
-    id: Mapped[int] = mapped_column(primary_key=True)
-    external_id: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
-    name: Mapped[str] = mapped_column(String(150), nullable=False)
-    address: Mapped[str] = mapped_column(String(250), nullable=False)
-    latitude: Mapped[float] = mapped_column(Float, nullable=False)
-    longitude: Mapped[float] = mapped_column(Float, nullable=False)
+    subject = relationship(
+        "Subject",
+        back_populates="gps_records",
+    )
