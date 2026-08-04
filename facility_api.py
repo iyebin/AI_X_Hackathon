@@ -180,6 +180,19 @@ PHONE_ALIASES = [
     "전화번호",
     "연락처",
 ]
+OPERATING_HOURS_ALIASES = [
+    "operatingHours",
+    "operationHours",
+    "businessHours",
+    "useTime",
+    "serviceHours",
+    "openTime",
+    "closeTime",
+    "운영시간",
+    "이용시간",
+    "운영시간안내",
+    "개방시간",
+]
 
 CAPACITY_ALIASES = [
     "capacity",
@@ -383,6 +396,10 @@ def parse_facilities_from_root(
             data,
             PHONE_ALIASES,
         )
+        operating_hours = pick(
+            data,
+            OPERATING_HOURS_ALIASES,
+        )
         capacity = pick(
             data,
             CAPACITY_ALIASES,
@@ -414,16 +431,17 @@ def parse_facilities_from_root(
         seen.add(external_id)
 
         facilities.append(
-            {
-                "external_id": external_id,
-                "name": name,
-                "address": address,
-                "latitude": latitude,
-                "longitude": longitude,
-                "phone": phone,
-                "capacity": capacity,
-            }
-        )
+    {
+        "external_id": external_id,
+        "name": name,
+        "address": address,
+        "latitude": latitude,
+        "longitude": longitude,
+        "phone": phone,
+        "operating_hours": operating_hours,
+        "capacity": capacity,
+    }
+)
 
     return facilities
 
