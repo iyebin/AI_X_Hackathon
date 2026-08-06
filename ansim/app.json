@@ -1,11 +1,11 @@
 {
   "expo": {
     "name": "안심하랑께",
-    "slug": "안심하랑께",
+    "slug": "ansim",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/logo.png",
-    "scheme": "안심하랑께",
+    "icon": "./assets/images/logo_re.png",
+    "scheme": "ansim",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
@@ -17,7 +17,7 @@
     },
     "web": {
       "output": "static",
-      "favicon": "./assets/images/logo.png"
+      "favicon": "./assets/images/logo_re.png"
     },
     "plugins": [
       "expo-router",
