@@ -58,7 +58,7 @@ export default function TabTwoScreen() {
           different screen densities
         </ThemedText>
         <Image
-  source={require('@/assets/images/logo.png')} // logo.png 로 변경!
+  source={require('@/assets/images/logo_re.png')} // logo.png 로 변경!
   style={{ width: 100, height: 100, alignSelf: 'center' }}
 />
         <ExternalLink href="https://reactnative.dev/docs/images">
