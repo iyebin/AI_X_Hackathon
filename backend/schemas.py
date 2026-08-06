@@ -43,7 +43,6 @@ class InstitutionCreate(BaseModel):
     institution_type: InstitutionType = InstitutionType.GENERAL
     address: Optional[str] = Field(default=None, max_length=255)
     phone: Optional[str] = Field(default=None, max_length=30)
-    operating_hours: Optional[str] = Field(default=None, max_length=255)
     latitude: Optional[float] = Field(default=None, ge=-90, le=90)
     longitude: Optional[float] = Field(default=None, ge=-180, le=180)
 
@@ -60,7 +59,6 @@ class InstitutionUpdate(BaseModel):
     institution_type: Optional[InstitutionType] = None
     address: Optional[str] = Field(default=None, max_length=255)
     phone: Optional[str] = Field(default=None, max_length=30)
-    operating_hours: Optional[str] = Field(default=None, max_length=255)
     latitude: Optional[float] = Field(default=None, ge=-90, le=90)
     longitude: Optional[float] = Field(default=None, ge=-180, le=180)
 
@@ -72,7 +70,6 @@ class InstitutionResponse(ORMModel):
     institution_type: InstitutionType
     address: Optional[str]
     phone: Optional[str]
-    operating_hours: Optional[str]
     latitude: Optional[float]
     longitude: Optional[float]
     created_at: datetime

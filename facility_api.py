@@ -414,16 +414,16 @@ def parse_facilities_from_root(
         seen.add(external_id)
 
         facilities.append(
-            {
-                "external_id": external_id,
-                "name": name,
-                "address": address,
-                "latitude": latitude,
-                "longitude": longitude,
-                "phone": phone,
-                "capacity": capacity,
-            }
-        )
+    {
+        "external_id": external_id,
+        "name": name,
+        "address": address,
+        "latitude": latitude,
+        "longitude": longitude,
+        "phone": phone,
+        "capacity": capacity,
+    }
+)
 
     return facilities
 
