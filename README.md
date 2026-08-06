@@ -51,6 +51,3 @@ LM-TAD 모델에 대한 페이지는 다음과 같습니다. https://github.com/
 
 <img width="1252" height="678" alt="image" src="https://github.com/user-attachments/assets/25a4bb2e-7293-4d46-9426-f628b254023c" />
 =======
-We are Team "슝슝슝," participating in the 2026 AI+X Industry-Academia Hackathon Project hosted by Chonnam National University's AICOSS.
->>>>>>> team/backend
->>>>>>> main
