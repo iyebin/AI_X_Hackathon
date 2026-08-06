@@ -89,12 +89,12 @@ class Guardian(Base):
 class Institution(Base):
     __tablename__ = "institutions"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True)
+
     institution_code = Column(
         String(100),
-        nullable=False,
         unique=True,
-        index=True,
+        nullable=False,
     )
     name = Column(String(200), nullable=False)
 
@@ -110,7 +110,6 @@ class Institution(Base):
 
     address = Column(String(255), nullable=True)
     phone = Column(String(30), nullable=True)
-    operating_hours = Column(String(255), nullable=True)
     latitude = Column(Float, nullable=True)
     longitude = Column(Float, nullable=True)
 
@@ -172,14 +171,10 @@ class Subject(Base):
     special_notes = Column(Text, nullable=True)
 
     institution_id = Column(
-        Integer,
-        ForeignKey(
-            "institutions.id",
-            ondelete="SET NULL",
-        ),
-        nullable=True,
-        index=True,
-    )
+    Integer,
+    ForeignKey("institutions.id", ondelete="SET NULL"),
+    nullable=True,
+)
 
     created_at = Column(
         DateTime(timezone=True),

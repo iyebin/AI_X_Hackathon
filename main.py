@@ -3,7 +3,6 @@ from typing import List
 
 from fastapi import Depends, FastAPI, HTTPException, Query, status
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 from facility_api import fetch_facilities
@@ -14,6 +13,49 @@ from database import Base, engine, get_db
 
 
 Base.metadata.create_all(bind=engine)
+
+tags_metadata = [
+    {
+        "name": "기본",
+        "description": "서버 실행 상태를 확인합니다.",
+    },
+    {
+        "name": "기관",
+        "description": "기관 데이터 가져오기와 기관 CRUD를 관리합니다.",
+    },
+    {
+        "name": "보호대상자",
+        "description": "보호대상자를 등록·조회·수정·삭제합니다.",
+    },
+    {
+        "name": "보호자",
+        "description": "보호자를 등록·조회·수정·삭제합니다.",
+    },
+    {
+        "name": "보호자 등록 관계",
+        "description": "보호자와 보호대상자를 연결합니다.",
+    },
+    {
+        "name": "기관 관리자",
+        "description": "기관 소속 관리자를 관리합니다.",
+    },
+    {
+        "name": "담당 관리자 등록 관계",
+        "description": "기관 관리자를 보호대상자에게 배정합니다.",
+    },
+    {
+        "name": "GPS",
+        "description": "보호대상자의 위치를 저장하고 조회합니다.",
+    },
+    {
+        "name": "현재 위치 기반 기관 검색",
+        "description": "좌표 또는 최신 GPS 위치로 가까운 기관을 검색합니다.",
+    },
+    {
+        "name": "맞춤 기관 추천",
+        "description": "보호대상자 유형과 거리를 이용해 기관을 추천합니다.",
+    },
+]
 
 app = FastAPI(
     title="안심하랑께 백엔드 API",
@@ -26,9 +68,9 @@ app = FastAPI(
 - GPS 위치 저장
 - 현재 위치 기반 주변 기관 검색
 - 보호대상자 유형과 거리 기반 맞춤 기관 추천
-- 브라우저 현재 위치 테스트 페이지
 """,
     version="3.0.0",
+    openapi_tags=tags_metadata,
 )
 
 app.add_middleware(
@@ -160,7 +202,6 @@ def institution_to_result(
         "institution_type": institution.institution_type.value,
         "address": institution.address,
         "phone": institution.phone,
-        "operating_hours": institution.operating_hours,
         "latitude": institution.latitude,
         "longitude": institution.longitude,
         "distance_km": round(distance_km, 3),
@@ -196,7 +237,6 @@ def root():
         "message": "안심하랑께 백엔드 서버가 실행 중입니다.",
         "version": "3.0.0",
         "swagger": "/docs",
-        "gps_test_page": "/gps-current",
     }
 
 
@@ -233,13 +273,6 @@ def create_guardian(
     db.refresh(guardian)
     return guardian
 
-@app.get("/test-api")
-async def test_api():
-    data = await fetch_facilities()
-    return {
-        "count": len(data),
-        "facilities": data
-    }
 
 @app.get(
     "/guardians",
@@ -521,31 +554,9 @@ def find_nearest_facilities_compatibility(
     return results[:limit]
 
 
-@app.get(
-    "/institutions/openapi-test",
-    tags=["공공데이터 기관 가져오기"],
-)
-async def test_institution_openapi():
-    """공공데이터 API 연결과 파싱 결과를 확인합니다. DB에는 저장하지 않습니다."""
-    try:
-        facilities = await fetch_facilities()
-        return {
-            "message": "공공데이터 API 연결 성공",
-            "count": len(facilities),
-            "sample": facilities[:5],
-        }
-    except RuntimeError as exc:
-        raise HTTPException(status_code=502, detail=str(exc)) from exc
-    except Exception as exc:
-        raise HTTPException(
-            status_code=500,
-            detail=f"예상하지 못한 오류가 발생했습니다: {exc}",
-        ) from exc
-
-
 @app.post(
     "/institutions/import-openapi",
-    tags=["공공데이터 기관 가져오기"],
+    tags=["기관"],
 )
 async def import_institutions_from_openapi(
     update_existing: bool = Query(
@@ -580,6 +591,7 @@ async def import_institutions_from_openapi(
             external_id = str(facility.get("external_id", "")).strip()
             name = str(facility.get("name", "")).strip()
             address = facility.get("address")
+            phone = facility.get("phone")
             latitude = facility.get("latitude")
             longitude = facility.get("longitude")
 
@@ -606,6 +618,7 @@ async def import_institutions_from_openapi(
 
                 existing.name = name
                 existing.address = address
+                existing.phone = phone
                 existing.latitude = latitude
                 existing.longitude = longitude
                 existing.institution_type = institution_type
@@ -618,8 +631,7 @@ async def import_institutions_from_openapi(
                     name=name,
                     institution_type=institution_type,
                     address=address,
-                    phone=None,
-                    operating_hours=None,
+                    phone=phone,
                     latitude=latitude,
                     longitude=longitude,
                 )
@@ -823,6 +835,15 @@ def update_subject(
                 )
 
     apply_updates(subject, subject_data)
+    try:
+            db.commit()
+            db.refresh(subject)
+    except IntegrityError:
+            db.rollback()
+            raise HTTPException(status_code=409, detail="이미 사용 중인 연락처입니다.")
+
+    return subject
+        
 def guardian_registration_to_detail(
     registration: models.GuardianRegistration,
 ) -> dict:
@@ -867,14 +888,7 @@ def guardian_registration_to_detail(
             "institution_id": subject.institution_id,
         },
     }
-    try:
-        db.commit()
-        db.refresh(subject)
-    except IntegrityError:
-        db.rollback()
-        raise HTTPException(status_code=409, detail="이미 사용 중인 연락처입니다.")
 
-    return subject
 
 
 @app.delete("/subjects/{subject_id}", tags=["보호대상자"])
@@ -1507,203 +1521,3 @@ def recommend_institutions_for_subject(
         "count": min(len(recommendations), limit),
         "recommendations": recommendations[:limit],
     }
-
-
-# =========================================================
-# 브라우저 현재 위치 테스트 페이지
-# =========================================================
-@app.get(
-    "/gps-current",
-    response_class=HTMLResponse,
-    tags=["GPS 테스트 페이지"],
-)
-def gps_current_page():
-    return """
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>현재 위치 기반 기관 검색</title>
-    <style>
-        body {
-            max-width: 760px;
-            margin: 40px auto;
-            padding: 20px;
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-        }
-        input, button {
-            box-sizing: border-box;
-            width: 100%;
-            margin: 8px 0;
-            padding: 12px;
-            font-size: 16px;
-        }
-        button {
-            cursor: pointer;
-        }
-        pre {
-            overflow-x: auto;
-            padding: 16px;
-            border-radius: 8px;
-            background: #f4f4f4;
-            white-space: pre-wrap;
-        }
-    </style>
-</head>
-<body>
-    <h1>현재 위치 기반 기관 검색</h1>
-
-    <label for="subjectId">보호대상자 ID</label>
-    <input id="subjectId" type="number" min="1" value="1">
-
-    <label for="radiusKm">검색 반경(km)</label>
-    <input id="radiusKm" type="number" min="1" max="100" value="10">
-
-    <button onclick="saveLocation()">현재 위치 저장</button>
-    <button onclick="saveAndFindNearest()">현재 위치 저장 후 주변 기관 찾기</button>
-    <button onclick="findNearest()">저장된 위치로 주변 기관 찾기</button>
-    <button onclick="findRecommended()">맞춤 기관 추천받기</button>
-
-    <h2>결과</h2>
-    <pre id="result">아직 실행하지 않았습니다.</pre>
-
-    <script>
-        const resultElement = document.getElementById("result");
-
-        function getSubjectId() {
-            const value = Number(document.getElementById("subjectId").value);
-            if (!value || value < 1) {
-                throw new Error("올바른 보호대상자 ID를 입력하세요.");
-            }
-            return value;
-        }
-
-        function getRadiusKm() {
-            const value = Number(document.getElementById("radiusKm").value);
-            if (!value || value <= 0) {
-                throw new Error("올바른 검색 반경을 입력하세요.");
-            }
-            return value;
-        }
-
-        function getCurrentPosition() {
-            return new Promise((resolve, reject) => {
-                if (!navigator.geolocation) {
-                    reject(new Error("현재 브라우저는 위치 기능을 지원하지 않습니다."));
-                    return;
-                }
-
-                navigator.geolocation.getCurrentPosition(
-                    resolve,
-                    (error) => {
-                        if (error.code === 1) {
-                            reject(
-                                new Error(
-                                    "위치 권한이 거부되었습니다. 브라우저 사이트 설정에서 위치 권한을 허용하세요."
-                                )
-                            );
-                            return;
-                        }
-                        reject(new Error("현재 위치를 가져오지 못했습니다."));
-                    },
-                    {
-                        enableHighAccuracy: true,
-                        timeout: 15000,
-                        maximumAge: 0
-                    }
-                );
-            });
-        }
-
-        async function saveLocation() {
-            const subjectId = getSubjectId();
-            resultElement.textContent = "현재 위치를 가져오는 중입니다...";
-
-            const position = await getCurrentPosition();
-
-            const response = await fetch("/gps", {
-                method: "POST",
-                headers: {"Content-Type": "application/json"},
-                body: JSON.stringify({
-                    subject_id: subjectId,
-                    latitude: position.coords.latitude,
-                    longitude: position.coords.longitude
-                })
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.detail || "GPS 저장 실패");
-            }
-
-            resultElement.textContent = JSON.stringify(data, null, 2);
-            return data;
-        }
-
-        async function findNearest() {
-            const subjectId = getSubjectId();
-            const radiusKm = getRadiusKm();
-
-            resultElement.textContent = "주변 기관을 검색하는 중입니다...";
-
-            const response = await fetch(
-                `/subjects/${subjectId}/institutions/nearest?radius_km=${radiusKm}&limit=10`
-            );
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.detail || "기관 검색 실패");
-            }
-
-            resultElement.textContent = JSON.stringify(data, null, 2);
-        }
-
-        async function saveAndFindNearest() {
-            await saveLocation();
-            await findNearest();
-        }
-
-        async function findRecommended() {
-            const subjectId = getSubjectId();
-            const radiusKm = getRadiusKm();
-
-            resultElement.textContent = "맞춤 기관을 추천하는 중입니다...";
-
-            const response = await fetch(
-                `/subjects/${subjectId}/institutions/recommended?radius_km=${radiusKm}&limit=10`
-            );
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.detail || "맞춤 추천 실패");
-            }
-
-            resultElement.textContent = JSON.stringify(data, null, 2);
-        }
-
-        async function runSafely(action) {
-            try {
-                await action();
-            } catch (error) {
-                resultElement.textContent = "오류: " + error.message;
-            }
-        }
-
-        const originalSaveLocation = saveLocation;
-        const originalSaveAndFindNearest = saveAndFindNearest;
-        const originalFindNearest = findNearest;
-        const originalFindRecommended = findRecommended;
-
-        saveLocation = () => runSafely(originalSaveLocation);
-        saveAndFindNearest = () => runSafely(originalSaveAndFindNearest);
-        findNearest = () => runSafely(originalFindNearest);
-        findRecommended = () => runSafely(originalFindRecommended);
-    </script>
-</body>
-</html>
-"""
