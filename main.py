@@ -8,9 +8,17 @@ from sqlalchemy.orm import Session
 from facility_api import fetch_facilities
 
 import models
+from models import Subject, Guardian
 import schemas
 from database import Base, engine, get_db
 
+import random
+import string
+from schemas import (
+    AuthCodeResponse,
+    AuthCodeVerifyRequest,
+    AuthCodeVerifyResponse,
+)
 
 Base.metadata.create_all(bind=engine)
 
@@ -72,6 +80,7 @@ app = FastAPI(
     version="3.0.0",
     openapi_tags=tags_metadata,
 )
+AUTH_SPECIAL_CHARACTERS = "!@#$%^&*"
 
 app.add_middleware(
     CORSMiddleware,
@@ -118,6 +127,51 @@ def haversine_km(
 
     return earth_radius_km * central_angle
 
+def generate_auth_code() -> str:
+    characters = [
+        random.choice(string.digits),
+        random.choice(string.digits),
+        random.choice(string.ascii_uppercase),
+        random.choice(string.ascii_lowercase),
+        random.choice(AUTH_SPECIAL_CHARACTERS),
+        random.choice(AUTH_SPECIAL_CHARACTERS),
+    ]
+
+    random.shuffle(characters)
+
+    return "".join(characters)
+
+def auth_code_exists(
+    db: Session,
+    auth_code: str,
+) -> bool:
+    subject_exists = (
+        db.query(Subject)
+        .filter(Subject.auth_code == auth_code)
+        .first()
+        is not None
+    )
+
+    guardian_exists = (
+        db.query(Guardian)
+        .filter(Guardian.auth_code == auth_code)
+        .first()
+        is not None
+    )
+
+    return subject_exists or guardian_exists
+
+def generate_unique_auth_code(db: Session) -> str:
+    for _ in range(100):
+        auth_code = generate_auth_code()
+
+        if not auth_code_exists(db, auth_code):
+            return auth_code
+
+    raise HTTPException(
+        status_code=500,
+        detail="고유한 인증코드를 생성하지 못했습니다.",
+    )
 
 def calculate_type_match_score(
     subject_type: models.SubjectType,
@@ -1520,4 +1574,116 @@ def recommend_institutions_for_subject(
         "radius_km": radius_km,
         "count": min(len(recommendations), limit),
         "recommendations": recommendations[:limit],
+    }
+
+@app.post(
+    "/subjects/{subject_id}/auth-code",
+    response_model=AuthCodeResponse,
+    tags=["인증코드"],
+)
+def issue_subject_auth_code(
+    subject_id: int,
+    db: Session = Depends(get_db),
+):
+    subject = (
+        db.query(Subject)
+        .filter(Subject.id == subject_id)
+        .first()
+    )
+
+    if subject is None:
+        raise HTTPException(
+            status_code=404,
+            detail="보호대상자를 찾을 수 없습니다.",
+        )
+
+    auth_code = generate_unique_auth_code(db)
+    subject.auth_code = auth_code
+
+    db.commit()
+    db.refresh(subject)
+
+    return {
+        "user_type": "subject",
+        "user_id": subject.id,
+        "auth_code": subject.auth_code,
+    }
+
+@app.post(
+    "/guardians/{guardian_id}/auth-code",
+    response_model=AuthCodeResponse,
+    tags=["인증코드"],
+)
+def issue_guardian_auth_code(
+    guardian_id: int,
+    db: Session = Depends(get_db),
+):
+    guardian = (
+        db.query(Guardian)
+        .filter(Guardian.id == guardian_id)
+        .first()
+    )
+
+    if guardian is None:
+        raise HTTPException(
+            status_code=404,
+            detail="보호자를 찾을 수 없습니다.",
+        )
+
+    auth_code = generate_unique_auth_code(db)
+    guardian.auth_code = auth_code
+
+    db.commit()
+    db.refresh(guardian)
+
+    return {
+        "user_type": "guardian",
+        "user_id": guardian.id,
+        "auth_code": guardian.auth_code,
+    }
+
+@app.post(
+    "/auth-codes/verify",
+    response_model=AuthCodeVerifyResponse,
+    tags=["인증코드"],
+)
+def verify_auth_code(
+    request: AuthCodeVerifyRequest,
+    db: Session = Depends(get_db),
+):
+    auth_code = request.auth_code.strip()
+
+    subject = (
+        db.query(Subject)
+        .filter(Subject.auth_code == auth_code)
+        .first()
+    )
+
+    if subject is not None:
+        return {
+            "valid": True,
+            "user_type": "subject",
+            "user_id": subject.id,
+            "message": "보호대상자 인증코드가 확인되었습니다.",
+        }
+
+    guardian = (
+        db.query(Guardian)
+        .filter(Guardian.auth_code == auth_code)
+        .first()
+    )
+
+    if guardian is not None:
+        return {
+            "valid": True,
+            "user_type": "guardian",
+            "user_id": guardian.id,
+            "message": "보호자 인증코드가 확인되었습니다.",
+        }
+
+    return {
+        "valid": False,
+        "user_type": None,
+        "user_id": None,
+        "message": "유효하지 않은 인증코드입니다.",
     }

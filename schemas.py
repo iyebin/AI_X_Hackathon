@@ -270,3 +270,22 @@ class GPSResponse(ORMModel):
     latitude: float
     longitude: float
     measured_at: datetime
+
+class AuthCodeResponse(BaseModel):
+    user_type: str
+    user_id: int
+    auth_code: str
+
+    class Config:
+        from_attributes = True
+
+
+class AuthCodeVerifyRequest(BaseModel):
+    auth_code: str
+
+
+class AuthCodeVerifyResponse(BaseModel):
+    valid: bool
+    user_type: Optional[str] = None
+    user_id: Optional[int] = None
+    message: str

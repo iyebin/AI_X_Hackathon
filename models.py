@@ -51,7 +51,7 @@ class Guardian(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(100), nullable=False)
-
+    auth_code = Column(String(6), nullable=True, index=True)
     gender = Column(
         SqlEnum(
             GenderType,
@@ -143,6 +143,7 @@ class Subject(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(100), nullable=False)
+    auth_code = Column(String(6), nullable=True, index=True)
 
     gender = Column(
         SqlEnum(
