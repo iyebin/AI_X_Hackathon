@@ -1687,3 +1687,34 @@ def verify_auth_code(
         "user_id": None,
         "message": "유효하지 않은 인증코드입니다.",
     }
+
+@app.patch(
+    "/subjects/{subject_id}/verification-code",
+    tags=["보호대상자"],
+)
+@app.patch(
+    "/subjects/{subject_id}/auth-code",
+    tags=["보호대상자"],
+)
+def save_auth_code(
+    subject_id: int,
+    data: schemas.AuthCodeUpdate,
+    db: Session = Depends(get_db),
+):
+    subject = db.get(models.Subject, subject_id)
+
+    if not subject:
+        raise HTTPException(
+            status_code=404,
+            detail="보호대상자를 찾을 수 없습니다.",
+        )
+
+    subject.auth_code = data.auth_code
+
+    db.commit()
+    db.refresh(subject)
+
+    return {
+        "subject_id": subject.id,
+        "auth_code": subject.auth_code,
+    }

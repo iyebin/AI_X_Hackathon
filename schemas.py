@@ -289,3 +289,6 @@ class AuthCodeVerifyResponse(BaseModel):
     user_type: Optional[str] = None
     user_id: Optional[int] = None
     message: str
+    
+class AuthCodeUpdate(BaseModel):
+    auth_code: str = Field(min_length=1, max_length=50)

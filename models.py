@@ -168,6 +168,12 @@ class Subject(Base):
         nullable=False,
         default=SubjectType.GENERAL,
     )
+    auth_code = Column(
+        String(50),
+        nullable=True,
+        unique=True,
+        index=True,
+    )
 
     special_notes = Column(Text, nullable=True)
 
