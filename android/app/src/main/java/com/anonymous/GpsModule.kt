@@ -10,8 +10,10 @@ class GpsModule(private val reactContext: ReactApplicationContext) : ReactContex
     override fun getName(): String = "GpsModule"
 
     @ReactMethod
-    fun startTracking() {
+    fun startTracking(subjectId: Double) {
+        // 💡 subject_id(보호대상자 id)를 Intent extra로 실어서 GpsService에 전달
         val intent = Intent(reactContext, GpsService::class.java)
+        intent.putExtra("subject_id", subjectId.toInt())
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             reactContext.startForegroundService(intent)
         } else {
