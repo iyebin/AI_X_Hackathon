@@ -362,7 +362,7 @@ def get_guardian(guardian_id: int, db: Session = Depends(get_db)):
 @app.patch(
     "/guardians/{guardian_id}",
     response_model=schemas.GuardianResponse,
-    tags=["보호자"],
+    tags=["보호자"],include_in_schema=False,
 )
 def update_guardian(
     guardian_id: int,
