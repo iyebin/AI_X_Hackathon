@@ -385,7 +385,7 @@ def update_guardian(
     return guardian
 
 
-@app.delete("/guardians/{guardian_id}", tags=["보호자"])
+@app.delete("/guardians/{guardian_id}", tags=["보호자"], include_in_schema=False,)
 def delete_guardian(guardian_id: int, db: Session = Depends(get_db)):
     guardian = db.get(models.Guardian, guardian_id)
     if not guardian:
@@ -748,6 +748,7 @@ def get_institution(institution_id: int, db: Session = Depends(get_db)):
     "/institutions/{institution_id}",
     response_model=schemas.InstitutionResponse,
     tags=["기관"],
+    include_in_schema=False,
 )
 def update_institution(
     institution_id: int,
@@ -781,7 +782,7 @@ def update_institution(
     return institution
 
 
-@app.delete("/institutions/{institution_id}", tags=["기관"])
+@app.delete("/institutions/{institution_id}", tags=["기관"], include_in_schema=False,)
 def delete_institution(institution_id: int, db: Session = Depends(get_db)):
     institution = db.get(models.Institution, institution_id)
     if not institution:
@@ -864,6 +865,7 @@ def get_subject(subject_id: int, db: Session = Depends(get_db)):
     "/subjects/{subject_id}",
     response_model=schemas.SubjectResponse,
     tags=["보호대상자"],
+    include_in_schema=False,
 )
 def update_subject(
     subject_id: int,
@@ -943,7 +945,7 @@ def guardian_registration_to_detail(
 
 
 
-@app.delete("/subjects/{subject_id}", tags=["보호대상자"])
+@app.delete("/subjects/{subject_id}", tags=["보호대상자"], include_in_schema=False,)
 def delete_subject(subject_id: int, db: Session = Depends(get_db)):
     subject = db.get(models.Subject, subject_id)
     if not subject:
@@ -1034,6 +1036,7 @@ def list_guardian_registrations(
     "/guardian-registrations/{guardian_id}/{subject_id}",
     response_model=schemas.GuardianRegistrationResponse,
     tags=["보호자 등록 관계"],
+    include_in_schema=False,
 )
 def update_guardian_registration(
     guardian_id: int,
@@ -1075,7 +1078,7 @@ def update_guardian_registration(
 
 @app.delete(
     "/guardian-registrations/{guardian_id}/{subject_id}",
-    tags=["보호자 등록 관계"],
+    tags=["보호자 등록 관계"],include_in_schema=False,
 )
 def delete_guardian_registration(
     guardian_id: int,
@@ -1166,6 +1169,7 @@ def get_institution_manager(
     "/institution-managers/{manager_id}",
     response_model=schemas.InstitutionManagerResponse,
     tags=["기관 관리자"],
+    include_in_schema=False,
 )
 def update_institution_manager(
     manager_id: int,
@@ -1195,7 +1199,7 @@ def update_institution_manager(
     return manager
 
 
-@app.delete("/institution-managers/{manager_id}", tags=["기관 관리자"])
+@app.delete("/institution-managers/{manager_id}", tags=["기관 관리자"], include_in_schema=False,)
 def delete_institution_manager(
     manager_id: int,
     db: Session = Depends(get_db),
@@ -1283,6 +1287,7 @@ def list_manager_assignments(
     "/manager-assignments/{manager_id}/{subject_id}",
     response_model=schemas.ManagerAssignmentResponse,
     tags=["담당 관리자 등록 관계"],
+    include_in_schema=False,
 )
 def update_manager_assignment(
     manager_id: int,
@@ -1326,7 +1331,7 @@ def update_manager_assignment(
 
 @app.delete(
     "/manager-assignments/{manager_id}/{subject_id}",
-    tags=["담당 관리자 등록 관계"],
+    tags=["담당 관리자 등록 관계"],include_in_schema=False,
 )
 def delete_manager_assignment(
     manager_id: int,
@@ -1689,10 +1694,12 @@ def verify_auth_code(
 @app.patch(
     "/subjects/{subject_id}/verification-code",
     tags=["보호대상자"],
+    include_in_schema=False,
 )
 @app.patch(
     "/subjects/{subject_id}/auth-code",
     tags=["보호대상자"],
+    include_in_schema=False,
 )
 def save_auth_code(
     subject_id: int,
