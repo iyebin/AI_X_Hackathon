@@ -1,18 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import * as Location from 'expo-location';
-import React, { useRef, useState } from 'react';
-import {
-  Alert,
-  Keyboard,
-  Pressable,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-  NativeModules,
-} from 'react-native';
+import React, { useState } from 'react';
+import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const TEMP_VALID_CODE = '123456';
@@ -22,99 +11,26 @@ export default function CodeScreen() {
   const { role } = useLocalSearchParams<{ role?: string }>();
 
   const isProtected = role === 'protected';
-  const roleTitle = isProtected ? '보호대상자' : '보호자';
-  const primaryColor = isProtected ? '#55A238' : '#F7941D';
+  const roleName = isProtected ? '보호대상자' : '보호자';
+  const themeColor = isProtected ? '#53A832' : '#FF7A00'; // 초록 vs 주황
+  const bgInputColor = isProtected ? '#F5FAF2' : '#FFF9F2';
 
-  const [code, setCode] = useState<string[]>(['', '', '', '', '', '']);
-  const inputsRef = useRef<(TextInput | null)[]>([]);
-
-  const handleChangeText = (text: string, index: number) => {
-    const newCode = [...code];
-    newCode[index] = text;
-    setCode(newCode);
-
-    if (text && index < 5) {
-      inputsRef.current[index + 1]?.focus();
-    }
-  };
-
-  const handleKeyPress = (e: any, index: number) => {
-    if (e.nativeEvent.key === 'Backspace' && !code[index] && index > 0) {
-      inputsRef.current[index - 1]?.focus();
-    }
-  };
-
-  const startGpsTracking = async () => {
-    const foregroundPermission = await Location.requestForegroundPermissionsAsync();
-    if (foregroundPermission.status !== 'granted') {
-      throw new Error('위치 권한이 필요합니다.');
-    }
-
-    const backgroundPermission = await Location.requestBackgroundPermissionsAsync();
-    if (backgroundPermission.status !== 'granted') {
-      throw new Error('백그라운드 위치 권한이 필요합니다.');
-    }
-
-    const gpsModule = NativeModules.GpsModule as
-      | { startTracking: (subjectId: number) => void }
-      | undefined;
-    if (!gpsModule) {
-      throw new Error('GPS 추적 모듈을 찾을 수 없습니다. 앱을 다시 빌드해 주세요.');
-    }
-
-    gpsModule.startTracking(3);
-  };
-
-  const handleConnect = async () => {
-    const fullCode = code.join('');
-
-    if (fullCode.length < 6) {
-      Alert.alert('알림', '인증코드 6자리를 모두 입력해주세요.');
+  const handleVerifyCode = () => {
+    if (!code.trim()) {
+      Alert.alert('알림', '기관으로부터 전달받은 인증코드를 입력해주세요.');
       return;
     }
 
-    if (fullCode === TEMP_VALID_CODE) {
-      if (isProtected) {
-        try {
-          await startGpsTracking();
-        } catch (error) {
-          Alert.alert(
-            '위치 추적을 시작할 수 없습니다',
-            error instanceof Error ? error.message : '위치 권한을 확인해 주세요.'
-          );
-          return;
-        }
-      }
+    console.log(`[${roleName}] 입력된 인증코드:`, code);
 
-      Alert.alert('성공', '인증이 완료되었습니다!', [
-        {
-          text: '확인',
-          onPress: () => {
-            if (isProtected) {
-              router.replace({
-                pathname: '/explore',
-                params: {
-                  userName: '슝슝슝',
-                  protectorPhone: '01012345678',
-                },
-              });
-            } else {
-              router.replace('/protector-select');
-            }
-          },
+    Alert.alert('인증 완료', `${roleName} 권한으로 로그인되었습니다.`, [
+      {
+        text: '확인',
+        onPress: () => {
+          router.replace('/(tabs)');
         },
-      ]);
-    } else {
-      Alert.alert('오류', '인증코드가 틀렸습니다.\n다시 확인해주세요.', [
-        {
-          text: '확인',
-          onPress: () => {
-            setCode(['', '', '', '', '', '']);
-            inputsRef.current[0]?.focus();
-          },
-        },
-      ]);
-    }
+      },
+    ]);
   };
 
   return (
