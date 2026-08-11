@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React from 'react';
-import { Dimensions, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { WebView } from 'react-native-webview';
 
@@ -21,10 +21,6 @@ const RISK_COLORS: Record<RiskStatus, string[]> = {
   안전: ['#2E7D32', '#4CAF50', '#81C784', '#C8E6C9'],
 };
 
-const CHART_SIZE = Math.round(Dimensions.get('window').width * 0.5);
-const CHART_CENTER = CHART_SIZE / 2;
-const CHART_RADIUS = CHART_CENTER - 4;
-
 const THEME: Record<RiskStatus, { main: string; soft: string; pale: string }> = {
   위험: { main: '#FF2525', soft: '#F87171', pale: '#FECACA' },
   주의: { main: '#FFBB01', soft: '#FFA64D', pale: '#FFD76A' },
@@ -39,10 +35,10 @@ export default function SummaryDetailScreen() {
   const theme = THEME[status];
   const sortedRiskItems = [...RISK_ITEMS].sort((a, b) => b.percent - a.percent);
   const riskColors = RISK_COLORS[status];
-  const chartHtml = `<!doctype html><html><head><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" /></head><body style="margin:0;background:transparent;overflow:hidden"><canvas id="chart" width="${CHART_SIZE}" height="${CHART_SIZE}"></canvas><script>
+  const chartHtml = `<!doctype html><html><body style="margin:0;background:transparent;overflow:hidden"><canvas id="chart" width="220" height="220"></canvas><script>
     const items=${JSON.stringify(sortedRiskItems.map((item, index) => ({ percent: item.percent, color: riskColors[index] })))};
     const ctx=document.getElementById('chart').getContext('2d');let start=-Math.PI/2;
-    items.forEach((item)=>{const angle=item.percent/100*Math.PI*2;ctx.beginPath();ctx.moveTo(${CHART_CENTER},${CHART_CENTER});ctx.arc(${CHART_CENTER},${CHART_CENTER},${CHART_RADIUS},start,start+angle);ctx.closePath();ctx.fillStyle=item.color;ctx.fill();start+=angle;});
+    items.forEach((item)=>{const angle=item.percent/100*Math.PI*2;ctx.beginPath();ctx.moveTo(110,110);ctx.arc(110,110,106,start,start+angle);ctx.closePath();ctx.fillStyle=item.color;ctx.fill();start+=angle;});
   </script></body></html>`;
 
   return (
@@ -113,8 +109,8 @@ const styles = StyleSheet.create({
   content: { paddingHorizontal: 26, paddingTop: 24, paddingBottom: 40 },
   sectionLabel: { color: '#666666', fontSize: 19, fontWeight: 'bold' },
   chartArea: { flexDirection: 'row', alignItems: 'center', marginTop: 28 },
-  chart: { width: CHART_SIZE, height: CHART_SIZE, overflow: 'hidden' },
-  chartWebView: { width: CHART_SIZE, height: CHART_SIZE, backgroundColor: 'transparent' },
+  chart: { width: 220, height: 220, overflow: 'hidden' },
+  chartWebView: { width: 220, height: 220, backgroundColor: 'transparent' },
   legend: { marginLeft: 12, gap: 10 },
   legendText: { color: '#666666', fontSize: 17, fontWeight: 'bold' },
   legendRow: { flexDirection: 'row', alignItems: 'center' },
