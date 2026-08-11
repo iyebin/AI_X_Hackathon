@@ -1,0 +1,122 @@
+import { Ionicons } from '@expo/vector-icons';
+import { useFocusEffect, useRouter } from 'expo-router';
+import React, { useCallback, useState } from 'react';
+import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { FrequentPlace, getFrequentPlaces } from '@/features/places/frequent-place-store';
+
+export default function FrequentPlacesScreen() {
+  const router = useRouter();
+  const [places, setPlaces] = useState<FrequentPlace[]>(getFrequentPlaces());
+
+  // 장소 추가/수정 화면에서 돌아올 때 최신 목록을 다시 읽습니다.
+  useFocusEffect(useCallback(() => {
+    setPlaces(getFrequentPlaces());
+  }, []));
+
+  const handleAddPlace = () => {
+    if (places.length >= 10) {
+      Alert.alert('장소 등록 제한', '자주 가는 장소는 최대 10개까지 등록할 수 있습니다.');
+      return;
+    }
+    router.push({ pathname: '/add-frequent-place', params: { mode: 'add' } });
+  };
+
+  const handleEditPlace = (place: FrequentPlace) => {
+    router.push({
+      pathname: '/add-frequent-place',
+      params: {
+        mode: 'edit',
+        id: place.id,
+        name: place.name,
+        category: place.category,
+        address: place.address,
+        memo: place.memo,
+      },
+    });
+  };
+
+  const getPlaceIcon = (category: FrequentPlace['category']) => {
+    if (category === '집') return 'home';
+    if (category === '친구 집') return 'home-outline';
+    if (category === '학원') return 'book';
+    if (category === '병원') return 'medical';
+    return 'ellipsis-horizontal';
+  };
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <View style={styles.header}>
+        <TouchableOpacity accessibilityLabel="뒤로 가기" onPress={() => router.replace({ pathname: '/protected-main', params: { tab: 'setting' } })} hitSlop={12}>
+          <Ionicons name="arrow-back" size={28} color="#111111" />
+        </TouchableOpacity>
+        <View style={styles.badge}><Text style={styles.badgeText}>자주 가는 장소</Text></View>
+        <View style={styles.headerSpace} />
+      </View>
+
+      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        <View style={styles.titleRow}>
+          <Text style={styles.title}>등록된 장소</Text>
+          <Text style={styles.count}><Text style={styles.countBold}>{places.length}/10</Text> 최대 10개까지 등록할 수 있습니다.</Text>
+        </View>
+
+        {places.map((place) => (
+          <TouchableOpacity key={place.id} style={styles.placeCard} onPress={() => handleEditPlace(place)} activeOpacity={0.7}>
+            <View style={styles.iconCircle}><Ionicons name={getPlaceIcon(place.category)} size={27} color="#59A03D" /></View>
+            <View style={styles.placeInfo}>
+              <Text style={styles.placeName}>{place.name}</Text>
+              <Text style={styles.placeAddress} numberOfLines={1}>{place.address}</Text>
+              {!!place.memo && <Text style={styles.memo} numberOfLines={1}>{place.memo}</Text>}
+            </View>
+            <Ionicons name="chevron-forward" size={22} color="#777777" />
+          </TouchableOpacity>
+        ))}
+
+        {places.length === 0 && (
+          <View style={styles.emptyBox}>
+            <Text style={styles.emptyTitle}>등록한 장소가 없습니다.</Text>
+            <Text style={styles.emptyText}>아래의 장소 추가하기를 눌러 등록해 주세요.</Text>
+          </View>
+        )}
+
+        <TouchableOpacity style={styles.addCard} onPress={handleAddPlace} activeOpacity={0.8}>
+          <Ionicons name="add" size={27} color="#59A03D" />
+          <Text style={styles.addText}>장소 추가하기</Text>
+        </TouchableOpacity>
+      </ScrollView>
+
+      <View style={styles.bottomArea}>
+        <TouchableOpacity style={styles.doneButton} onPress={() => router.replace({ pathname: '/protected-main', params: { tab: 'setting' } })} activeOpacity={0.8}>
+          <Text style={styles.doneText}>완료</Text>
+        </TouchableOpacity>
+      </View>
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: '#FFFFFF' },
+  header: { height: 72, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 24 },
+  headerSpace: { width: 28 },
+  badge: { height: 40, paddingHorizontal: 20, borderRadius: 16, backgroundColor: '#59A03D', justifyContent: 'center', alignItems: 'center' },
+  badgeText: { color: '#FFFFFF', fontSize: 20, fontWeight: 'bold', includeFontPadding: false },
+  content: { paddingHorizontal: 16, paddingTop: 22, paddingBottom: 118 },
+  titleRow: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 18 },
+  title: { fontSize: 21, fontWeight: 'bold', color: '#111111' },
+  count: { fontSize: 14, fontWeight: '600', color: '#666666' },
+  countBold: { fontWeight: '800', color: '#444444' },
+  placeCard: { minHeight: 96, flexDirection: 'row', alignItems: 'center', borderWidth: 1.5, borderColor: '#DFDFDF', borderRadius: 18, paddingHorizontal: 16, paddingVertical: 14, marginBottom: 8 },
+  iconCircle: { width: 62, height: 62, borderRadius: 31, backgroundColor: '#E5FFDB', justifyContent: 'center', alignItems: 'center', marginRight: 16 },
+  placeInfo: { flex: 1 },
+  placeName: { fontSize: 20, fontWeight: 'bold', color: '#111111' },
+  placeAddress: { marginTop: 4, fontSize: 14, color: '#666666' },
+  memo: { marginTop: 3, fontSize: 13, color: '#888888' },
+  emptyBox: { alignItems: 'center', paddingVertical: 48 },
+  emptyTitle: { fontSize: 17, fontWeight: 'bold', color: '#777777' },
+  emptyText: { marginTop: 7, fontSize: 14, color: '#999999' },
+  addCard: { height: 96, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', borderWidth: 1.5, borderColor: '#DFDFDF', borderRadius: 18, marginTop: 2 },
+  addText: { marginLeft: 10, fontSize: 21, fontWeight: 'bold', color: '#111111' },
+  bottomArea: { position: 'absolute', bottom: 0, left: 0, right: 0, paddingHorizontal: 32, paddingTop: 12, paddingBottom: 24, backgroundColor: '#FFFFFF' },
+  doneButton: { height: 76, justifyContent: 'center', alignItems: 'center', borderRadius: 17, backgroundColor: '#59A03D' },
+  doneText: { color: '#FFFFFF', fontSize: 26, fontWeight: 'bold' },
+});

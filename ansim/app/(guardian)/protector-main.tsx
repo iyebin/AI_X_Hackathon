@@ -14,10 +14,10 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { WebView } from 'react-native-webview';
 
-import NotificationView from './components/alarm';
-import HeaderBadge from './components/HeaderBadge';
-import LocationMapView from './components/map-view';
-import SettingView from './components/setting';
+import HeaderBadge from '@/components/common/header-badge';
+import LocationMapView from '@/components/map/location-map-view';
+import NotificationView from '@/components/notifications/alarm';
+import SettingView from '@/components/settings/setting-view';
 
 export default function ProtectorMainScreen() {
   const router = useRouter();
@@ -116,7 +116,7 @@ export default function ProtectorMainScreen() {
                 <View style={styles.subGreetingRow}>
                   <Text style={styles.greetingSubText}>오늘도 </Text>
                   {/* 💡 router.back() 대신 router.push('/protector-select')로 명확하게 변경 */}
-                  <TouchableOpacity onPress={() => router.push('/protector-select')} activeOpacity={0.7}>
+              <TouchableOpacity onPress={() => router.push('/protector-select')} activeOpacity={0.7}>
                     <View style={styles.nameBadge}>
                       <Text style={styles.nameBadgeText}>{targetName}님</Text>
                     </View>

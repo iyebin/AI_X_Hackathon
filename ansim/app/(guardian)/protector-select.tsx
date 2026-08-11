@@ -11,9 +11,9 @@ import {
     View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import NotificationView from './components/alarm';
-import HeaderBadge from './components/HeaderBadge';
-import SettingView from './components/setting';
+import HeaderBadge from '@/components/common/header-badge';
+import NotificationView from '@/components/notifications/alarm';
+import SettingView from '@/components/settings/setting-view';
 
 export interface TargetUser {
   id: string;

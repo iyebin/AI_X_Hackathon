@@ -25,7 +25,7 @@ export default function HeaderBadge({
 
 const styles = StyleSheet.create({
   outerWrapper: {
-    height: 36,
+    height: 40,
     justifyContent: 'center',
     alignItems: 'flex-start',
   },
@@ -33,15 +33,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   badgeContainer: {
-    height: 36,
-    borderRadius: 18,
+    height: 40,
+    borderRadius: 16,
     paddingHorizontal: 20,
     justifyContent: 'center',
     alignItems: 'center',
   },
   badgeText: {
     color: '#FFFFFF',
-    fontSize: 16,
+    fontSize: 20,
     fontWeight: 'bold',
     includeFontPadding: false,
   },
