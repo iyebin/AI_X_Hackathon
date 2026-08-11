@@ -1,16 +1,26 @@
 import { useRouter } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import { Animated, Easing, ImageBackground, StyleSheet, View } from 'react-native';
+import { useGpsTracker } from '../hooks/useGps'; // 👈 1. hook 경로에 맞게 확인해주세요!
 
 export default function LoadingScreen() {
   const router = useRouter();
   const spinValue = useRef(new Animated.Value(0)).current;
   const [isMounted, setIsMounted] = useState(false);
+<<<<<<< HEAD
 
   // 💡 GPS 추적 시작 코드를 code.tsx(인증 성공 시점)로 이동했습니다.
   // 여기서는 아직 사용자가 보호자/보호대상자인지, subject_id가 무엇인지 알 수 없기 때문입니다.
   useEffect(() => {
     setIsMounted(true);
+=======
+  const { startTracking } = useGpsTracker(); // 👈 2. GPS 시작 함수 가져오기
+
+  // 1. 화면 컴포넌트 마운트 및 GPS 백그라운드 추적 시작
+  useEffect(() => {
+    setIsMounted(true);
+    startTracking(); // 👈 3. 앱 켜지자마자 권한 요청 & 백그라운드 GPS 시작!
+>>>>>>> 5b8c5c020d7099c521fb689047f23baff0402580
   }, []);
 
   // 2. 스피너 애니메이션 및 2.5초 후 안전하게 이동
