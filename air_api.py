@@ -5,10 +5,9 @@ from fastapi import HTTPException
 AIRKOREA_API_KEY = os.getenv("AIRKOREA_API_KEY")
 
 BASE_URL = (
-    "https://apis.data.go.kr/B552584/ArpltnInforInqireSvc"
+    "https://apis.data.go.kr/B552584/"
     "ArpltnInforInqireSvc/getCtprvnRltmMesureDnsty"
 )
-
 
 def get_air_quality(sido_name="광주"):
     if not AIRKOREA_API_KEY:
