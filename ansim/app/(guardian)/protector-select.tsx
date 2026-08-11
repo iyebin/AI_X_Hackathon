@@ -37,7 +37,7 @@ export default function ProtectorSelectScreen() {
       id: '1',
       name: '슝슝슝',
       age: '15세',
-      status: '위험',
+      status: '주의',
       statusBg: '#FF3B30',
       updatedAt: '1분 전',
       profileImage: undefined,
@@ -67,6 +67,15 @@ export default function ProtectorSelectScreen() {
 
   const handleMapTabPress = () => {
     Alert.alert('알림', '보호대상자를 먼저 선택해 주세요.');
+  };
+
+  const getStatusColor = (status: string) => {
+    const statusColors: Record<string, string> = {
+      위험: '#FF2525',
+      주의: '#FFBB01',
+      안전: '#2EAD61',
+    };
+    return statusColors[status] ?? '#8E8E93';
   };
 
   const renderContent = () => {
@@ -107,7 +116,7 @@ export default function ProtectorSelectScreen() {
                   <Text style={styles.updateTimeText}>최근 업데이트 {item.updatedAt}</Text>
                 </View>
 
-                <View style={[styles.statusBadge, { backgroundColor: item.statusBg }]}>
+                <View style={[styles.statusBadge, { backgroundColor: getStatusColor(item.status) }]}>
                   <Text style={styles.statusBadgeText}>{item.status}</Text>
                 </View>
               </TouchableOpacity>
