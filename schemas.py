@@ -35,7 +35,7 @@ class GuardianResponse(ORMModel):
     address: Optional[str]
     created_at: datetime
     updated_at: datetime
-
+    auth_code: Optional[str] = None
 
 class InstitutionCreate(BaseModel):
     institution_code: str = Field(min_length=1, max_length=100)
@@ -110,7 +110,7 @@ class SubjectResponse(ORMModel):
     institution_id: Optional[int]
     created_at: datetime
     updated_at: datetime
-
+    auth_code: Optional[str] = None
 
 class GuardianRegistrationCreate(BaseModel):
     guardian_id: int
