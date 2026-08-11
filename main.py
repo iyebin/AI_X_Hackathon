@@ -7,7 +7,6 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 from facility_api import fetch_facilities
 from air_api import get_air_quality
-from gwangju_air_api import get_gwangju_air_network
 
 import models
 from models import Subject, Guardian
@@ -1729,7 +1728,3 @@ def save_auth_code(
 @app.get("/environment/air", tags=["환경정보"])
 def read_air_quality():
     return get_air_quality("광주")
-
-@app.get("/environment/gwangju-air", tags=["환경정보"])
-def read_gwangju_air_network():
-    return get_gwangju_air_network()
