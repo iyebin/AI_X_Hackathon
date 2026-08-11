@@ -828,6 +828,7 @@ def create_subject(
     db.add(subject)
     db.commit()
     db.refresh(subject)
+    
     return subject
 
 
@@ -1607,6 +1608,15 @@ def issue_subject_auth_code(
     db.commit()
     db.refresh(subject)
 
+    alert = models.Alert(
+        type="auth",
+        subject_id=subject.id,
+        message=f"{subject.name}님의 인증코드가 발급되었습니다.",
+        is_read=False
+    )
+
+    db.add(alert)
+    db.commit()
     return {
         "user_type": "subject",
         "user_id": subject.id,
@@ -1639,6 +1649,13 @@ def issue_guardian_auth_code(
 
     db.commit()
     db.refresh(guardian)
+
+    alert = models.Alert(
+        type="auth",
+        guardian_id=guardian.id,
+        message=f"{guardian.name}님의 인증코드가 발급되었습니다.",
+        is_read=False
+    )
 
     return {
         "user_type": "guardian",
