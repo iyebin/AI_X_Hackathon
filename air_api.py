@@ -5,7 +5,7 @@ from fastapi import HTTPException
 AIRKOREA_API_KEY = os.getenv("AIRKOREA_API_KEY")
 
 BASE_URL = (
-    "https://apis.data.go.kr/B552584/"
+    "https://apis.data.go.kr/B552584/ArpltnInforInqireSvc"
     "ArpltnInforInqireSvc/getCtprvnRltmMesureDnsty"
 )
 
