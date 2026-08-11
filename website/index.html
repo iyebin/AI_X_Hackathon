@@ -1,0 +1,1452 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>안심하랑께 | 관리자</title>
+
+  <link rel="stylesheet" href="styles.css" />
+
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  />
+
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- 카카오 도로명주소 검색 -->
+  <script src="https://t1.kakaocdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+</head>
+
+<body>
+
+<div class="app">
+
+  <aside class="sidebar">
+
+    <div class="brand">
+      <img
+        src="./Group 16.svg"
+        alt="안심하랑께"
+        class="brand-logo"
+      />
+    </div>
+
+    <nav class="nav">
+
+      <button class="nav-item" id="dashboardNav">
+        <i data-lucide="house"></i>
+        <span>대시보드</span>
+      </button>
+
+      <button class="nav-item active" id="userNav">
+        <i data-lucide="users"></i>
+        <span>사용자 관리</span>
+      </button>
+
+      <button class="nav-item" id="realtimeNav">
+        <i data-lucide="map-pin"></i>
+        <span>실시간 관제</span>
+      </button>
+
+      <button class="nav-item" id="authNav">
+        <i data-lucide="badge-check"></i>
+        <span>인증코드 관리</span>
+      </button>
+
+      <button class="nav-item alert-nav-item" id="alertNav">
+        <i data-lucide="bell"></i>
+        <span>알림 내역</span>
+
+        <span
+          id="alertSidebarBadge"
+          class="sidebar-alert-badge hidden"
+        >
+          0
+        </span>
+      </button>
+
+      <button class="nav-item" id="settingsNav">
+        <i data-lucide="settings"></i>
+        <span>설정</span>
+      </button>
+
+    </nav>
+
+  </aside>
+
+
+  <div class="workspace">
+
+    <header class="topbar">
+
+      <div></div>
+
+      <div class="admin">
+
+        <span class="admin-name">
+          <strong>홍길동</strong> 관리자
+        </span>
+
+        <i
+          data-lucide="chevron-down"
+          class="admin-arrow"
+        ></i>
+
+      </div>
+
+    </header>
+
+
+    <main class="main">
+
+      <!-- ==================================================
+           사용자 관리
+      =================================================== -->
+
+      <section
+        id="userManagementPage"
+        class="page-container"
+      >
+
+        <div class="page-heading">
+
+          <div>
+            <h1>사용자 관리</h1>
+            <p>보호대상자와 보호자 정보를 관리합니다.</p>
+          </div>
+
+          <button
+            id="addUserButton"
+            class="primary-button"
+          >
+            <i data-lucide="plus"></i>
+            사용자 추가
+          </button>
+
+        </div>
+
+
+        <div class="tabs">
+
+          <button
+            id="userSubjectTab"
+            class="tab active"
+          >
+            보호대상자
+          </button>
+
+          <button
+            id="userGuardianTab"
+            class="tab"
+          >
+            보호자
+          </button>
+
+        </div>
+
+
+        <div class="filter-row">
+
+          <div class="search-box">
+
+            <i data-lucide="search"></i>
+
+            <input
+              id="userSearchInput"
+              type="text"
+              placeholder="이름, 전화번호 검색"
+            />
+
+          </div>
+
+
+          <select
+            id="userTypeFilter"
+            class="type-filter"
+          >
+            <option value="all">전체 유형</option>
+            <option value="child">아동</option>
+            <option value="dementia">치매환자</option>
+            <option value="elderly">노인</option>
+            <option value="disability">장애인</option>
+            <option value="general">일반</option>
+            <option value="other">기타</option>
+          </select>
+
+
+          <div
+            id="userAddressBox"
+            class="search-box hidden"
+          >
+
+            <i data-lucide="map-pin"></i>
+
+            <input
+              id="userAddressInput"
+              type="text"
+              placeholder="주소 검색"
+            />
+
+          </div>
+
+        </div>
+
+
+        <section class="table-card">
+
+          <div
+            id="userLoading"
+            class="state-message"
+          >
+            <div class="loader"></div>
+            사용자 정보를 불러오는 중입니다...
+          </div>
+
+          <div
+            id="userError"
+            class="state-message error hidden"
+          >
+            사용자 정보를 불러오지 못했습니다.
+          </div>
+
+          <div
+            id="userTableArea"
+            class="table-area hidden"
+          >
+
+            <div class="table-scroll">
+
+              <table>
+                <thead id="userTableHead"></thead>
+                <tbody id="userTableBody"></tbody>
+              </table>
+
+            </div>
+
+            <div class="table-footer">
+
+              <span
+                id="userTotalCount"
+                class="total-count"
+              ></span>
+
+            </div>
+
+          </div>
+
+        </section>
+
+      </section>
+
+
+      <!-- ==================================================
+           실시간 관제
+      =================================================== -->
+
+      <section
+        id="realtimePage"
+        class="realtime-page hidden"
+      >
+
+        <div class="realtime-heading">
+
+          <div>
+            <h1>실시간 관제</h1>
+
+            <p>
+              보호대상자의 실시간 위치와 주변 기관을 확인합니다.
+            </p>
+          </div>
+
+          <button
+            id="realtimeRefreshButton"
+            class="outline-button"
+          >
+            <i data-lucide="refresh-cw"></i>
+            새로고침
+          </button>
+
+        </div>
+
+
+        <div class="realtime-content">
+
+          <aside class="subject-panel">
+
+            <div class="subject-panel-title">
+
+              <strong>보호대상자 목록</strong>
+
+              <span id="monitorSubjectCount">
+                0명
+              </span>
+
+            </div>
+
+
+            <div class="monitor-search">
+
+              <i data-lucide="search"></i>
+
+              <input
+                id="monitorSearchInput"
+                type="text"
+                placeholder="이름, 전화번호 검색"
+              />
+
+            </div>
+
+
+            <select
+              id="monitorTypeFilter"
+              class="monitor-filter"
+            >
+              <option value="all">전체 유형</option>
+              <option value="child">아동</option>
+              <option value="dementia">치매환자</option>
+              <option value="elderly">노인</option>
+              <option value="disability">장애인</option>
+              <option value="general">일반</option>
+              <option value="other">기타</option>
+            </select>
+
+
+            <div
+              id="monitorSubjectList"
+              class="monitor-subject-list"
+            ></div>
+
+          </aside>
+
+
+          <section class="map-panel">
+
+            <div class="map-toolbar">
+
+              <div class="map-mode">
+
+                <button class="map-mode-button active">
+                  지도
+                </button>
+
+              </div>
+
+
+              <div class="map-legend">
+
+                <span>
+                  <i class="legend-circle subject-color"></i>
+                  현재 위치
+                </span>
+
+                <span>
+                  <i class="legend-circle institution-color"></i>
+                  주변 기관
+                </span>
+
+              </div>
+
+            </div>
+
+
+            <div id="liveMap"></div>
+
+
+            <div
+              id="mapEmptyState"
+              class="map-empty-state"
+            >
+
+              <i data-lucide="map-pin"></i>
+
+              <strong>
+                보호대상자를 선택해주세요.
+              </strong>
+
+              <span>
+                선택한 보호대상자의 최신 GPS 위치가 표시됩니다.
+              </span>
+
+            </div>
+
+          </section>
+
+
+          <aside class="monitor-detail-panel">
+
+            <div
+              id="monitorEmptyDetail"
+              class="monitor-empty-detail"
+            >
+
+              <i data-lucide="user-round"></i>
+
+              <strong>
+                보호대상자를 선택해주세요.
+              </strong>
+
+              <span>
+                현재 위치와 주변 기관을 확인할 수 있습니다.
+              </span>
+
+            </div>
+
+
+            <div
+              id="monitorDetailContent"
+              class="monitor-detail-content hidden"
+            >
+
+              <section class="monitor-profile">
+
+                <div class="monitor-avatar">
+                  <i data-lucide="user-round"></i>
+                </div>
+
+                <div class="monitor-profile-text">
+
+                  <h2 id="monitorDetailName">-</h2>
+                  <p id="monitorDetailRole">-</p>
+                  <span id="monitorDetailPhone">-</span>
+
+                </div>
+
+              </section>
+
+
+              <section class="monitor-section">
+
+                <div class="monitor-section-header">
+
+                  <h3>현재 위치</h3>
+
+                  <span id="monitorUpdatedAt">
+                    -
+                  </span>
+
+                </div>
+
+
+                <div class="location-card">
+
+                  <div>
+
+                    <span class="location-small">
+                      최신 GPS
+                    </span>
+
+                    <strong id="monitorCoordinates">
+                      -
+                    </strong>
+
+                  </div>
+
+
+                  <button
+                    id="focusMapButton"
+                    class="small-outline-button"
+                  >
+                    <i data-lucide="navigation"></i>
+                    위치 보기
+                  </button>
+
+                </div>
+
+              </section>
+
+
+              <section class="monitor-section">
+
+                <div class="monitor-section-header">
+
+                  <h3>주변 상황</h3>
+
+                  <span class="temporary-badge">
+                    추후 API 연동
+                  </span>
+
+                </div>
+
+
+                <div class="surround-grid">
+
+                  <div class="surround-card">
+                    <i data-lucide="sun"></i>
+                    <b>날씨</b>
+                    <span>맑음</span>
+                    <small>26°C</small>
+                  </div>
+
+                  <div class="surround-card">
+                    <i data-lucide="wind"></i>
+                    <b>미세먼지</b>
+                    <span>좋음</span>
+                    <small>23㎍/㎥</small>
+                  </div>
+
+                  <div class="surround-card">
+                    <i data-lucide="users"></i>
+                    <b>유동인구</b>
+                    <span>정보 준비 중</span>
+                    <small>추후 연동</small>
+                  </div>
+
+                  <div class="surround-card">
+                    <i data-lucide="triangle-alert"></i>
+                    <b>위험지역</b>
+                    <span>정보 준비 중</span>
+                    <small>추후 연동</small>
+                  </div>
+
+                </div>
+
+              </section>
+
+
+              <section class="monitor-section">
+
+                <div class="monitor-section-header">
+                  <h3>가장 가까운 기관</h3>
+                </div>
+
+                <div
+                  id="nearestInstitutionList"
+                  class="institution-list"
+                >
+                  <div class="mini-loading">
+                    보호대상자를 선택해주세요.
+                  </div>
+                </div>
+
+              </section>
+
+            </div>
+
+          </aside>
+
+        </div>
+
+      </section>
+
+
+      <!-- ==================================================
+           인증코드 관리
+      =================================================== -->
+
+      <section
+        id="authManagementPage"
+        class="page-container hidden"
+      >
+
+        <div class="page-heading">
+
+          <div>
+            <h1>인증코드 관리</h1>
+
+            <p>
+              사용자의 인증코드를 발급하고 관리합니다.
+            </p>
+          </div>
+
+          <!-- 화면에서는 숨김: 기존 JS 호환용 -->
+          <button
+            id="refreshAuthButton"
+            class="primary-button hidden"
+            aria-hidden="true"
+            tabindex="-1"
+          ></button>
+
+        </div>
+
+
+        <div class="tabs">
+
+          <button
+            id="authSubjectTab"
+            class="tab active"
+          >
+            보호대상자
+          </button>
+
+          <button
+            id="authGuardianTab"
+            class="tab"
+          >
+            보호자
+          </button>
+
+        </div>
+
+
+        <div class="filter-row single-filter">
+
+          <div class="search-box">
+
+            <i data-lucide="search"></i>
+
+            <input
+              id="authSearchInput"
+              type="text"
+              placeholder="이름, 전화번호 검색"
+            />
+
+          </div>
+
+        </div>
+
+
+        <section class="table-card">
+
+          <div class="table-area">
+
+            <div class="table-scroll">
+
+              <table>
+
+                <thead>
+                  <tr>
+                    <th>이름</th>
+                    <th>유형</th>
+                    <th>전화번호</th>
+                    <th>인증코드</th>
+                    <th>상태</th>
+                    <th>관리</th>
+                  </tr>
+                </thead>
+
+                <tbody id="authTableBody"></tbody>
+
+              </table>
+
+            </div>
+
+
+            <div class="table-footer">
+
+              <span
+                id="authTotalCount"
+                class="total-count"
+              ></span>
+
+            </div>
+
+          </div>
+
+        </section>
+
+      </section>
+
+
+      <!-- ==================================================
+           알림 내역
+      =================================================== -->
+
+      <section
+        id="alertPage"
+        class="page-container hidden"
+      >
+
+        <div class="page-heading">
+
+          <div>
+            <h1>알림 내역</h1>
+
+            <p>
+              보호대상자의 위험 알림과 사용자 요청을 확인하고 처리합니다.
+            </p>
+          </div>
+
+          <!-- 화면에서는 숨김: 기존 JS 호환용 -->
+          <button
+            id="refreshAlertButton"
+            class="outline-button hidden"
+            aria-hidden="true"
+            tabindex="-1"
+          ></button>
+
+        </div>
+
+
+        <div class="alert-tabs">
+
+          <button
+            class="alert-tab active"
+            data-alert-tab="all"
+          >
+            전체
+
+            <span
+              id="allAlertCount"
+              class="alert-tab-count"
+            >
+              0
+            </span>
+          </button>
+
+
+          <button
+            class="alert-tab"
+            data-alert-tab="danger"
+          >
+            <i data-lucide="shield-alert"></i>
+
+            위험 알림
+
+            <span
+              id="dangerAlertCount"
+              class="alert-tab-count danger"
+            >
+              0
+            </span>
+          </button>
+
+
+          <button
+            class="alert-tab"
+            data-alert-tab="auth"
+          >
+            <i data-lucide="key-round"></i>
+
+            인증 요청
+
+            <span
+              id="authAlertCount"
+              class="alert-tab-count auth"
+            >
+              0
+            </span>
+          </button>
+
+        </div>
+
+
+        <div class="alert-filter-row">
+
+          <div class="search-box">
+
+            <i data-lucide="search"></i>
+
+            <input
+              id="alertSearchInput"
+              type="text"
+              placeholder="이름, 전화번호 검색"
+            />
+
+          </div>
+
+
+          <select
+            id="alertStatusFilter"
+            class="type-filter"
+          >
+            <option value="all">전체 상태</option>
+            <option value="unread">미확인</option>
+            <option value="read">확인</option>
+          </select>
+
+        </div>
+
+
+        <section class="alert-table-card">
+
+          <div class="alert-table-scroll">
+
+            <table class="alert-table">
+
+              <thead>
+
+                <tr>
+                  <th>발생 시간</th>
+                  <th>사용자</th>
+                  <th>유형</th>
+                  <th>알림 내용</th>
+                  <th>상태</th>
+                  <th>관리</th>
+                </tr>
+
+              </thead>
+
+              <tbody id="alertTableBody"></tbody>
+
+            </table>
+
+          </div>
+
+
+          <div class="alert-table-footer">
+
+            <div></div>
+
+            <div
+              id="alertPagination"
+              class="alert-pagination"
+            ></div>
+
+            <span
+              id="alertTotalCount"
+              class="total-count"
+            >
+              전체 0건
+            </span>
+
+          </div>
+
+        </section>
+
+      </section>
+
+
+      <!-- ==================================================
+           사용자 상세
+      =================================================== -->
+
+      <aside
+        id="userDetailDrawer"
+        class="detail-drawer"
+      >
+
+        <div class="drawer-header">
+
+          <h2>사용자 상세 정보</h2>
+
+          <button
+            id="closeUserDrawer"
+            class="icon-button"
+          >
+            <i data-lucide="x"></i>
+          </button>
+
+        </div>
+
+
+        <div class="profile">
+
+          <div class="avatar">
+            <i data-lucide="user-round"></i>
+          </div>
+
+          <div>
+
+            <div class="profile-title">
+
+              <h3 id="userDetailName">
+                -
+              </h3>
+
+              <span
+                id="userDetailStatus"
+                class="status-badge unregistered"
+              >
+                미등록
+              </span>
+
+            </div>
+
+            <p id="userDetailRole">
+              -
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <div class="divider"></div>
+
+
+        <section class="detail-section">
+
+          <h4>기본 정보</h4>
+
+          <dl
+            id="userBasicInfo"
+            class="detail-list"
+          ></dl>
+
+        </section>
+
+
+        <div class="divider"></div>
+
+
+        <section class="detail-section">
+
+          <h4 id="userRelationTitle">
+            연결 정보
+          </h4>
+
+          <div
+            id="userRelationList"
+            class="relation-list"
+          ></div>
+
+        </section>
+
+
+        <div class="divider"></div>
+
+
+        <section class="detail-section">
+
+          <h4>기타 정보</h4>
+
+          <dl
+            id="userExtraInfo"
+            class="detail-list"
+          ></dl>
+
+        </section>
+
+      </aside>
+
+
+      <!-- ==================================================
+           인증코드 상세
+      =================================================== -->
+
+      <aside
+        id="authDetailDrawer"
+        class="detail-drawer"
+      >
+
+        <div class="drawer-header">
+
+          <h2>인증코드 상세 정보</h2>
+
+          <button
+            id="closeAuthDrawer"
+            class="icon-button"
+          >
+            <i data-lucide="x"></i>
+          </button>
+
+        </div>
+
+
+        <div class="profile">
+
+          <div class="avatar">
+            <i data-lucide="user-round"></i>
+          </div>
+
+          <div>
+
+            <h3 id="authDetailName">
+              -
+            </h3>
+
+            <p id="authDetailRole">
+              -
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <div class="divider"></div>
+
+
+        <section class="detail-section">
+
+          <h4>기본 정보</h4>
+
+          <dl class="detail-list">
+
+            <div class="detail-row">
+              <dt>전화번호</dt>
+              <dd id="authDetailPhone">-</dd>
+            </div>
+
+            <div class="detail-row">
+              <dt>사용자 유형</dt>
+              <dd id="authDetailType">-</dd>
+            </div>
+
+            <div class="detail-row">
+              <dt>상태</dt>
+              <dd id="authDetailStatus">미등록</dd>
+            </div>
+
+          </dl>
+
+        </section>
+
+
+        <div class="divider"></div>
+
+
+        <section class="detail-section">
+
+          <h4>인증코드</h4>
+
+          <div class="detail-auth-code">
+
+            <div
+              id="authDetailCode"
+              class="detail-code-value"
+            >
+              아직 발급되지 않았습니다.
+            </div>
+
+            <button
+              id="copyAuthCodeButton"
+              class="small-icon-button hidden"
+            >
+              <i data-lucide="copy"></i>
+            </button>
+
+          </div>
+
+        </section>
+
+
+        <div class="drawer-actions">
+
+          <button
+            id="issueAuthDetailButton"
+            class="issue-main-button"
+          >
+            인증코드 발급
+          </button>
+
+        </div>
+
+      </aside>
+
+    </main>
+
+  </div>
+
+</div>
+
+
+<!-- ==================================================
+     사용자 추가 MODAL
+=================================================== -->
+
+<div
+  id="addUserModal"
+  class="modal-backdrop hidden"
+>
+
+  <div class="user-form-modal">
+
+    <div class="user-form-header">
+
+      <div>
+
+        <h2>사용자 추가</h2>
+
+        <p>
+          새로운 사용자를 데이터베이스에 추가합니다.
+        </p>
+
+      </div>
+
+      <button
+        id="closeAddUserModal"
+        class="modal-close-inline"
+      >
+        <i data-lucide="x"></i>
+      </button>
+
+    </div>
+
+
+    <div class="user-form-tabs">
+
+      <button
+        id="addSubjectTab"
+        class="user-form-tab active"
+        type="button"
+      >
+        보호대상자
+      </button>
+
+      <button
+        id="addGuardianTab"
+        class="user-form-tab"
+        type="button"
+      >
+        보호자
+      </button>
+
+    </div>
+
+
+    <form
+      id="subjectForm"
+      class="user-form"
+    >
+
+      <div class="form-grid">
+
+        <label class="form-field">
+
+          <span>이름 *</span>
+
+          <input
+            id="subjectName"
+            required
+            placeholder="이름"
+          />
+
+        </label>
+
+
+        <label class="form-field">
+
+          <span>성별 *</span>
+
+          <select id="subjectGender" required>
+
+            <option value="">선택</option>
+            <option value="male">남성</option>
+            <option value="female">여성</option>
+            <option value="unknown">미상</option>
+
+          </select>
+
+        </label>
+
+
+        <label class="form-field">
+
+          <span>전화번호 *</span>
+
+          <input
+            id="subjectPhone"
+            required
+            placeholder="010-0000-0000"
+          />
+
+        </label>
+
+
+        <label class="form-field">
+
+          <span>생년월일 *</span>
+
+          <input
+            id="subjectBirthDate"
+            type="date"
+            required
+          />
+
+        </label>
+
+
+        <div class="form-field full">
+
+          <span>주소 *</span>
+
+          <div class="address-search-row">
+
+            <input
+              id="subjectAddress"
+              type="text"
+              required
+              readonly
+              placeholder="주소 검색을 눌러주세요."
+              class="address-result-input"
+            />
+
+            <button
+              id="subjectAddressSearchButton"
+              type="button"
+              class="address-search-button"
+            >
+              <i data-lucide="search"></i>
+              주소 검색
+            </button>
+
+          </div>
+
+        </div>
+
+
+        <label class="form-field full">
+
+          <span>상세주소</span>
+
+          <input
+            id="subjectAddressDetail"
+            type="text"
+            placeholder="동, 호수 등 상세주소를 입력하세요."
+          />
+
+        </label>
+
+
+        <label class="form-field">
+
+          <span>유형 *</span>
+
+          <select id="subjectType" required>
+
+            <option value="">선택</option>
+            <option value="child">아동</option>
+            <option value="dementia">치매환자</option>
+            <option value="elderly">노인</option>
+            <option value="disability">장애인</option>
+            <option value="general">일반</option>
+            <option value="other">기타</option>
+
+          </select>
+
+        </label>
+
+
+        <label class="form-field">
+
+          <span>소속 기관</span>
+
+          <select id="subjectInstitution">
+
+            <option value="">
+              소속 기관 없음
+            </option>
+
+          </select>
+
+        </label>
+
+
+        <label class="form-field full">
+
+          <span>특이사항</span>
+
+          <textarea
+            id="subjectSpecialNotes"
+            rows="3"
+            placeholder="필요한 특이사항을 입력하세요."
+          ></textarea>
+
+        </label>
+
+      </div>
+
+
+      <div class="form-actions">
+
+        <button
+          type="button"
+          class="form-cancel-button"
+          data-close-user-modal
+        >
+          취소
+        </button>
+
+        <button
+          id="submitSubjectButton"
+          type="submit"
+          class="form-submit-button"
+        >
+          보호대상자 추가
+        </button>
+
+      </div>
+
+    </form>
+
+
+    <form
+      id="guardianForm"
+      class="user-form hidden"
+    >
+
+      <div class="form-grid">
+
+        <label class="form-field">
+
+          <span>이름 *</span>
+
+          <input
+            id="guardianName"
+            required
+            placeholder="이름"
+          />
+
+        </label>
+
+
+        <label class="form-field">
+
+          <span>성별 *</span>
+
+          <select id="guardianGender" required>
+
+            <option value="">선택</option>
+            <option value="male">남성</option>
+            <option value="female">여성</option>
+            <option value="unknown">미상</option>
+
+          </select>
+
+        </label>
+
+
+        <label class="form-field">
+
+          <span>전화번호 *</span>
+
+          <input
+            id="guardianPhone"
+            required
+            placeholder="010-0000-0000"
+          />
+
+        </label>
+
+
+        <label class="form-field">
+
+          <span>생년월일 *</span>
+
+          <input
+            id="guardianBirthDate"
+            type="date"
+            required
+          />
+
+        </label>
+
+
+        <div class="form-field full">
+
+          <span>주소 *</span>
+
+          <div class="address-search-row">
+
+            <input
+              id="guardianAddress"
+              type="text"
+              required
+              readonly
+              placeholder="주소 검색을 눌러주세요."
+              class="address-result-input"
+            />
+
+            <button
+              id="guardianAddressSearchButton"
+              type="button"
+              class="address-search-button"
+            >
+              <i data-lucide="search"></i>
+              주소 검색
+            </button>
+
+          </div>
+
+        </div>
+
+
+        <label class="form-field full">
+
+          <span>상세주소</span>
+
+          <input
+            id="guardianAddressDetail"
+            type="text"
+            placeholder="동, 호수 등 상세주소를 입력하세요."
+          />
+
+        </label>
+
+      </div>
+
+
+      <div class="form-actions">
+
+        <button
+          type="button"
+          class="form-cancel-button"
+          data-close-user-modal
+        >
+          취소
+        </button>
+
+        <button
+          id="submitGuardianButton"
+          type="submit"
+          class="form-submit-button"
+        >
+          보호자 추가
+        </button>
+
+      </div>
+
+    </form>
+
+  </div>
+
+</div>
+
+
+<!-- ==================================================
+     인증코드 MODAL
+=================================================== -->
+
+<div
+  id="authCodeModal"
+  class="modal-backdrop hidden"
+>
+
+  <div class="code-modal">
+
+    <button
+      id="closeAuthModal"
+      class="modal-close"
+    >
+      <i data-lucide="x"></i>
+    </button>
+
+
+    <div class="modal-icon">
+      <i data-lucide="badge-check"></i>
+    </div>
+
+
+    <h2>인증코드</h2>
+
+    <p id="authModalName">-</p>
+
+
+    <div class="issued-code-box">
+
+      <span id="authModalCode">
+        -
+      </span>
+
+      <button id="copyModalCode">
+        <i data-lucide="copy"></i>
+      </button>
+
+    </div>
+
+
+    <p class="modal-description">
+      사용자가 앱에서 입력할 인증코드입니다.
+    </p>
+
+
+    <button
+      id="confirmAuthModal"
+      class="modal-confirm-button"
+    >
+      확인
+    </button>
+
+  </div>
+
+</div>
+
+
+<script src="script.js"></script>
+
+</body>
+</html>
