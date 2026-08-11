@@ -5,24 +5,30 @@ import React, { useEffect, useState } from 'react';
 import {
   Alert,
   Linking,
+  Modal,
   Platform,
   ScrollView,
   StyleSheet,
   Switch,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
+import { getProtectorPhone, setProtectorPhone } from '@/features/contacts/protector-contact-store';
 
 interface SettingViewProps {
   isProtected?: boolean;
+  onEmergencyContactSaved?: () => void;
 }
 
-export default function SettingView({ isProtected = false }: SettingViewProps) {
+export default function SettingView({ isProtected = false, onEmergencyContactSaved }: SettingViewProps) {
   const router = useRouter();
 
   const [isNotificationEnabled, setIsNotificationEnabled] = useState(true);
   const [isLocationEnabled, setIsLocationEnabled] = useState(false);
+  const [isContactModalVisible, setIsContactModalVisible] = useState(false);
+  const [protectorPhone, setProtectorPhoneInput] = useState('');
 
   useEffect(() => {
     checkLocationPermission();
@@ -108,13 +114,30 @@ export default function SettingView({ isProtected = false }: SettingViewProps) {
     router.push('/frequent-places');
   };
 
+  const handleEmergencyContact = () => {
+    setProtectorPhoneInput(getProtectorPhone());
+    setIsContactModalVisible(true);
+  };
+
+  const handleSaveEmergencyContact = () => {
+    const phoneNumber = protectorPhone.replace(/[^0-9]/g, '');
+    if (phoneNumber.length < 9 || phoneNumber.length > 11) {
+      Alert.alert('번호 확인', '올바른 보호자 전화번호를 입력해 주세요.');
+      return;
+    }
+    setProtectorPhone(phoneNumber);
+    onEmergencyContactSaved?.();
+    setIsContactModalVisible(false);
+  };
+
   const handleSimpleMenu = (menuName: string) => {
     Alert.alert('알림', `${menuName} 기능 준비 중입니다.`);
   };
 
-  const activeColor = isProtected ? '#5CB85C' : '#F7941D';
+  const activeColor = isProtected ? '#59A03D' : '#F7931E';
 
   return (
+    <>
     <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
       <View style={styles.headerBadgeContainer}>
         <View style={[styles.headerBadge, { backgroundColor: activeColor }]}>
@@ -139,9 +162,9 @@ export default function SettingView({ isProtected = false }: SettingViewProps) {
           />
         </View>
 
-        <View style={styles.itemDivider} />
+        {isProtected && <View style={styles.itemDivider} />}
 
-        <View style={styles.menuItemRow}>
+        {isProtected && <View style={styles.menuItemRow}>
           <View style={styles.menuLeft}>
             <Ionicons name="navigate-outline" size={24} color="#333333" style={styles.menuIcon} />
             <Text style={styles.menuText}>위치 정보 설정</Text>
@@ -152,7 +175,7 @@ export default function SettingView({ isProtected = false }: SettingViewProps) {
             trackColor={{ false: '#E0E0E0', true: activeColor }}
             thumbColor="#FFFFFF"
           />
-        </View>
+        </View>}
       </View>
 
       <Text style={styles.sectionTitle}>계정 설정</Text>
@@ -176,7 +199,7 @@ export default function SettingView({ isProtected = false }: SettingViewProps) {
           <>
             <TouchableOpacity
               style={styles.menuItem}
-              onPress={() => handleSimpleMenu('긴급 연락처 관리')}
+              onPress={handleEmergencyContact}
               activeOpacity={0.7}
             >
               <Ionicons name="call-outline" size={24} color="#333333" style={styles.menuIcon} />
@@ -213,14 +236,40 @@ export default function SettingView({ isProtected = false }: SettingViewProps) {
         <Text style={styles.logoutBtnText}>로그아웃</Text>
       </TouchableOpacity>
     </ScrollView>
+
+    <Modal visible={isContactModalVisible} transparent animationType="fade" onRequestClose={() => setIsContactModalVisible(false)}>
+      <View style={styles.modalOverlay}>
+        <View style={styles.modalContent}>
+          <Text style={styles.modalTitle}>긴급 연락처 관리</Text>
+          <Text style={styles.modalDescription}>홈에서 전화하기를 누르면 이 번호로 연결됩니다.</Text>
+          <TextInput
+            style={styles.modalInput}
+            value={protectorPhone}
+            onChangeText={setProtectorPhoneInput}
+            keyboardType="phone-pad"
+            placeholder="보호자 전화번호"
+            maxLength={13}
+          />
+          <View style={styles.modalButtons}>
+            <TouchableOpacity style={styles.cancelButton} onPress={() => setIsContactModalVisible(false)}>
+              <Text style={styles.cancelText}>취소</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.saveContactButton, { backgroundColor: activeColor }]} onPress={handleSaveEmergencyContact}>
+              <Text style={styles.saveContactText}>저장</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    </Modal>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
   scrollContainer: { paddingHorizontal: 24, paddingTop: 10, paddingBottom: 40 },
-  headerBadgeContainer: { alignItems: 'center', marginVertical: 10 },
-  headerBadge: { paddingHorizontal: 28, paddingVertical: 8, borderRadius: 16 },
-  headerBadgeText: { color: '#FFFFFF', fontSize: 20, fontWeight: 'bold' },
+  headerBadgeContainer: { height: 40, alignItems: 'center', justifyContent: 'center', marginTop: 6, marginBottom: 6 },
+  headerBadge: { height: 40, borderRadius: 16, paddingHorizontal: 20, justifyContent: 'center', alignItems: 'center' },
+  headerBadgeText: { color: '#FFFFFF', fontSize: 20, fontWeight: 'bold', includeFontPadding: false },
   topDivider: { height: 1, backgroundColor: '#EAEAEA', marginTop: 14, marginBottom: 28 },
   sectionTitle: { fontSize: 20, fontWeight: 'bold', color: '#000000', marginBottom: 12 },
   menuCard: {
@@ -249,4 +298,14 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   logoutBtnText: { color: '#E53E3E', fontSize: 22, fontWeight: 'bold' },
+  modalOverlay: { flex: 1, justifyContent: 'center', paddingHorizontal: 24, backgroundColor: 'rgba(0, 0, 0, 0.45)' },
+  modalContent: { borderRadius: 20, padding: 24, backgroundColor: '#FFFFFF' },
+  modalTitle: { color: '#111111', fontSize: 21, fontWeight: 'bold' },
+  modalDescription: { marginTop: 8, color: '#666666', fontSize: 15, lineHeight: 21 },
+  modalInput: { height: 56, marginTop: 20, paddingHorizontal: 15, borderWidth: 1.5, borderColor: '#DDE3E8', borderRadius: 13, color: '#111111', fontSize: 18, fontWeight: '600' },
+  modalButtons: { flexDirection: 'row', gap: 10, marginTop: 20 },
+  cancelButton: { flex: 1, height: 50, justifyContent: 'center', alignItems: 'center', borderWidth: 1.5, borderColor: '#DDE3E8', borderRadius: 13 },
+  cancelText: { color: '#555555', fontSize: 17, fontWeight: 'bold' },
+  saveContactButton: { flex: 1, height: 50, justifyContent: 'center', alignItems: 'center', borderRadius: 13 },
+  saveContactText: { color: '#FFFFFF', fontSize: 17, fontWeight: 'bold' },
 });

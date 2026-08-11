@@ -11,16 +11,15 @@ import {
     View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import NotificationView from './components/alarm';
-import HeaderBadge from './components/HeaderBadge';
-import SettingView from './components/setting';
+import HeaderBadge from '@/components/common/header-badge';
+import NotificationView from '@/components/notifications/alarm';
+import SettingView from '@/components/settings/setting-view';
 
 export interface TargetUser {
   id: string;
   name: string;
   age: string;
   status: '안전' | '주의' | '위험';
-  statusBg: string;
   updatedAt: string;
   profileImage?: string;
   score?: number;
@@ -37,8 +36,7 @@ export default function ProtectorSelectScreen() {
       id: '1',
       name: '슝슝슝',
       age: '15세',
-      status: '위험',
-      statusBg: '#FF3B30',
+      status: '주의',
       updatedAt: '1분 전',
       profileImage: undefined,
       score: 56,
@@ -67,6 +65,15 @@ export default function ProtectorSelectScreen() {
 
   const handleMapTabPress = () => {
     Alert.alert('알림', '보호대상자를 먼저 선택해 주세요.');
+  };
+
+  const getStatusColor = (status: string) => {
+    const statusColors: Record<string, string> = {
+      위험: '#FF2525',
+      주의: '#FFBB01',
+      안전: '#2EAD61',
+    };
+    return statusColors[status] ?? '#8E8E93';
   };
 
   const renderContent = () => {
@@ -107,7 +114,7 @@ export default function ProtectorSelectScreen() {
                   <Text style={styles.updateTimeText}>최근 업데이트 {item.updatedAt}</Text>
                 </View>
 
-                <View style={[styles.statusBadge, { backgroundColor: item.statusBg }]}>
+                <View style={[styles.statusBadge, { backgroundColor: getStatusColor(item.status) }]}>
                   <Text style={styles.statusBadgeText}>{item.status}</Text>
                 </View>
               </TouchableOpacity>

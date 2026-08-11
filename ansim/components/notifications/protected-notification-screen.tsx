@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface NotificationItem {
   id: string;
@@ -36,7 +35,7 @@ export default function ProtectedNotificationScreen() {
   }));
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.badge}>
           <Text style={styles.badgeText}>알림</Text>
@@ -70,15 +69,15 @@ export default function ProtectedNotificationScreen() {
           </View>
         )}
       />
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#FFFFFF' },
-  header: { alignItems: 'center', paddingVertical: 16 },
-  badge: { backgroundColor: '#5CB85C', paddingHorizontal: 20, paddingVertical: 6, borderRadius: 16 },
-  badgeText: { color: '#FFFFFF', fontSize: 18, fontWeight: 'bold' },
+  header: { height: 72, alignItems: 'center', justifyContent: 'center' },
+  badge: { height: 40, backgroundColor: '#59A03D', borderRadius: 16, paddingHorizontal: 20, justifyContent: 'center', alignItems: 'center' },
+  badgeText: { color: '#FFFFFF', fontSize: 20, fontWeight: 'bold', includeFontPadding: false },
   listContainer: { paddingHorizontal: 24, paddingTop: 10 },
   sectionGroup: { marginBottom: 20 },
   sectionTitle: { fontSize: 18, fontWeight: 'bold', color: '#000000', marginBottom: 12 },

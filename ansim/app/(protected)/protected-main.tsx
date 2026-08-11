@@ -1,6 +1,6 @@
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Alert,
   Linking,
@@ -11,22 +11,32 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import ProtectedMapView from './components/protected-map';
-import SettingView from './components/setting';
-import ProtectedNotificationScreen from './ProtectedNotificationScreen';
+import ProtectedMapView from '@/components/map/protected-map';
+import ProtectedNotificationScreen from '@/components/notifications/protected-notification-screen';
+import SettingView from '@/components/settings/setting-view';
+import { getProtectorPhone } from '@/features/contacts/protector-contact-store';
 
 export default function ProtectedMainScreen() {
   const router = useRouter();
 
-  const { userName, protectorPhone } = useLocalSearchParams<{
+  const { userName, protectorPhone, tab } = useLocalSearchParams<{
     userName?: string;
     protectorPhone?: string;
+    tab?: 'home' | 'map' | 'notification' | 'setting';
   }>();
 
   const displayName = userName || '슝슝슝';
-  const targetPhone = protectorPhone || '01012345678';
+  const [targetPhone, setTargetPhone] = useState(getProtectorPhone() || protectorPhone || '01012345678');
 
-  const [activeTab, setActiveTab] = useState<string>('home');
+  const [activeTab, setActiveTab] = useState<string>(tab ?? 'home');
+
+  useEffect(() => {
+    if (tab) setActiveTab(tab);
+  }, [tab]);
+
+  useEffect(() => {
+    if (protectorPhone) setTargetPhone(protectorPhone);
+  }, [protectorPhone]);
 
   const [notice] = useState({
     title: '공지사항',
@@ -45,7 +55,7 @@ export default function ProtectedMainScreen() {
 
   const handleFindFacility = () => {
     router.push({
-      pathname: '/facility',
+      pathname: '/protected-facility',
       params: {
         targetName: displayName,
         isProtected: 'true'
@@ -88,7 +98,7 @@ export default function ProtectedMainScreen() {
               onPress={handleCallProtector}
               activeOpacity={0.7}
             >
-              <Ionicons name="call" size={36} color="#55A238" />
+              <Ionicons name="call" size={36} color="#59A03D" />
               <Text style={styles.cardText}>보호자에게 전화하기</Text>
             </TouchableOpacity>
 
@@ -121,8 +131,6 @@ export default function ProtectedMainScreen() {
         return (
           <ProtectedMapView
             targetName={displayName}
-            latitude={location?.latitude}
-            longitude={location?.longitude}
             lastUpdated="1분 전"
             weatherText="구름 많음 26°C"
           />
@@ -132,7 +140,7 @@ export default function ProtectedMainScreen() {
         return <ProtectedNotificationScreen />;
 
       case 'setting':
-        return <SettingView isProtected={true} />;
+        return <SettingView isProtected={true} onEmergencyContactSaved={() => setTargetPhone(getProtectorPhone())} />;
 
       default:
         return null;
@@ -148,7 +156,7 @@ export default function ProtectedMainScreen() {
           <Ionicons
             name="home"
             size={28}
-            color={activeTab === 'home' ? '#55A238' : '#8E8E93'}
+            color={activeTab === 'home' ? '#59A03D' : '#8E8E93'}
           />
           <Text style={[styles.tabLabel, { color: activeTab === 'home' ? '#55A238' : '#8E8E93' }]}>
             홈
@@ -159,7 +167,7 @@ export default function ProtectedMainScreen() {
           <Ionicons
             name="map-outline"
             size={28}
-            color={activeTab === 'map' ? '#55A238' : '#8E8E93'}
+            color={activeTab === 'map' ? '#59A03D' : '#8E8E93'}
           />
           <Text style={[styles.tabLabel, { color: activeTab === 'map' ? '#55A238' : '#8E8E93' }]}>
             지도
@@ -170,7 +178,7 @@ export default function ProtectedMainScreen() {
           <Ionicons
             name="notifications-outline"
             size={28}
-            color={activeTab === 'notification' ? '#55A238' : '#8E8E93'}
+            color={activeTab === 'notification' ? '#59A03D' : '#8E8E93'}
           />
           <Text style={[styles.tabLabel, { color: activeTab === 'notification' ? '#55A238' : '#8E8E93' }]}>
             알림
@@ -181,7 +189,7 @@ export default function ProtectedMainScreen() {
           <Ionicons
             name="settings-outline"
             size={28}
-            color={activeTab === 'setting' ? '#55A238' : '#8E8E93'}
+            color={activeTab === 'setting' ? '#59A03D' : '#8E8E93'}
           />
           <Text style={[styles.tabLabel, { color: activeTab === 'setting' ? '#55A238' : '#8E8E93' }]}>
             설정

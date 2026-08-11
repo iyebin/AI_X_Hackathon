@@ -49,9 +49,9 @@ export default function NotificationView({ filterTargetName }: NotificationViewP
       case 'danger':
         return { icon: 'warning', color: '#E53E3E' };
       case 'warning':
-        return { icon: 'alert-circle', color: '#F7941D' };
+        return { icon: 'alert-circle', color: '#F7931E' };
       case 'safe':
-        return { icon: 'checkmark-circle', color: '#55A238' };
+        return { icon: 'checkmark-circle', color: '#59A03D' };
       default:
         return { icon: 'information-circle', color: '#3182CE' };
     }
@@ -142,9 +142,9 @@ export default function NotificationView({ filterTargetName }: NotificationViewP
 
 const styles = StyleSheet.create({
   scrollContainer: { paddingHorizontal: 20, paddingTop: 10, paddingBottom: 40, backgroundColor: '#FFFFFF' },
-  headerBadgeContainer: { alignItems: 'center', marginVertical: 10 },
-  headerBadge: { backgroundColor: '#F7941D', paddingHorizontal: 28, paddingVertical: 8, borderRadius: 16 },
-  headerBadgeText: { color: '#FFFFFF', fontSize: 20, fontWeight: 'bold' },
+  headerBadgeContainer: { height: 40, alignItems: 'center', justifyContent: 'center', marginTop: 6, marginBottom: 6 },
+  headerBadge: { height: 40, backgroundColor: '#F7931E', borderRadius: 16, paddingHorizontal: 20, justifyContent: 'center', alignItems: 'center' },
+  headerBadgeText: { color: '#FFFFFF', fontSize: 20, fontWeight: 'bold', includeFontPadding: false },
   topDivider: { height: 1, backgroundColor: '#EAEAEA', marginTop: 14, marginBottom: 20 },
   filterRow: { flexDirection: 'row', justifyContent: 'space-between', gap: 8, marginBottom: 20 },
   chip: {
@@ -157,7 +157,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
   },
-  chipActive: { backgroundColor: '#F7941D', borderColor: '#F7941D' },
+  chipActive: { backgroundColor: '#F7931E', borderColor: '#F7931E' },
   chipText: { fontSize: 16, fontWeight: 'bold', color: '#555555' },
   chipTextActive: { color: '#FFFFFF' },
   sectionDivider: { height: 1, backgroundColor: '#EAEAEA', marginVertical: 20 },
