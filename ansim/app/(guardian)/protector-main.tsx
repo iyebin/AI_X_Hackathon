@@ -32,7 +32,7 @@ export default function ProtectorMainScreen() {
   }>();
 
   const targetName = params.targetName || '슝슝슝';
-  const targetStatus = params.targetStatus || '위험';
+  const targetStatus = params.targetStatus || '주의';
   const targetScore = params.targetScore || '56';
   const targetGps = params.targetGps || '55%';
   const targetPhone = params.targetPhone || '01055556666';
@@ -44,13 +44,13 @@ export default function ProtectorMainScreen() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case '안전':
-        return '#59A03D';
+        return '#2EAD61';
       case '주의':
-        return '#F7931E';
+        return '#FFBB01';
       case '위험':
         return '#E53E3E';
       default:
-        return '#F7931E';
+        return '#FFBB01';
     }
   };
 
@@ -136,6 +136,14 @@ export default function ProtectorMainScreen() {
             <View style={styles.summaryCard}>
               <View style={styles.summaryHeader}>
                 <Text style={styles.summaryTitle}>한눈에 보는 요약</Text>
+                <TouchableOpacity
+                  onPress={() => router.push({
+                    pathname: '/summary-detail',
+                    params: { targetName, targetStatus, targetScore, targetGps },
+                  })}
+                  hitSlop={8}>
+                  <Text style={styles.summaryMore}>더보기 &gt;</Text>
+                </TouchableOpacity>
               </View>
 
               <View style={styles.summaryBody}>
@@ -372,6 +380,11 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     color: '#000000',
+  },
+  summaryMore: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    color: '#666666',
   },
   summaryBody: {
     flexDirection: 'row',
