@@ -391,3 +391,15 @@ class GPSRecord(Base):
         "Subject",
         back_populates="gps_records",
     )
+
+class Alert(Base):
+    __tablename__ = "alerts"
+
+    id = Column(BigInteger, primary_key=True, index=True)
+    type = Column(String(20), nullable=False)
+    subject_id = Column(BigInteger, nullable=True)
+    guardian_id = Column(BigInteger, nullable=True)
+    message = Column(Text, nullable=False)
+    risk_score = Column(Float, nullable=True)
+    is_read = Column(Boolean, default=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())

@@ -292,3 +292,16 @@ class AuthCodeVerifyResponse(BaseModel):
     
 class AuthCodeUpdate(BaseModel):
     auth_code: str = Field(min_length=1, max_length=50)
+
+class AlertResponse(BaseModel):
+    id: int
+    type: str
+    subject_id: Optional[int] = None
+    guardian_id: Optional[int] = None
+    message: str
+    risk_score: Optional[float] = None
+    is_read: bool
+    created_at: datetime
+
+    class Config:
+        from_attributes = True

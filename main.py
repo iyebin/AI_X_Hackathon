@@ -1728,3 +1728,50 @@ def save_auth_code(
 @app.get("/environment/air", tags=["환경정보"])
 def read_air_quality():
     return get_air_quality("광주")
+
+@app.get(
+    "/alerts",
+    response_model=list[schemas.AlertResponse],
+    tags=["알림"]
+)
+def get_alerts(
+    is_read: bool | None = None,
+    alert_type: str | None = None,
+    db: Session = Depends(get_db)
+):
+    query = db.query(models.Alert)
+
+    if is_read is not None:
+        query = query.filter(models.Alert.is_read == is_read)
+
+    if alert_type:
+        query = query.filter(models.Alert.type == alert_type)
+
+    return query.order_by(models.Alert.created_at.desc()).all()
+
+@app.patch(
+    "/alerts/{alert_id}/read",
+    response_model=schemas.AlertResponse,
+    tags=["알림"]
+)
+def mark_alert_as_read(
+    alert_id: int,
+    db: Session = Depends(get_db)
+):
+    alert = (
+        db.query(models.Alert)
+        .filter(models.Alert.id == alert_id)
+        .first()
+    )
+
+    if not alert:
+        raise HTTPException(
+            status_code=404,
+            detail="알림을 찾을 수 없습니다."
+        )
+
+    alert.is_read = True
+    db.commit()
+    db.refresh(alert)
+
+    return alert
