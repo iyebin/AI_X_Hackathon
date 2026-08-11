@@ -20,7 +20,6 @@ export interface TargetUser {
   name: string;
   age: string;
   status: '안전' | '주의' | '위험';
-  statusBg: string;
   updatedAt: string;
   profileImage?: string;
   score?: number;
@@ -38,7 +37,6 @@ export default function ProtectorSelectScreen() {
       name: '슝슝슝',
       age: '15세',
       status: '주의',
-      statusBg: '#FF3B30',
       updatedAt: '1분 전',
       profileImage: undefined,
       score: 56,
