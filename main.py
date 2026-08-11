@@ -501,8 +501,6 @@ def create_institution(
     tags=["기관"],
 )
 def list_institutions(
-    skip: int = Query(default=0, ge=0),
-    limit: int = Query(default=100, ge=1, le=500),
     db: Session = Depends(get_db),
 ):
     return (
