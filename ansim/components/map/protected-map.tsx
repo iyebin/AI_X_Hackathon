@@ -8,7 +8,7 @@ import {
   View,
 } from 'react-native';
 import { WebView } from 'react-native-webview';
-import HeaderBadge from './HeaderBadge';
+import HeaderBadge from '@/components/common/header-badge';
 
 interface ProtectedMapViewProps {
   targetName?: string;
@@ -107,12 +107,12 @@ export default function ProtectedMapView({
 
         <View style={styles.statusList}>
           <View style={styles.statusRow}>
-            <Ionicons name="time-outline" size={26} color="#55A238" style={styles.statusIcon} />
+            <Ionicons name="time-outline" size={26} color="#59A03D" style={styles.statusIcon} />
             <Text style={styles.statusText}>최근 업데이트 {lastUpdated}</Text>
           </View>
 
           <View style={styles.statusRow}>
-            <Ionicons name="cloudy-outline" size={26} color="#55A238" style={styles.statusIcon} />
+            <Ionicons name="cloudy-outline" size={26} color="#59A03D" style={styles.statusIcon} />
             <Text style={styles.statusText}>날씨: {weatherText}</Text>
           </View>
         </View>

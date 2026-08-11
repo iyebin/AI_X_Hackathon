@@ -163,21 +163,24 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    paddingVertical: 12,
+    height: 72,
   },
   badgeContainer: {
     alignItems: 'center',
   },
   orangeBadge: {
     backgroundColor: '#F7931D',
-    paddingHorizontal: 22,
-    paddingVertical: 36,
-    borderRadius: 18,
+    height: 40,
+    paddingHorizontal: 20,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   orangeBadgeText: {
     color: '#FFFFFF',
     fontSize: 20,
     fontWeight: 'bold',
+    includeFontPadding: false,
   },
   scrollContent: {
     paddingBottom: 40,

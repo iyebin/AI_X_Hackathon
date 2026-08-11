@@ -1,6 +1,6 @@
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Alert,
   DimensionValue,
@@ -14,10 +14,10 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { WebView } from 'react-native-webview';
 
-import NotificationView from './components/alarm';
-import HeaderBadge from './components/HeaderBadge';
-import LocationMapView from './components/map-view';
-import SettingView from './components/setting';
+import HeaderBadge from '@/components/common/header-badge';
+import LocationMapView from '@/components/map/location-map-view';
+import NotificationView from '@/components/notifications/alarm';
+import SettingView from '@/components/settings/setting-view';
 
 export default function ProtectorMainScreen() {
   const router = useRouter();
@@ -29,28 +29,34 @@ export default function ProtectorMainScreen() {
     targetGps?: string;
     targetPhone?: string;
     updatedTime?: string;
+    tab?: 'home' | 'map' | 'notification' | 'setting';
   }>();
 
   const targetName = params.targetName || '슝슝슝';
-  const targetStatus = params.targetStatus || '위험';
+  const targetStatus = params.targetStatus || '주의';
   const targetScore = params.targetScore || '56';
   const targetGps = params.targetGps || '55%';
   const targetPhone = params.targetPhone || '01055556666';
   const lastUpdated = params.updatedTime || '1분';
 
-  const [activeTab, setActiveTab] = useState<string>('home');
+  const [activeTab, setActiveTab] = useState<string>(params.tab ?? 'home');
   const [mapRefreshKey, setMapRefreshKey] = useState(0);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  useEffect(() => {
+    if (params.tab) setActiveTab(params.tab);
+  }, [params.tab]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case '안전':
-        return '#59A03D';
+        return '#2EAD61';
       case '주의':
-        return '#F7931E';
+        return '#FFBB01';
       case '위험':
         return '#E53E3E';
       default:
-        return '#F7931E';
+        return '#FFBB01';
     }
   };
 
@@ -116,7 +122,7 @@ export default function ProtectorMainScreen() {
                 <View style={styles.subGreetingRow}>
                   <Text style={styles.greetingSubText}>오늘도 </Text>
                   {/* 💡 router.back() 대신 router.push('/protector-select')로 명확하게 변경 */}
-                  <TouchableOpacity onPress={() => router.push('/protector-select')} activeOpacity={0.7}>
+              <TouchableOpacity onPress={() => router.push('/protector-select')} activeOpacity={0.7}>
                     <View style={styles.nameBadge}>
                       <Text style={styles.nameBadgeText}>{targetName}님</Text>
                     </View>
@@ -126,16 +132,24 @@ export default function ProtectorMainScreen() {
               </View>
 
               <TouchableOpacity
-                onPress={() => setActiveTab('notification')}
+                onPress={() => setIsSidebarOpen(true)}
                 hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
               >
-                <Ionicons name="notifications-outline" size={30} color="#000" />
+                <Ionicons name="menu" size={34} color="#000000" />
               </TouchableOpacity>
             </View>
 
             <View style={styles.summaryCard}>
               <View style={styles.summaryHeader}>
                 <Text style={styles.summaryTitle}>한눈에 보는 요약</Text>
+                <TouchableOpacity
+                  onPress={() => router.push({
+                    pathname: '/summary-detail',
+                    params: { targetName, targetStatus, targetScore, targetGps },
+                  })}
+                  hitSlop={8}>
+                  <Text style={styles.summaryMore}>더보기 &gt;</Text>
+                </TouchableOpacity>
               </View>
 
               <View style={styles.summaryBody}>
@@ -301,6 +315,46 @@ export default function ProtectorMainScreen() {
           <Text style={[styles.tabLabel, { color: activeTab === 'setting' ? '#F7931E' : '#8E8E93' }]}>설정</Text>
         </TouchableOpacity>
       </View>
+
+      {isSidebarOpen && (
+        <View style={styles.sidebarOverlay}>
+          <TouchableOpacity style={styles.sidebarDim} activeOpacity={1} onPress={() => setIsSidebarOpen(false)} />
+          <View style={styles.sidebarPanel}>
+            <TouchableOpacity style={styles.sidebarBack} onPress={() => setIsSidebarOpen(false)} hitSlop={12}>
+              <Ionicons name="arrow-back" size={30} color="#111111" />
+            </TouchableOpacity>
+
+            <View style={styles.sidebarProfile}>
+              <View style={styles.sidebarAvatar}><Ionicons name="person" size={43} color="#FFFFFF" /></View>
+              <View>
+                <Text style={styles.sidebarName}>허균</Text>
+                <Text style={styles.sidebarRole}>보호자</Text>
+              </View>
+            </View>
+
+            <View style={styles.sidebarDivider} />
+            <TouchableOpacity style={styles.sidebarItem} onPress={() => { setActiveTab('home'); setIsSidebarOpen(false); }}>
+              <Ionicons name="home-outline" size={27} color="#666666" /><Text style={styles.sidebarItemText}>홈</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.sidebarItem} onPress={() => router.push('/protector-select')}>
+              <Ionicons name="people-outline" size={27} color="#666666" /><Text style={styles.sidebarItemText}>보호대상 관리</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.sidebarItem} onPress={() => { setActiveTab('setting'); setIsSidebarOpen(false); }}>
+              <Ionicons name="settings-outline" size={27} color="#666666" /><Text style={styles.sidebarItemText}>설정</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.sidebarItem} onPress={() => Alert.alert('도움말', '도움말 기능을 준비 중입니다.')}>
+              <Ionicons name="help-circle-outline" size={27} color="#666666" /><Text style={styles.sidebarItemText}>도움말</Text>
+            </TouchableOpacity>
+
+            <View style={styles.sidebarBottom}>
+              <View style={styles.sidebarDivider} />
+              <TouchableOpacity style={styles.sidebarLogout} onPress={() => router.replace('/select-type')}>
+                <Ionicons name="log-out-outline" size={27} color="#FF2525" /><Text style={styles.sidebarLogoutText}>로그아웃</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      )}
     </SafeAreaView>
   );
 }
@@ -372,6 +426,11 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     color: '#000000',
+  },
+  summaryMore: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    color: '#666666',
   },
   summaryBody: {
     flexDirection: 'row',
@@ -528,6 +587,20 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     paddingBottom: 5,
   },
+  sidebarOverlay: { ...StyleSheet.absoluteFillObject, flexDirection: 'row', zIndex: 10 },
+  sidebarDim: { flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.28)' },
+  sidebarPanel: { width: '78%', paddingHorizontal: 26, backgroundColor: '#FFFFFF' },
+  sidebarBack: { alignSelf: 'flex-start', marginTop: 26 },
+  sidebarProfile: { flexDirection: 'row', alignItems: 'center', marginTop: 52, marginLeft: 12 },
+  sidebarAvatar: { width: 70, height: 70, borderRadius: 35, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFE0AA', borderWidth: 1, borderColor: '#E9CB97', marginRight: 30 },
+  sidebarName: { fontSize: 23, fontWeight: 'bold', color: '#111111' },
+  sidebarRole: { marginTop: 10, fontSize: 15, fontWeight: '600', color: '#666666' },
+  sidebarDivider: { height: 1, marginTop: 31, backgroundColor: '#E0E0E0' },
+  sidebarItem: { height: 48, flexDirection: 'row', alignItems: 'center', paddingLeft: 12 },
+  sidebarItemText: { marginLeft: 20, fontSize: 18, fontWeight: '600', color: '#666666' },
+  sidebarBottom: { marginTop: 'auto', marginBottom: 80 },
+  sidebarLogout: { height: 67, flexDirection: 'row', alignItems: 'center', paddingLeft: 17 },
+  sidebarLogoutText: { marginLeft: 17, fontSize: 18, fontWeight: 'bold', color: '#FF2525' },
   tabItem: {
     flex: 1,
     justifyContent: 'center',
