@@ -6,18 +6,18 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 export default function SelectTypeScreen() {
   const router = useRouter();
 
-  // 역할 선택 시 무조건 code 화면으로 해당 role 값을 갖고 이동
   const handleSelectType = (roleType: 'guardian' | 'protected' | 'admin') => {
     console.log('선택한 역할:', roleType);
-    
-    // 기관 관리자 제외, 보호자/보호대상자는 code 화면으로 이동
+
+    // 💡 보호자 / 보호대상자는 메인 화면으로 바로 가지 않고 무조건 /code 로 이동!
     if (roleType === 'guardian' || roleType === 'protected') {
       router.push({
         pathname: '/code',
         params: { role: roleType },
       });
-    } else {
-      console.log('기관 관리자 선택됨');
+    } else if (roleType === 'admin') {
+      // 기관 관리자 선택 시 QR 화면으로 이동
+      router.push('/admin-qr');
     }
   };
 
