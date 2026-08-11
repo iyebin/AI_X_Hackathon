@@ -1,0 +1,6355 @@
+{
+  "0e8020a41e6788d8efcf3b689aa6be901816b8293530392e698832e9d285b279": {
+    "documents": [
+      {
+        "address": {
+          "address_name": "서울 노원구 공릉동 392-18",
+          "b_code": "1135010300",
+          "h_code": "1135059500",
+          "main_address_no": "392",
+          "mountain_yn": "N",
+          "region_1depth_name": "서울",
+          "region_2depth_name": "노원구",
+          "region_3depth_h_name": "공릉1동",
+          "region_3depth_name": "공릉동",
+          "sub_address_no": "18",
+          "x": "127.076124508271",
+          "y": "37.6267429076088"
+        },
+        "address_name": "서울 노원구 동일로192길 58",
+        "address_type": "ROAD_ADDR",
+        "road_address": {
+          "address_name": "서울 노원구 동일로192길 58",
+          "building_name": "",
+          "main_building_no": "58",
+          "region_1depth_name": "서울",
+          "region_2depth_name": "노원구",
+          "region_3depth_name": "공릉동",
+          "road_name": "동일로192길",
+          "sub_building_no": "",
+          "underground_yn": "N",
+          "x": "127.076124508271",
+          "y": "37.6267429076088",
+          "zone_no": "01842"
+        },
+        "x": "127.076124508271",
+        "y": "37.6267429076088"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 1,
+      "total_count": 1
+    }
+  },
+  "b5577bcbe10e1d0140605272908a1134cd6b0e8d35be75f89c0f6b9481f979e8": {
+    "documents": [
+      {
+        "address": {
+          "address_name": "서울 노원구 공릉동 441-41",
+          "b_code": "1135010300",
+          "h_code": "1135060000",
+          "main_address_no": "441",
+          "mountain_yn": "N",
+          "region_1depth_name": "서울",
+          "region_2depth_name": "노원구",
+          "region_3depth_h_name": "공릉2동",
+          "region_3depth_name": "공릉동",
+          "sub_address_no": "41",
+          "x": "127.077699051583",
+          "y": "37.6267870207169"
+        },
+        "address_name": "서울 노원구 공릉로43가길 21",
+        "address_type": "ROAD_ADDR",
+        "road_address": {
+          "address_name": "서울 노원구 공릉로43가길 21",
+          "building_name": "",
+          "main_building_no": "21",
+          "region_1depth_name": "서울",
+          "region_2depth_name": "노원구",
+          "region_3depth_name": "공릉동",
+          "road_name": "공릉로43가길",
+          "sub_building_no": "",
+          "underground_yn": "N",
+          "x": "127.077699051583",
+          "y": "37.6267870207169",
+          "zone_no": "01834"
+        },
+        "x": "127.077699051583",
+        "y": "37.6267870207169"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 1,
+      "total_count": 1
+    }
+  },
+  "1c1242bdf3a6c75f050caaa61098676fe18a1ef2e003a8cd364a72545d2d0e1b": {
+    "documents": [
+      {
+        "address": {
+          "address_name": "서울 노원구 공릉동 338-55",
+          "b_code": "1135010300",
+          "h_code": "1135060000",
+          "main_address_no": "338",
+          "mountain_yn": "N",
+          "region_1depth_name": "서울",
+          "region_2depth_name": "노원구",
+          "region_3depth_h_name": "공릉2동",
+          "region_3depth_name": "공릉동",
+          "sub_address_no": "55",
+          "x": "127.07833041667",
+          "y": "37.6227303606083"
+        },
+        "address_name": "서울 노원구 공릉로33길 16-10",
+        "address_type": "ROAD_ADDR",
+        "road_address": {
+          "address_name": "서울 노원구 공릉로33길 16-10",
+          "building_name": "",
+          "main_building_no": "16",
+          "region_1depth_name": "서울",
+          "region_2depth_name": "노원구",
+          "region_3depth_name": "공릉동",
+          "road_name": "공릉로33길",
+          "sub_building_no": "10",
+          "underground_yn": "N",
+          "x": "127.07833041667",
+          "y": "37.6227303606083",
+          "zone_no": "01837"
+        },
+        "x": "127.07833041667",
+        "y": "37.6227303606083"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 1,
+      "total_count": 1
+    }
+  },
+  "2d87dc636a7aefcb88cd5590ab7d0e8e8bc1e831ebebe191c6b9e5a3e06d050a": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "286feef8f8134e169e1866c93b7c1ed864a080d56a706d8e96f650459e1daa5b": {
+    "documents": [
+      {
+        "address_name": "서울 노원구 공릉동 441-65",
+        "category_group_code": "CS2",
+        "category_group_name": "편의점",
+        "category_name": "가정,생활 > 편의점 > 이마트24",
+        "distance": "18",
+        "id": "984449394",
+        "phone": "02-974-1318",
+        "place_name": "이마트24 공릉타운점",
+        "place_url": "http://place.map.kakao.com/984449394",
+        "road_address_name": "서울 노원구 공릉로 191-10",
+        "x": "127.078395202656",
+        "y": "37.6267142110423"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 1,
+      "same_name": null,
+      "total_count": 1
+    }
+  },
+  "c7d4b01d74a2ec826c13f56c8f9b96dfe2f63f3bae56f08d22418efea365fede": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "459750110a3061ad8e0235fd80ebe4a806de98f1b51493a812d00b51508b01c4": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "893dce160555be74fd3a7282ee29c6c5936a8af8f5ca5be9c968f7334bba31c6": {
+    "documents": [
+      {
+        "address_name": "서울 노원구 공릉동 408-4",
+        "category_group_code": "AC5",
+        "category_group_name": "학원",
+        "category_name": "교육,학문 > 학원 > 미용학원",
+        "distance": "66",
+        "id": "1364217295",
+        "phone": "02-971-6402",
+        "place_name": "엘뷰티이용미용학원",
+        "place_url": "http://place.map.kakao.com/1364217295",
+        "road_address_name": "서울 노원구 공릉로 187",
+        "x": "127.07897147995973",
+        "y": "37.626407491337666"
+      },
+      {
+        "address_name": "서울 노원구 공릉동 401",
+        "category_group_code": "AC5",
+        "category_group_name": "학원",
+        "category_name": "교육,학문 > 학원 > 어학원",
+        "distance": "69",
+        "id": "15226631",
+        "phone": "",
+        "place_name": "키즈클럽어학학원",
+        "place_url": "http://place.map.kakao.com/15226631",
+        "road_address_name": "서울 노원구 공릉로27길 110",
+        "x": "127.077470797965",
+        "y": "37.6266859900177"
+      },
+      {
+        "address_name": "서울 노원구 공릉동 408-138",
+        "category_group_code": "AC5",
+        "category_group_name": "학원",
+        "category_name": "교육,학문 > 학원 > 수학학원",
+        "distance": "81",
+        "id": "27322701",
+        "phone": "02-948-6141",
+        "place_name": "C&J수학전문",
+        "place_url": "http://place.map.kakao.com/27322701",
+        "road_address_name": "서울 노원구 공릉로43길 11",
+        "x": "127.078888411739",
+        "y": "37.6260543601591"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 3,
+      "same_name": null,
+      "total_count": 3
+    }
+  },
+  "19431f3e1dc05031ec44fe1e20052d2c8074df5a805f1fcebd0037499412f96c": {
+    "documents": [
+      {
+        "address_name": "서울 노원구 공릉동 408-4",
+        "category_group_code": "PK6",
+        "category_group_name": "주차장",
+        "category_name": "교통,수송 > 교통시설 > 주차장",
+        "distance": "69",
+        "id": "710808802",
+        "phone": "",
+        "place_name": "건설빌딩 주차장",
+        "place_url": "http://place.map.kakao.com/710808802",
+        "road_address_name": "서울 노원구 공릉로 187",
+        "x": "127.07903965067",
+        "y": "37.6265984548367"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 1,
+      "same_name": null,
+      "total_count": 1
+    }
+  },
+  "d74cae89d4b777819dc2e6966af8ff028a81eda6efe4e56f0c702c50f527b2ab": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "db786ac0f477771cbeaad4b4dcce0887afc07ff7ddf06cfd578a320d7625e8fb": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "50d750867b5815735985402ad5bfcf7506c2ac907466c7856c440fe31e279084": {
+    "documents": [
+      {
+        "address_name": "서울 노원구 공릉동 408-4",
+        "category_group_code": "BK9",
+        "category_group_name": "은행",
+        "category_name": "금융,보험 > 금융서비스 > 은행 > ATM",
+        "distance": "38",
+        "id": "1058025453",
+        "phone": "",
+        "place_name": "CU ATM 공릉건설점",
+        "place_url": "http://place.map.kakao.com/1058025453",
+        "road_address_name": "서울 노원구 공릉로 187",
+        "x": "127.078657760633",
+        "y": "37.6264725719167"
+      },
+      {
+        "address_name": "서울 노원구 공릉동 408-4",
+        "category_group_code": "BK9",
+        "category_group_name": "은행",
+        "category_name": "금융,보험 > 금융서비스 > 은행 > ATM",
+        "distance": "38",
+        "id": "1908149771",
+        "phone": "",
+        "place_name": "하나은행365 공릉동 ATM",
+        "place_url": "http://place.map.kakao.com/1908149771",
+        "road_address_name": "서울 노원구 공릉로 187",
+        "x": "127.0786588934408",
+        "y": "37.62647257115629"
+      },
+      {
+        "address_name": "서울 노원구 공릉동 408-4",
+        "category_group_code": "BK9",
+        "category_group_name": "은행",
+        "category_name": "금융,보험 > 금융서비스 > 은행 > ATM",
+        "distance": "38",
+        "id": "1240098199",
+        "phone": "",
+        "place_name": "하나은행 공릉동 ATM",
+        "place_url": "http://place.map.kakao.com/1240098199",
+        "road_address_name": "서울 노원구 공릉로 187",
+        "x": "127.0786588934408",
+        "y": "37.62647257115629"
+      },
+      {
+        "address_name": "서울 노원구 공릉동 408-4",
+        "category_group_code": "BK9",
+        "category_group_name": "은행",
+        "category_name": "금융,보험 > 금융서비스 > 은행 > 하나은행",
+        "distance": "62",
+        "id": "8648035",
+        "phone": "02-949-1111",
+        "place_name": "하나은행 공릉동지점",
+        "place_url": "http://place.map.kakao.com/8648035",
+        "road_address_name": "서울 노원구 공릉로 187",
+        "x": "127.07892957656063",
+        "y": "37.62641743022194"
+      },
+      {
+        "address_name": "서울 노원구 공릉동 420-2",
+        "category_group_code": "BK9",
+        "category_group_name": "은행",
+        "category_name": "금융,보험 > 금융서비스 > 은행 > ATM",
+        "distance": "98",
+        "id": "25630967",
+        "phone": "",
+        "place_name": "농협ATM 공릉중앙지점",
+        "place_url": "http://place.map.kakao.com/25630967",
+        "road_address_name": "",
+        "x": "127.07910554949467",
+        "y": "37.627158453939806"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 5,
+      "same_name": null,
+      "total_count": 5
+    }
+  },
+  "9b2cfdfb915ea13e988aee22c3d2a7268cf91416dad3bfe452f36cde00b3adda": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "1f8d7c69e28819aa899be38121a92c7fffeedd9a555c4783ddab6a998c46b410": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "d14a3780a6d5d1716ac3293963acfcc8d52b5305e4c086fb2ce060b83a9f134c": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "145b229168478d511b4e7ec9dd385b2d674408cb5104096204857cb7b8c798e5": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "aa7a12435bc961092f5c285b190c544aad2175e662e59e00c2c9ae1750226e8e": {
+    "documents": [
+      {
+        "address_name": "서울 노원구 공릉동 441",
+        "category_group_code": "FD6",
+        "category_group_name": "음식점",
+        "category_name": "음식점 > 간식 > 제과,베이커리",
+        "distance": "16",
+        "id": "791693321",
+        "phone": "0507-1305-0538",
+        "place_name": "언제나케이크",
+        "place_url": "http://place.map.kakao.com/791693321",
+        "road_address_name": "서울 노원구 공릉로 191-45",
+        "x": "127.078235183388",
+        "y": "37.6264350114203"
+      },
+      {
+        "address_name": "서울 노원구 공릉동 441-76",
+        "category_group_code": "FD6",
+        "category_group_name": "음식점",
+        "category_name": "음식점 > 술집 > 일본식주점",
+        "distance": "47",
+        "id": "1835915606",
+        "phone": "010-4021-9078",
+        "place_name": "화연장",
+        "place_url": "http://place.map.kakao.com/1835915606",
+        "road_address_name": "서울 노원구 공릉로 191-5",
+        "x": "127.078724917522",
+        "y": "37.6267770605731"
+      },
+      {
+        "address_name": "서울 노원구 공릉동 408-125",
+        "category_group_code": "FD6",
+        "category_group_name": "음식점",
+        "category_name": "음식점 > 일식",
+        "distance": "48",
+        "id": "2093616184",
+        "phone": "070-4833-2913",
+        "place_name": "보람 공릉본점",
+        "place_url": "http://place.map.kakao.com/2093616184",
+        "road_address_name": "서울 노원구 공릉로43길 18",
+        "x": "127.078520412152",
+        "y": "37.6262077733358"
+      },
+      {
+        "address_name": "서울 노원구 공릉동 441-98",
+        "category_group_code": "FD6",
+        "category_group_name": "음식점",
+        "category_name": "음식점 > 한식 > 육류,고기",
+        "distance": "48",
+        "id": "1524555814",
+        "phone": "02-977-7888",
+        "place_name": "뭉탱이공릉숯불생고기",
+        "place_url": "http://place.map.kakao.com/1524555814",
+        "road_address_name": "서울 노원구 공릉로 189-1",
+        "x": "127.078792763622",
+        "y": "37.626660788032"
+      },
+      {
+        "address_name": "서울 노원구 공릉동 441-40",
+        "category_group_code": "FD6",
+        "category_group_name": "음식점",
+        "category_name": "음식점 > 한식 > 국수",
+        "distance": "55",
+        "id": "17223169",
+        "phone": "02-971-6953",
+        "place_name": "원조강영숙봉평메밀촌 본점",
+        "place_url": "http://place.map.kakao.com/17223169",
+        "road_address_name": "서울 노원구 공릉로 191-6",
+        "x": "127.078735247797",
+        "y": "37.6269049937688"
+      }
+    ],
+    "meta": {
+      "is_end": false,
+      "pageable_count": 23,
+      "same_name": null,
+      "total_count": 23
+    }
+  },
+  "306bdfdde73e2f0d2dff2550b2c3bed16635c35d02e145e6da122f447c82c866": {
+    "documents": [
+      {
+        "address_name": "서울 노원구 공릉동 441",
+        "category_group_code": "CE7",
+        "category_group_name": "카페",
+        "category_name": "음식점 > 카페 > 청자다방",
+        "distance": "57",
+        "id": "763211275",
+        "phone": "02-948-2401",
+        "place_name": "청자다방 서울공릉점",
+        "place_url": "http://place.map.kakao.com/763211275",
+        "road_address_name": "서울 노원구 공릉로 191-4",
+        "x": "127.078667370051",
+        "y": "37.6269915337448"
+      },
+      {
+        "address_name": "서울 노원구 공릉동 408-4",
+        "category_group_code": "CE7",
+        "category_group_name": "카페",
+        "category_name": "음식점 > 카페 > 테마카페 > 북카페",
+        "distance": "77",
+        "id": "330515123",
+        "phone": "070-8839-7241",
+        "place_name": "나무늘보카툰&북카페",
+        "place_url": "http://place.map.kakao.com/330515123",
+        "road_address_name": "서울 노원구 공릉로 187",
+        "x": "127.07908472730146",
+        "y": "37.626375880960175"
+      },
+      {
+        "address_name": "서울 노원구 공릉동 408-4",
+        "category_group_code": "CE7",
+        "category_group_name": "카페",
+        "category_name": "음식점 > 카페",
+        "distance": "79",
+        "id": "18961028",
+        "phone": "02-976-9609",
+        "place_name": "형광커피",
+        "place_url": "http://place.map.kakao.com/18961028",
+        "road_address_name": "서울 노원구 공릉로 187",
+        "x": "127.07907331046661",
+        "y": "37.626292096859935"
+      },
+      {
+        "address_name": "서울 노원구 공릉동 420-2",
+        "category_group_code": "CE7",
+        "category_group_name": "카페",
+        "category_name": "음식점 > 카페 > 커피전문점 > 메가MGC커피",
+        "distance": "84",
+        "id": "49725799",
+        "phone": "02-976-7771",
+        "place_name": "메가MGC커피 원자력병원점",
+        "place_url": "http://place.map.kakao.com/49725799",
+        "road_address_name": "서울 노원구 공릉로46길 3",
+        "x": "127.07898011985073",
+        "y": "37.6270787205081"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 4,
+      "same_name": null,
+      "total_count": 4
+    }
+  },
+  "5e8088ea4202ae5d0839e9c90a502732da8eacdd7229427209d187711dc20ecc": {
+    "documents": [
+      {
+        "address_name": "서울 노원구 공릉동 408-4",
+        "category_group_code": "HP8",
+        "category_group_name": "병원",
+        "category_name": "의료,건강 > 병원 > 정형외과",
+        "distance": "70",
+        "id": "7936336",
+        "phone": "02-979-7783",
+        "place_name": "새연세정형외과의원",
+        "place_url": "http://place.map.kakao.com/7936336",
+        "road_address_name": "서울 노원구 공릉로 187",
+        "x": "127.07901907313669",
+        "y": "37.62642187526032"
+      },
+      {
+        "address_name": "서울 노원구 공릉동 408-4",
+        "category_group_code": "HP8",
+        "category_group_name": "병원",
+        "category_name": "의료,건강 > 병원 > 치과",
+        "distance": "76",
+        "id": "10980655",
+        "phone": "02-974-2827",
+        "place_name": "현치과의원",
+        "place_url": "http://place.map.kakao.com/10980655",
+        "road_address_name": "서울 노원구 공릉로 187",
+        "x": "127.079088174409",
+        "y": "37.6264218289646"
+      },
+      {
+        "address_name": "서울 노원구 공릉동 408-4",
+        "category_group_code": "HP8",
+        "category_group_name": "병원",
+        "category_name": "의료,건강 > 병원 > 이비인후과",
+        "distance": "80",
+        "id": "16051591",
+        "phone": "02-3296-5075",
+        "place_name": "열린이비인후과의원",
+        "place_url": "http://place.map.kakao.com/16051591",
+        "road_address_name": "서울 노원구 공릉로 187",
+        "x": "127.07913232430069",
+        "y": "37.626393868780916"
+      },
+      {
+        "address_name": "서울 노원구 공릉동 420-2",
+        "category_group_code": "HP8",
+        "category_group_name": "병원",
+        "category_name": "의료,건강 > 병원 > 정형외과",
+        "distance": "100",
+        "id": "257011760",
+        "phone": "0503-7153-3966",
+        "place_name": "서울건우정형외과의원",
+        "place_url": "http://place.map.kakao.com/257011760",
+        "road_address_name": "서울 노원구 공릉로46길 3",
+        "x": "127.07916708924249",
+        "y": "37.62712995143493"
+      },
+      {
+        "address_name": "서울 노원구 공릉동 420-2",
+        "category_group_code": "HP8",
+        "category_group_name": "병원",
+        "category_name": "의료,건강 > 병원 > 치과",
+        "distance": "101",
+        "id": "9527984",
+        "phone": "02-949-2875",
+        "place_name": "평화치과의원",
+        "place_url": "http://place.map.kakao.com/9527984",
+        "road_address_name": "서울 노원구 공릉로46길 3",
+        "x": "127.07914333635722",
+        "y": "37.627164204859604"
+      }
+    ],
+    "meta": {
+      "is_end": false,
+      "pageable_count": 18,
+      "same_name": null,
+      "total_count": 18
+    }
+  },
+  "a8f1703445332327434b69a86882c0daa157be45f1cace93b06b8726deab9d23": {
+    "documents": [
+      {
+        "address_name": "서울 노원구 공릉동 420-2",
+        "category_group_code": "PM9",
+        "category_group_name": "약국",
+        "category_name": "의료,건강 > 약국",
+        "distance": "84",
+        "id": "9838568",
+        "phone": "02-974-7778",
+        "place_name": "백조약국",
+        "place_url": "http://place.map.kakao.com/9838568",
+        "road_address_name": "서울 노원구 공릉로46길 3",
+        "x": "127.07895748922967",
+        "y": "37.62710306228818"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 1,
+      "same_name": null,
+      "total_count": 1
+    }
+  },
+  "42f2236fcace9ce7682ad7a89869813c00d377c0f436468a15ab01377a38b6bb": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "831992c3df653b4ebd03b72545e108b2054e195cf8de95299852d412de4c5906": {
+    "documents": [
+      {
+        "address_name": "서울 서초구 서초동 1317-11",
+        "category_group_code": "CS2",
+        "category_group_name": "편의점",
+        "category_name": "가정,생활 > 편의점 > 세븐일레븐",
+        "distance": "63",
+        "id": "7879245",
+        "phone": "",
+        "place_name": "세븐일레븐 강남광장점",
+        "place_url": "http://place.map.kakao.com/7879245",
+        "road_address_name": "서울 서초구 서초대로77길 9",
+        "x": "127.026236291174",
+        "y": "37.4985687801279"
+      },
+      {
+        "address_name": "서울 서초구 서초동 1317-7",
+        "category_group_code": "CS2",
+        "category_group_name": "편의점",
+        "category_name": "가정,생활 > 편의점 > GS25",
+        "distance": "66",
+        "id": "234209705",
+        "phone": "",
+        "place_name": "GS25 강남프리미엄점",
+        "place_url": "http://place.map.kakao.com/234209705",
+        "road_address_name": "서울 서초구 서초대로77길 13",
+        "x": "127.026168533028",
+        "y": "37.4988390970466"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 2,
+      "same_name": null,
+      "total_count": 2
+    }
+  },
+  "9a8d2f763a7e48de36b9c721a9b71fee1f2524bd883ed5e3a8f2d6671c87be7d": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "7234de35ecd11148905e57c6732d50ecb5112246a90f9a41aee802c9ff6d50ba": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "9d89495417768db2d28e51634f0974b4cda2dd8fd3ead772298eac55763ce851": {
+    "documents": [
+      {
+        "address_name": "서울 서초구 서초동 1318-2",
+        "category_group_code": "AC5",
+        "category_group_name": "학원",
+        "category_name": "교육,학문 > 학원 > 웅변,스피치학원",
+        "distance": "8",
+        "id": "17266421",
+        "phone": "1644-0208",
+        "place_name": "W스피치학원 강남점",
+        "place_url": "http://place.map.kakao.com/17266421",
+        "road_address_name": "서울 서초구 강남대로 405",
+        "x": "127.02681874761277",
+        "y": "37.49872542442533"
+      },
+      {
+        "address_name": "서울 서초구 서초동 1318-2",
+        "category_group_code": "AC5",
+        "category_group_name": "학원",
+        "category_name": "교육,학문 > 학원 > 컴퓨터학원",
+        "distance": "19",
+        "id": "11486935",
+        "phone": "02-3478-0008",
+        "place_name": "하이미디어아카데미 강남",
+        "place_url": "http://place.map.kakao.com/11486935",
+        "road_address_name": "서울 서초구 강남대로 405",
+        "x": "127.02669210704242",
+        "y": "37.498775008453336"
+      },
+      {
+        "address_name": "서울 서초구 서초동 1318-2",
+        "category_group_code": "AC5",
+        "category_group_name": "학원",
+        "category_name": "교육,학문 > 학원 > 요리학원",
+        "distance": "22",
+        "id": "877194935",
+        "phone": "02-3482-5200",
+        "place_name": "한솔요리아카데미 강남점",
+        "place_url": "http://place.map.kakao.com/877194935",
+        "road_address_name": "서울 서초구 강남대로 405",
+        "x": "127.02666607090534",
+        "y": "37.49870203283064"
+      },
+      {
+        "address_name": "서울 서초구 서초동 1318-8",
+        "category_group_code": "AC5",
+        "category_group_name": "학원",
+        "category_name": "교육,학문 > 학원 > 어학원",
+        "distance": "54",
+        "id": "27339177",
+        "phone": "02-595-0612",
+        "place_name": "612어학원 강남점",
+        "place_url": "http://place.map.kakao.com/27339177",
+        "road_address_name": "서울 서초구 강남대로 399",
+        "x": "127.02684233186879",
+        "y": "37.498266806854076"
+      },
+      {
+        "address_name": "서울 서초구 서초동 1317-13",
+        "category_group_code": "AC5",
+        "category_group_name": "학원",
+        "category_name": "교육,학문 > 학원 > 미용학원",
+        "distance": "61",
+        "id": "922184930",
+        "phone": "",
+        "place_name": "키치타미",
+        "place_url": "http://place.map.kakao.com/922184930",
+        "road_address_name": "서울 서초구 서초대로77길 7",
+        "x": "127.026357243444",
+        "y": "37.4984227901782"
+      }
+    ],
+    "meta": {
+      "is_end": false,
+      "pageable_count": 14,
+      "same_name": null,
+      "total_count": 14
+    }
+  },
+  "f174e5b104885bf43e1bb5ecb92129f4c46c286dccbb892b22ad379f6b53fff4": {
+    "documents": [
+      {
+        "address_name": "서울 서초구 서초동 1318-1",
+        "category_group_code": "PK6",
+        "category_group_name": "주차장",
+        "category_name": "교통,수송 > 교통시설 > 주차장",
+        "distance": "39",
+        "id": "1565587317",
+        "phone": "",
+        "place_name": "카카오 T 오퍼스407 주차장",
+        "place_url": "http://place.map.kakao.com/1565587317",
+        "road_address_name": "서울 서초구 강남대로 407",
+        "x": "127.026591539449",
+        "y": "37.4990020847208"
+      },
+      {
+        "address_name": "서울 서초구 서초동 1317-11",
+        "category_group_code": "PK6",
+        "category_group_name": "주차장",
+        "category_name": "교통,수송 > 교통시설 > 주차장",
+        "distance": "54",
+        "id": "1960091759",
+        "phone": "1544-0377",
+        "place_name": "아비쥬의원 강남점 주차장",
+        "place_url": "http://place.map.kakao.com/1960091759",
+        "road_address_name": "서울 서초구 서초대로77길 9",
+        "x": "127.026317733111",
+        "y": "37.4986228223914"
+      },
+      {
+        "address_name": "서울 서초구 서초동 1317-17",
+        "category_group_code": "PK6",
+        "category_group_name": "주차장",
+        "category_name": "교통,수송 > 교통시설 > 주차장",
+        "distance": "64",
+        "id": "1813068789",
+        "phone": "",
+        "place_name": "아라타워 주차장",
+        "place_url": "http://place.map.kakao.com/1813068789",
+        "road_address_name": "서울 서초구 서초대로77길 3",
+        "x": "127.026525689238",
+        "y": "37.4982695813957"
+      },
+      {
+        "address_name": "서울 강남구 역삼동 820-11",
+        "category_group_code": "PK6",
+        "category_group_name": "주차장",
+        "category_name": "교통,수송 > 교통시설 > 주차장",
+        "distance": "80",
+        "id": "1703205202",
+        "phone": "",
+        "place_name": "시계탑빌딩 주차장",
+        "place_url": "http://place.map.kakao.com/1703205202",
+        "road_address_name": "서울 강남구 강남대로 402",
+        "x": "127.02782864004332",
+        "y": "37.49877744921545"
+      },
+      {
+        "address_name": "서울 강남구 역삼동 820-9",
+        "category_group_code": "PK6",
+        "category_group_name": "주차장",
+        "category_name": "교통,수송 > 교통시설 > 주차장",
+        "distance": "86",
+        "id": "20513879",
+        "phone": "",
+        "place_name": "글라스타워 주차장",
+        "place_url": "http://place.map.kakao.com/20513879",
+        "road_address_name": "",
+        "x": "127.02783474757295",
+        "y": "37.499031535703104"
+      }
+    ],
+    "meta": {
+      "is_end": false,
+      "pageable_count": 13,
+      "same_name": null,
+      "total_count": 13
+    }
+  },
+  "b0da7cfe3c42c6ba4fc3ce1bda6721444b3ae985a9e86040fc6c2e3ad62057ca": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "215906242713b34386e0aed9e124e27ded859084b5e5f085cc080dc5b0e93e24": {
+    "documents": [
+      {
+        "address_name": "서울 강남구 역삼동 858",
+        "category_group_code": "SW8",
+        "category_group_name": "지하철역",
+        "category_name": "교통,수송 > 지하철,전철 > 수도권2호선",
+        "distance": "121",
+        "id": "21160803",
+        "phone": "02-6110-2221",
+        "place_name": "강남역 2호선",
+        "place_url": "http://place.map.kakao.com/21160803",
+        "road_address_name": "서울 강남구 강남대로 지하 396",
+        "x": "127.02800140627488",
+        "y": "37.49808633653005"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 1,
+      "same_name": null,
+      "total_count": 1
+    }
+  },
+  "a304e34d4c5e9c40e4606732718e225748dc22733d5a3fbe61da02b71b41d29f": {
+    "documents": [
+      {
+        "address_name": "서울 서초구 서초동 1318-2",
+        "category_group_code": "BK9",
+        "category_group_name": "은행",
+        "category_name": "금융,보험 > 금융서비스 > 은행 > ATM",
+        "distance": "19",
+        "id": "1930929961",
+        "phone": "",
+        "place_name": "하나은행365 강남역",
+        "place_url": "http://place.map.kakao.com/1930929961",
+        "road_address_name": "서울 서초구 강남대로 405",
+        "x": "127.026692107043",
+        "y": "37.4987750084605"
+      },
+      {
+        "address_name": "서울 서초구 서초동 1318-2",
+        "category_group_code": "BK9",
+        "category_group_name": "은행",
+        "category_name": "금융,보험 > 금융서비스 > 은행 > 하나은행",
+        "distance": "23",
+        "id": "8458527",
+        "phone": "02-534-0312",
+        "place_name": "하나은행 강남역지점",
+        "place_url": "http://place.map.kakao.com/8458527",
+        "road_address_name": "서울 서초구 강남대로 405",
+        "x": "127.02666837719704",
+        "y": "37.4988272721771"
+      },
+      {
+        "address_name": "서울 서초구 서초동 1318-2",
+        "category_group_code": "BK9",
+        "category_group_name": "은행",
+        "category_name": "금융,보험 > 금융서비스 > 은행 > ATM",
+        "distance": "23",
+        "id": "2046254392",
+        "phone": "",
+        "place_name": "하나은행 ATM",
+        "place_url": "http://place.map.kakao.com/2046254392",
+        "road_address_name": "서울 서초구 강남대로 405",
+        "x": "127.026666115761",
+        "y": "37.498828173701"
+      },
+      {
+        "address_name": "서울 강남구 역삼동 820-9",
+        "category_group_code": "BK9",
+        "category_group_name": "은행",
+        "category_name": "금융,보험 > 금융서비스 > 은행 > ATM",
+        "distance": "66",
+        "id": "1295172019",
+        "phone": "",
+        "place_name": "SC제일은행 강남역 ATM",
+        "place_url": "http://place.map.kakao.com/1295172019",
+        "road_address_name": "서울 강남구 강남대로 406",
+        "x": "127.02762288038463",
+        "y": "37.49894057964209"
+      },
+      {
+        "address_name": "서울 강남구 역삼동 820-9",
+        "category_group_code": "BK9",
+        "category_group_name": "은행",
+        "category_name": "금융,보험 > 금융서비스 > 은행 > SC제일은행",
+        "distance": "66",
+        "id": "26370019",
+        "phone": "02-558-4041",
+        "place_name": "SC제일은행 강남역지점",
+        "place_url": "http://place.map.kakao.com/26370019",
+        "road_address_name": "서울 강남구 강남대로 406",
+        "x": "127.02762288038448",
+        "y": "37.49894057963496"
+      }
+    ],
+    "meta": {
+      "is_end": false,
+      "pageable_count": 7,
+      "same_name": null,
+      "total_count": 7
+    }
+  },
+  "06170d0b46a001c0a2ec8c97a773e262d345a30489e5425091fee16690f449fa": {
+    "documents": [
+      {
+        "address_name": "서울 강남구 역삼동 804",
+        "category_group_code": "CT1",
+        "category_group_name": "문화시설",
+        "category_name": "문화,예술 > 문화시설 > 공연장,연극극장",
+        "distance": "96",
+        "id": "18617850",
+        "phone": "",
+        "place_name": "강남스퀘어",
+        "place_url": "http://place.map.kakao.com/18617850",
+        "road_address_name": "",
+        "x": "127.02788728853392",
+        "y": "37.49835486341528"
+      },
+      {
+        "address_name": "서울 서초구 서초동 1317-20",
+        "category_group_code": "CT1",
+        "category_group_name": "문화시설",
+        "category_name": "문화,예술 > 영화,영상 > 영화관 > 메가박스",
+        "distance": "99",
+        "id": "10609442",
+        "phone": "1544-0070",
+        "place_name": "메가박스 강남",
+        "place_url": "http://place.map.kakao.com/10609442",
+        "road_address_name": "서울 서초구 서초대로77길 3",
+        "x": "127.026417015264",
+        "y": "37.4979560555237"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 2,
+      "same_name": null,
+      "total_count": 2
+    }
+  },
+  "b05f9c4dd949038bafd561bfe37e1f60c149befa8f575a9f11ecd08f0cdfd156": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "1f5a1c34fc1d372c380f74c0fe0f8ee69292ab53e376bd0bdf1a4ab4def112e4": {
+    "documents": [
+      {
+        "address_name": "서울 서초구 서초동 1318-7",
+        "category_group_code": "AT4",
+        "category_group_name": "관광명소",
+        "category_name": "여행 > 관광,명소 > 테마거리 > 먹자골목",
+        "distance": "85",
+        "id": "1677440989",
+        "phone": "",
+        "place_name": "서리풀푸드트럭존",
+        "place_url": "http://place.map.kakao.com/1677440989",
+        "road_address_name": "",
+        "x": "127.02686937234695",
+        "y": "37.49798658772074"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 1,
+      "same_name": null,
+      "total_count": 1
+    }
+  },
+  "2db8eaf4efc3238f12ac6814166636de1d16440c16011a5beb687b8e83cf4c78": {
+    "documents": [
+      {
+        "address_name": "서울 서초구 서초동 1316-31",
+        "category_group_code": "AD5",
+        "category_group_name": "숙박",
+        "category_name": "여행 > 숙박 > 호텔",
+        "distance": "166",
+        "id": "465145981",
+        "phone": "",
+        "place_name": "엠쉐르빌호텔",
+        "place_url": "http://place.map.kakao.com/465145981",
+        "road_address_name": "서울 서초구 강남대로61길 17",
+        "x": "127.025037601487",
+        "y": "37.4986807650446"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 1,
+      "same_name": null,
+      "total_count": 1
+    }
+  },
+  "cb0757ccc6245b1f4a18b3396ab8304fb17843cfa4b2b94ede9ec5341975841c": {
+    "documents": [
+      {
+        "address_name": "서울 서초구 서초동 1318-8",
+        "category_group_code": "FD6",
+        "category_group_name": "음식점",
+        "category_name": "음식점 > 한식",
+        "distance": "54",
+        "id": "58630396",
+        "phone": "",
+        "place_name": "오맛난집",
+        "place_url": "http://place.map.kakao.com/58630396",
+        "road_address_name": "서울 서초구 강남대로 399",
+        "x": "127.026842331546",
+        "y": "37.4982659058478"
+      },
+      {
+        "address_name": "서울 서초구 서초동 1318-8",
+        "category_group_code": "FD6",
+        "category_group_name": "음식점",
+        "category_name": "음식점 > 분식",
+        "distance": "54",
+        "id": "1699215494",
+        "phone": "",
+        "place_name": "현주네",
+        "place_url": "http://place.map.kakao.com/1699215494",
+        "road_address_name": "서울 서초구 강남대로 399",
+        "x": "127.026842331546",
+        "y": "37.4982659058478"
+      },
+      {
+        "address_name": "서울 서초구 서초동 1318-8",
+        "category_group_code": "FD6",
+        "category_group_name": "음식점",
+        "category_name": "음식점 > 분식 > 떡볶이",
+        "distance": "54",
+        "id": "724037289",
+        "phone": "",
+        "place_name": "환상의떡볶이",
+        "place_url": "http://place.map.kakao.com/724037289",
+        "road_address_name": "서울 서초구 강남대로 399",
+        "x": "127.026842331546",
+        "y": "37.4982659058478"
+      },
+      {
+        "address_name": "서울 강남구 역삼동 820-10",
+        "category_group_code": "FD6",
+        "category_group_name": "음식점",
+        "category_name": "음식점 > 패스트푸드 > 버거킹",
+        "distance": "55",
+        "id": "12119409",
+        "phone": "02-566-0332",
+        "place_name": "버거킹 강남대로점",
+        "place_url": "http://place.map.kakao.com/12119409",
+        "road_address_name": "서울 강남구 강남대로 406",
+        "x": "127.02752560187551",
+        "y": "37.498878432916044"
+      },
+      {
+        "address_name": "서울 서초구 서초동 1317-11",
+        "category_group_code": "FD6",
+        "category_group_name": "음식점",
+        "category_name": "음식점 > 한식 > 육류,고기",
+        "distance": "56",
+        "id": "2108134415",
+        "phone": "02-535-8663",
+        "place_name": "딸부자네불백 강남역9번출구점",
+        "place_url": "http://place.map.kakao.com/2108134415",
+        "road_address_name": "서울 서초구 서초대로77길 9",
+        "x": "127.026324499069",
+        "y": "37.4985678594986"
+      }
+    ],
+    "meta": {
+      "is_end": false,
+      "pageable_count": 19,
+      "same_name": null,
+      "total_count": 19
+    }
+  },
+  "e4537efcf3d8d1b20227db64cc1e5377ef5e216194c54a21434886867759f87c": {
+    "documents": [
+      {
+        "address_name": "서울 서초구 서초동 1318-2",
+        "category_group_code": "CE7",
+        "category_group_name": "카페",
+        "category_name": "음식점 > 카페",
+        "distance": "14",
+        "id": "1374304759",
+        "phone": "02-595-4542",
+        "place_name": "가배도 강남역점",
+        "place_url": "http://place.map.kakao.com/1374304759",
+        "road_address_name": "서울 서초구 강남대로 405",
+        "x": "127.02675089982188",
+        "y": "37.49873895490302"
+      },
+      {
+        "address_name": "서울 서초구 서초동 1318-1",
+        "category_group_code": "CE7",
+        "category_group_name": "카페",
+        "category_name": "음식점 > 카페 > 차지",
+        "distance": "39",
+        "id": "1997070087",
+        "phone": "02-6282-8108",
+        "place_name": "차지 강남플래그십점",
+        "place_url": "http://place.map.kakao.com/1997070087",
+        "road_address_name": "서울 서초구 강남대로 407",
+        "x": "127.026591539449",
+        "y": "37.4990020847137"
+      },
+      {
+        "address_name": "서울 서초구 서초동 1318-8",
+        "category_group_code": "CE7",
+        "category_group_name": "카페",
+        "category_name": "음식점 > 카페 > 커피전문점 > 스타벅스",
+        "distance": "46",
+        "id": "7961654",
+        "phone": "1522-3232",
+        "place_name": "스타벅스 몬테소리점",
+        "place_url": "http://place.map.kakao.com/7961654",
+        "road_address_name": "서울 서초구 강남대로 399",
+        "x": "127.026874023027",
+        "y": "37.4983415831768"
+      },
+      {
+        "address_name": "서울 서초구 서초동 1318-8",
+        "category_group_code": "CE7",
+        "category_group_name": "카페",
+        "category_name": "음식점 > 카페 > 테마카페 > 디저트카페",
+        "distance": "54",
+        "id": "1484462247",
+        "phone": "02-765-3837",
+        "place_name": "앤디캔디솜사탕",
+        "place_url": "http://place.map.kakao.com/1484462247",
+        "road_address_name": "서울 서초구 강남대로 399",
+        "x": "127.026920361572",
+        "y": "37.4982658880851"
+      },
+      {
+        "address_name": "서울 강남구 역삼동 820-9",
+        "category_group_code": "CE7",
+        "category_group_name": "카페",
+        "category_name": "음식점 > 카페 > 바나프레소",
+        "distance": "57",
+        "id": "1019253048",
+        "phone": "070-8998-8984",
+        "place_name": "바나프레소 강남역사거리점",
+        "place_url": "http://place.map.kakao.com/1019253048",
+        "road_address_name": "서울 강남구 강남대로 406",
+        "x": "127.02756290366695",
+        "y": "37.49883157188536"
+      }
+    ],
+    "meta": {
+      "is_end": false,
+      "pageable_count": 11,
+      "same_name": null,
+      "total_count": 11
+    }
+  },
+  "137d18b45070e92da684c20fceb061c6c1f0e3984a3807d9d810e4b9aad8d785": {
+    "documents": [
+      {
+        "address_name": "서울 서초구 서초동 1318-2",
+        "category_group_code": "HP8",
+        "category_group_name": "병원",
+        "category_name": "의료,건강 > 병원 > 성형외과",
+        "distance": "14",
+        "id": "24874674",
+        "phone": "02-536-1005",
+        "place_name": "코디성형외과의원",
+        "place_url": "http://place.map.kakao.com/24874674",
+        "road_address_name": "서울 서초구 강남대로 405",
+        "x": "127.02676558932494",
+        "y": "37.49870561434282"
+      },
+      {
+        "address_name": "서울 서초구 서초동 1318-2",
+        "category_group_code": "HP8",
+        "category_group_name": "병원",
+        "category_name": "의료,건강 > 병원 > 성형외과",
+        "distance": "19",
+        "id": "13510433",
+        "phone": "02-518-7001",
+        "place_name": "유캔비성형외과",
+        "place_url": "http://place.map.kakao.com/13510433",
+        "road_address_name": "서울 서초구 강남대로 405",
+        "x": "127.02669323278865",
+        "y": "37.49876059210548"
+      },
+      {
+        "address_name": "서울 서초구 서초동 1318-2",
+        "category_group_code": "HP8",
+        "category_group_name": "병원",
+        "category_name": "의료,건강 > 병원 > 성형외과",
+        "distance": "19",
+        "id": "1371838461",
+        "phone": "02-541-6500",
+        "place_name": "키다리성형외과의원",
+        "place_url": "http://place.map.kakao.com/1371838461",
+        "road_address_name": "서울 서초구 강남대로 405",
+        "x": "127.02669210704242",
+        "y": "37.498775008453336"
+      },
+      {
+        "address_name": "서울 서초구 서초동 1318-2",
+        "category_group_code": "HP8",
+        "category_group_name": "병원",
+        "category_name": "의료,건강 > 병원 > 안과",
+        "distance": "20",
+        "id": "813570462",
+        "phone": "02-553-0210",
+        "place_name": "강남스마일안과의원",
+        "place_url": "http://place.map.kakao.com/813570462",
+        "road_address_name": "서울 서초구 강남대로 405",
+        "x": "127.026686452334",
+        "y": "37.4987741087317"
+      },
+      {
+        "address_name": "서울 서초구 서초동 1318-2",
+        "category_group_code": "HP8",
+        "category_group_name": "병원",
+        "category_name": "의료,건강 > 병원 > 치과",
+        "distance": "20",
+        "id": "31270685",
+        "phone": "02-3482-2828",
+        "place_name": "젊어지는치과의원 강남역",
+        "place_url": "http://place.map.kakao.com/31270685",
+        "road_address_name": "서울 서초구 강남대로 405",
+        "x": "127.02667740082559",
+        "y": "37.498761496688054"
+      }
+    ],
+    "meta": {
+      "is_end": false,
+      "pageable_count": 45,
+      "same_name": null,
+      "total_count": 157
+    }
+  },
+  "7b8f4404545a5cf6abd6850020e1d95e4e25100b1dfb6949f0e0888b4135fcf3": {
+    "documents": [
+      {
+        "address_name": "서울 강남구 역삼동 858",
+        "category_group_code": "PM9",
+        "category_group_name": "약국",
+        "category_name": "의료,건강 > 약국",
+        "distance": "40",
+        "id": "463628494",
+        "phone": "02-3452-1011",
+        "place_name": "오늘의약국",
+        "place_url": "http://place.map.kakao.com/463628494",
+        "road_address_name": "",
+        "x": "127.0273309937846",
+        "y": "37.49861268124425"
+      },
+      {
+        "address_name": "서울 강남구 역삼동 820-9",
+        "category_group_code": "PM9",
+        "category_group_name": "약국",
+        "category_name": "의료,건강 > 약국",
+        "distance": "55",
+        "id": "304153506",
+        "phone": "02-539-1500",
+        "place_name": "코코온누리약국",
+        "place_url": "http://place.map.kakao.com/304153506",
+        "road_address_name": "서울 강남구 강남대로 406",
+        "x": "127.02754028609787",
+        "y": "37.49883157716742"
+      },
+      {
+        "address_name": "서울 서초구 서초동 1317-11",
+        "category_group_code": "PM9",
+        "category_group_name": "약국",
+        "category_name": "의료,건강 > 약국",
+        "distance": "57",
+        "id": "1364692966",
+        "phone": "02-533-7737",
+        "place_name": "강남엘약국",
+        "place_url": "http://place.map.kakao.com/1364692966",
+        "road_address_name": "서울 서초구 서초대로77길 9",
+        "x": "127.0263154489116",
+        "y": "37.49855885145178"
+      },
+      {
+        "address_name": "서울 강남구 역삼동 820-9",
+        "category_group_code": "PM9",
+        "category_group_name": "약국",
+        "category_name": "의료,건강 > 약국",
+        "distance": "58",
+        "id": "1319114405",
+        "phone": "02-558-5559",
+        "place_name": "강남센트럴약국",
+        "place_url": "http://place.map.kakao.com/1319114405",
+        "road_address_name": "서울 강남구 강남대로 406",
+        "x": "127.027525631641",
+        "y": "37.4989595234729"
+      },
+      {
+        "address_name": "서울 강남구 역삼동 820-9",
+        "category_group_code": "PM9",
+        "category_group_name": "약국",
+        "category_name": "의료,건강 > 약국",
+        "distance": "66",
+        "id": "751017454",
+        "phone": "02-558-5559",
+        "place_name": "강남마이비약국",
+        "place_url": "http://place.map.kakao.com/751017454",
+        "road_address_name": "서울 강남구 강남대로 406",
+        "x": "127.027636439988",
+        "y": "37.4989108432569"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 5,
+      "same_name": null,
+      "total_count": 5
+    }
+  },
+  "6181c801b9d171b71d13d1403f03179001dd90dcd002f9f34692b6ebb47c2336": {
+    "documents": [
+      {
+        "address_name": "서울 노원구 상계동 749-9",
+        "category_group_code": "MT1",
+        "category_group_name": "대형마트",
+        "category_name": "가정,생활 > 슈퍼마켓 > 대형슈퍼 > 롯데슈퍼프레시",
+        "distance": "103",
+        "id": "10351594",
+        "phone": "02-938-5602",
+        "place_name": "롯데슈퍼프레시 상계7동점",
+        "place_url": "http://place.map.kakao.com/10351594",
+        "road_address_name": "서울 노원구 동일로 1372",
+        "x": "127.06177548351138",
+        "y": "37.65108058320631"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 1,
+      "same_name": null,
+      "total_count": 1
+    }
+  },
+  "5f29c3ddb8a6f0b0a710c4d6fc2132b6729c0a0dc217a360d9adac9c525133d0": {
+    "documents": [
+      {
+        "address_name": "서울 노원구 상계동 730-3",
+        "category_group_code": "CS2",
+        "category_group_name": "편의점",
+        "category_name": "가정,생활 > 편의점 > CU",
+        "distance": "15",
+        "id": "688565760",
+        "phone": "",
+        "place_name": "CU 상계3단지점",
+        "place_url": "http://place.map.kakao.com/688565760",
+        "road_address_name": "서울 노원구 동일로 1379",
+        "x": "127.060879723574",
+        "y": "37.6518007539539"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 1,
+      "same_name": null,
+      "total_count": 1
+    }
+  },
+  "147d20f1453b929227beac86cbd729cf30ca6da81f89e46ad244c360c771c8bf": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "099de759c1cbba50216c1668d0ade72050d0b789336064c208862dc98c6b9fb1": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "cdd2c38317161e259621d08d8dc9385dc81185fc97112c30b20c49a5c8254d3e": {
+    "documents": [
+      {
+        "address_name": "서울 노원구 상계동 730-3",
+        "category_group_code": "AC5",
+        "category_group_name": "학원",
+        "category_name": "교육,학문 > 학원 > 애니메이션학원,만화학원",
+        "distance": "14",
+        "id": "274182525",
+        "phone": "02-930-6070",
+        "place_name": "애니포스만화학원 노원캠퍼스",
+        "place_url": "http://place.map.kakao.com/274182525",
+        "road_address_name": "서울 노원구 동일로 1379",
+        "x": "127.06089332484",
+        "y": "37.651804350865"
+      },
+      {
+        "address_name": "서울 노원구 상계동 730-3",
+        "category_group_code": "AC5",
+        "category_group_name": "학원",
+        "category_name": "교육,학문 > 학원 > 미술학원",
+        "distance": "14",
+        "id": "431778599",
+        "phone": "",
+        "place_name": "노원디앤에이미술학원",
+        "place_url": "http://place.map.kakao.com/431778599",
+        "road_address_name": "서울 노원구 동일로 1379",
+        "x": "127.06089332484",
+        "y": "37.651804350865"
+      },
+      {
+        "address_name": "서울 노원구 상계동 730-3",
+        "category_group_code": "AC5",
+        "category_group_name": "학원",
+        "category_name": "교육,학문 > 학원 > 미술학원",
+        "distance": "15",
+        "id": "22758159",
+        "phone": "",
+        "place_name": "쏠미술학원",
+        "place_url": "http://place.map.kakao.com/22758159",
+        "road_address_name": "서울 노원구 동일로 1379",
+        "x": "127.060879723574",
+        "y": "37.6518007539539"
+      },
+      {
+        "address_name": "서울 노원구 상계동 730-4",
+        "category_group_code": "AC5",
+        "category_group_name": "학원",
+        "category_name": "교육,학문 > 학원 > 입시학원",
+        "distance": "30",
+        "id": "912103684",
+        "phone": "010-3333-2793",
+        "place_name": "저스트체대입시 노원교육원",
+        "place_url": "http://place.map.kakao.com/912103684",
+        "road_address_name": "서울 노원구 동일로215길 2",
+        "x": "127.060970169862",
+        "y": "37.6515448281315"
+      },
+      {
+        "address_name": "서울 노원구 상계동 728-7",
+        "category_group_code": "AC5",
+        "category_group_name": "학원",
+        "category_name": "교육,학문 > 학원 > 입시학원",
+        "distance": "48",
+        "id": "37650859",
+        "phone": "02-951-0197",
+        "place_name": "PK독학재수학원 노원점",
+        "place_url": "http://place.map.kakao.com/37650859",
+        "road_address_name": "서울 노원구 동일로 1382",
+        "x": "127.061555263118",
+        "y": "37.6519896097696"
+      }
+    ],
+    "meta": {
+      "is_end": false,
+      "pageable_count": 12,
+      "same_name": null,
+      "total_count": 12
+    }
+  },
+  "f77d2fc29d9a9970ca06b8d5ca76f43d3c5fef519ebfba3d39407d0a1f64fd14": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "be0c6c1210f788481d15a8d4a21694bdee03e367695c17f220922bb8d1b9078b": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "0672406e5b0cfb7736bfe528886fa04dbafc0713329d6aec8acf35e314a1f917": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "0dade1ef5ba6b24b8b5ecaf9a66d8e2d530ac6688e36b4bcb874360913fbc680": {
+    "documents": [
+      {
+        "address_name": "서울 노원구 상계동 746",
+        "category_group_code": "BK9",
+        "category_group_name": "은행",
+        "category_name": "금융,보험 > 금융서비스 > 은행 > 우리은행",
+        "distance": "66",
+        "id": "8027693",
+        "phone": "02-937-0051",
+        "place_name": "우리은행 상계동지점",
+        "place_url": "http://place.map.kakao.com/8027693",
+        "road_address_name": "서울 노원구 동일로 1373",
+        "x": "127.06108321430477",
+        "y": "37.65120960403415"
+      },
+      {
+        "address_name": "서울 노원구 상계동 746",
+        "category_group_code": "BK9",
+        "category_group_name": "은행",
+        "category_name": "금융,보험 > 금융서비스 > 은행 > ATM",
+        "distance": "73",
+        "id": "1592758126",
+        "phone": "",
+        "place_name": "우리은행 ATM",
+        "place_url": "http://place.map.kakao.com/1592758126",
+        "road_address_name": "서울 노원구 동일로 1373",
+        "x": "127.06104010093146",
+        "y": "37.651145656566605"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 2,
+      "same_name": null,
+      "total_count": 2
+    }
+  },
+  "348567043f5f9f0118fe632b280be74fc3809d3fa4131c37d0e9f015f5d3ba9b": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "ea26821929f34d0218b749c5c324a5dd0c1344aa879925043c32d5a5836d4a9d": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "0c0e9727c36060dbe45a5fc3da9e1e993295527843de935f716fe3db39e887d1": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "7888fce729bc9fee5b4dd465dd029f6ed93d8dfc1161467f03d7234a8fe35a44": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "329c2fb3ee69dffb91b321bcdce6cc7d500cd8e3965a9e8b3a1214ce4d203b44": {
+    "documents": [
+      {
+        "address_name": "서울 노원구 상계동 730-3",
+        "category_group_code": "FD6",
+        "category_group_name": "음식점",
+        "category_name": "음식점 > 한식 > 육류,고기",
+        "distance": "14",
+        "id": "1464349031",
+        "phone": "02-930-8005",
+        "place_name": "한우주막 고친외양간 노원점",
+        "place_url": "http://place.map.kakao.com/1464349031",
+        "road_address_name": "서울 노원구 동일로 1379",
+        "x": "127.060894458033",
+        "y": "37.6518043502752"
+      },
+      {
+        "address_name": "서울 노원구 상계동 730-2",
+        "category_group_code": "FD6",
+        "category_group_name": "음식점",
+        "category_name": "음식점 > 간식 > 제과,베이커리",
+        "distance": "39",
+        "id": "95719042",
+        "phone": "070-5015-4431",
+        "place_name": "더빵",
+        "place_url": "http://place.map.kakao.com/95719042",
+        "road_address_name": "서울 노원구 동일로 1383",
+        "x": "127.06087886105",
+        "y": "37.6521323160433"
+      },
+      {
+        "address_name": "서울 노원구 상계동 728-7",
+        "category_group_code": "FD6",
+        "category_group_name": "음식점",
+        "category_name": "음식점 > 간식 > 제과,베이커리",
+        "distance": "49",
+        "id": "1760697041",
+        "phone": "",
+        "place_name": "반함수제식빵",
+        "place_url": "http://place.map.kakao.com/1760697041",
+        "road_address_name": "서울 노원구 동일로 1382",
+        "x": "127.061554134383",
+        "y": "37.6519950162549"
+      },
+      {
+        "address_name": "서울 노원구 상계동 728-7",
+        "category_group_code": "FD6",
+        "category_group_name": "음식점",
+        "category_name": "음식점 > 분식",
+        "distance": "50",
+        "id": "19584100",
+        "phone": "",
+        "place_name": "맛있는집소풍",
+        "place_url": "http://place.map.kakao.com/19584100",
+        "road_address_name": "서울 노원구 동일로 1382",
+        "x": "127.061577916631",
+        "y": "37.6519769841936"
+      },
+      {
+        "address_name": "서울 노원구 상계동 728-7",
+        "category_group_code": "FD6",
+        "category_group_name": "음식점",
+        "category_name": "음식점 > 아시아음식 > 동남아음식 > 태국음식",
+        "distance": "51",
+        "id": "446174975",
+        "phone": "02-930-6949",
+        "place_name": "수수타이",
+        "place_url": "http://place.map.kakao.com/446174975",
+        "road_address_name": "서울 노원구 동일로 1382",
+        "x": "127.061591519451",
+        "y": "37.6519823829887"
+      }
+    ],
+    "meta": {
+      "is_end": false,
+      "pageable_count": 14,
+      "same_name": null,
+      "total_count": 14
+    }
+  },
+  "84e636b1ae3bc70fd9509b8f06e2a0727ed490a22b00fe7735a3c744377ecc9e": {
+    "documents": [
+      {
+        "address_name": "서울 노원구 상계동 730-3",
+        "category_group_code": "CE7",
+        "category_group_name": "카페",
+        "category_name": "음식점 > 카페 > 커피전문점 > 더벤티",
+        "distance": "15",
+        "id": "1748737555",
+        "phone": "02-931-8800",
+        "place_name": "더벤티 상계사거리점",
+        "place_url": "http://place.map.kakao.com/1748737555",
+        "road_address_name": "서울 노원구 동일로 1379",
+        "x": "127.0609126619876",
+        "y": "37.651893538170306"
+      },
+      {
+        "address_name": "서울 노원구 상계동 749",
+        "category_group_code": "CE7",
+        "category_group_name": "카페",
+        "category_name": "음식점 > 카페 > 커피전문점 > 투썸플레이스",
+        "distance": "86",
+        "id": "1989237181",
+        "phone": "02-937-0014",
+        "place_name": "투썸플레이스 상계사거리점",
+        "place_url": "http://place.map.kakao.com/1989237181",
+        "road_address_name": "서울 노원구 동일로 1374",
+        "x": "127.06172462735562",
+        "y": "37.65124621047641"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 2,
+      "same_name": null,
+      "total_count": 2
+    }
+  },
+  "12dcb199590db6ce8df93842b3b319bf19eda083e46678bee3c2df757a1f86c6": {
+    "documents": [
+      {
+        "address_name": "서울 노원구 상계동 730-3",
+        "category_group_code": "HP8",
+        "category_group_name": "병원",
+        "category_name": "의료,건강 > 병원 > 정신건강의학과",
+        "distance": "10",
+        "id": "10040104",
+        "phone": "02-3391-7575",
+        "place_name": "상계신경정신과의원",
+        "place_url": "http://place.map.kakao.com/10040104",
+        "road_address_name": "서울 노원구 동일로 1379",
+        "x": "127.060934110977",
+        "y": "37.6517935180117"
+      },
+      {
+        "address_name": "서울 노원구 상계동 730-3",
+        "category_group_code": "HP8",
+        "category_group_name": "병원",
+        "category_name": "의료,건강 > 병원 > 안과",
+        "distance": "12",
+        "id": "9514117",
+        "phone": "02-933-2977",
+        "place_name": "최진수안과의원",
+        "place_url": "http://place.map.kakao.com/9514117",
+        "road_address_name": "서울 노원구 동일로 1379",
+        "x": "127.06090691139",
+        "y": "37.6517899281268"
+      },
+      {
+        "address_name": "서울 노원구 상계동 730-3",
+        "category_group_code": "HP8",
+        "category_group_name": "병원",
+        "category_name": "의료,건강 > 병원 > 치과",
+        "distance": "14",
+        "id": "1134877258",
+        "phone": "02-931-7405",
+        "place_name": "바른최치과",
+        "place_url": "http://place.map.kakao.com/1134877258",
+        "road_address_name": "서울 노원구 동일로 1379",
+        "x": "127.060894458033",
+        "y": "37.6518043502801"
+      },
+      {
+        "address_name": "서울 노원구 상계동 730-3",
+        "category_group_code": "HP8",
+        "category_group_name": "병원",
+        "category_name": "의료,건강 > 병원 > 영상의학과",
+        "distance": "14",
+        "id": "16646754",
+        "phone": "02-931-6000",
+        "place_name": "방대홍 영상의학과의원",
+        "place_url": "http://place.map.kakao.com/16646754",
+        "road_address_name": "서울 노원구 동일로 1379",
+        "x": "127.060888792065",
+        "y": "37.6518043532047"
+      },
+      {
+        "address_name": "서울 노원구 상계동 730-3",
+        "category_group_code": "HP8",
+        "category_group_name": "병원",
+        "category_name": "의료,건강 > 병원 > 통증클리닉",
+        "distance": "14",
+        "id": "8195600",
+        "phone": "02-931-5111",
+        "place_name": "권오민마취통증의학과의원",
+        "place_url": "http://place.map.kakao.com/8195600",
+        "road_address_name": "서울 노원구 동일로 1379",
+        "x": "127.06091706523613",
+        "y": "37.65173496293483"
+      }
+    ],
+    "meta": {
+      "is_end": false,
+      "pageable_count": 36,
+      "same_name": null,
+      "total_count": 36
+    }
+  },
+  "c7c39c507b4d121cef558ea85b6220a50dbb241a023d18105037031325813f60": {
+    "documents": [
+      {
+        "address_name": "서울 노원구 상계동 730-4",
+        "category_group_code": "PM9",
+        "category_group_name": "약국",
+        "category_name": "의료,건강 > 약국",
+        "distance": "33",
+        "id": "836189562",
+        "phone": "02-933-4031",
+        "place_name": "노원하나약국",
+        "place_url": "http://place.map.kakao.com/836189562",
+        "road_address_name": "서울 노원구 동일로215길 2",
+        "x": "127.060929357366",
+        "y": "37.6515232256302"
+      },
+      {
+        "address_name": "서울 노원구 상계동 728-7",
+        "category_group_code": "PM9",
+        "category_group_name": "약국",
+        "category_name": "의료,건강 > 약국",
+        "distance": "43",
+        "id": "2061617813",
+        "phone": "02-932-1186",
+        "place_name": "참말로친절한 약국",
+        "place_url": "http://place.map.kakao.com/2061617813",
+        "road_address_name": "서울 노원구 동일로 1382",
+        "x": "127.06150763542736",
+        "y": "37.651949090393416"
+      },
+      {
+        "address_name": "서울 노원구 상계동 728-5",
+        "category_group_code": "PM9",
+        "category_group_name": "약국",
+        "category_name": "의료,건강 > 약국",
+        "distance": "47",
+        "id": "916313054",
+        "phone": "02-979-6000",
+        "place_name": "보룡약국",
+        "place_url": "http://place.map.kakao.com/916313054",
+        "road_address_name": "서울 노원구 동일로 1380",
+        "x": "127.06157770385887",
+        "y": "37.651719303236"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 3,
+      "same_name": null,
+      "total_count": 3
+    }
+  },
+  "3ec6e09ca022764cb9f3487741a8dcb61a29a9e32d13ce11cf83dde509e2e96b": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "31d13ed108fc2cb2c19e7e183a55125b6131e959e0552112757934ed16545a15": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "242356ccf2ed40aea2178e4d76f9419384e88b05815c0a3727ba85110a86a943": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "c8c9814e424e6f1b08e808cbc584acaa1f18bce9e00841a4b1dc8bfb79376e88": {
+    "documents": [
+      {
+        "address_name": "서울 노원구 하계동 78",
+        "category_group_code": "SC4",
+        "category_group_name": "학교",
+        "category_name": "교육,학문 > 학교 > 고등학교 > 특성화고등학교",
+        "distance": "132",
+        "id": "8172334",
+        "phone": "02-2289-1600",
+        "place_name": "경기기계공업고등학교",
+        "place_url": "http://place.map.kakao.com/8172334",
+        "road_address_name": "서울 노원구 공릉로 264",
+        "x": "127.07520727049",
+        "y": "37.6332646525311"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 1,
+      "same_name": null,
+      "total_count": 1
+    }
+  },
+  "35cc6b6c39a63710a05517eb537d37842a3f93c8dcfd4d1a66fc32ba79355669": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "32ffefb65c79945b6b84d29bef69a1e2b9442d38737d66e2347a2cc21fea9911": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "69f581d9724a1384339681ecbe2fbdd6d22f54f8db494e07589fd4ae5e7c13bc": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "ba4d94f79a50c0f2d0b34480ef0efd3dd68ed69f15605e5c8eee97840b6e60cb": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "52b56746a55cf132ec30e8eea590e658f23c0c804b1a1d897f28c01d26ddfe08": {
+    "documents": [
+      {
+        "address_name": "서울 노원구 공릉동 172",
+        "category_group_code": "BK9",
+        "category_group_name": "은행",
+        "category_name": "금융,보험 > 금융서비스 > 은행 > ATM",
+        "distance": "20",
+        "id": "1262501758",
+        "phone": "",
+        "place_name": "KB국민은행 서울과학기술대학교 신본관 ATM",
+        "place_url": "http://place.map.kakao.com/1262501758",
+        "road_address_name": "서울 노원구 공릉로 232",
+        "x": "127.07684404675479",
+        "y": "37.632990599253034"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 1,
+      "same_name": null,
+      "total_count": 1
+    }
+  },
+  "c3927f8a50d5f05d967a51a11fac69bd11279ec57609e72e97b7d9f3c7dc721b": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "d89696b0568c40f05b357a6fd413a80a8d296870271980922f1ef258ab6cd74b": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "0c7f913a1513359cbecb26bbd202335ee499b5a8d8d422c3a5cb71a0fd442445": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "56efae7932ae15459e74636238912616f3b1bddd9b9491fe3db8ae44b3b71440": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "243c4148305f4714a8a27e4f307bef7de1f3dc69b184eab9e826bc77aae00e28": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "795e8eff97151788fe0c984184fb65d66b3783b69584c04b65710a940992c689": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "f1fad46b5fcfe716ee2bb1d73ffa578008e55990881de8c5d73b015f24ccefc0": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "f7becf9b9e93130c74220700521fc78455ba9444a4803108e4c7fe9a20347126": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "8c5eb5b731791f516317f23670bd4c924fb104a1c0ea6eafa2e4f8fca6993313": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "854c11d974224386d720199ec73aa3aaf3114b8e2124618111237a7a05bf026c": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "0ec493eaafa76280be51738dc7e8a5315e11888d0780817b7006ded349652010": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "65fac980fbf73a8d92c137c07edb1f15055670a44cf09949bf5f7ef316dd6036": {
+    "documents": [
+      {
+        "address_name": "서울 노원구 공릉동 172",
+        "category_group_code": "SC4",
+        "category_group_name": "학교",
+        "category_name": "교육,학문 > 학교 > 대학교",
+        "distance": "102",
+        "id": "9108449",
+        "phone": "02-970-6114",
+        "place_name": "서울과학기술대학교",
+        "place_url": "http://place.map.kakao.com/9108449",
+        "road_address_name": "서울 노원구 공릉로 232",
+        "x": "127.08027896385352",
+        "y": "37.631881000815284"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 1,
+      "same_name": null,
+      "total_count": 1
+    }
+  },
+  "859933c4e4ca64f18502319f74a493f17b5c85b5554be7c8439a2bdd7d65f8a6": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "c6466026939524de20e8ab83d1ff642692cb809f35b82e17bd352c7c37ef6bf2": {
+    "documents": [
+      {
+        "address_name": "서울 노원구 공릉동 172",
+        "category_group_code": "PK6",
+        "category_group_name": "주차장",
+        "category_name": "교통,수송 > 교통시설 > 주차장",
+        "distance": "113",
+        "id": "909207383",
+        "phone": "",
+        "place_name": "서울과학기술대학교 주차장",
+        "place_url": "http://place.map.kakao.com/909207383",
+        "road_address_name": "서울 노원구 공릉로 232",
+        "x": "127.07802236443943",
+        "y": "37.63199603879772"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 1,
+      "same_name": null,
+      "total_count": 1
+    }
+  },
+  "acbc236f9b66e4b4556106745c5aac79901debb222fbf84bb06de5a524ba19cc": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "e7b0c199a3c9317771e334fe716de388fce29f44276a3831a43d72d41e6f520e": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "94201035f98041492423f74ea9de7cd5584963825417142af3abb7cf937695a4": {
+    "documents": [
+      {
+        "address_name": "서울 노원구 공릉동 172",
+        "category_group_code": "BK9",
+        "category_group_name": "은행",
+        "category_name": "금융,보험 > 금융서비스 > 은행 > ATM",
+        "distance": "97",
+        "id": "238464373",
+        "phone": "02-3296-5082",
+        "place_name": "KB국민은행ATM 서울과학기술대학교 본관",
+        "place_url": "http://place.map.kakao.com/238464373",
+        "road_address_name": "서울 노원구 공릉로 232",
+        "x": "127.080222319325",
+        "y": "37.6318810393419"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 1,
+      "same_name": null,
+      "total_count": 1
+    }
+  },
+  "f35e5cc3630321fd2eaa29adb58d4ea5dde79a77c69bb4380fbee18d4ebf81ed": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "36303e5976f16f1c9b89af99b31a68f3e3ebb1a484f7bffbcd0ae69520e184e6": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "cbb56c611407ba13572f336d563a370c7fdadb69d1cf16ed0829f6dd48e07fff": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "4d84147aa4634d559d54288470fc4b251d5f40a53571c83ab4067d9cefc5a444": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "cee4ae45b0cfb4d71bd18b44bef03c5927ca1795545d66b480c9f432b9f8e4b4": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "34604409618806e3780ea6d0e148d03a26ab1f45107338a2ee843119113ebd39": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "db34b7b2e9a87777a2dd4d4a8873515ab88cf42956ba9cc22561220eea3bec49": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "903f685a12ec6591f9732baf57afea1d7c393e4a7462122a190e7fb316f56464": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "23989057bfcb3f4844ea9169ef85374d377fb02703f18dee6f5de9a1eae76a31": {
+    "documents": [
+      {
+        "address_name": "서울 노원구 공릉동 323-35",
+        "category_group_code": "MT1",
+        "category_group_name": "대형마트",
+        "category_name": "가정,생활 > 슈퍼마켓 > 대형슈퍼 > 홈플러스익스프레스",
+        "distance": "99",
+        "id": "11784505",
+        "phone": "02-949-8545",
+        "place_name": "홈플러스익스프레스 공릉점",
+        "place_url": "http://place.map.kakao.com/11784505",
+        "road_address_name": "서울 노원구 동일로 1101",
+        "x": "127.07141962108095",
+        "y": "37.62819175219964"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 1,
+      "same_name": null,
+      "total_count": 1
+    }
+  },
+  "721f85977e0bb8ae199f9b79bbd10af86a85ed45523808f01f560c205e26174b": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "831fb2d15b90a701d79fb954dc68bb88657a3e9e0bcca805f5c004381c5cc856": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "b023fce2c1b9a3481b74aac793de5ddc5bdb4779f42fdb8ca518bcec80c27c42": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "508e216eb2697b3164b70e0a563655752e5c4dcc3780488f95e9f5b1348c48a4": {
+    "documents": [
+      {
+        "address_name": "서울 노원구 공릉동 312-3",
+        "category_group_code": "AC5",
+        "category_group_name": "학원",
+        "category_name": "교육,학문 > 학원 > 어학원 > 영어학원",
+        "distance": "32",
+        "id": "795268446",
+        "phone": "02-974-0579",
+        "place_name": "캠브리지영어학원",
+        "place_url": "http://place.map.kakao.com/795268446",
+        "road_address_name": "서울 노원구 동일로197길 23",
+        "x": "127.07004909980003",
+        "y": "37.62841511740703"
+      },
+      {
+        "address_name": "서울 노원구 공릉동 312-3",
+        "category_group_code": "AC5",
+        "category_group_name": "학원",
+        "category_name": "교육,학문 > 학원 > 수학학원",
+        "distance": "34",
+        "id": "461136692",
+        "phone": "",
+        "place_name": "에이밍수학학원",
+        "place_url": "http://place.map.kakao.com/461136692",
+        "road_address_name": "서울 노원구 동일로197길 23",
+        "x": "127.070046804529",
+        "y": "37.6283835842489"
+      },
+      {
+        "address_name": "서울 노원구 공릉동 727",
+        "category_group_code": "AC5",
+        "category_group_name": "학원",
+        "category_name": "교육,학문 > 학원 > 수학학원 > 플레이팩토",
+        "distance": "94",
+        "id": "1446310536",
+        "phone": "010-4994-9819",
+        "place_name": "플레이팩토 공릉 풍림",
+        "place_url": "http://place.map.kakao.com/1446310536",
+        "road_address_name": "서울 노원구 섬밭로 134",
+        "x": "127.069335382415",
+        "y": "37.628384004438"
+      },
+      {
+        "address_name": "서울 노원구 공릉동 727",
+        "category_group_code": "AC5",
+        "category_group_name": "학원",
+        "category_name": "교육,학문 > 학원 > 수학학원 > 플레이팩토",
+        "distance": "97",
+        "id": "2144075355",
+        "phone": "070-4405-7739",
+        "place_name": "플레이팩토 블럭노리",
+        "place_url": "http://place.map.kakao.com/2144075355",
+        "road_address_name": "서울 노원구 섬밭로 134",
+        "x": "127.069318308682",
+        "y": "37.6282966188018"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 4,
+      "same_name": null,
+      "total_count": 4
+    }
+  },
+  "231556a1191ecf0953eeb58d10cba224b52625fcedbca20576975070cabe44a4": {
+    "documents": [
+      {
+        "address_name": "서울 노원구 공릉동 710",
+        "category_group_code": "PK6",
+        "category_group_name": "주차장",
+        "category_name": "교통,수송 > 교통시설 > 주차장",
+        "distance": "52",
+        "id": "87486866",
+        "phone": "",
+        "place_name": "노원문화원 주차장",
+        "place_url": "http://place.map.kakao.com/87486866",
+        "road_address_name": "",
+        "x": "127.069988381073",
+        "y": "37.6288998840559"
+      },
+      {
+        "address_name": "서울 노원구 공릉동 727",
+        "category_group_code": "PK6",
+        "category_group_name": "주차장",
+        "category_name": "교통,수송 > 교통시설 > 주차장",
+        "distance": "64",
+        "id": "1861415207",
+        "phone": "",
+        "place_name": "공릉풍림아파트 B상가주차장",
+        "place_url": "http://place.map.kakao.com/1861415207",
+        "road_address_name": "서울 노원구 섬밭로 134",
+        "x": "127.069660756604",
+        "y": "37.6286514057276"
+      },
+      {
+        "address_name": "서울 노원구 공릉동 323-1",
+        "category_group_code": "PK6",
+        "category_group_name": "주차장",
+        "category_name": "교통,수송 > 교통시설 > 주차장",
+        "distance": "83",
+        "id": "349299144",
+        "phone": "",
+        "place_name": "나이스파크 LG베스트샵 노원본점 주차장",
+        "place_url": "http://place.map.kakao.com/349299144",
+        "road_address_name": "서울 노원구 동일로 1107",
+        "x": "127.071317919915",
+        "y": "37.6284576046759"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 3,
+      "same_name": null,
+      "total_count": 3
+    }
+  },
+  "642380694181ee303ee925250b1283b7b7bd291edee517325f73e4156f5b538c": {
+    "documents": [
+      {
+        "address_name": "서울 노원구 공릉동 711-1",
+        "category_group_code": "OL7",
+        "category_group_name": "주유소,충전소",
+        "category_name": "교통,수송 > 자동차 > 주유,가스 > LPG충전소 > SK LPG충전소",
+        "distance": "75",
+        "id": "21850513",
+        "phone": "02-972-2254",
+        "place_name": "공릉동충전소",
+        "place_url": "http://place.map.kakao.com/21850513",
+        "road_address_name": "서울 노원구 동일로 1113",
+        "x": "127.07084501843222",
+        "y": "37.629116510499045"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 1,
+      "same_name": null,
+      "total_count": 1
+    }
+  },
+  "d139fc501afd5404736c54fc4222f65d1cfd2ec50fd5d06032f954d9020f64c7": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "a7e50137fa28f9d85eab26ed846697d1c1a78edb73d2cc19de1abc2d4a429449": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "e217149cf7607295eff95ecc9f111af26c0a28dbf0272519a57ebf3b2ed7f024": {
+    "documents": [
+      {
+        "address_name": "서울 노원구 공릉동 710",
+        "category_group_code": "CT1",
+        "category_group_name": "문화시설",
+        "category_name": "문화,예술 > 문화시설 > 문화원",
+        "distance": "57",
+        "id": "9751124",
+        "phone": "02-6380-0022",
+        "place_name": "노원문화원",
+        "place_url": "http://place.map.kakao.com/9751124",
+        "road_address_name": "서울 노원구 동일로197길 24",
+        "x": "127.069814964677",
+        "y": "37.6288026802774"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 1,
+      "same_name": null,
+      "total_count": 1
+    }
+  },
+  "8c975498fb7dd50c72c374fc5568cb3cfda77d83d3653c90095eb47d6c2ff940": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "1dc8572ec3874c88b13e0c10d7ad81477fa266bb9a922f7c235592b6c93f4073": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "6addbec94d9527cfd173d79f73510542a05f994f31e77e6b0f23a3ba156189a8": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "0ce9bfdaa199c574e1a6ac55b599d15577d6145ce97d27bb39d4483034cba0fc": {
+    "documents": [
+      {
+        "address_name": "서울 노원구 공릉동 323-2",
+        "category_group_code": "FD6",
+        "category_group_name": "음식점",
+        "category_name": "음식점 > 양식 > 피자",
+        "distance": "23",
+        "id": "1482807042",
+        "phone": "070-4044-4570",
+        "place_name": "노모어피자 공릉점",
+        "place_url": "http://place.map.kakao.com/1482807042",
+        "road_address_name": "서울 노원구 동일로197길 11",
+        "x": "127.07063608479649",
+        "y": "37.62859946966776"
+      },
+      {
+        "address_name": "서울 노원구 공릉동 323-2",
+        "category_group_code": "FD6",
+        "category_group_name": "음식점",
+        "category_name": "음식점 > 양식 > 햄버거 > 프랭크버거",
+        "distance": "23",
+        "id": "2096674278",
+        "phone": "02-971-2230",
+        "place_name": "프랭크버거 공릉점",
+        "place_url": "http://place.map.kakao.com/2096674278",
+        "road_address_name": "서울 노원구 동일로197길 11",
+        "x": "127.070643930259",
+        "y": "37.628510267329"
+      },
+      {
+        "address_name": "서울 노원구 공릉동 323-2",
+        "category_group_code": "FD6",
+        "category_group_name": "음식점",
+        "category_name": "음식점 > 한식 > 육류,고기",
+        "distance": "28",
+        "id": "10250915",
+        "phone": "02-3391-0995",
+        "place_name": "여물소 본점",
+        "place_url": "http://place.map.kakao.com/10250915",
+        "road_address_name": "서울 노원구 동일로197길 11",
+        "x": "127.07058714256868",
+        "y": "37.628356232657374"
+      },
+      {
+        "address_name": "서울 노원구 공릉동 312-9",
+        "category_group_code": "FD6",
+        "category_group_name": "음식점",
+        "category_name": "음식점 > 한식 > 육류,고기",
+        "distance": "71",
+        "id": "990143804",
+        "phone": "02-975-9285",
+        "place_name": "종암동화야 공릉직영점",
+        "place_url": "http://place.map.kakao.com/990143804",
+        "road_address_name": "서울 노원구 동일로191가길 65",
+        "x": "127.070348817883",
+        "y": "37.6279013768833"
+      },
+      {
+        "address_name": "서울 노원구 공릉동 727",
+        "category_group_code": "FD6",
+        "category_group_name": "음식점",
+        "category_name": "음식점 > 퓨전요리 > 퓨전한식 > 본죽&비빔밥cafe",
+        "distance": "83",
+        "id": "10384970",
+        "phone": "02-976-6280",
+        "place_name": "본죽&비빔밥cafe 공릉점",
+        "place_url": "http://place.map.kakao.com/10384970",
+        "road_address_name": "서울 노원구 섬밭로 134",
+        "x": "127.06944305649168",
+        "y": "37.62844250523302"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 5,
+      "same_name": null,
+      "total_count": 5
+    }
+  },
+  "c8324ac2aa6e83cfbee69bf6568bf4fe54bd02d6f596aa3885e498a650106e67": {
+    "documents": [
+      {
+        "address_name": "서울 노원구 공릉동 312-4",
+        "category_group_code": "CE7",
+        "category_group_name": "카페",
+        "category_name": "음식점 > 카페 > 커피전문점 > 컴포즈커피",
+        "distance": "12",
+        "id": "734902418",
+        "phone": "02-2088-4780",
+        "place_name": "컴포즈커피 노원공릉점",
+        "place_url": "http://place.map.kakao.com/734902418",
+        "road_address_name": "서울 노원구 동일로197길 21",
+        "x": "127.07027572088987",
+        "y": "37.62847174479411"
+      },
+      {
+        "address_name": "서울 노원구 공릉동 323-2",
+        "category_group_code": "CE7",
+        "category_group_name": "카페",
+        "category_name": "음식점 > 카페 > 커피전문점 > 메가MGC커피",
+        "distance": "21",
+        "id": "2067341427",
+        "phone": "0507-1395-0184",
+        "place_name": "메가MGC커피 노원공릉점",
+        "place_url": "http://place.map.kakao.com/2067341427",
+        "road_address_name": "서울 노원구 동일로197길 11",
+        "x": "127.07057021219575",
+        "y": "37.628422014779495"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 2,
+      "same_name": null,
+      "total_count": 2
+    }
+  },
+  "51ea6ca0355d89c8361d5043ed1941f6a3cff6848a08566bb39739cd1a0bcc79": {
+    "documents": [
+      {
+        "address_name": "서울 노원구 공릉동 312-4",
+        "category_group_code": "HP8",
+        "category_group_name": "병원",
+        "category_name": "의료,건강 > 병원 > 치과",
+        "distance": "19",
+        "id": "8373180",
+        "phone": "02-973-2864",
+        "place_name": "공릉서울치과의원",
+        "place_url": "http://place.map.kakao.com/8373180",
+        "road_address_name": "서울 노원구 동일로197길 21",
+        "x": "127.0702337456485",
+        "y": "37.628407799759245"
+      },
+      {
+        "address_name": "서울 노원구 공릉동 312-4",
+        "category_group_code": "HP8",
+        "category_group_name": "병원",
+        "category_name": "의료,건강 > 병원 > 내과",
+        "distance": "20",
+        "id": "2018435665",
+        "phone": "02-962-9240",
+        "place_name": "동아의원",
+        "place_url": "http://place.map.kakao.com/2018435665",
+        "road_address_name": "서울 노원구 동일로197길 21",
+        "x": "127.07022468124818",
+        "y": "37.62840600318171"
+      },
+      {
+        "address_name": "서울 노원구 공릉동 323-2",
+        "category_group_code": "HP8",
+        "category_group_name": "병원",
+        "category_name": "의료,건강 > 병원 > 한방병원",
+        "distance": "23",
+        "id": "1926517637",
+        "phone": "02-949-1075",
+        "place_name": "서울미르한방병원",
+        "place_url": "http://place.map.kakao.com/1926517637",
+        "road_address_name": "서울 노원구 동일로197길 11",
+        "x": "127.070643930259",
+        "y": "37.628510267329"
+      },
+      {
+        "address_name": "서울 노원구 공릉동 312-3",
+        "category_group_code": "HP8",
+        "category_group_name": "병원",
+        "category_name": "의료,건강 > 병원 > 치과",
+        "distance": "32",
+        "id": "10636662",
+        "phone": "02-977-2828",
+        "place_name": "예인치과의원",
+        "place_url": "http://place.map.kakao.com/10636662",
+        "road_address_name": "서울 노원구 동일로197길 23",
+        "x": "127.070072864027",
+        "y": "37.6283880737127"
+      },
+      {
+        "address_name": "서울 노원구 공릉동 323-35",
+        "category_group_code": "HP8",
+        "category_group_name": "병원",
+        "category_name": "의료,건강 > 병원 > 정형외과",
+        "distance": "85",
+        "id": "425584217",
+        "phone": "02-978-8881",
+        "place_name": "공릉연세탑재활의학과의원",
+        "place_url": "http://place.map.kakao.com/425584217",
+        "road_address_name": "서울 노원구 동일로 1101",
+        "x": "127.07128374113803",
+        "y": "37.628254903404674"
+      }
+    ],
+    "meta": {
+      "is_end": false,
+      "pageable_count": 13,
+      "same_name": null,
+      "total_count": 13
+    }
+  },
+  "8c652f71048e44ac297e5b27567d10d046116797725638f3a324a8f49fad0877": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "59d6d850c28ad874e34fc0353f126320a785cca5508eed3cdbf2179361793f19": {
+    "documents": [
+      {
+        "address_name": "서울 노원구 공릉동 323-35",
+        "category_group_code": "MT1",
+        "category_group_name": "대형마트",
+        "category_name": "가정,생활 > 슈퍼마켓 > 대형슈퍼 > 홈플러스익스프레스",
+        "distance": "177",
+        "id": "11784505",
+        "phone": "02-949-8545",
+        "place_name": "홈플러스익스프레스 공릉점",
+        "place_url": "http://place.map.kakao.com/11784505",
+        "road_address_name": "서울 노원구 동일로 1101",
+        "x": "127.07141962108095",
+        "y": "37.62819175219964"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 1,
+      "same_name": null,
+      "total_count": 1
+    }
+  },
+  "c1ea418745c8781007ad2d7f1b609a02ad439d452dc22bc081e61960641db3be": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "06ebe37315c08abcc0b379773520598d4df62abb09436aaa62d4fab0df747db6": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "f82e891f1510aae4a2fe7776175019425717e7eccffc554831519630e960ba6b": {
+    "documents": [
+      {
+        "address_name": "서울 노원구 공릉동 709",
+        "category_group_code": "SC4",
+        "category_group_name": "학교",
+        "category_name": "교육,학문 > 학교 > 초등학교",
+        "distance": "106",
+        "id": "8375372",
+        "phone": "02-948-5302",
+        "place_name": "서울용원초등학교",
+        "place_url": "http://place.map.kakao.com/8375372",
+        "road_address_name": "서울 노원구 섬밭로 144",
+        "x": "127.0687757609795",
+        "y": "37.629614178153204"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 1,
+      "same_name": null,
+      "total_count": 1
+    }
+  },
+  "f49c91523627adf8233c52fb4b8772eed3cc9a91e95410fdca922995b7b8d2ca": {
+    "documents": [
+      {
+        "address_name": "서울 노원구 공릉동 312-3",
+        "category_group_code": "AC5",
+        "category_group_name": "학원",
+        "category_name": "교육,학문 > 학원 > 어학원 > 영어학원",
+        "distance": "88",
+        "id": "795268446",
+        "phone": "02-974-0579",
+        "place_name": "캠브리지영어학원",
+        "place_url": "http://place.map.kakao.com/795268446",
+        "road_address_name": "서울 노원구 동일로197길 23",
+        "x": "127.07004909980003",
+        "y": "37.62841511740703"
+      },
+      {
+        "address_name": "서울 노원구 공릉동 312-3",
+        "category_group_code": "AC5",
+        "category_group_name": "학원",
+        "category_name": "교육,학문 > 학원 > 수학학원",
+        "distance": "92",
+        "id": "461136692",
+        "phone": "",
+        "place_name": "에이밍수학학원",
+        "place_url": "http://place.map.kakao.com/461136692",
+        "road_address_name": "서울 노원구 동일로197길 23",
+        "x": "127.070046804529",
+        "y": "37.6283835842489"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 2,
+      "same_name": null,
+      "total_count": 2
+    }
+  },
+  "75076b61fac5ec050e5bdd532e6e497406f2944d62b8b456feb2b54b39ced159": {
+    "documents": [
+      {
+        "address_name": "서울 노원구 공릉동 710",
+        "category_group_code": "PK6",
+        "category_group_name": "주차장",
+        "category_name": "교통,수송 > 교통시설 > 주차장",
+        "distance": "35",
+        "id": "87486866",
+        "phone": "",
+        "place_name": "노원문화원 주차장",
+        "place_url": "http://place.map.kakao.com/87486866",
+        "road_address_name": "",
+        "x": "127.069988381073",
+        "y": "37.6288998840559"
+      },
+      {
+        "address_name": "서울 노원구 공릉동 727",
+        "category_group_code": "PK6",
+        "category_group_name": "주차장",
+        "category_name": "교통,수송 > 교통시설 > 주차장",
+        "distance": "63",
+        "id": "1861415207",
+        "phone": "",
+        "place_name": "공릉풍림아파트 B상가주차장",
+        "place_url": "http://place.map.kakao.com/1861415207",
+        "road_address_name": "서울 노원구 섬밭로 134",
+        "x": "127.069660756604",
+        "y": "37.6286514057276"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 2,
+      "same_name": null,
+      "total_count": 2
+    }
+  },
+  "e0f90c95ec23429f48fabc08e5d69d44a60650a26e23b39c7ede155a7f0d5325": {
+    "documents": [
+      {
+        "address_name": "서울 노원구 공릉동 711-1",
+        "category_group_code": "OL7",
+        "category_group_name": "주유소,충전소",
+        "category_name": "교통,수송 > 자동차 > 주유,가스 > LPG충전소 > SK LPG충전소",
+        "distance": "86",
+        "id": "21850513",
+        "phone": "02-972-2254",
+        "place_name": "공릉동충전소",
+        "place_url": "http://place.map.kakao.com/21850513",
+        "road_address_name": "서울 노원구 동일로 1113",
+        "x": "127.07084501843222",
+        "y": "37.629116510499045"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 1,
+      "same_name": null,
+      "total_count": 1
+    }
+  },
+  "63c2e81d0eabceb502dbe828152a00e826b5b506d443237d15e890970365b391": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "beaf4ec37e2f82501e4717b304142a77a0e71855971f2b608c83c3fca719cf19": {
+    "documents": [
+      {
+        "address_name": "서울 노원구 공릉동 708",
+        "category_group_code": "BK9",
+        "category_group_name": "은행",
+        "category_name": "금융,보험 > 금융서비스 > 은행 > ATM",
+        "distance": "42",
+        "id": "1484708353",
+        "phone": "",
+        "place_name": "롯데ATM 세븐일레븐 공릉라이프",
+        "place_url": "http://place.map.kakao.com/1484708353",
+        "road_address_name": "",
+        "x": "127.069856482411",
+        "y": "37.6295883156596"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 1,
+      "same_name": null,
+      "total_count": 1
+    }
+  },
+  "8bfb51bdf241727d0526890dbe2a679c55f7f9debfa08afc4226d12380ce36f2": {
+    "documents": [
+      {
+        "address_name": "서울 노원구 공릉동 710",
+        "category_group_code": "CT1",
+        "category_group_name": "문화시설",
+        "category_name": "문화,예술 > 문화시설 > 문화원",
+        "distance": "44",
+        "id": "9751124",
+        "phone": "02-6380-0022",
+        "place_name": "노원문화원",
+        "place_url": "http://place.map.kakao.com/9751124",
+        "road_address_name": "서울 노원구 동일로197길 24",
+        "x": "127.069814964677",
+        "y": "37.6288026802774"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 1,
+      "same_name": null,
+      "total_count": 1
+    }
+  },
+  "de2bf999c99000b922ac8072e295f646bf096a410baff0fbf338b8e54354eba3": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "b743ace1fb0a41cd3b0e6ab52ff476ae0aa990d76dbdffdd4b0138d424bacefa": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "cfa7b2cb6db58599f1e8e396a8ed01dcd9f04431696b328b18819e5bd704c81b": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "f2ca961adfafa7d00ad3c2553601d79af12c56db849c7fece7c379ee3ff6d52a": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "4210b40ebde17a4961e2cc909673bf178a1149e05fbfbf93153a69123b0519a7": {
+    "documents": [
+      {
+        "address_name": "서울 노원구 공릉동 312-4",
+        "category_group_code": "CE7",
+        "category_group_name": "카페",
+        "category_name": "음식점 > 카페 > 커피전문점 > 컴포즈커피",
+        "distance": "88",
+        "id": "734902418",
+        "phone": "02-2088-4780",
+        "place_name": "컴포즈커피 노원공릉점",
+        "place_url": "http://place.map.kakao.com/734902418",
+        "road_address_name": "서울 노원구 동일로197길 21",
+        "x": "127.07027572088987",
+        "y": "37.62847174479411"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 1,
+      "same_name": null,
+      "total_count": 1
+    }
+  },
+  "5269460d2820592586a88c108cc66557313047aff33d23d596729f4210aa6fe9": {
+    "documents": [
+      {
+        "address_name": "서울 노원구 공릉동 312-3",
+        "category_group_code": "HP8",
+        "category_group_name": "병원",
+        "category_name": "의료,건강 > 병원 > 치과",
+        "distance": "92",
+        "id": "10636662",
+        "phone": "02-977-2828",
+        "place_name": "예인치과의원",
+        "place_url": "http://place.map.kakao.com/10636662",
+        "road_address_name": "서울 노원구 동일로197길 23",
+        "x": "127.070072864027",
+        "y": "37.6283880737127"
+      },
+      {
+        "address_name": "서울 노원구 공릉동 312-4",
+        "category_group_code": "HP8",
+        "category_group_name": "병원",
+        "category_name": "의료,건강 > 병원 > 치과",
+        "distance": "93",
+        "id": "8373180",
+        "phone": "02-973-2864",
+        "place_name": "공릉서울치과의원",
+        "place_url": "http://place.map.kakao.com/8373180",
+        "road_address_name": "서울 노원구 동일로197길 21",
+        "x": "127.0702337456485",
+        "y": "37.628407799759245"
+      },
+      {
+        "address_name": "서울 노원구 공릉동 312-4",
+        "category_group_code": "HP8",
+        "category_group_name": "병원",
+        "category_name": "의료,건강 > 병원 > 내과",
+        "distance": "94",
+        "id": "2018435665",
+        "phone": "02-962-9240",
+        "place_name": "동아의원",
+        "place_url": "http://place.map.kakao.com/2018435665",
+        "road_address_name": "서울 노원구 동일로197길 21",
+        "x": "127.07022468124818",
+        "y": "37.62840600318171"
+      },
+      {
+        "address_name": "서울 노원구 공릉동 323-2",
+        "category_group_code": "HP8",
+        "category_group_name": "병원",
+        "category_name": "의료,건강 > 병원 > 한방병원",
+        "distance": "103",
+        "id": "1926517637",
+        "phone": "02-949-1075",
+        "place_name": "서울미르한방병원",
+        "place_url": "http://place.map.kakao.com/1926517637",
+        "road_address_name": "서울 노원구 동일로197길 11",
+        "x": "127.070643930259",
+        "y": "37.628510267329"
+      },
+      {
+        "address_name": "서울 노원구 공릉동 727",
+        "category_group_code": "HP8",
+        "category_group_name": "병원",
+        "category_name": "의료,건강 > 병원 > 소아청소년과",
+        "distance": "114",
+        "id": "10662008",
+        "phone": "02-973-3455",
+        "place_name": "연세키즈소아청소년과의원",
+        "place_url": "http://place.map.kakao.com/10662008",
+        "road_address_name": "서울 노원구 섬밭로 134",
+        "x": "127.069316017907",
+        "y": "37.6282695905577"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 5,
+      "same_name": null,
+      "total_count": 5
+    }
+  },
+  "be39a8e111cd3badef2b69dcff9e05ae0344a39f38261451b70f3e1203367e93": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "99a94827639df4dfd82d52d63ac16a939928fbc52f419ef528ba7cbd10f4d0e8": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "ed7f4367da5892d1957d734090b49227c84fdc238df161158de40e892dbc0f55": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "2283d15b80aac7bf82d09c412b42838fb31d831f07982be845c00d7021e2cdf7": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "bd8d8ef18155f1e1f11b014d1902c107f7bb1e2d911cf012245669f5a8ccfcab": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "61c83258d41cf4bb0f26193b90de58707107478008b53244e615f6943d7c40f5": {
+    "documents": [
+      {
+        "address_name": "서울 노원구 공릉동 517-79",
+        "category_group_code": "AC5",
+        "category_group_name": "학원",
+        "category_name": "교육,학문 > 학원",
+        "distance": "87",
+        "id": "583674640",
+        "phone": "02-976-0893",
+        "place_name": "문성희피아노",
+        "place_url": "http://place.map.kakao.com/583674640",
+        "road_address_name": "서울 노원구 동일로182길 37-25",
+        "x": "127.07594080875964",
+        "y": "37.623778599353486"
+      },
+      {
+        "address_name": "서울 노원구 공릉동 566-20",
+        "category_group_code": "AC5",
+        "category_group_name": "학원",
+        "category_name": "교육,학문 > 학원 > 보습학원",
+        "distance": "88",
+        "id": "16995406",
+        "phone": "",
+        "place_name": "공릉한샘학원",
+        "place_url": "http://place.map.kakao.com/16995406",
+        "road_address_name": "서울 노원구 동일로180길 37",
+        "x": "127.076288596318",
+        "y": "37.6226971905358"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 2,
+      "same_name": null,
+      "total_count": 2
+    }
+  },
+  "f812bc967b4ae73da4eb4f6e82026c62a26e074082c72c372f63de87ce4abc85": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "9888b18dacfbd76bc8812412a8134f8f31fd44f0c6169608a7bd4028a9389ca4": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "76a398d49900cbfabb7cffe9cb51214edc790332ecdd892c805dcb308a0496e4": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "ce4a265fb395377b669e1be2d74da0295cf505b466b3a6be2583bbfc73566c94": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "91e3bfeaff559a4fb8c0319762e0efb6337ad1b7b7940c4c4796563e1654f8c7": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "79aa0b93d18cb35105d1888ccdc34f3b4b9272c98e8298f5183927b14fe59097": {
+    "documents": [
+      {
+        "address_name": "서울 노원구 공릉동 567-18",
+        "category_group_code": "PO3",
+        "category_group_name": "공공기관",
+        "category_name": "사회,공공기관 > 행정기관 > 경찰서 > 지구대",
+        "distance": "94",
+        "id": "8163485",
+        "phone": "02-2092-0303",
+        "place_name": "화랑지구대",
+        "place_url": "http://place.map.kakao.com/8163485",
+        "road_address_name": "서울 노원구 동일로 1034",
+        "x": "127.074639148241",
+        "y": "37.6225360677072"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 1,
+      "same_name": null,
+      "total_count": 1
+    }
+  },
+  "4c8bc559eae88732f061200b1946c91ec67dc7d211835d460125a1e8dd71faa3": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "b56ea0e15413a02efe4819d56d03b245a7c89ec877df84c7df17ed2b647d5120": {
+    "documents": [
+      {
+        "address_name": "서울 노원구 공릉동 517-34",
+        "category_group_code": "AD5",
+        "category_group_name": "숙박",
+        "category_name": "여행 > 숙박",
+        "distance": "116",
+        "id": "16850787",
+        "phone": "",
+        "place_name": "샤넬",
+        "place_url": "http://place.map.kakao.com/16850787",
+        "road_address_name": "서울 노원구 동일로 1042",
+        "x": "127.074109637119",
+        "y": "37.6231562806032"
+      },
+      {
+        "address_name": "서울 노원구 공릉동 568-23",
+        "category_group_code": "AD5",
+        "category_group_name": "숙박",
+        "category_name": "여행 > 숙박 > 여관,모텔",
+        "distance": "172",
+        "id": "20742225",
+        "phone": "02-974-0088",
+        "place_name": "QT모텔",
+        "place_url": "http://place.map.kakao.com/20742225",
+        "road_address_name": "서울 노원구 동일로 1035",
+        "x": "127.0736106193356",
+        "y": "37.62254392170166"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 2,
+      "same_name": null,
+      "total_count": 2
+    }
+  },
+  "0569c911043798f7f834c6165c6b30548260fe62a70013dcc01006e80048a31a": {
+    "documents": [
+      {
+        "address_name": "서울 노원구 공릉동 517-65",
+        "category_group_code": "FD6",
+        "category_group_name": "음식점",
+        "category_name": "음식점 > 한식",
+        "distance": "27",
+        "id": "835492758",
+        "phone": "02-978-7580",
+        "place_name": "충주식당",
+        "place_url": "http://place.map.kakao.com/835492758",
+        "road_address_name": "서울 노원구 동일로182길 29",
+        "x": "127.075736289907",
+        "y": "37.6231669606038"
+      },
+      {
+        "address_name": "서울 노원구 공릉동 566-41",
+        "category_group_code": "FD6",
+        "category_group_name": "음식점",
+        "category_name": "음식점 > 양식",
+        "distance": "62",
+        "id": "1114860504",
+        "phone": "010-5591-9944",
+        "place_name": "디에트로",
+        "place_url": "http://place.map.kakao.com/1114860504",
+        "road_address_name": "서울 노원구 동일로182길 36",
+        "x": "127.076144037911",
+        "y": "37.6231225498252"
+      },
+      {
+        "address_name": "서울 노원구 공릉동 566-17",
+        "category_group_code": "FD6",
+        "category_group_name": "음식점",
+        "category_name": "음식점 > 한식 > 육류,고기 > 족발,보쌈",
+        "distance": "66",
+        "id": "15755383",
+        "phone": "02-975-6271",
+        "place_name": "가마솥왕족발",
+        "place_url": "http://place.map.kakao.com/15755383",
+        "road_address_name": "서울 노원구 동일로180길 25",
+        "x": "127.07565408393",
+        "y": "37.6225282134636"
+      },
+      {
+        "address_name": "서울 노원구 공릉동 566-40",
+        "category_group_code": "FD6",
+        "category_group_name": "음식점",
+        "category_name": "음식점 > 간식 > 제과,베이커리",
+        "distance": "67",
+        "id": "1010792397",
+        "phone": "",
+        "place_name": "오월오일",
+        "place_url": "http://place.map.kakao.com/1010792397",
+        "road_address_name": "서울 노원구 동일로180길 37-7",
+        "x": "127.076186951216",
+        "y": "37.6229936809715"
+      },
+      {
+        "address_name": "서울 노원구 공릉동 566-18",
+        "category_group_code": "FD6",
+        "category_group_name": "음식점",
+        "category_name": "음식점 > 간식 > 닭강정",
+        "distance": "70",
+        "id": "19984155",
+        "phone": "010-9327-8008",
+        "place_name": "예스닭강정",
+        "place_url": "http://place.map.kakao.com/19984155",
+        "road_address_name": "서울 노원구 동일로180길 29",
+        "x": "127.07582628278797",
+        "y": "37.622548825640244"
+      }
+    ],
+    "meta": {
+      "is_end": false,
+      "pageable_count": 14,
+      "same_name": null,
+      "total_count": 14
+    }
+  },
+  "8fface1369c8b4fb49edf2e0c25e94c35c95135a0b7abb05d6764151aa7fa9ee": {
+    "documents": [
+      {
+        "address_name": "서울 노원구 공릉동 517-47",
+        "category_group_code": "CE7",
+        "category_group_name": "카페",
+        "category_name": "음식점 > 카페 > 커피전문점",
+        "distance": "29",
+        "id": "1454313358",
+        "phone": "02-777-7777",
+        "place_name": "Fran",
+        "place_url": "http://place.map.kakao.com/1454313358",
+        "road_address_name": "서울 노원구 동일로182길 17",
+        "x": "127.075104210691",
+        "y": "37.6231673646018"
+      },
+      {
+        "address_name": "서울 노원구 공릉동 566-41",
+        "category_group_code": "CE7",
+        "category_group_name": "카페",
+        "category_name": "음식점 > 카페 > 테마카페 > 디저트카페",
+        "distance": "66",
+        "id": "1706898335",
+        "phone": "070-8667-1890",
+        "place_name": "버터키튼",
+        "place_url": "http://place.map.kakao.com/1706898335",
+        "road_address_name": "서울 노원구 동일로182길 36",
+        "x": "127.07617805282307",
+        "y": "37.62315406241865"
+      },
+      {
+        "address_name": "서울 노원구 공릉동 556-21",
+        "category_group_code": "CE7",
+        "category_group_name": "카페",
+        "category_name": "음식점 > 카페",
+        "distance": "83",
+        "id": "801481621",
+        "phone": "",
+        "place_name": "커피 싸데펑",
+        "place_url": "http://place.map.kakao.com/801481621",
+        "road_address_name": "서울 노원구 동일로182길 37-4",
+        "x": "127.076299523164",
+        "y": "37.6234134682049"
+      },
+      {
+        "address_name": "서울 노원구 공릉동 584-2",
+        "category_group_code": "CE7",
+        "category_group_name": "카페",
+        "category_name": "음식점 > 카페",
+        "distance": "84",
+        "id": "1155800281",
+        "phone": "02-6368-0707",
+        "place_name": "행운커피",
+        "place_url": "http://place.map.kakao.com/1155800281",
+        "road_address_name": "서울 노원구 동일로180길 24",
+        "x": "127.075662985204",
+        "y": "37.622369634011"
+      },
+      {
+        "address_name": "서울 노원구 공릉동 556-16",
+        "category_group_code": "CE7",
+        "category_group_name": "카페",
+        "category_name": "음식점 > 카페 > 테마카페 > 디저트카페",
+        "distance": "86",
+        "id": "1360382782",
+        "phone": "",
+        "place_name": "바이레인",
+        "place_url": "http://place.map.kakao.com/1360382782",
+        "road_address_name": "서울 노원구 동일로182길 37-6",
+        "x": "127.076255453121",
+        "y": "37.6235189121808"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 5,
+      "same_name": null,
+      "total_count": 5
+    }
+  },
+  "ef7f7c9f517c6df2df5ec705989cfa4fc2555cfc96130f940b8a7309c1494bf7": {
+    "documents": [
+      {
+        "address_name": "서울 노원구 공릉동 567-4",
+        "category_group_code": "HP8",
+        "category_group_name": "병원",
+        "category_name": "의료,건강 > 병원 > 치과",
+        "distance": "109",
+        "id": "26554415",
+        "phone": "02-971-7228",
+        "place_name": "서울정치과의원",
+        "place_url": "http://place.map.kakao.com/26554415",
+        "road_address_name": "서울 노원구 동일로 1036",
+        "x": "127.074362822128",
+        "y": "37.6226011132461"
+      },
+      {
+        "address_name": "서울 노원구 공릉동 567-4",
+        "category_group_code": "HP8",
+        "category_group_name": "병원",
+        "category_name": "의료,건강 > 병원 > 정형외과",
+        "distance": "117",
+        "id": "17093684",
+        "phone": "02-971-2272",
+        "place_name": "척척정형외과의원",
+        "place_url": "http://place.map.kakao.com/17093684",
+        "road_address_name": "서울 노원구 동일로 1036",
+        "x": "127.0743140421318",
+        "y": "37.62252906500249"
+      },
+      {
+        "address_name": "서울 노원구 공릉동 517-31",
+        "category_group_code": "HP8",
+        "category_group_name": "병원",
+        "category_name": "의료,건강 > 병원 > 내과",
+        "distance": "123",
+        "id": "17107323",
+        "phone": "02-949-0233",
+        "place_name": "신웅식내과의원",
+        "place_url": "http://place.map.kakao.com/17107323",
+        "road_address_name": "서울 노원구 동일로 1044",
+        "x": "127.074059960219",
+        "y": "37.6233220934145"
+      },
+      {
+        "address_name": "서울 노원구 공릉동 581",
+        "category_group_code": "HP8",
+        "category_group_name": "병원",
+        "category_name": "의료,건강 > 병원 > 치과",
+        "distance": "128",
+        "id": "914816864",
+        "phone": "02-978-1506",
+        "place_name": "CBK최영균치과의원",
+        "place_url": "http://place.map.kakao.com/914816864",
+        "road_address_name": "서울 노원구 동일로180길 14",
+        "x": "127.075310276633",
+        "y": "37.6219490986048"
+      },
+      {
+        "address_name": "서울 노원구 공릉동 567-6",
+        "category_group_code": "HP8",
+        "category_group_name": "병원",
+        "category_name": "의료,건강 > 병원 > 치과",
+        "distance": "134",
+        "id": "9921443",
+        "phone": "02-973-8176",
+        "place_name": "안성민치과",
+        "place_url": "http://place.map.kakao.com/9921443",
+        "road_address_name": "서울 노원구 동일로 1032",
+        "x": "127.074376045302",
+        "y": "37.6222298981852"
+      }
+    ],
+    "meta": {
+      "is_end": false,
+      "pageable_count": 6,
+      "same_name": null,
+      "total_count": 6
+    }
+  },
+  "3a24ff6ba5730374bc295e9604fe72bb2adc39d1fb9362dffdccee480f64bc91": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "de04bc3e5d7c44f0456bdbfd86ae9dc4a1db684093299d1fc656e24d71bb95d0": {
+    "documents": [
+      {
+        "address_name": "서울 용산구 한강로3가 40-999",
+        "category_group_code": "MT1",
+        "category_group_name": "대형마트",
+        "category_name": "가정,생활 > 대형마트 > 이마트",
+        "distance": "87",
+        "id": "10751938",
+        "phone": "02-6363-2200",
+        "place_name": "이마트 용산점",
+        "place_url": "http://place.map.kakao.com/10751938",
+        "road_address_name": "서울 용산구 한강대로23길 55",
+        "x": "126.96578815221102",
+        "y": "37.52968200913392"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 1,
+      "same_name": null,
+      "total_count": 1
+    }
+  },
+  "38a48374194d387b8e8878bffe6004d53e7b4e21a9f7735d960a175d332e0bf9": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "bc7a6b6a4deb7bf36cdb82106b84cefe94f5175c1c1ba0707cfe845be386cb82": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "b80ae6cab539ed5e4ecf5f4b263ba3d056d185894a615ca7d8e7f5c69c7a3fb7": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "52a871a72a6b3a6e4820c49c045fb88831f1dd01f367923120a55c515b23395d": {
+    "documents": [
+      {
+        "address_name": "서울 용산구 한강로2가 422",
+        "category_group_code": "AC5",
+        "category_group_name": "학원",
+        "category_name": "교육,학문 > 학원 > 음악학원",
+        "distance": "98",
+        "id": "1096789130",
+        "phone": "010-9897-4148",
+        "place_name": "포네 바이올린 용산점",
+        "place_url": "http://place.map.kakao.com/1096789130",
+        "road_address_name": "서울 용산구 한강대로 95",
+        "x": "126.966654015422",
+        "y": "37.5288172952384"
+      },
+      {
+        "address_name": "서울 용산구 한강로2가 422",
+        "category_group_code": "AC5",
+        "category_group_name": "학원",
+        "category_name": "교육,학문 > 학원 > 어학원 > 영어학원",
+        "distance": "98",
+        "id": "116064355",
+        "phone": "010-2884-1060",
+        "place_name": "플레이그라운드랩",
+        "place_url": "http://place.map.kakao.com/116064355",
+        "road_address_name": "서울 용산구 한강대로 95",
+        "x": "126.966652883289",
+        "y": "37.5288190969221"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 2,
+      "same_name": null,
+      "total_count": 2
+    }
+  },
+  "e3eb5afa62e16633995302599465639ae8f984f1f3ea0e4f8ebd48545cffe5bd": {
+    "documents": [
+      {
+        "address_name": "서울 용산구 한강로3가 40-999",
+        "category_group_code": "PK6",
+        "category_group_name": "주차장",
+        "category_name": "교통,수송 > 교통시설 > 주차장",
+        "distance": "89",
+        "id": "680507854",
+        "phone": "02-2012-0074",
+        "place_name": "아이파크몰 용산점 주차장",
+        "place_url": "http://place.map.kakao.com/680507854",
+        "road_address_name": "서울 용산구 한강대로23길 55",
+        "x": "126.96454407898948",
+        "y": "37.52882569066608"
+      },
+      {
+        "address_name": "서울 용산구 한강로3가 40-999",
+        "category_group_code": "PK6",
+        "category_group_name": "주차장",
+        "category_name": "교통,수송 > 교통시설 > 주차장",
+        "distance": "89",
+        "id": "361777121",
+        "phone": "",
+        "place_name": "이마트 용산점 주차장",
+        "place_url": "http://place.map.kakao.com/361777121",
+        "road_address_name": "서울 용산구 한강대로23길 55",
+        "x": "126.965789275736",
+        "y": "37.5296991284887"
+      },
+      {
+        "address_name": "서울 용산구 한강로3가 40-999",
+        "category_group_code": "PK6",
+        "category_group_name": "주차장",
+        "category_name": "교통,수송 > 교통시설 > 주차장",
+        "distance": "120",
+        "id": "24635783",
+        "phone": "02-2012-0074",
+        "place_name": "용산아이파크몰 별주차장",
+        "place_url": "http://place.map.kakao.com/24635783",
+        "road_address_name": "서울 용산구 한강대로23길 55",
+        "x": "126.964182016868",
+        "y": "37.5289012655542"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 3,
+      "same_name": null,
+      "total_count": 3
+    }
+  },
+  "3330541b7b8e74e528ba7b43f3a326a6cce9aa5a75af3d90bf964dd149cf89be": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "5b8880182bbd84556aadbe1d3c9a5dc10850d7d292df156639b23ab6e822b0e2": {
+    "documents": [
+      {
+        "address_name": "서울 용산구 한강로3가 40-999",
+        "category_group_code": "SW8",
+        "category_group_name": "지하철역",
+        "category_name": "교통,수송 > 지하철,전철 > 경의중앙선",
+        "distance": "103",
+        "id": "21160921",
+        "phone": "1544-7788",
+        "place_name": "용산역 경의중앙선",
+        "place_url": "http://place.map.kakao.com/21160921",
+        "road_address_name": "서울 용산구 한강대로23길 55",
+        "x": "126.96475753303035",
+        "y": "37.52960692295435"
+      },
+      {
+        "address_name": "서울 용산구 한강로3가 40-999",
+        "category_group_code": "SW8",
+        "category_group_name": "지하철역",
+        "category_name": "교통,수송 > 지하철,전철 > 수도권1호선",
+        "distance": "124",
+        "id": "21160526",
+        "phone": "1544-7788",
+        "place_name": "용산역 1호선",
+        "place_url": "http://place.map.kakao.com/21160526",
+        "road_address_name": "서울 용산구 한강대로23길 55",
+        "x": "126.96462961258051",
+        "y": "37.52977356999725"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 2,
+      "same_name": null,
+      "total_count": 2
+    }
+  },
+  "bc5426b413947dd635c9c46b46309252a6ccd875034c166296058f838f0ef78a": {
+    "documents": [
+      {
+        "address_name": "서울 용산구 한강로3가 40-999",
+        "category_group_code": "BK9",
+        "category_group_name": "은행",
+        "category_name": "금융,보험 > 금융서비스 > 은행 > ATM",
+        "distance": "82",
+        "id": "1510012129",
+        "phone": "",
+        "place_name": "하나은행365 용산역",
+        "place_url": "http://place.map.kakao.com/1510012129",
+        "road_address_name": "서울 용산구 한강대로23길 55",
+        "x": "126.964945387384",
+        "y": "37.5294970566721"
+      },
+      {
+        "address_name": "서울 용산구 한강로3가 40-999",
+        "category_group_code": "BK9",
+        "category_group_name": "은행",
+        "category_name": "금융,보험 > 금융서비스 > 은행 > ATM",
+        "distance": "84",
+        "id": "657398188",
+        "phone": "",
+        "place_name": "하나은행365 이마트 용산점",
+        "place_url": "http://place.map.kakao.com/657398188",
+        "road_address_name": "서울 용산구 한강대로23길 55",
+        "x": "126.96572819716326",
+        "y": "37.529668476727494"
+      },
+      {
+        "address_name": "서울 용산구 한강로3가 40-999",
+        "category_group_code": "BK9",
+        "category_group_name": "은행",
+        "category_name": "금융,보험 > 금융서비스 > 은행 > ATM",
+        "distance": "88",
+        "id": "1510236530",
+        "phone": "",
+        "place_name": "하나은행365 용산민자역사CGV7층",
+        "place_url": "http://place.map.kakao.com/1510236530",
+        "road_address_name": "서울 용산구 한강대로23길 55",
+        "x": "126.964984944314",
+        "y": "37.5295826635554"
+      },
+      {
+        "address_name": "서울 용산구 한강로3가 40-999",
+        "category_group_code": "BK9",
+        "category_group_name": "은행",
+        "category_name": "금융,보험 > 금융서비스 > 은행 > ATM",
+        "distance": "89",
+        "id": "1403144887",
+        "phone": "",
+        "place_name": "우리은행 365코너 용산역지점(점외)",
+        "place_url": "http://place.map.kakao.com/1403144887",
+        "road_address_name": "서울 용산구 한강대로23길 55",
+        "x": "126.9658843172708",
+        "y": "37.52968023494919"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 4,
+      "same_name": null,
+      "total_count": 4
+    }
+  },
+  "acda1bf9a449c4f5d35bb5919ef4b777bbc99cab83ee737192b201a5acb38aac": {
+    "documents": [
+      {
+        "address_name": "서울 용산구 한강로3가 40-999",
+        "category_group_code": "CT1",
+        "category_group_name": "문화시설",
+        "category_name": "문화,예술 > 문화시설 > 공연장,연극극장",
+        "distance": "87",
+        "id": "2138867352",
+        "phone": "02-6373-3364",
+        "place_name": "대원콘텐츠라이브",
+        "place_url": "http://place.map.kakao.com/2138867352",
+        "road_address_name": "서울 용산구 한강대로23길 55",
+        "x": "126.964557632794",
+        "y": "37.5288725468212"
+      },
+      {
+        "address_name": "서울 용산구 한강로3가 40-999",
+        "category_group_code": "CT1",
+        "category_group_name": "문화시설",
+        "category_name": "문화,예술 > 영화,영상 > 영화관 > CGV",
+        "distance": "118",
+        "id": "10813506",
+        "phone": "02-1544-1122",
+        "place_name": "CGV 용산아이파크몰",
+        "place_url": "http://place.map.kakao.com/10813506",
+        "road_address_name": "서울 용산구 한강대로23길 55",
+        "x": "126.9647416166194",
+        "y": "37.52977180147899"
+      },
+      {
+        "address_name": "서울 용산구 한강로3가 40-999",
+        "category_group_code": "CT1",
+        "category_group_name": "문화시설",
+        "category_name": "문화,예술 > 문화시설 > 박물관",
+        "distance": "118",
+        "id": "1978167796",
+        "phone": "1899-9156",
+        "place_name": "상상공간뮤지엄",
+        "place_url": "http://place.map.kakao.com/1978167796",
+        "road_address_name": "서울 용산구 한강대로23길 55",
+        "x": "126.964742747116",
+        "y": "37.5297736038262"
+      },
+      {
+        "address_name": "서울 용산구 한강로3가 40-999",
+        "category_group_code": "CT1",
+        "category_group_name": "문화시설",
+        "category_name": "문화,예술 > 문화시설 > 전시관",
+        "distance": "119",
+        "id": "464795464",
+        "phone": "",
+        "place_name": "그라운드시소 용산",
+        "place_url": "http://place.map.kakao.com/464795464",
+        "road_address_name": "서울 용산구 한강대로23길 55",
+        "x": "126.964210220103",
+        "y": "37.5290688604041"
+      },
+      {
+        "address_name": "서울 용산구 한강로3가 40-999",
+        "category_group_code": "CT1",
+        "category_group_name": "문화시설",
+        "category_name": "문화,예술 > 문화시설 > 전시관",
+        "distance": "125",
+        "id": "540569375",
+        "phone": "02-6373-3365",
+        "place_name": "대원뮤지엄",
+        "place_url": "http://place.map.kakao.com/540569375",
+        "road_address_name": "서울 용산구 한강대로23길 55",
+        "x": "126.964887490056",
+        "y": "37.5299214111974"
+      }
+    ],
+    "meta": {
+      "is_end": false,
+      "pageable_count": 6,
+      "same_name": null,
+      "total_count": 6
+    }
+  },
+  "eb87c9885799eb9c5a5aa013808d3b42346b3055248ce9ea3eef520c958a1399": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "a86db80156982b9699a484a4b6d9a2694b77dd203a870926befb31c043b059c1": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "4a99b8fcf794e6391253fd05a315756c4c1192f661750c95ea71b9dc831ea788": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "9bd0cd11043c39181fc9c9a65570994082ef0da406e4d1a912ce6e1d6e839d70": {
+    "documents": [
+      {
+        "address_name": "서울 용산구 한강로3가 40-999",
+        "category_group_code": "FD6",
+        "category_group_name": "음식점",
+        "category_name": "음식점 > 한식 > 국수",
+        "distance": "36",
+        "id": "1295350780",
+        "phone": "02-2012-0735",
+        "place_name": "꿈꾸는메밀",
+        "place_url": "http://place.map.kakao.com/1295350780",
+        "road_address_name": "서울 용산구 한강대로23길 55",
+        "x": "126.96532452640729",
+        "y": "37.529195333065125"
+      },
+      {
+        "address_name": "서울 용산구 한강로3가 40-999",
+        "category_group_code": "FD6",
+        "category_group_name": "음식점",
+        "category_name": "음식점 > 패밀리레스토랑 > 아웃백스테이크하우스",
+        "distance": "47",
+        "id": "1623909654",
+        "phone": "02-2012-0751",
+        "place_name": "아웃백스테이크하우스 용산아이파크몰점",
+        "place_url": "http://place.map.kakao.com/1623909654",
+        "road_address_name": "서울 용산구 한강대로23길 55",
+        "x": "126.965404789722",
+        "y": "37.5293287048419"
+      },
+      {
+        "address_name": "서울 용산구 한강로3가 40-999",
+        "category_group_code": "FD6",
+        "category_group_name": "음식점",
+        "category_name": "음식점 > 한식 > 육류,고기 > 닭요리",
+        "distance": "57",
+        "id": "29301662",
+        "phone": "02-2012-2712",
+        "place_name": "홍수계찜닭 용산아이파크몰점",
+        "place_url": "http://place.map.kakao.com/29301662",
+        "road_address_name": "서울 용산구 한강대로23길 55",
+        "x": "126.965297279157",
+        "y": "37.5294007534273"
+      },
+      {
+        "address_name": "서울 용산구 한강로3가 40-999",
+        "category_group_code": "FD6",
+        "category_group_name": "음식점",
+        "category_name": "음식점 > 패스트푸드 > 쉐이크쉑",
+        "distance": "69",
+        "id": "1955384260",
+        "phone": "02-2012-3802",
+        "place_name": "쉐이크쉑 용산점",
+        "place_url": "http://place.map.kakao.com/1955384260",
+        "road_address_name": "서울 용산구 한강대로23길 55",
+        "x": "126.96575428397841",
+        "y": "37.52952432403887"
+      },
+      {
+        "address_name": "서울 용산구 한강로3가 40-999",
+        "category_group_code": "FD6",
+        "category_group_name": "음식점",
+        "category_name": "음식점 > 패스트푸드 > 버거킹",
+        "distance": "74",
+        "id": "12978312",
+        "phone": "02-793-0331",
+        "place_name": "버거킹 용산이마트점",
+        "place_url": "http://place.map.kakao.com/12978312",
+        "road_address_name": "서울 용산구 한강대로23길 55",
+        "x": "126.9657746312483",
+        "y": "37.529561271008106"
+      }
+    ],
+    "meta": {
+      "is_end": false,
+      "pageable_count": 26,
+      "same_name": null,
+      "total_count": 26
+    }
+  },
+  "657157eea3cde8cbdab3706626337eb9924a771d4120fe1d89b3f5b6a48740ea": {
+    "documents": [
+      {
+        "address_name": "서울 용산구 한강로3가 40-999",
+        "category_group_code": "CE7",
+        "category_group_name": "카페",
+        "category_name": "음식점 > 카페",
+        "distance": "43",
+        "id": "3439524",
+        "phone": "",
+        "place_name": "식물학 용산아이파크몰점",
+        "place_url": "http://place.map.kakao.com/3439524",
+        "road_address_name": "서울 용산구 한강대로23길 55",
+        "x": "126.965329016723",
+        "y": "37.5292710185189"
+      },
+      {
+        "address_name": "서울 용산구 한강로3가 40-999",
+        "category_group_code": "CE7",
+        "category_group_name": "카페",
+        "category_name": "음식점 > 카페",
+        "distance": "50",
+        "id": "1871003593",
+        "phone": "070-4166-0140",
+        "place_name": "아르켓 카페 아이파크몰 용산점",
+        "place_url": "http://place.map.kakao.com/1871003593",
+        "road_address_name": "서울 용산구 한강대로23길 55",
+        "x": "126.965352736892",
+        "y": "37.529353016619"
+      },
+      {
+        "address_name": "서울 용산구 한강로3가 40-999",
+        "category_group_code": "CE7",
+        "category_group_name": "카페",
+        "category_name": "음식점 > 카페 > 커피전문점 > 투썸플레이스",
+        "distance": "62",
+        "id": "26908102",
+        "phone": "02-2012-0604",
+        "place_name": "투썸플레이스 용산아이파크몰점",
+        "place_url": "http://place.map.kakao.com/26908102",
+        "road_address_name": "서울 용산구 한강대로23길 55",
+        "x": "126.96517283430008",
+        "y": "37.52939531078533"
+      },
+      {
+        "address_name": "서울 용산구 한강로3가 40-999",
+        "category_group_code": "CE7",
+        "category_group_name": "카페",
+        "category_name": "음식점 > 카페 > 테마카페 > 디저트카페 > 백미당",
+        "distance": "75",
+        "id": "1867776770",
+        "phone": "02-2012-1611",
+        "place_name": "백미당 용산아이파크몰점",
+        "place_url": "http://place.map.kakao.com/1867776770",
+        "road_address_name": "서울 용산구 한강대로23길 55",
+        "x": "126.965561920695",
+        "y": "37.5296008532353"
+      },
+      {
+        "address_name": "서울 용산구 한강로2가 422",
+        "category_group_code": "CE7",
+        "category_group_name": "카페",
+        "category_name": "음식점 > 카페",
+        "distance": "80",
+        "id": "1088921227",
+        "phone": "",
+        "place_name": "카페코나퀸즈 용산점",
+        "place_url": "http://place.map.kakao.com/1088921227",
+        "road_address_name": "서울 용산구 한강대로 95",
+        "x": "126.96643116220505",
+        "y": "37.52877488502635"
+      }
+    ],
+    "meta": {
+      "is_end": false,
+      "pageable_count": 12,
+      "same_name": null,
+      "total_count": 12
+    }
+  },
+  "de422f66e18130d2327d4900e9dfe693963d4d08e3581844f80459c4bf40d5b3": {
+    "documents": [
+      {
+        "address_name": "서울 용산구 한강로3가 40-999",
+        "category_group_code": "HP8",
+        "category_group_name": "병원",
+        "category_name": "의료,건강 > 병원 > 치과",
+        "distance": "88",
+        "id": "923236902",
+        "phone": "02-3785-2828",
+        "place_name": "비에프오교정치과의원",
+        "place_url": "http://place.map.kakao.com/923236902",
+        "road_address_name": "서울 용산구 한강대로23길 55",
+        "x": "126.964548577023",
+        "y": "37.5288833561232"
+      },
+      {
+        "address_name": "서울 용산구 한강로3가 40-999",
+        "category_group_code": "HP8",
+        "category_group_name": "병원",
+        "category_name": "의료,건강 > 병원 > 치과",
+        "distance": "89",
+        "id": "13500168",
+        "phone": "02-2012-0300",
+        "place_name": "연세밝은미소치과의원",
+        "place_url": "http://place.map.kakao.com/13500168",
+        "road_address_name": "서울 용산구 한강대로23길 55",
+        "x": "126.964544080695",
+        "y": "37.5288220866599"
+      },
+      {
+        "address_name": "서울 용산구 한강로3가 40-999",
+        "category_group_code": "HP8",
+        "category_group_name": "병원",
+        "category_name": "의료,건강 > 병원 > 일반의원",
+        "distance": "89",
+        "id": "10596521",
+        "phone": "02-2012-2510",
+        "place_name": "아이파크몰의원",
+        "place_url": "http://place.map.kakao.com/10596521",
+        "road_address_name": "서울 용산구 한강대로23길 55",
+        "x": "126.964539555371",
+        "y": "37.5288220853012"
+      },
+      {
+        "address_name": "서울 용산구 한강로2가 422",
+        "category_group_code": "HP8",
+        "category_group_name": "병원",
+        "category_name": "의료,건강 > 병원 > 가정의학과",
+        "distance": "98",
+        "id": "591483816",
+        "phone": "02-6953-0627",
+        "place_name": "데이웰가정의학과의원 용산",
+        "place_url": "http://place.map.kakao.com/591483816",
+        "road_address_name": "서울 용산구 한강대로 95",
+        "x": "126.96665401542235",
+        "y": "37.52881729523836"
+      },
+      {
+        "address_name": "서울 용산구 한강로2가 342",
+        "category_group_code": "HP8",
+        "category_group_name": "병원",
+        "category_name": "의료,건강 > 병원 > 정신건강의학과",
+        "distance": "98",
+        "id": "1563376168",
+        "phone": "02-2138-7588",
+        "place_name": "윤혜리 정신건강의학과의원",
+        "place_url": "http://place.map.kakao.com/1563376168",
+        "road_address_name": "서울 용산구 한강대로 95",
+        "x": "126.966652883289",
+        "y": "37.5288190969221"
+      }
+    ],
+    "meta": {
+      "is_end": false,
+      "pageable_count": 13,
+      "same_name": null,
+      "total_count": 13
+    }
+  },
+  "1a022274986308f313174c7fc0b02c36f141b9e32cb85737c34548d398d0947e": {
+    "documents": [
+      {
+        "address_name": "서울 용산구 한강로3가 40-999",
+        "category_group_code": "PM9",
+        "category_group_name": "약국",
+        "category_name": "의료,건강 > 약국",
+        "distance": "87",
+        "id": "13506903",
+        "phone": "02-2012-1276",
+        "place_name": "종로프라자약국",
+        "place_url": "http://place.map.kakao.com/13506903",
+        "road_address_name": "서울 용산구 한강대로23길 55",
+        "x": "126.96578023280331",
+        "y": "37.52968200683285"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 1,
+      "same_name": null,
+      "total_count": 1
+    }
+  },
+  "ca3baa9cdebd68b8b1cb8f629d19656dcd95daf1efea826394c3f3eadb117e8c": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "a7b26892f06d6f46e03bd72db2d055e4461092f4d086bb1b972576aeb44c7967": {
+    "documents": [
+      {
+        "address_name": "서울 용산구 한강로2가 112-3",
+        "category_group_code": "CS2",
+        "category_group_name": "편의점",
+        "category_name": "가정,생활 > 편의점 > CU",
+        "distance": "46",
+        "id": "1073013026",
+        "phone": "02-798-8016",
+        "place_name": "CU 한강로마루점",
+        "place_url": "http://place.map.kakao.com/1073013026",
+        "road_address_name": "서울 용산구 한강대로44길 16",
+        "x": "126.97070684351048",
+        "y": "37.53068704722134"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 1,
+      "same_name": null,
+      "total_count": 1
+    }
+  },
+  "0536ba1c24614930699226dc65f43babe601bea9571f69ce6f32f855e48cdb52": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "81316c5d7498c0af6f13e87e7614c254ff7742721214a3d9c2e05dddffb25e73": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "4bccd7307a8912c96d2d36f2389a4e5f49337e8d522de0f130a3151f06051938": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "712a6b025e81382cf7958fa9ae874a5a06f39d34389fbcbf32853741ebb7c20c": {
+    "documents": [
+      {
+        "address_name": "서울 용산구 한강로2가 147",
+        "category_group_code": "PK6",
+        "category_group_name": "주차장",
+        "category_name": "교통,수송 > 교통시설 > 주차장",
+        "distance": "72",
+        "id": "481953697",
+        "phone": "",
+        "place_name": "우다움 주차장",
+        "place_url": "http://place.map.kakao.com/481953697",
+        "road_address_name": "",
+        "x": "126.97062446771363",
+        "y": "37.53014282188828"
+      },
+      {
+        "address_name": "서울 용산구 한강로2가 122-5",
+        "category_group_code": "PK6",
+        "category_group_name": "주차장",
+        "category_name": "교통,수송 > 교통시설 > 주차장",
+        "distance": "104",
+        "id": "20588398",
+        "phone": "",
+        "place_name": "한강로주차장",
+        "place_url": "http://place.map.kakao.com/20588398",
+        "road_address_name": "서울 용산구 한강대로40길 13",
+        "x": "126.970059806879",
+        "y": "37.5304346045614"
+      },
+      {
+        "address_name": "서울 용산구 한강로2가 109-2",
+        "category_group_code": "PK6",
+        "category_group_name": "주차장",
+        "category_name": "교통,수송 > 교통시설 > 주차장",
+        "distance": "118",
+        "id": "1498596952",
+        "phone": "",
+        "place_name": "이여곰탕 용산점 주차장",
+        "place_url": "http://place.map.kakao.com/1498596952",
+        "road_address_name": "서울 용산구 한강대로 136",
+        "x": "126.970385248227",
+        "y": "37.5314185801082"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 3,
+      "same_name": null,
+      "total_count": 3
+    }
+  },
+  "afa5bb897a2a19506ae89628082d30ee59838397e761a84fb195611f4d3f20df": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "818d6791923a479619e12e4ddac657b1e9c5d0ca7721aeadd05914739e602308": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "8406af80c349771642f130c26657c44c6b2548a425f0f02a903a32ee13b5cf86": {
+    "documents": [
+      {
+        "address_name": "서울 용산구 한강로2가 110",
+        "category_group_code": "BK9",
+        "category_group_name": "은행",
+        "category_name": "금융,보험 > 금융서비스 > 은행 > 새마을금고",
+        "distance": "87",
+        "id": "7934536",
+        "phone": "02-795-1883",
+        "place_name": "한강2동새마을금고 본점",
+        "place_url": "http://place.map.kakao.com/7934536",
+        "road_address_name": "서울 용산구 한강대로44길 5",
+        "x": "126.97050075977356",
+        "y": "37.5311347935979"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 1,
+      "same_name": null,
+      "total_count": 1
+    }
+  },
+  "1aaaeb82547dbbff33794a2c53387faecef2b135d380bc5ccd428402a26db6bc": {
+    "documents": [
+      {
+        "address_name": "서울 용산구 한강로2가 78-1",
+        "category_group_code": "CT1",
+        "category_group_name": "문화시설",
+        "category_name": "문화,예술 > 문화시설 > 전시관",
+        "distance": "40",
+        "id": "1223783679",
+        "phone": "",
+        "place_name": "샤비워크샵",
+        "place_url": "http://place.map.kakao.com/1223783679",
+        "road_address_name": "서울 용산구 한강대로40길 19-8",
+        "x": "126.97080196759778",
+        "y": "37.53045641441389"
+      },
+      {
+        "address_name": "서울 용산구 한강로2가 86-3",
+        "category_group_code": "CT1",
+        "category_group_name": "문화시설",
+        "category_name": "문화,예술 > 문화시설 > 전시관",
+        "distance": "110",
+        "id": "1230097493",
+        "phone": "",
+        "place_name": "갤러리로윤",
+        "place_url": "http://place.map.kakao.com/1230097493",
+        "road_address_name": "서울 용산구 한강대로40가길 31",
+        "x": "126.971964653278",
+        "y": "37.53138652955"
+      },
+      {
+        "address_name": "서울 용산구 한강로2가 87-1",
+        "category_group_code": "CT1",
+        "category_group_name": "문화시설",
+        "category_name": "문화,예술 > 문화시설 > 공연장,연극극장",
+        "distance": "120",
+        "id": "2030021920",
+        "phone": "",
+        "place_name": "펀타스틱씨어터",
+        "place_url": "http://place.map.kakao.com/2030021920",
+        "road_address_name": "서울 용산구 한강대로48길 17-6",
+        "x": "126.971833349327",
+        "y": "37.5315594905601"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 3,
+      "same_name": null,
+      "total_count": 3
+    }
+  },
+  "842b67484d458a0fb75ab7091527f70d5dac3526816d6f4c41770486e0e0df4a": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "7624c14d43dd42a292ea45aebf595f2c06448df2c68b379ba37813798ea99cbe": {
+    "documents": [
+      {
+        "address_name": "서울 용산구 한강로2가 412",
+        "category_group_code": "AT4",
+        "category_group_name": "관광명소",
+        "category_name": "여행 > 관광,명소 > 테마거리",
+        "distance": "129",
+        "id": "1351263673",
+        "phone": "",
+        "place_name": "용리단길",
+        "place_url": "http://place.map.kakao.com/1351263673",
+        "road_address_name": "",
+        "x": "126.972204479602",
+        "y": "37.5314514583385"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 1,
+      "same_name": null,
+      "total_count": 1
+    }
+  },
+  "fc9e3d730a6b7c43ccef35f7780a5dcf05b9038c35988035682e47e2ee7508e0": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "91d57d5ae444ce8a58d2334b5fd8d9aa46a08baeba18ea593fa2007a242d8f8d": {
+    "documents": [
+      {
+        "address_name": "서울 용산구 한강로2가 81-2",
+        "category_group_code": "FD6",
+        "category_group_name": "음식점",
+        "category_name": "음식점 > 중식 > 중국요리",
+        "distance": "9",
+        "id": "1014765160",
+        "phone": "02-797-4134",
+        "place_name": "룡룡 마라도원 신용산점",
+        "place_url": "http://place.map.kakao.com/1014765160",
+        "road_address_name": "서울 용산구 한강대로44길 25",
+        "x": "126.97129403138",
+        "y": "37.5306547553493"
+      },
+      {
+        "address_name": "서울 용산구 한강로2가 80-2",
+        "category_group_code": "FD6",
+        "category_group_name": "음식점",
+        "category_name": "음식점 > 양식",
+        "distance": "20",
+        "id": "260485568",
+        "phone": "010-5835-3592",
+        "place_name": "판코네",
+        "place_url": "http://place.map.kakao.com/260485568",
+        "road_address_name": "서울 용산구 한강대로40가길 7",
+        "x": "126.9711255485384",
+        "y": "37.53042225591549"
+      },
+      {
+        "address_name": "서울 용산구 한강로2가 81-5",
+        "category_group_code": "FD6",
+        "category_group_name": "음식점",
+        "category_name": "음식점 > 술집 > 일본식주점",
+        "distance": "22",
+        "id": "380740588",
+        "phone": "",
+        "place_name": "자루야키용산로 신용산본점",
+        "place_url": "http://place.map.kakao.com/380740588",
+        "road_address_name": "서울 용산구 한강대로40가길 13",
+        "x": "126.971376585448",
+        "y": "37.5307466775362"
+      },
+      {
+        "address_name": "서울 용산구 한강로2가 82-2",
+        "category_group_code": "FD6",
+        "category_group_name": "음식점",
+        "category_name": "음식점 > 한식",
+        "distance": "24",
+        "id": "1605767733",
+        "phone": "0502-5553-9993",
+        "place_name": "신용산오징어",
+        "place_url": "http://place.map.kakao.com/1605767733",
+        "road_address_name": "서울 용산구 한강대로44길 19",
+        "x": "126.97107563321664",
+        "y": "37.53077363424684"
+      },
+      {
+        "address_name": "서울 용산구 한강로2가 73-3",
+        "category_group_code": "FD6",
+        "category_group_name": "음식점",
+        "category_name": "음식점 > 술집 > 칵테일바",
+        "distance": "24",
+        "id": "765734980",
+        "phone": "0503-7154-1704",
+        "place_name": "몰티드",
+        "place_url": "http://place.map.kakao.com/765734980",
+        "road_address_name": "서울 용산구 한강대로40가길 6",
+        "x": "126.97126924966038",
+        "y": "37.53037273587558"
+      }
+    ],
+    "meta": {
+      "is_end": false,
+      "pageable_count": 45,
+      "same_name": null,
+      "total_count": 49
+    }
+  },
+  "1f49be8e59337f7d761ccaefe03ca8955776bd7e12b7473b3ea55b7dd9005ef3": {
+    "documents": [
+      {
+        "address_name": "서울 용산구 한강로2가 81-3",
+        "category_group_code": "CE7",
+        "category_group_name": "카페",
+        "category_name": "음식점 > 카페",
+        "distance": "12",
+        "id": "1325313822",
+        "phone": "",
+        "place_name": "구니스",
+        "place_url": "http://place.map.kakao.com/1325313822",
+        "road_address_name": "서울 용산구 한강대로44길 21",
+        "x": "126.971184271558",
+        "y": "37.5307015806991"
+      },
+      {
+        "address_name": "서울 용산구 한강로2가 79-2",
+        "category_group_code": "CE7",
+        "category_group_name": "카페",
+        "category_name": "음식점 > 카페",
+        "distance": "22",
+        "id": "1600148333",
+        "phone": "0503-7153-7203",
+        "place_name": "차차 용리단길점",
+        "place_url": "http://place.map.kakao.com/1600148333",
+        "road_address_name": "서울 용산구 한강대로44길 22",
+        "x": "126.970970500843",
+        "y": "37.5305564671126"
+      },
+      {
+        "address_name": "서울 용산구 한강로2가 82-2",
+        "category_group_code": "CE7",
+        "category_group_name": "카페",
+        "category_name": "음식점 > 카페",
+        "distance": "23",
+        "id": "336735230",
+        "phone": "",
+        "place_name": "감성커피J",
+        "place_url": "http://place.map.kakao.com/336735230",
+        "road_address_name": "서울 용산구 한강대로44길 19",
+        "x": "126.971073373279",
+        "y": "37.5307664256889"
+      },
+      {
+        "address_name": "서울 용산구 한강로2가 74-2",
+        "category_group_code": "CE7",
+        "category_group_name": "카페",
+        "category_name": "음식점 > 카페",
+        "distance": "38",
+        "id": "1591859611",
+        "phone": "",
+        "place_name": "카페손",
+        "place_url": "http://place.map.kakao.com/1591859611",
+        "road_address_name": "서울 용산구 한강대로40길 33",
+        "x": "126.97118444833362",
+        "y": "37.53024207000984"
+      },
+      {
+        "address_name": "서울 용산구 한강로2가 78-1",
+        "category_group_code": "CE7",
+        "category_group_name": "카페",
+        "category_name": "음식점 > 카페",
+        "distance": "40",
+        "id": "1609672134",
+        "phone": "",
+        "place_name": "카페그리다",
+        "place_url": "http://place.map.kakao.com/1609672134",
+        "road_address_name": "서울 용산구 한강대로40길 19-8",
+        "x": "126.970801967598",
+        "y": "37.5304564144139"
+      }
+    ],
+    "meta": {
+      "is_end": false,
+      "pageable_count": 15,
+      "same_name": null,
+      "total_count": 15
+    }
+  },
+  "a571321c30b9d65d279af74fc9f6f73329280e5e16f9cdf997434c9f82419065": {
+    "documents": [
+      {
+        "address_name": "서울 용산구 한강로2가 77-2",
+        "category_group_code": "HP8",
+        "category_group_name": "병원",
+        "category_name": "의료,건강 > 병원 > 치과",
+        "distance": "59",
+        "id": "8049554",
+        "phone": "02-702-2875",
+        "place_name": "이한주치과의원",
+        "place_url": "http://place.map.kakao.com/8049554",
+        "road_address_name": "서울 용산구 한강대로40길 25",
+        "x": "126.97065269147696",
+        "y": "37.530295999148976"
+      },
+      {
+        "address_name": "서울 용산구 한강로2가 55",
+        "category_group_code": "HP8",
+        "category_group_name": "병원",
+        "category_name": "의료,건강 > 병원 > 치과",
+        "distance": "102",
+        "id": "25099493",
+        "phone": "070-8657-3652",
+        "place_name": "용산원치과의원",
+        "place_url": "http://place.map.kakao.com/25099493",
+        "road_address_name": "서울 용산구 한강대로40가길 24",
+        "x": "126.97226801050219",
+        "y": "37.530981150582605"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 2,
+      "same_name": null,
+      "total_count": 2
+    }
+  },
+  "88b0660caea55df2e7a0f3001849683923f9d6c3a648fda8f9a1e70e0fccf97f": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "90b225cb7bdd928d58e6059b29d06c31466e13847c2937bf1ff5c78fd318fc9b": {
+    "documents": [
+      {
+        "address_name": "서울 용산구 한강로3가 40-999",
+        "category_group_code": "MT1",
+        "category_group_name": "대형마트",
+        "category_name": "가정,생활 > 대형마트 > 이마트",
+        "distance": "110",
+        "id": "10751938",
+        "phone": "02-6363-2200",
+        "place_name": "이마트 용산점",
+        "place_url": "http://place.map.kakao.com/10751938",
+        "road_address_name": "서울 용산구 한강대로23길 55",
+        "x": "126.96578815221102",
+        "y": "37.52968200913392"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 1,
+      "same_name": null,
+      "total_count": 1
+    }
+  },
+  "0c134c09e3ef70d7e6c2424979f9fa77298221ee639ec36cf65ae438ee1d8208": {
+    "documents": [
+      {
+        "address_name": "서울 용산구 한강로3가 40-999",
+        "category_group_code": "CS2",
+        "category_group_name": "편의점",
+        "category_name": "가정,생활 > 편의점 > CU",
+        "distance": "18",
+        "id": "992690296",
+        "phone": "",
+        "place_name": "CU 용산아이파크몰점",
+        "place_url": "http://place.map.kakao.com/992690296",
+        "road_address_name": "서울 용산구 한강대로23길 55",
+        "x": "126.96471343188172",
+        "y": "37.52956185970801"
+      },
+      {
+        "address_name": "서울 용산구 한강로3가 40-999",
+        "category_group_code": "CS2",
+        "category_group_name": "편의점",
+        "category_name": "가정,생활 > 편의점",
+        "distance": "39",
+        "id": "1633123623",
+        "phone": "",
+        "place_name": "스토리웨이",
+        "place_url": "http://place.map.kakao.com/1633123623",
+        "road_address_name": "서울 용산구 한강대로23길 55",
+        "x": "126.96500760062685",
+        "y": "37.52951960015435"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 2,
+      "same_name": null,
+      "total_count": 2
+    }
+  },
+  "059ac7434e87b5a2b561019f88c95dcb34769312fe3dd968548b5d956b67adbb": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "4aa311bb549929ea373c139d78fcbd65383a5acc85cc399f3f5558b4c4263c4f": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "228b46657b21ef7f85767af1e35a08c0a9d0af56d6a1e0208c3a90aa278c3d93": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "d4686337e4180f012b049b5ebc69008bb6a52f8fef0f5d1d5e9efdc1384395b0": {
+    "documents": [
+      {
+        "address_name": "서울 용산구 한강로3가 40-999",
+        "category_group_code": "PK6",
+        "category_group_name": "주차장",
+        "category_name": "교통,수송 > 교통시설 > 주차장",
+        "distance": "43",
+        "id": "403399206",
+        "phone": "",
+        "place_name": "나이스파크 HDC 아이파크몰 용산역 주차장",
+        "place_url": "http://place.map.kakao.com/403399206",
+        "road_address_name": "서울 용산구 한강대로23길 55",
+        "x": "126.964300393659",
+        "y": "37.52976806493"
+      },
+      {
+        "address_name": "서울 용산구 한강로3가 40-999",
+        "category_group_code": "PK6",
+        "category_group_name": "주차장",
+        "category_name": "교통,수송 > 교통시설 > 주차장",
+        "distance": "68",
+        "id": "680507854",
+        "phone": "02-2012-0074",
+        "place_name": "아이파크몰 용산점 주차장",
+        "place_url": "http://place.map.kakao.com/680507854",
+        "road_address_name": "서울 용산구 한강대로23길 55",
+        "x": "126.96454407898948",
+        "y": "37.52882569066608"
+      },
+      {
+        "address_name": "서울 용산구 한강로3가 40-999",
+        "category_group_code": "PK6",
+        "category_group_name": "주차장",
+        "category_name": "교통,수송 > 교통시설 > 주차장",
+        "distance": "69",
+        "id": "24635783",
+        "phone": "02-2012-0074",
+        "place_name": "용산아이파크몰 별주차장",
+        "place_url": "http://place.map.kakao.com/24635783",
+        "road_address_name": "서울 용산구 한강대로23길 55",
+        "x": "126.964182016868",
+        "y": "37.5289012655542"
+      },
+      {
+        "address_name": "서울 용산구 한강로3가 40-999",
+        "category_group_code": "PK6",
+        "category_group_name": "주차장",
+        "category_name": "교통,수송 > 교통시설 > 주차장",
+        "distance": "108",
+        "id": "26347546",
+        "phone": "02-2012-0074",
+        "place_name": "아이파크몰 해주차장",
+        "place_url": "http://place.map.kakao.com/26347546",
+        "road_address_name": "서울 용산구 한강대로23길 55",
+        "x": "126.96377483924488",
+        "y": "37.528690306970724"
+      },
+      {
+        "address_name": "서울 용산구 한강로3가 40-999",
+        "category_group_code": "PK6",
+        "category_group_name": "주차장",
+        "category_name": "교통,수송 > 교통시설 > 주차장",
+        "distance": "111",
+        "id": "361777121",
+        "phone": "",
+        "place_name": "이마트 용산점 주차장",
+        "place_url": "http://place.map.kakao.com/361777121",
+        "road_address_name": "서울 용산구 한강대로23길 55",
+        "x": "126.965789275736",
+        "y": "37.5296991284887"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 5,
+      "same_name": null,
+      "total_count": 5
+    }
+  },
+  "58d3cd941a0fd63ac931f3e89bc50c3ee080a6ef4f74ab0bb9245a38563ba516": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "1c2c5385591bdeb2729ce0643b6f88e0d67e5781a37019fc493323301efb8f98": {
+    "documents": [
+      {
+        "address_name": "서울 용산구 한강로3가 40-999",
+        "category_group_code": "SW8",
+        "category_group_name": "지하철역",
+        "category_name": "교통,수송 > 지하철,전철 > 경의중앙선",
+        "distance": "24",
+        "id": "21160921",
+        "phone": "1544-7788",
+        "place_name": "용산역 경의중앙선",
+        "place_url": "http://place.map.kakao.com/21160921",
+        "road_address_name": "서울 용산구 한강대로23길 55",
+        "x": "126.96475753303035",
+        "y": "37.52960692295435"
+      },
+      {
+        "address_name": "서울 용산구 한강로3가 40-999",
+        "category_group_code": "SW8",
+        "category_group_name": "지하철역",
+        "category_name": "교통,수송 > 지하철,전철 > 수도권1호선",
+        "distance": "37",
+        "id": "21160526",
+        "phone": "1544-7788",
+        "place_name": "용산역 1호선",
+        "place_url": "http://place.map.kakao.com/21160526",
+        "road_address_name": "서울 용산구 한강대로23길 55",
+        "x": "126.96462961258051",
+        "y": "37.52977356999725"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 2,
+      "same_name": null,
+      "total_count": 2
+    }
+  },
+  "3055856dd12b903cbdfa23f9416ee809e8fe7413e70ab05ec7e1eb85cdb7ff4a": {
+    "documents": [
+      {
+        "address_name": "서울 용산구 한강로3가 40-999",
+        "category_group_code": "BK9",
+        "category_group_name": "은행",
+        "category_name": "금융,보험 > 금융서비스 > 은행 > ATM",
+        "distance": "33",
+        "id": "1510012129",
+        "phone": "",
+        "place_name": "하나은행365 용산역",
+        "place_url": "http://place.map.kakao.com/1510012129",
+        "road_address_name": "서울 용산구 한강대로23길 55",
+        "x": "126.964945387384",
+        "y": "37.5294970566721"
+      },
+      {
+        "address_name": "서울 용산구 한강로3가 40-999",
+        "category_group_code": "BK9",
+        "category_group_name": "은행",
+        "category_name": "금융,보험 > 금융서비스 > 은행 > ATM",
+        "distance": "38",
+        "id": "1118888401",
+        "phone": "",
+        "place_name": "KB국민은행 이마트용산점 ATM",
+        "place_url": "http://place.map.kakao.com/1118888401",
+        "road_address_name": "서울 용산구 한강대로23길 55",
+        "x": "126.96415568192369",
+        "y": "37.52955808773128"
+      },
+      {
+        "address_name": "서울 용산구 한강로3가 40-999",
+        "category_group_code": "BK9",
+        "category_group_name": "은행",
+        "category_name": "금융,보험 > 금융서비스 > 은행 > ATM",
+        "distance": "39",
+        "id": "2131160517",
+        "phone": "",
+        "place_name": "하나은행 용산역 ATM",
+        "place_url": "http://place.map.kakao.com/2131160517",
+        "road_address_name": "서울 용산구 한강대로23길 55",
+        "x": "126.964741616619",
+        "y": "37.5297718014857"
+      },
+      {
+        "address_name": "서울 용산구 한강로3가 40-999",
+        "category_group_code": "BK9",
+        "category_group_name": "은행",
+        "category_name": "금융,보험 > 금융서비스 > 은행 > ATM",
+        "distance": "39",
+        "id": "6683533",
+        "phone": "",
+        "place_name": "하나은행365 용산역 ATM",
+        "place_url": "http://place.map.kakao.com/6683533",
+        "road_address_name": "서울 용산구 한강대로23길 55",
+        "x": "126.96474161661918",
+        "y": "37.52977180148566"
+      },
+      {
+        "address_name": "서울 용산구 한강로3가 40-999",
+        "category_group_code": "BK9",
+        "category_group_name": "은행",
+        "category_name": "금융,보험 > 금융서비스 > 은행 > ATM",
+        "distance": "39",
+        "id": "1510236530",
+        "phone": "",
+        "place_name": "하나은행365 용산민자역사CGV7층",
+        "place_url": "http://place.map.kakao.com/1510236530",
+        "road_address_name": "서울 용산구 한강대로23길 55",
+        "x": "126.964984944314",
+        "y": "37.5295826635554"
+      }
+    ],
+    "meta": {
+      "is_end": false,
+      "pageable_count": 7,
+      "same_name": null,
+      "total_count": 7
+    }
+  },
+  "3994a8b23e7645c7361f235a06e18c6b03860f8e4e901603bd424f57cf564ad5": {
+    "documents": [
+      {
+        "address_name": "서울 용산구 한강로3가 40-999",
+        "category_group_code": "CT1",
+        "category_group_name": "문화시설",
+        "category_name": "문화,예술 > 영화,영상 > 영화관 > CGV",
+        "distance": "39",
+        "id": "10813506",
+        "phone": "02-1544-1122",
+        "place_name": "CGV 용산아이파크몰",
+        "place_url": "http://place.map.kakao.com/10813506",
+        "road_address_name": "서울 용산구 한강대로23길 55",
+        "x": "126.9647416166194",
+        "y": "37.52977180147899"
+      },
+      {
+        "address_name": "서울 용산구 한강로3가 40-999",
+        "category_group_code": "CT1",
+        "category_group_name": "문화시설",
+        "category_name": "문화,예술 > 문화시설 > 박물관",
+        "distance": "39",
+        "id": "1978167796",
+        "phone": "1899-9156",
+        "place_name": "상상공간뮤지엄",
+        "place_url": "http://place.map.kakao.com/1978167796",
+        "road_address_name": "서울 용산구 한강대로23길 55",
+        "x": "126.964742747116",
+        "y": "37.5297736038262"
+      },
+      {
+        "address_name": "서울 용산구 한강로3가 40-999",
+        "category_group_code": "CT1",
+        "category_group_name": "문화시설",
+        "category_name": "문화,예술 > 문화시설 > 전시관",
+        "distance": "52",
+        "id": "464795464",
+        "phone": "",
+        "place_name": "그라운드시소 용산",
+        "place_url": "http://place.map.kakao.com/464795464",
+        "road_address_name": "서울 용산구 한강대로23길 55",
+        "x": "126.964210220103",
+        "y": "37.5290688604041"
+      },
+      {
+        "address_name": "서울 용산구 한강로3가 40-999",
+        "category_group_code": "CT1",
+        "category_group_name": "문화시설",
+        "category_name": "문화,예술 > 문화시설 > 전시관",
+        "distance": "60",
+        "id": "540569375",
+        "phone": "02-6373-3365",
+        "place_name": "대원뮤지엄",
+        "place_url": "http://place.map.kakao.com/540569375",
+        "road_address_name": "서울 용산구 한강대로23길 55",
+        "x": "126.964887490056",
+        "y": "37.5299214111974"
+      },
+      {
+        "address_name": "서울 용산구 한강로3가 40-999",
+        "category_group_code": "CT1",
+        "category_group_name": "문화시설",
+        "category_name": "문화,예술 > 문화시설 > 공연장,연극극장",
+        "distance": "63",
+        "id": "2138867352",
+        "phone": "02-6373-3364",
+        "place_name": "대원콘텐츠라이브",
+        "place_url": "http://place.map.kakao.com/2138867352",
+        "road_address_name": "서울 용산구 한강대로23길 55",
+        "x": "126.964557632794",
+        "y": "37.5288725468212"
+      }
+    ],
+    "meta": {
+      "is_end": false,
+      "pageable_count": 6,
+      "same_name": null,
+      "total_count": 6
+    }
+  },
+  "0012d1d24354d44ee10dda95cf2c3385ea9741671cfbb0bf2627355e5bf8f509": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "1ee40cf77e174dd8434b4c36c2c2f2cfe5f372118cf321f6e012eb0c8bc98d13": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "0a0a77e716fcd029010331244ceb43e30f1084294fe7579f9f5fc25f684eff66": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "9f22269ae740193e7aa3913c2117a643ff094db877ac6c8ce6ee9e9876306378": {
+    "documents": [
+      {
+        "address_name": "서울 용산구 한강로3가 40-999",
+        "category_group_code": "FD6",
+        "category_group_name": "음식점",
+        "category_name": "음식점 > 한식 > 찌개,전골",
+        "distance": "2",
+        "id": "227179319",
+        "phone": "02-2012-0422",
+        "place_name": "장독대김치찜김치찌개 용산점",
+        "place_url": "http://place.map.kakao.com/227179319",
+        "road_address_name": "서울 용산구 한강대로23길 55",
+        "x": "126.96453813441735",
+        "y": "37.52943386497891"
+      },
+      {
+        "address_name": "서울 용산구 한강로3가 40-999",
+        "category_group_code": "FD6",
+        "category_group_name": "음식점",
+        "category_name": "음식점 > 간식 > 제과,베이커리 > 삼송빵집",
+        "distance": "22",
+        "id": "1443698302",
+        "phone": "02-2012-0103",
+        "place_name": "삼송빵집 용산역점",
+        "place_url": "http://place.map.kakao.com/1443698302",
+        "road_address_name": "서울 용산구 한강대로23길 55",
+        "x": "126.96478820804448",
+        "y": "37.52933302761871"
+      },
+      {
+        "address_name": "서울 용산구 한강로3가 40-999",
+        "category_group_code": "FD6",
+        "category_group_name": "음식점",
+        "category_name": "음식점 > 간식 > 토스트",
+        "distance": "25",
+        "id": "111350386",
+        "phone": "",
+        "place_name": "킹토스트",
+        "place_url": "http://place.map.kakao.com/111350386",
+        "road_address_name": "서울 용산구 한강대로23길 55",
+        "x": "126.964562911371",
+        "y": "37.5296717368283"
+      },
+      {
+        "address_name": "서울 용산구 한강로3가 40-999",
+        "category_group_code": "FD6",
+        "category_group_name": "음식점",
+        "category_name": "음식점 > 간식 > 제과,베이커리",
+        "distance": "27",
+        "id": "1812936401",
+        "phone": "010-5360-3870",
+        "place_name": "유니콘플랜드베이크",
+        "place_url": "http://place.map.kakao.com/1812936401",
+        "road_address_name": "서울 용산구 한강대로23길 55",
+        "x": "126.96487529281757",
+        "y": "37.529393420664256"
+      },
+      {
+        "address_name": "서울 용산구 한강로3가 40-999",
+        "category_group_code": "FD6",
+        "category_group_name": "음식점",
+        "category_name": "음식점 > 분식",
+        "distance": "33",
+        "id": "1661723451",
+        "phone": "",
+        "place_name": "선우어묵",
+        "place_url": "http://place.map.kakao.com/1661723451",
+        "road_address_name": "서울 용산구 한강대로23길 55",
+        "x": "126.964643205311",
+        "y": "37.5297384350077"
+      }
+    ],
+    "meta": {
+      "is_end": false,
+      "pageable_count": 45,
+      "same_name": null,
+      "total_count": 103
+    }
+  },
+  "5fff1ce1f84b28aa3fee4f99c8a67d4a55c39d6b5dfe5ad4d1aca03e64b95db1": {
+    "documents": [
+      {
+        "address_name": "서울 용산구 한강로3가 40-999",
+        "category_group_code": "CE7",
+        "category_group_name": "카페",
+        "category_name": "음식점 > 카페 > 커피전문점 > 폴바셋",
+        "distance": "19",
+        "id": "797203014",
+        "phone": "02-2012-0690",
+        "place_name": "폴바셋 용산아이파크몰점",
+        "place_url": "http://place.map.kakao.com/797203014",
+        "road_address_name": "서울 용산구 한강대로23길 55",
+        "x": "126.96447598120919",
+        "y": "37.52928518103077"
+      },
+      {
+        "address_name": "서울 용산구 한강로3가 40-999",
+        "category_group_code": "CE7",
+        "category_group_name": "카페",
+        "category_name": "음식점 > 카페",
+        "distance": "26",
+        "id": "951854868",
+        "phone": "",
+        "place_name": "트리핀 용산역점",
+        "place_url": "http://place.map.kakao.com/951854868",
+        "road_address_name": "서울 용산구 한강대로23길 55",
+        "x": "126.96467265427157",
+        "y": "37.529666363697345"
+      },
+      {
+        "address_name": "서울 용산구 한강로3가 40-999",
+        "category_group_code": "CE7",
+        "category_group_name": "카페",
+        "category_name": "음식점 > 카페",
+        "distance": "38",
+        "id": "1755923473",
+        "phone": "",
+        "place_name": "트리핀 용산역 라운지카페점",
+        "place_url": "http://place.map.kakao.com/1755923473",
+        "road_address_name": "서울 용산구 한강대로23길 55",
+        "x": "126.96495665232163",
+        "y": "37.52960067518825"
+      },
+      {
+        "address_name": "서울 용산구 한강로3가 40-999",
+        "category_group_code": "CE7",
+        "category_group_name": "카페",
+        "category_name": "음식점 > 카페",
+        "distance": "38",
+        "id": "1063111049",
+        "phone": "",
+        "place_name": "베르그 아이파크몰 용산점",
+        "place_url": "http://place.map.kakao.com/1063111049",
+        "road_address_name": "서울 용산구 한강대로23길 55",
+        "x": "126.964735964135",
+        "y": "37.529762789776"
+      },
+      {
+        "address_name": "서울 용산구 한강로3가 40-999",
+        "category_group_code": "CE7",
+        "category_group_name": "카페",
+        "category_name": "음식점 > 카페",
+        "distance": "38",
+        "id": "1764240279",
+        "phone": "",
+        "place_name": "카페 뮬리노 용산아이파크몰점",
+        "place_url": "http://place.map.kakao.com/1764240279",
+        "road_address_name": "서울 용산구 한강대로23길 55",
+        "x": "126.964735964134",
+        "y": "37.5297627897827"
+      }
+    ],
+    "meta": {
+      "is_end": false,
+      "pageable_count": 40,
+      "same_name": null,
+      "total_count": 40
+    }
+  },
+  "b5d6c16bf3a3b210d69640712c46d24a71344bbd0dadce97e52efb0af324687e": {
+    "documents": [
+      {
+        "address_name": "서울 용산구 한강로3가 40-999",
+        "category_group_code": "HP8",
+        "category_group_name": "병원",
+        "category_name": "의료,건강 > 병원 > 치과",
+        "distance": "62",
+        "id": "923236902",
+        "phone": "02-3785-2828",
+        "place_name": "비에프오교정치과의원",
+        "place_url": "http://place.map.kakao.com/923236902",
+        "road_address_name": "서울 용산구 한강대로23길 55",
+        "x": "126.964548577023",
+        "y": "37.5288833561232"
+      },
+      {
+        "address_name": "서울 용산구 한강로3가 40-999",
+        "category_group_code": "HP8",
+        "category_group_name": "병원",
+        "category_name": "의료,건강 > 병원 > 치과",
+        "distance": "68",
+        "id": "13500168",
+        "phone": "02-2012-0300",
+        "place_name": "연세밝은미소치과의원",
+        "place_url": "http://place.map.kakao.com/13500168",
+        "road_address_name": "서울 용산구 한강대로23길 55",
+        "x": "126.964544080695",
+        "y": "37.5288220866599"
+      },
+      {
+        "address_name": "서울 용산구 한강로3가 40-999",
+        "category_group_code": "HP8",
+        "category_group_name": "병원",
+        "category_name": "의료,건강 > 병원 > 일반의원",
+        "distance": "68",
+        "id": "10596521",
+        "phone": "02-2012-2510",
+        "place_name": "아이파크몰의원",
+        "place_url": "http://place.map.kakao.com/10596521",
+        "road_address_name": "서울 용산구 한강대로23길 55",
+        "x": "126.964539555371",
+        "y": "37.5288220853012"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 3,
+      "same_name": null,
+      "total_count": 3
+    }
+  },
+  "be3ab7aae90d5223046d85f5c12222668fee298820a9565b4fbd47f7e8c7c029": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "24c26a64bb23cd230e1b333680d1288d5173462faac7ea06227fd3d24d1473b2": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "08d5d6ffc4ac7e86a5dd32c5ba4434f2d6f7cabdc1817fbf8b64f34b3ab611de": {
+    "documents": [
+      {
+        "address_name": "서울 용산구 한강로2가 112-3",
+        "category_group_code": "CS2",
+        "category_group_name": "편의점",
+        "category_name": "가정,생활 > 편의점 > CU",
+        "distance": "61",
+        "id": "1073013026",
+        "phone": "02-798-8016",
+        "place_name": "CU 한강로마루점",
+        "place_url": "http://place.map.kakao.com/1073013026",
+        "road_address_name": "서울 용산구 한강대로44길 16",
+        "x": "126.97070684351048",
+        "y": "37.53068704722134"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 1,
+      "same_name": null,
+      "total_count": 1
+    }
+  },
+  "f5f18d496fe1be9552895a8a72cf5bfdd1e490d345525b37cbfe154058ce00a6": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "5f05c889a554c2e51de1acd18a66777cccc7b691936a2958fef0b3719e25f7fc": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "7878096743114bc060d8e411f7c7ead1df1be9e022e3ed4de620835e8a43110a": {
+    "documents": [
+      {
+        "address_name": "서울 용산구 한강로2가 137-1",
+        "category_group_code": "AC5",
+        "category_group_name": "학원",
+        "category_name": "교육,학문 > 학원",
+        "distance": "76",
+        "id": "24286911",
+        "phone": "",
+        "place_name": "알에듀",
+        "place_url": "http://place.map.kakao.com/24286911",
+        "road_address_name": "서울 용산구 한강대로 122",
+        "x": "126.969552905457",
+        "y": "37.5305678231771"
+      },
+      {
+        "address_name": "서울 용산구 한강로2가 242-1",
+        "category_group_code": "AC5",
+        "category_group_name": "학원",
+        "category_name": "교육,학문 > 학원 > 미술학원",
+        "distance": "78",
+        "id": "1429579294",
+        "phone": "",
+        "place_name": "정교수화실",
+        "place_url": "http://place.map.kakao.com/1429579294",
+        "road_address_name": "서울 용산구 한강대로 125-2",
+        "x": "126.969289122598",
+        "y": "37.5309984335321"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 2,
+      "same_name": null,
+      "total_count": 2
+    }
+  },
+  "ff0d312fa1968dba3af106d174dd21545622261e50bb5966dd24a494677211cc": {
+    "documents": [
+      {
+        "address_name": "서울 용산구 한강로2가 109-2",
+        "category_group_code": "PK6",
+        "category_group_name": "주차장",
+        "category_name": "교통,수송 > 교통시설 > 주차장",
+        "distance": "44",
+        "id": "1498596952",
+        "phone": "",
+        "place_name": "이여곰탕 용산점 주차장",
+        "place_url": "http://place.map.kakao.com/1498596952",
+        "road_address_name": "서울 용산구 한강대로 136",
+        "x": "126.970385248227",
+        "y": "37.5314185801082"
+      },
+      {
+        "address_name": "서울 용산구 한강로2가 122-5",
+        "category_group_code": "PK6",
+        "category_group_name": "주차장",
+        "category_name": "교통,수송 > 교통시설 > 주차장",
+        "distance": "69",
+        "id": "20588398",
+        "phone": "",
+        "place_name": "한강로주차장",
+        "place_url": "http://place.map.kakao.com/20588398",
+        "road_address_name": "서울 용산구 한강대로40길 13",
+        "x": "126.970059806879",
+        "y": "37.5304346045614"
+      },
+      {
+        "address_name": "서울 용산구 한강로2가 147",
+        "category_group_code": "PK6",
+        "category_group_name": "주차장",
+        "category_name": "교통,수송 > 교통시설 > 주차장",
+        "distance": "108",
+        "id": "481953697",
+        "phone": "",
+        "place_name": "우다움 주차장",
+        "place_url": "http://place.map.kakao.com/481953697",
+        "road_address_name": "",
+        "x": "126.97062446771363",
+        "y": "37.53014282188828"
+      },
+      {
+        "address_name": "서울 용산구 한강로2가 142",
+        "category_group_code": "PK6",
+        "category_group_name": "주차장",
+        "category_name": "교통,수송 > 교통시설 > 주차장",
+        "distance": "117",
+        "id": "1057570010",
+        "phone": "",
+        "place_name": "서울용산우체국 고객전용주차장",
+        "place_url": "http://place.map.kakao.com/1057570010",
+        "road_address_name": "서울 용산구 한강대로 118",
+        "x": "126.969476143151",
+        "y": "37.530150639691"
+      },
+      {
+        "address_name": "서울 용산구 한강로2가 2-39",
+        "category_group_code": "PK6",
+        "category_group_name": "주차장",
+        "category_name": "교통,수송 > 교통시설 > 주차장",
+        "distance": "120",
+        "id": "21057333",
+        "phone": "02-467-5617",
+        "place_name": "신용산주차장",
+        "place_url": "http://place.map.kakao.com/21057333",
+        "road_address_name": "서울 용산구 한강대로39길 10",
+        "x": "126.968810527902",
+        "y": "37.5310649822132"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 5,
+      "same_name": null,
+      "total_count": 5
+    }
+  },
+  "7f28808b126acf99c94b7da565ef241dd67a6766936b752d33f73bf3385db050": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "b29b006485472637e4bf5d1a573552c582a35956916b431fd12f5e9dab79156a": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "74c56df62d1ece5c7eb4fb2ed4195b83d52bfde9fcc06435c862edaeea0fae37": {
+    "documents": [
+      {
+        "address_name": "서울 용산구 한강로2가 110",
+        "category_group_code": "BK9",
+        "category_group_name": "은행",
+        "category_name": "금융,보험 > 금융서비스 > 은행 > 새마을금고",
+        "distance": "30",
+        "id": "7934536",
+        "phone": "02-795-1883",
+        "place_name": "한강2동새마을금고 본점",
+        "place_url": "http://place.map.kakao.com/7934536",
+        "road_address_name": "서울 용산구 한강대로44길 5",
+        "x": "126.97050075977356",
+        "y": "37.5311347935979"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 1,
+      "same_name": null,
+      "total_count": 1
+    }
+  },
+  "443741b69c72d1dfcea10967bd762916c486aeed817df4256aec8b7b39562085": {
+    "documents": [
+      {
+        "address_name": "서울 용산구 한강로2가 78-1",
+        "category_group_code": "CT1",
+        "category_group_name": "문화시설",
+        "category_name": "문화,예술 > 문화시설 > 전시관",
+        "distance": "86",
+        "id": "1223783679",
+        "phone": "",
+        "place_name": "샤비워크샵",
+        "place_url": "http://place.map.kakao.com/1223783679",
+        "road_address_name": "서울 용산구 한강대로40길 19-8",
+        "x": "126.97080196759778",
+        "y": "37.53045641441389"
+      },
+      {
+        "address_name": "서울 용산구 한강로2가 87-1",
+        "category_group_code": "CT1",
+        "category_group_name": "문화시설",
+        "category_name": "문화,예술 > 문화시설 > 공연장,연극극장",
+        "distance": "156",
+        "id": "2030021920",
+        "phone": "",
+        "place_name": "펀타스틱씨어터",
+        "place_url": "http://place.map.kakao.com/2030021920",
+        "road_address_name": "서울 용산구 한강대로48길 17-6",
+        "x": "126.971833349327",
+        "y": "37.5315594905601"
+      },
+      {
+        "address_name": "서울 용산구 한강로2가 86-3",
+        "category_group_code": "CT1",
+        "category_group_name": "문화시설",
+        "category_name": "문화,예술 > 문화시설 > 전시관",
+        "distance": "162",
+        "id": "1230097493",
+        "phone": "",
+        "place_name": "갤러리로윤",
+        "place_url": "http://place.map.kakao.com/1230097493",
+        "road_address_name": "서울 용산구 한강대로40가길 31",
+        "x": "126.971964653278",
+        "y": "37.53138652955"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 3,
+      "same_name": null,
+      "total_count": 3
+    }
+  },
+  "3edb077b5338c788a9ecdf44cf71a283d969fcab0a78fc7ab9222f4f36a6a972": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "97fc7e031aa9b3096eae5aeb0bd1f9c811b22a75a32bd37ac45527ba972df708": {
+    "documents": [
+      {
+        "address_name": "서울 용산구 한강로2가 412",
+        "category_group_code": "AT4",
+        "category_group_name": "관광명소",
+        "category_name": "여행 > 관광,명소 > 테마거리",
+        "distance": "184",
+        "id": "1351263673",
+        "phone": "",
+        "place_name": "용리단길",
+        "place_url": "http://place.map.kakao.com/1351263673",
+        "road_address_name": "",
+        "x": "126.972204479602",
+        "y": "37.5314514583385"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 1,
+      "same_name": null,
+      "total_count": 1
+    }
+  },
+  "ca8f4197fbc556590bdefeddd8c5559333bee2bec95f2b0c36ec06f53c770088": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "6f69daa01b73c10a45fa32945d7bf7c9db171d2f52a2967fa8fcee6d0925d075": {
+    "documents": [
+      {
+        "address_name": "서울 용산구 한강로2가 115-2",
+        "category_group_code": "FD6",
+        "category_group_name": "음식점",
+        "category_name": "음식점 > 한식 > 육류,고기",
+        "distance": "2",
+        "id": "1812359088",
+        "phone": "",
+        "place_name": "용머리식육 신용산2호점",
+        "place_url": "http://place.map.kakao.com/1812359088",
+        "road_address_name": "서울 용산구 한강대로44길 2-1",
+        "x": "126.970178345221",
+        "y": "37.5310725435315"
+      },
+      {
+        "address_name": "서울 용산구 한강로2가 114-3",
+        "category_group_code": "FD6",
+        "category_group_name": "음식점",
+        "category_name": "음식점 > 한식",
+        "distance": "8",
+        "id": "1332347295",
+        "phone": "070-4647-4951",
+        "place_name": "데이릿 용산점",
+        "place_url": "http://place.map.kakao.com/1332347295",
+        "road_address_name": "서울 용산구 한강대로44길 6",
+        "x": "126.970260957764",
+        "y": "37.5310149002772"
+      },
+      {
+        "address_name": "서울 용산구 한강로2가 114-3",
+        "category_group_code": "FD6",
+        "category_group_name": "음식점",
+        "category_name": "음식점 > 양식 > 멕시칸,브라질",
+        "distance": "9",
+        "id": "2027527525",
+        "phone": "",
+        "place_name": "갓잇 용산점",
+        "place_url": "http://place.map.kakao.com/2027527525",
+        "road_address_name": "서울 용산구 한강대로44길 6",
+        "x": "126.97028471105",
+        "y": "37.5310284212831"
+      },
+      {
+        "address_name": "서울 용산구 한강로2가 115-1",
+        "category_group_code": "FD6",
+        "category_group_name": "음식점",
+        "category_name": "음식점 > 술집",
+        "distance": "10",
+        "id": "239470206",
+        "phone": "",
+        "place_name": "공공이(002)",
+        "place_url": "http://place.map.kakao.com/239470206",
+        "road_address_name": "서울 용산구 한강대로 132",
+        "x": "126.970073123233",
+        "y": "37.53108513094"
+      },
+      {
+        "address_name": "서울 용산구 한강로2가 115-1",
+        "category_group_code": "FD6",
+        "category_group_name": "음식점",
+        "category_name": "음식점 > 도시락 > 한솥도시락",
+        "distance": "10",
+        "id": "17583921",
+        "phone": "02-796-0357",
+        "place_name": "한솥도시락 용산삼각지점",
+        "place_url": "http://place.map.kakao.com/17583921",
+        "road_address_name": "서울 용산구 한강대로 132",
+        "x": "126.970068597052",
+        "y": "37.5310869317956"
+      }
+    ],
+    "meta": {
+      "is_end": false,
+      "pageable_count": 45,
+      "same_name": null,
+      "total_count": 61
+    }
+  },
+  "eab1874ec43441014944cf121144333c374894aedcfb4b434c5eba512d9cea3d": {
+    "documents": [
+      {
+        "address_name": "서울 용산구 한강로2가 115-1",
+        "category_group_code": "CE7",
+        "category_group_name": "카페",
+        "category_name": "가정,생활 > 여가시설 > 보드카페 > 히어로보드게임카페",
+        "distance": "9",
+        "id": "858001955",
+        "phone": "070-4044-8162",
+        "place_name": "히어로보드게임카페 용산점",
+        "place_url": "http://place.map.kakao.com/858001955",
+        "road_address_name": "서울 용산구 한강대로 132",
+        "x": "126.97007312359274",
+        "y": "37.53108422993206"
+      },
+      {
+        "address_name": "서울 용산구 한강로2가 116-1",
+        "category_group_code": "CE7",
+        "category_group_name": "카페",
+        "category_name": "음식점 > 카페 > 커피전문점 > 메가MGC커피",
+        "distance": "16",
+        "id": "1129716136",
+        "phone": "02-792-4157",
+        "place_name": "메가MGC커피 신용산역점",
+        "place_url": "http://place.map.kakao.com/1129716136",
+        "road_address_name": "서울 용산구 한강대로 130-3",
+        "x": "126.969996218549",
+        "y": "37.531014833322"
+      },
+      {
+        "address_name": "서울 용산구 한강로2가 113-2",
+        "category_group_code": "CE7",
+        "category_group_name": "카페",
+        "category_name": "음식점 > 카페 > 전통찻집",
+        "distance": "26",
+        "id": "1973316063",
+        "phone": "02-6101-2125",
+        "place_name": "무심헌 용산점",
+        "place_url": "http://place.map.kakao.com/1973316063",
+        "road_address_name": "서울 용산구 한강대로44길 10",
+        "x": "126.97041260184841",
+        "y": "37.53091042221498"
+      },
+      {
+        "address_name": "서울 용산구 한강로2가 112-1",
+        "category_group_code": "CE7",
+        "category_group_name": "카페",
+        "category_name": "음식점 > 카페 > 테마카페 > 디저트카페",
+        "distance": "44",
+        "id": "26817378",
+        "phone": "02-788-7365",
+        "place_name": "컴컴베이커리카페",
+        "place_url": "http://place.map.kakao.com/26817378",
+        "road_address_name": "서울 용산구 한강대로44길 14",
+        "x": "126.97058460505436",
+        "y": "37.53081856304149"
+      },
+      {
+        "address_name": "서울 용산구 한강로2가 109-1",
+        "category_group_code": "CE7",
+        "category_group_name": "카페",
+        "category_name": "음식점 > 카페 > 커피전문점 > 이디야커피",
+        "distance": "50",
+        "id": "946047665",
+        "phone": "02-749-1736",
+        "place_name": "이디야커피 삼각지점",
+        "place_url": "http://place.map.kakao.com/946047665",
+        "road_address_name": "서울 용산구 한강대로 138",
+        "x": "126.970462170035",
+        "y": "37.5314474314135"
+      }
+    ],
+    "meta": {
+      "is_end": false,
+      "pageable_count": 13,
+      "same_name": null,
+      "total_count": 13
+    }
+  },
+  "b3250fd577b968e759c1df7ccdf25e1609b69abc4028c477398fab3945210a3b": {
+    "documents": [
+      {
+        "address_name": "서울 용산구 한강로2가 77-2",
+        "category_group_code": "HP8",
+        "category_group_name": "병원",
+        "category_name": "의료,건강 > 병원 > 치과",
+        "distance": "93",
+        "id": "8049554",
+        "phone": "02-702-2875",
+        "place_name": "이한주치과의원",
+        "place_url": "http://place.map.kakao.com/8049554",
+        "road_address_name": "서울 용산구 한강대로40길 25",
+        "x": "126.97065269147696",
+        "y": "37.530295999148976"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 1,
+      "same_name": null,
+      "total_count": 1
+    }
+  },
+  "3a29278debf9268220eca11f280e07875b96bab95fc9c1865cc561a26fccdb19": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "582c26c72694586dd1b626f08d6478b48d37d5ae3c8928f45c149ae43f6a0aa4": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "a2fb170c7c8c612e1ff5cd0524d3fea28e08d968fc541014f2a9aaecdabe626c": {
+    "documents": [
+      {
+        "address_name": "서울 동대문구 청량리동 235-6",
+        "category_group_code": "CS2",
+        "category_group_name": "편의점",
+        "category_name": "가정,생활 > 편의점 > 세븐일레븐",
+        "distance": "44",
+        "id": "1239330167",
+        "phone": "",
+        "place_name": "세븐일레븐 청량리힐스테이트점",
+        "place_url": "http://place.map.kakao.com/1239330167",
+        "road_address_name": "서울 동대문구 왕산로 239",
+        "x": "127.04792949284581",
+        "y": "37.58284509754489"
+      },
+      {
+        "address_name": "서울 동대문구 청량리동 235-4",
+        "category_group_code": "CS2",
+        "category_group_name": "편의점",
+        "category_name": "가정,생활 > 편의점 > 세븐일레븐",
+        "distance": "58",
+        "id": "1030404801",
+        "phone": "",
+        "place_name": "세븐일레븐 청량미주점",
+        "place_url": "http://place.map.kakao.com/1030404801",
+        "road_address_name": "서울 동대문구 왕산로 225",
+        "x": "127.04736297828397",
+        "y": "37.58214975927845"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 2,
+      "same_name": null,
+      "total_count": 2
+    }
+  },
+  "d9c08af9e7aec71dc554b743373bd17fce2659ea221906ea8f7f88af08db3fd8": {
+    "documents": [
+      {
+        "address_name": "서울 동대문구 청량리동 235-5",
+        "category_group_code": "PS3",
+        "category_group_name": "어린이집,유치원",
+        "category_name": "교육,학문 > 유아교육 > 어린이집",
+        "distance": "91",
+        "id": "11658475",
+        "phone": "02-963-5885",
+        "place_name": "우리누리어린이집",
+        "place_url": "http://place.map.kakao.com/11658475",
+        "road_address_name": "서울 동대문구 약령시로 159",
+        "x": "127.047998898629",
+        "y": "37.5833820613683"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 1,
+      "same_name": null,
+      "total_count": 1
+    }
+  },
+  "8ed59b4c306494280511f8cf3f6e532141f28d30cfda30c29d62a2aa8e033f2c": {
+    "documents": [
+      {
+        "address_name": "서울 동대문구 청량리동 235-4",
+        "category_group_code": "SC4",
+        "category_group_name": "학교",
+        "category_name": "교육,학문 > 학교 > 고등학교",
+        "distance": "24",
+        "id": "8508103",
+        "phone": "02-962-9124",
+        "place_name": "정암미용고등학교",
+        "place_url": "http://place.map.kakao.com/8508103",
+        "road_address_name": "서울 동대문구 왕산로 225",
+        "x": "127.047405063889",
+        "y": "37.5824596841397"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 1,
+      "same_name": null,
+      "total_count": 1
+    }
+  },
+  "dffd03ef577547192e0517688c2afb41b34b019ace60504696ac882e13dcfa87": {
+    "documents": [
+      {
+        "address_name": "서울 동대문구 청량리동 235-4",
+        "category_group_code": "AC5",
+        "category_group_name": "학원",
+        "category_name": "교육,학문 > 학원 > 무용학원,발레학원",
+        "distance": "64",
+        "id": "2044044466",
+        "phone": "010-2118-2354",
+        "place_name": "보네르발레학원",
+        "place_url": "http://place.map.kakao.com/2044044466",
+        "road_address_name": "서울 동대문구 왕산로 225",
+        "x": "127.047208990545",
+        "y": "37.5821227911644"
+      },
+      {
+        "address_name": "서울 동대문구 청량리동 235-4",
+        "category_group_code": "AC5",
+        "category_group_name": "학원",
+        "category_name": "교육,학문 > 학원 > 세무회계학원",
+        "distance": "89",
+        "id": "8734377",
+        "phone": "02-959-3100",
+        "place_name": "권동용평생세무교육원",
+        "place_url": "http://place.map.kakao.com/8734377",
+        "road_address_name": "서울 동대문구 왕산로 225",
+        "x": "127.047042454173",
+        "y": "37.5819444609367"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 2,
+      "same_name": null,
+      "total_count": 2
+    }
+  },
+  "02d9d7036ce1abae246dae90932df159ba0a928e5d412bb3af81646a64579d59": {
+    "documents": [
+      {
+        "address_name": "서울 동대문구 청량리동 235-2",
+        "category_group_code": "PK6",
+        "category_group_name": "주차장",
+        "category_name": "교통,수송 > 교통시설 > 주차장",
+        "distance": "56",
+        "id": "16649787",
+        "phone": "",
+        "place_name": "미주상가A 주차장",
+        "place_url": "http://place.map.kakao.com/16649787",
+        "road_address_name": "서울 동대문구 약령시로 158",
+        "x": "127.04699628303963",
+        "y": "37.582336411492626"
+      },
+      {
+        "address_name": "서울 동대문구 청량리동 235-2",
+        "category_group_code": "PK6",
+        "category_group_name": "주차장",
+        "category_name": "교통,수송 > 교통시설 > 주차장",
+        "distance": "89",
+        "id": "266364842",
+        "phone": "1551-2610",
+        "place_name": "파크존 청량리역 주차장",
+        "place_url": "http://place.map.kakao.com/266364842",
+        "road_address_name": "서울 동대문구 약령시로 158",
+        "x": "127.046725570909",
+        "y": "37.5821274884691"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 2,
+      "same_name": null,
+      "total_count": 2
+    }
+  },
+  "c3d5822ed2bf7a39815f9108bd20ee33b349cfcee3b74c257a9a558ab00f122d": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "817bf447dde6670c050b97f6466340789050aa0dcc9689983f66b4c22a8c27f7": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "c91aa0f11e65cb6d61843accecfe8282f231acd74f5ac568837a4fe0c7ee9653": {
+    "documents": [
+      {
+        "address_name": "서울 동대문구 청량리동 235-4",
+        "category_group_code": "BK9",
+        "category_group_name": "은행",
+        "category_name": "금융,보험 > 금융서비스 > 은행 > ATM",
+        "distance": "65",
+        "id": "1360466629",
+        "phone": "",
+        "place_name": "우리은행 365코너 청량리중앙금융센터(점외)",
+        "place_url": "http://place.map.kakao.com/1360466629",
+        "road_address_name": "",
+        "x": "127.047210121544",
+        "y": "37.5821209887251"
+      },
+      {
+        "address_name": "서울 동대문구 청량리동 235-6",
+        "category_group_code": "BK9",
+        "category_group_name": "은행",
+        "category_name": "금융,보험 > 금융서비스 > 은행 > KB국민은행",
+        "distance": "78",
+        "id": "131872804",
+        "phone": "1588-9999",
+        "place_name": "KB국민은행 청량리종합금융센터",
+        "place_url": "http://place.map.kakao.com/131872804",
+        "road_address_name": "서울 동대문구 왕산로 239",
+        "x": "127.04821493122468",
+        "y": "37.58305761572772"
+      },
+      {
+        "address_name": "서울 동대문구 청량리동 235-6",
+        "category_group_code": "BK9",
+        "category_group_name": "은행",
+        "category_name": "금융,보험 > 금융서비스 > 은행 > ATM",
+        "distance": "78",
+        "id": "250929368",
+        "phone": "",
+        "place_name": "KB국민은행 청량리종합금융센터 ATM",
+        "place_url": "http://place.map.kakao.com/250929368",
+        "road_address_name": "서울 동대문구 왕산로 239",
+        "x": "127.04821493122468",
+        "y": "37.58305761572772"
+      },
+      {
+        "address_name": "서울 동대문구 청량리동 235-6",
+        "category_group_code": "BK9",
+        "category_group_name": "은행",
+        "category_name": "금융,보험 > 금융서비스 > 은행 > 새마을금고",
+        "distance": "78",
+        "id": "18956548",
+        "phone": "02-962-2227",
+        "place_name": "동대문중앙새마을금고 청량리2지점",
+        "place_url": "http://place.map.kakao.com/18956548",
+        "road_address_name": "서울 동대문구 왕산로 239",
+        "x": "127.04821493122468",
+        "y": "37.58305761572772"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 4,
+      "same_name": null,
+      "total_count": 4
+    }
+  },
+  "3bb5997566d6cc67d6db8f04816296b1d146075fde1a7dc52026ea3719df3e2c": {
+    "documents": [
+      {
+        "address_name": "서울 동대문구 전농동 591-2",
+        "category_group_code": "CT1",
+        "category_group_name": "문화시설",
+        "category_name": "문화,예술 > 문화시설 > 공연장,연극극장",
+        "distance": "127",
+        "id": "7854664",
+        "phone": "02-962-1888",
+        "place_name": "동원극장",
+        "place_url": "http://place.map.kakao.com/7854664",
+        "road_address_name": "서울 동대문구 왕산로 222-1",
+        "x": "127.047341072878",
+        "y": "37.5815262805502"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 1,
+      "same_name": null,
+      "total_count": 1
+    }
+  },
+  "1461cecd35df5007b25bed720240a7d1ac49e7d0052a1cb79d8106ca618977e3": {
+    "documents": [
+      {
+        "address_name": "서울 동대문구 청량리동 235-6",
+        "category_group_code": "PO3",
+        "category_group_name": "공공기관",
+        "category_name": "사회,공공기관 > 지방행정기관 > 행정복지센터 > 동행정복지센터",
+        "distance": "74",
+        "id": "8542531",
+        "phone": "02-2171-6365",
+        "place_name": "청량리동주민센터",
+        "place_url": "http://place.map.kakao.com/8542531",
+        "road_address_name": "서울 동대문구 왕산로 239",
+        "x": "127.04816963763724",
+        "y": "37.58304592131185"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 1,
+      "same_name": null,
+      "total_count": 1
+    }
+  },
+  "7e16c645a6bd6d2cae02a49590a91efb1789f70a1bc8da23fdc2df3aa5195341": {
+    "documents": [],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 0,
+      "same_name": null,
+      "total_count": 0
+    }
+  },
+  "ba59a2d83a5a12e086ea5ef5be845bdf75ceab5595a56a9d37a799813d308199": {
+    "documents": [
+      {
+        "address_name": "서울 동대문구 전농동 597-34",
+        "category_group_code": "AD5",
+        "category_group_name": "숙박",
+        "category_name": "여행 > 숙박 > 여관,모텔",
+        "distance": "92",
+        "id": "23106260",
+        "phone": "",
+        "place_name": "금풍장모텔",
+        "place_url": "http://place.map.kakao.com/23106260",
+        "road_address_name": "서울 동대문구 왕산로 230",
+        "x": "127.04787114639",
+        "y": "37.5818972761175"
+      },
+      {
+        "address_name": "서울 동대문구 전농동 597-41",
+        "category_group_code": "AD5",
+        "category_group_name": "숙박",
+        "category_name": "여행 > 숙박 > 호텔",
+        "distance": "100",
+        "id": "27136891",
+        "phone": "02-957-3300",
+        "place_name": "호텔더디자이너스 청량리",
+        "place_url": "http://place.map.kakao.com/27136891",
+        "road_address_name": "서울 동대문구 왕산로 226",
+        "x": "127.047631053735",
+        "y": "37.5817712341459"
+      },
+      {
+        "address_name": "서울 동대문구 전농동 597-23",
+        "category_group_code": "AD5",
+        "category_group_name": "숙박",
+        "category_name": "여행 > 숙박",
+        "distance": "109",
+        "id": "20908313",
+        "phone": "02-965-3525",
+        "place_name": "31페이지",
+        "place_url": "http://place.map.kakao.com/20908313",
+        "road_address_name": "서울 동대문구 왕산로 238-1",
+        "x": "127.048682108294",
+        "y": "37.5824411445145"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 3,
+      "same_name": null,
+      "total_count": 3
+    }
+  },
+  "78cc58e225943eb322a268c11a15028230472f6cba59143c9446dcba754ea3d5": {
+    "documents": [
+      {
+        "address_name": "서울 동대문구 청량리동 235-4",
+        "category_group_code": "FD6",
+        "category_group_name": "음식점",
+        "category_name": "음식점 > 간식 > 제과,베이커리 > 뚜레쥬르",
+        "distance": "28",
+        "id": "17615692",
+        "phone": "02-957-9931",
+        "place_name": "뚜레쥬르 청량리미주점",
+        "place_url": "http://place.map.kakao.com/17615692",
+        "road_address_name": "서울 동대문구 왕산로 225",
+        "x": "127.04765413053",
+        "y": "37.5824523759067"
+      },
+      {
+        "address_name": "서울 동대문구 청량리동 235-4",
+        "category_group_code": "FD6",
+        "category_group_name": "음식점",
+        "category_name": "음식점 > 일식 > 돈까스,우동",
+        "distance": "40",
+        "id": "195679157",
+        "phone": "",
+        "place_name": "미아리우동집 청량리점",
+        "place_url": "http://place.map.kakao.com/195679157",
+        "road_address_name": "서울 동대문구 왕산로 225",
+        "x": "127.047531765265",
+        "y": "37.5823046623173"
+      },
+      {
+        "address_name": "서울 동대문구 청량리동 235-4",
+        "category_group_code": "FD6",
+        "category_group_name": "음식점",
+        "category_name": "음식점 > 분식",
+        "distance": "65",
+        "id": "9547315",
+        "phone": "",
+        "place_name": "하오하오 분식집",
+        "place_url": "http://place.map.kakao.com/9547315",
+        "road_address_name": "서울 동대문구 왕산로 225",
+        "x": "127.047210121544",
+        "y": "37.5821209887251"
+      },
+      {
+        "address_name": "서울 동대문구 청량리동 235-4",
+        "category_group_code": "FD6",
+        "category_group_name": "음식점",
+        "category_name": "음식점 > 분식",
+        "distance": "65",
+        "id": "15606757",
+        "phone": "02-959-5372",
+        "place_name": "매콤달콤",
+        "place_url": "http://place.map.kakao.com/15606757",
+        "road_address_name": "서울 동대문구 왕산로 225",
+        "x": "127.047210121544",
+        "y": "37.5821209887251"
+      },
+      {
+        "address_name": "서울 동대문구 청량리동 235-4",
+        "category_group_code": "FD6",
+        "category_group_name": "음식점",
+        "category_name": "음식점 > 분식",
+        "distance": "65",
+        "id": "21328558",
+        "phone": "",
+        "place_name": "밥타운",
+        "place_url": "http://place.map.kakao.com/21328558",
+        "road_address_name": "서울 동대문구 왕산로 225",
+        "x": "127.047210121544",
+        "y": "37.5821209887251"
+      }
+    ],
+    "meta": {
+      "is_end": false,
+      "pageable_count": 9,
+      "same_name": null,
+      "total_count": 9
+    }
+  },
+  "9c891feea61e831864338d49e75ccc771a23410e5de2fc31ac000da7f5bf5120": {
+    "documents": [
+      {
+        "address_name": "서울 동대문구 청량리동 235-4",
+        "category_group_code": "CE7",
+        "category_group_name": "카페",
+        "category_name": "음식점 > 카페 > 커피전문점 > 메가MGC커피",
+        "distance": "36",
+        "id": "1686071121",
+        "phone": "02-957-8801",
+        "place_name": "메가MGC커피 청량리역점",
+        "place_url": "http://place.map.kakao.com/1686071121",
+        "road_address_name": "서울 동대문구 왕산로 225",
+        "x": "127.04761217873744",
+        "y": "37.5823541845502"
+      },
+      {
+        "address_name": "서울 동대문구 청량리동 235-4",
+        "category_group_code": "CE7",
+        "category_group_name": "카페",
+        "category_name": "음식점 > 카페 > 커피전문점 > 이디야커피",
+        "distance": "73",
+        "id": "13062064",
+        "phone": "02-960-2618",
+        "place_name": "이디야커피 청량리점",
+        "place_url": "http://place.map.kakao.com/13062064",
+        "road_address_name": "서울 동대문구 왕산로 225",
+        "x": "127.04723836746776",
+        "y": "37.58202997708241"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 2,
+      "same_name": null,
+      "total_count": 2
+    }
+  },
+  "3c56692ee7a558bf42a3c0838e0ec1ef04a614bd773b78443314836c11adc35f": {
+    "documents": [
+      {
+        "address_name": "서울 동대문구 청량리동 235-6",
+        "category_group_code": "HP8",
+        "category_group_name": "병원",
+        "category_name": "의료,건강 > 병원 > 정신건강의학과",
+        "distance": "42",
+        "id": "1728199304",
+        "phone": "02-966-1171",
+        "place_name": "청량리정신건강의학과의원",
+        "place_url": "http://place.map.kakao.com/1728199304",
+        "road_address_name": "서울 동대문구 왕산로 239",
+        "x": "127.04785028863273",
+        "y": "37.582917209141364"
+      },
+      {
+        "address_name": "서울 동대문구 청량리동 235-4",
+        "category_group_code": "HP8",
+        "category_group_name": "병원",
+        "category_name": "의료,건강 > 병원 > 이비인후과",
+        "distance": "47",
+        "id": "14590606",
+        "phone": "02-969-2500",
+        "place_name": "연세참이비인후과의원",
+        "place_url": "http://place.map.kakao.com/14590606",
+        "road_address_name": "서울 동대문구 왕산로 225",
+        "x": "127.04740266135832",
+        "y": "37.582241644689795"
+      },
+      {
+        "address_name": "서울 동대문구 청량리동 235-4",
+        "category_group_code": "HP8",
+        "category_group_name": "병원",
+        "category_name": "의료,건강 > 병원 > 성형외과",
+        "distance": "63",
+        "id": "9389370",
+        "phone": "02-966-5536",
+        "place_name": "정병주성형외과의원",
+        "place_url": "http://place.map.kakao.com/9389370",
+        "road_address_name": "서울 동대문구 왕산로 225",
+        "x": "127.047264466391",
+        "y": "37.582124570952"
+      },
+      {
+        "address_name": "서울 동대문구 청량리동 235-4",
+        "category_group_code": "HP8",
+        "category_group_name": "병원",
+        "category_name": "의료,건강 > 병원 > 안과",
+        "distance": "65",
+        "id": "10672135",
+        "phone": "02-966-0343",
+        "place_name": "이경숙안과의원",
+        "place_url": "http://place.map.kakao.com/10672135",
+        "road_address_name": "서울 동대문구 왕산로 225",
+        "x": "127.047268981267",
+        "y": "37.5821029453005"
+      },
+      {
+        "address_name": "서울 동대문구 청량리동 235-4",
+        "category_group_code": "HP8",
+        "category_group_name": "병원",
+        "category_name": "의료,건강 > 병원 > 영상의학과",
+        "distance": "79",
+        "id": "17191851",
+        "phone": "02-963-5005",
+        "place_name": "안영상의학과의원",
+        "place_url": "http://place.map.kakao.com/17191851",
+        "road_address_name": "서울 동대문구 왕산로 225",
+        "x": "127.047137594345",
+        "y": "37.5820092945159"
+      }
+    ],
+    "meta": {
+      "is_end": false,
+      "pageable_count": 9,
+      "same_name": null,
+      "total_count": 9
+    }
+  },
+  "31185a828adda3af8e33ffe0d7ec1934bed5b346ba83efcee8705b1d9dcc3658": {
+    "documents": [
+      {
+        "address_name": "서울 동대문구 청량리동 235-4",
+        "category_group_code": "PM9",
+        "category_group_name": "약국",
+        "category_name": "의료,건강 > 약국",
+        "distance": "19",
+        "id": "13512316",
+        "phone": "02-963-5500",
+        "place_name": "동산약국",
+        "place_url": "http://place.map.kakao.com/13512316",
+        "road_address_name": "서울 동대문구 왕산로 225",
+        "x": "127.04760096231321",
+        "y": "37.58251907087243"
+      },
+      {
+        "address_name": "서울 동대문구 청량리동 235-4",
+        "category_group_code": "PM9",
+        "category_group_name": "약국",
+        "category_name": "의료,건강 > 약국",
+        "distance": "64",
+        "id": "1441927953",
+        "phone": "02-957-5502",
+        "place_name": "새동산약국",
+        "place_url": "http://place.map.kakao.com/1441927953",
+        "road_address_name": "서울 동대문구 왕산로 225",
+        "x": "127.047208990545",
+        "y": "37.5821227911584"
+      }
+    ],
+    "meta": {
+      "is_end": true,
+      "pageable_count": 2,
+      "same_name": null,
+      "total_count": 2
+    }
+  }
+}

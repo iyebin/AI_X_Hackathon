@@ -1,0 +1,23 @@
+{
+  "daon": {
+    "address": "서울시 노원구 동일로 192길 58",
+    "canonical_address": "서울 노원구 동일로192길 58",
+    "longitude": 127.076124508271,
+    "latitude": 37.6267429076088,
+    "radius_m": 100.0
+  },
+  "yebin": {
+    "address": "서울시 노원구 공릉로 43가길 21",
+    "canonical_address": "서울 노원구 공릉로43가길 21",
+    "longitude": 127.077699051583,
+    "latitude": 37.6267870207169,
+    "radius_m": 100.0
+  },
+  "yubeen": {
+    "address": "서울시 노원구 공릉로 33길 16-10",
+    "canonical_address": "서울 노원구 공릉로33길 16-10",
+    "longitude": 127.07833041667,
+    "latitude": 37.6227303606083,
+    "radius_m": 100.0
+  }
+}
