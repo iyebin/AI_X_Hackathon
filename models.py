@@ -50,7 +50,7 @@ class InstitutionType(str, Enum):
 class Guardian(Base):
     __tablename__ = "guardians"
 
-    id = Column(Integer, primary_key=True, index=True)
+    gps_id = Column(Integer, primary_key=True, index=True)
     name = Column(String(100), nullable=False)
     auth_code = Column(String(6), nullable=True, index=True)
     gender = Column(
@@ -90,7 +90,7 @@ class Guardian(Base):
 class Institution(Base):
     __tablename__ = "institutions"
 
-    id = Column(Integer, primary_key=True)
+    gps_id = Column(Integer, primary_key=True)
 
     institution_code = Column(
         String(100),
@@ -142,7 +142,7 @@ class Institution(Base):
 class Subject(Base):
     __tablename__ = "subjects"
 
-    id = Column(Integer, primary_key=True, index=True)
+    gps_id = Column(Integer, primary_key=True, index=True)
     name = Column(String(100), nullable=False)
     auth_code = Column(String(6), nullable=True, index=True)
 
@@ -180,7 +180,7 @@ class Subject(Base):
 
     institution_id = Column(
     Integer,
-    ForeignKey("institutions.id", ondelete="SET NULL"),
+    ForeignKey("institutions.gps_id", ondelete="SET NULL"),
     nullable=True,
 )
 
@@ -239,7 +239,7 @@ class GuardianRegistration(Base):
     guardian_id = Column(
         Integer,
         ForeignKey(
-            "guardians.id",
+            "guardians.gps_id",
             ondelete="CASCADE",
         ),
         primary_key=True,
@@ -247,7 +247,7 @@ class GuardianRegistration(Base):
     subject_id = Column(
         Integer,
         ForeignKey(
-            "subjects.id",
+            "subjects.gps_id",
             ondelete="CASCADE",
         ),
         primary_key=True,
@@ -374,19 +374,18 @@ class ManagerAssignment(Base):
             name="uq_manager_subject",
         ),
     )
-
-
 class GPSRecord(Base):
     __tablename__ = "gps_records"
 
-    id = Column(Integer, primary_key=True, index=True)
+    gps_id = Column(
+        BigInteger,
+        primary_key=True,
+        index=True,
+    )
 
     subject_id = Column(
-        Integer,
-        ForeignKey(
-            "subjects.id",
-            ondelete="CASCADE",
-        ),
+        BigInteger,
+        ForeignKey("subjects.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
     )
@@ -405,10 +404,11 @@ class GPSRecord(Base):
         "Subject",
         back_populates="gps_records",
     )
+    
 class Alert(Base):
     __tablename__ = "alerts"
 
-    id = Column(
+    gps_id = Column(
         BigInteger,
         primary_key=True,
         index=True,
@@ -462,15 +462,15 @@ class Alert(Base):
         "Subject",
         back_populates="alerts",
     )
-    
+
 class SubjectAuthCode(Base):
     __tablename__ = "subject_auth_codes"
 
-    id = Column(Integer, primary_key=True, index=True)
+    gps_id = Column(Integer, primary_key=True, index=True)
 
     subject_id = Column(
         Integer,
-        ForeignKey("subjects.id", ondelete="CASCADE"),
+        ForeignKey("subjects.gps_id", ondelete="CASCADE"),
         nullable=False,
         index=True,
     )
