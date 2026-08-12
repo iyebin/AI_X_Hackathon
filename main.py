@@ -1843,38 +1843,9 @@ def save_auth_code(
         "subject_id": subject.id,
         "auth_code": subject.auth_code,
     }
-
-@app.get(
-    "/environment/air/{subject_id}",
-    tags=["환경정보"],
-)
-def read_air_quality(
-    subject_id: int,
-    db: Session = Depends(get_db),
-):
-
-    latest_gps = (
-        db.query(models.GPSRecord)
-        .filter(
-            models.GPSRecord.subject_id
-            == subject_id
-        )
-        .order_by(
-            models.GPSRecord.measured_at.desc()
-        )
-        .first()
-    )
-
-    if latest_gps is None:
-        raise HTTPException(
-            status_code=404,
-            detail="저장된 GPS 위치가 없습니다.",
-        )
-
-    return get_air_quality_by_gps(
-        latest_gps.latitude,
-        latest_gps.longitude,
-    )
+@app.get("/environment/air", tags=["환경정보"])
+def read_air_quality():
+    return get_air_quality("우산동(광주)")
 # =========================================================
 # AI 위험도 결과 → 위험 알림 자동 생성
 # =========================================================
