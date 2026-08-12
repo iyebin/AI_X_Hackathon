@@ -175,7 +175,7 @@ def get_latest_gps_or_404(
         .filter(models.GPSRecord.subject_id == subject_id)
         .order_by(
             models.GPSRecord.measured_at.desc(),
-            models.GPSRecord.id.desc(),
+            models.GPSRecord.gps_id.desc(),
         )
         .first()
     )
@@ -1358,7 +1358,7 @@ def get_gps_history(
         .filter(models.GPSRecord.subject_id == subject_id)
         .order_by(
             models.GPSRecord.measured_at.desc(),
-            models.GPSRecord.id.desc(),
+            models.GPSRecord.gps_id.desc(),
         )
         .limit(limit)
         .all()

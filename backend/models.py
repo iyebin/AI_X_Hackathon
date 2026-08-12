@@ -362,7 +362,7 @@ class ManagerAssignment(Base):
 class GPSRecord(Base):
     __tablename__ = "gps_records"
 
-    id = Column(Integer, primary_key=True, index=True)
+    gps_id = Column(Integer, primary_key=True, index=True)
 
     subject_id = Column(
         Integer,

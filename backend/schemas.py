@@ -265,7 +265,7 @@ class GPSCreate(BaseModel):
 
 
 class GPSResponse(ORMModel):
-    id: int
+    gps_id: int
     subject_id: int
     latitude: float
     longitude: float
