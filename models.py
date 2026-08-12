@@ -219,11 +219,11 @@ class Subject(Base):
         passive_deletes=True,
     )
     alerts = relationship(
-        "Alert",
-        back_populates="subject",
-        cascade="all, delete-orphan",
-        passive_deletes=True,
-    )
+    "Alert",
+    back_populates="subject",
+    cascade="all, delete-orphan",
+    passive_deletes=True,
+)
 
     auth_codes = relationship(
         "SubjectAuthCode",
@@ -408,58 +408,6 @@ class GPSRecord(Base):
 class Alert(Base):
     __tablename__ = "alerts"
 
-    id = Column(BigInteger, primary_key=True, index=True)
-
-    type = Column(
-        String(50),
-        nullable=False,
-    )
-
-    subject_id = Column(
-        BigInteger,
-        ForeignKey("subjects.id", ondelete="CASCADE"),
-        nullable=True,
-        index=True,
-    )
-
-    guardian_id = Column(
-        BigInteger,
-        ForeignKey("guardians.id", ondelete="CASCADE"),
-        nullable=True,
-        index=True,
-    )
-
-    message = Column(
-        Text,
-        nullable=False,
-    )
-
-    risk_score = Column(
-        Float,
-        nullable=True,
-    )
-
-    is_read = Column(
-        Boolean,
-        nullable=False,
-        default=False,
-        server_default="false",
-    )
-
-    created_at = Column(
-        DateTime(timezone=True),
-        server_default=func.now(),
-        nullable=False,
-        index=True,
-    )
-
-    subject = relationship(
-        "Subject",
-        back_populates="alerts",
-    )
-
-    __tablename__ = "alerts"
-
     id = Column(
         BigInteger,
         primary_key=True,
@@ -508,6 +456,13 @@ class Alert(Base):
         nullable=False,
         index=True,
     )
+
+    # Subject.alerts 와 연결
+    subject = relationship(
+        "Subject",
+        back_populates="alerts",
+    )
+    
 class SubjectAuthCode(Base):
     __tablename__ = "subject_auth_codes"
 
