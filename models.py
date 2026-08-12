@@ -290,11 +290,9 @@ class InstitutionManager(Base):
 
     id = Column(Integer, primary_key=True, index=True)
 
-    institution_id = Column(
-        BigInteger,
-        ForeignKey("institutions.institution_id", ondelete="CASCADE"),
-        nullable=False,
-        index=True,
+    ForeignKey(
+        "institutions.id",
+        ondelete="CASCADE",
     )
 
     name = Column(String(100), nullable=False)
