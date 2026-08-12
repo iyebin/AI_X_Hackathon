@@ -14,11 +14,11 @@
     "android": {
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.anonymous"
+      "package": "com.anonymous.ansim"
     },
     "web": {
       "output": "static",
-      "favicon": "./assets/images/logo_re.png"
+      "favicon": "./assets/images/logo.png"
     },
     // "plugins": [
     //   "expo-router",
