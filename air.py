@@ -1,26 +1,22 @@
 import math
 import requests
+from pyproj import Transformer
 
 
-URL = "http://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getMsrstnAcctoRltmMesureDnsty"
+AIR_QUALITY_URL = (
+    "http://apis.data.go.kr/B552584/"
+    "ArpltnInforInqireSvc/"
+    "getMsrstnAcctoRltmMesureDnsty"
+)
+
+NEARBY_STATION_URL = (
+    "http://apis.data.go.kr/B552584/"
+    "MsrstnInfoInqireSvc/"
+    "getNearbyMsrstnList"
+)
+
 
 KEY = "cb83a3d8edb3968426800dfca5c696e9b91d78897f0558811095044644b8a3d7"
-
-AIR_STATIONS = [
-    # 광주
-    {
-        "name": "우산동(광주)",
-        "latitude": 35.173,
-        "longitude": 126.923,
-    },
-
-    # 남원
-    {
-        "name": "죽항동",
-        "latitude": 35.410,
-        "longitude": 127.386,
-    },
-]
 
 def get_air_quality(station_name: str):
     params = {
@@ -34,7 +30,7 @@ def get_air_quality(station_name: str):
     }
 
     response = requests.get(
-        URL,
+        AIR_QUALITY_URL,
         params=params,
         timeout=10,
     )
@@ -79,63 +75,88 @@ def get_air_quality(station_name: str):
         "so2": item.get("so2Value"),
         "air_risk_score": grade,
     }
-
-def haversine_km(
-    lat1: float,
-    lon1: float,
-    lat2: float,
-    lon2: float,
+def gps_to_tm(
+    latitude: float,
+    longitude: float,
 ):
-    radius = 6371.0
-
-    lat1 = math.radians(lat1)
-    lon1 = math.radians(lon1)
-    lat2 = math.radians(lat2)
-    lon2 = math.radians(lon2)
-
-    dlat = lat2 - lat1
-    dlon = lon2 - lon1
-
-    a = (
-        math.sin(dlat / 2) ** 2
-        + math.cos(lat1)
-        * math.cos(lat2)
-        * math.sin(dlon / 2) ** 2
+    transformer = Transformer.from_crs(
+        "EPSG:4326",
+        "EPSG:2097",
+        always_xy=True,
     )
 
-    c = 2 * math.atan2(
-        math.sqrt(a),
-        math.sqrt(1 - a),
+    tm_x, tm_y = transformer.transform(
+        longitude,
+        latitude,
     )
 
-    return radius * c
+    return tm_x, tm_y
 
+def find_nearest_station(
+    latitude: float,
+    longitude: float,
+):
+    tm_x, tm_y = gps_to_tm(
+        latitude,
+        longitude,
+    )
+
+    params = {
+        "serviceKey": KEY,
+        "returnType": "json",
+        "tmX": tm_x,
+        "tmY": tm_y,
+        "ver": "1.1",
+    }
+
+    response = requests.get(
+        NEARBY_STATION_URL,
+        params=params,
+        timeout=10,
+    )
+
+    response.raise_for_status()
+
+    data = response.json()
+
+    items = (
+        data
+        .get("response", {})
+        .get("body", {})
+        .get("items", [])
+    )
+
+    if not items:
+        return None
+
+    # API가 가까운 순으로 반환
+    nearest = items[0]
+
+    return {
+        "station_name": nearest.get("stationName"),
+        "address": nearest.get("addr"),
+        "distance": nearest.get("tm"),
+    }
 def get_air_quality_by_gps(
     latitude: float,
     longitude: float,
 ):
-    nearest_station = None
-    nearest_distance = float("inf")
+    station = find_nearest_station(
+        latitude,
+        longitude,
+    )
 
-    for station in AIR_STATIONS:
-        distance = haversine_km(
-            latitude,
-            longitude,
-            station["latitude"],
-            station["longitude"],
-        )
-
-        if distance < nearest_distance:
-            nearest_distance = distance
-            nearest_station = station
-
-    if nearest_station is None:
+    if station is None:
         return {
-            "message": "가까운 대기 측정소를 찾을 수 없습니다."
+            "gps": {
+                "latitude": latitude,
+                "longitude": longitude,
+            },
+            "message": "가까운 대기 측정소를 찾을 수 없습니다.",
         }
 
     air_quality = get_air_quality(
-        nearest_station["name"]
+        station["station_name"]
     )
 
     return {
@@ -143,9 +164,8 @@ def get_air_quality_by_gps(
             "latitude": latitude,
             "longitude": longitude,
         },
-        "nearest_station": {
-            "name": nearest_station["name"],
-            "distance_km": round(nearest_distance, 2),
-        },
+
+        "nearest_station": station,
+
         "air_quality": air_quality,
     }
