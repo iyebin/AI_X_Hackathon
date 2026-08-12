@@ -136,10 +136,11 @@ def create_alerts_for_subject(
 
     for link in guardian_links:
         alert = models.Alert(
+            type=alert_type,
             subject_id=subject_id,
             guardian_id=link.guardian_id,
-            type="risk",
             message=message,
+            risk_score=risk_score,
             is_read=False,
         )
 
