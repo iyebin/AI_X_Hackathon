@@ -262,6 +262,8 @@ class GPSCreate(BaseModel):
     subject_id: int
     latitude: float = Field(ge=-90, le=90)
     longitude: float = Field(ge=-180, le=180)
+    # 기기에서 GPS를 실제로 측정한 시각. 누락 시에는 서버 저장 시각을 사용합니다.
+    measured_at: Optional[datetime] = None
 
 
 class GPSResponse(ORMModel):

@@ -17,6 +17,10 @@ import com.google.android.gms.location.Priority
 import java.io.OutputStreamWriter
 import java.net.HttpURLConnection
 import java.net.URL
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
 import kotlin.concurrent.thread
 
 class GpsService : Service() {
@@ -31,7 +35,7 @@ class GpsService : Service() {
         locationCallback = object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult) {
                 locationResult.lastLocation?.let { location ->
-                    sendLocationToBackend(location.latitude, location.longitude)
+                    sendLocationToBackend(location.latitude, location.longitude, location.time)
                 }
             }
         }
@@ -65,7 +69,7 @@ class GpsService : Service() {
         return START_STICKY
     }
 
-    private fun sendLocationToBackend(latitude: Double, longitude: Double) {
+    private fun sendLocationToBackend(latitude: Double, longitude: Double, measuredAtMillis: Long) {
         val currentSubjectId = subjectId
         thread {
             var connection: HttpURLConnection? = null
@@ -76,7 +80,10 @@ class GpsService : Service() {
                 connection.connectTimeout = NETWORK_TIMEOUT_MILLIS
                 connection.readTimeout = NETWORK_TIMEOUT_MILLIS
                 connection.doOutput = true
-                val body = "{\"subject_id\":$currentSubjectId,\"latitude\":$latitude,\"longitude\":$longitude}"
+                val measuredAt = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US).apply {
+                    timeZone = TimeZone.getTimeZone("UTC")
+                }.format(Date(measuredAtMillis))
+                val body = "{\"subject_id\":$currentSubjectId,\"latitude\":$latitude,\"longitude\":$longitude,\"measured_at\":\"$measuredAt\"}"
                 OutputStreamWriter(connection.outputStream, Charsets.UTF_8).use { writer -> writer.write(body) }
                 val responseCode = connection.responseCode
                 if (responseCode !in 200..299) android.util.Log.w(TAG, "GPS 저장 실패: HTTP $responseCode")
