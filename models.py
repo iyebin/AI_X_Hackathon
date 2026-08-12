@@ -291,11 +291,8 @@ class InstitutionManager(Base):
     id = Column(Integer, primary_key=True, index=True)
 
     institution_id = Column(
-        Integer,
-        ForeignKey(
-            "institutions.id",
-            ondelete="CASCADE",
-        ),
+        BigInteger,
+        ForeignKey("institutions.institution_id", ondelete="CASCADE"),
         nullable=False,
         index=True,
     )
@@ -404,7 +401,7 @@ class GPSRecord(Base):
         "Subject",
         back_populates="gps_records",
     )
-    
+
 class Alert(Base):
     __tablename__ = "alerts"
 
