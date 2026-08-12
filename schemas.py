@@ -264,12 +264,11 @@ class GPSCreate(BaseModel):
     longitude: float = Field(ge=-180, le=180)
 
 
-class GPSResponse(ORMModel):
-    id: int
-    subject_id: int
-    latitude: float
-    longitude: float
+class GPSResponse(GPSCreate):
+    gps_id: int
     measured_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
 
 class AuthCodeResponse(BaseModel):
     user_type: str
