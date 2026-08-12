@@ -13,6 +13,8 @@ from models import Subject, Guardian
 import schemas
 from database import Base, engine, get_db
 
+import secrets
+from datetime import datetime, timedelta, timezone
 import random
 import string
 from schemas import (
@@ -97,6 +99,55 @@ def apply_updates(db_object, update_data):
     for field, value in values.items():
         setattr(db_object, field, value)
 
+# =========================================================
+# 알림 공통 함수
+# =========================================================
+
+DANGEROUS_RISK_LEVELS = {
+    "danger",
+    "emergency",
+    "critical",
+    "위험",
+    "긴급",
+    "심각",
+}
+
+
+def normalize_risk_level(value: str) -> str:
+    return value.strip().lower()
+
+def create_alerts_for_subject(
+    db: Session,
+    *,
+    subject_id: int,
+    alert_type: str,
+    message: str,
+):
+    # 해당 보호대상자와 연결된 보호자 조회
+    guardian_links = (
+        db.query(models.GuardianRegistration)
+        .filter(
+            models.GuardianRegistration.subject_id == subject_id
+        )
+        .all()
+    )
+
+    alerts = []
+
+    for link in guardian_links:
+        alert = models.Alert(
+            type=alert_type,
+            guardian_id=link.guardian_id,
+            message=message,
+            is_read=False,
+        )
+
+        db.add(alert)
+        alerts.append(alert)
+
+    db.flush()
+
+    return alerts
 
 def haversine_km(
     latitude1: float,
@@ -1583,44 +1634,70 @@ def recommend_institutions_for_subject(
 
 @app.post(
     "/subjects/{subject_id}/auth-code",
-    response_model=AuthCodeResponse,
-    tags=["인증코드"],
+    response_model=schemas.AuthCodeResponse,
+    tags=["알림"],
 )
 def issue_subject_auth_code(
     subject_id: int,
     db: Session = Depends(get_db),
 ):
-    subject = (
-        db.query(Subject)
-        .filter(Subject.id == subject_id)
-        .first()
+    subject = db.get(
+        models.Subject,
+        subject_id,
     )
 
-    if subject is None:
+    if not subject:
         raise HTTPException(
             status_code=404,
             detail="보호대상자를 찾을 수 없습니다.",
         )
 
-    auth_code = generate_unique_auth_code(db)
-    subject.auth_code = auth_code
+    # 6자리 인증코드 생성
+    code = f"{secrets.randbelow(1_000_000):06d}"
 
-    db.commit()
-    db.refresh(subject)
-
-    alert = models.Alert(
-        type="auth",
-        subject_id=subject.id,
-        message=f"{subject.name}님의 인증코드가 발급되었습니다.",
-        is_read=False
+    # 현재 시간 기준 10분 유효
+    expires_at = (
+        datetime.now(timezone.utc)
+        + timedelta(minutes=10)
     )
 
-    db.add(alert)
+    # 인증코드 DB 저장
+    auth_code = models.SubjectAuthCode(
+        subject_id=subject_id,
+        code=code,
+        expires_at=expires_at,
+    )
+
+    db.add(auth_code)
+
+    # 보호자에게 인증 요청 알림 자동 생성
+    created_alerts = create_alerts_for_subject(
+        db,
+        subject_id=subject_id,
+        alert_type="auth_request",
+        title=f"{subject.name}님 인증 요청",
+        message=(
+            "앱에서 보호자 인증을 요청했습니다. "
+            f"인증코드: {code} "
+            "(10분간 유효)"
+        ),
+    )
+
     db.commit()
+
+    db.refresh(auth_code)
+
+    for alert in created_alerts:
+        db.refresh(alert)
+
     return {
-        "user_type": "subject",
-        "user_id": subject.id,
-        "auth_code": subject.auth_code,
+        "subject_id": subject_id,
+        "auth_code": code,
+        "expires_at": expires_at,
+        "created_alert_ids": [
+            alert.id
+            for alert in created_alerts
+        ],
     }
 
 @app.post(
@@ -1647,15 +1724,16 @@ def issue_guardian_auth_code(
     auth_code = generate_unique_auth_code(db)
     guardian.auth_code = auth_code
 
-    db.commit()
-    db.refresh(guardian)
-
     alert = models.Alert(
         type="auth",
         guardian_id=guardian.id,
         message=f"{guardian.name}님의 인증코드가 발급되었습니다.",
         is_read=False
     )
+    db.add(alert)
+    db.commit()
+    db.refresh(guardian)
+    db.refresh(alert)
 
     return {
         "user_type": "guardian",
@@ -1675,8 +1753,8 @@ def verify_auth_code(
     auth_code = request.auth_code.strip()
 
     subject = (
-        db.query(Subject)
-        .filter(Subject.auth_code == auth_code)
+        db.query(models.Subject)
+        .filter(models.Subject.auth_code == auth_code)
         .first()
     )
 
@@ -1689,8 +1767,8 @@ def verify_auth_code(
         }
 
     guardian = (
-        db.query(Guardian)
-        .filter(Guardian.auth_code == auth_code)
+        db.query(models.Guardian)
+        .filter(models.Guardian.auth_code == auth_code)
         .first()
     )
 
@@ -1734,6 +1812,30 @@ def save_auth_code(
 
     subject.auth_code = data.auth_code
 
+    # 이 보호대상자와 연결된 보호자들 찾기
+    guardian_links = (
+        db.query(models.GuardianRegistration)
+        .filter(
+            models.GuardianRegistration.subject_id == subject.id
+        )
+        .all()
+    )
+
+    # 연결된 보호자마다 인증 요청 알림 생성
+    for link in guardian_links:
+        alert = models.Alert(
+            type="auth",
+            guardian_id=link.guardian_id,
+            message=(
+                f"{subject.name}님의 인증 요청이 있습니다. "
+                f"인증코드: {subject.auth_code}"
+            ),
+            is_read=False,
+        )
+
+        db.add(alert)
+
+    # 인증코드 저장 + 알림 저장을 한 번에 commit
     db.commit()
     db.refresh(subject)
 
@@ -1745,6 +1847,98 @@ def save_auth_code(
 @app.get("/environment/air", tags=["환경정보"])
 def read_air_quality():
     return get_air_quality("광주")
+# =========================================================
+# AI 위험도 결과 → 위험 알림 자동 생성
+# =========================================================
+
+@app.post(
+    "/risk-results",
+    response_model=schemas.RiskResultResponse,
+    tags=["알림"],
+)
+def receive_risk_result(
+    data: schemas.RiskResultCreate,
+    db: Session = Depends(get_db),
+):
+    subject = db.get(
+        models.Subject,
+        data.subject_id,
+    )
+
+    if not subject:
+        raise HTTPException(
+            status_code=404,
+            detail="보호대상자를 찾을 수 없습니다.",
+        )
+
+    normalized = normalize_risk_level(
+        data.risk_level
+    )
+
+    created_alerts = []
+
+    latitude = data.latitude
+    longitude = data.longitude
+
+    # AI가 좌표를 안 보내면 최신 GPS 위치 사용
+    if latitude is None or longitude is None:
+        latest_gps = (
+            db.query(models.GPSRecord)
+            .filter(
+                models.GPSRecord.subject_id
+                == data.subject_id
+            )
+            .order_by(
+                models.GPSRecord.measured_at.desc(),
+                models.GPSRecord.id.desc(),
+            )
+            .first()
+        )
+
+        if latest_gps:
+            latitude = latest_gps.latitude
+            longitude = latest_gps.longitude
+
+    # 위험 단계일 때만 알림 자동 생성
+    if normalized in DANGEROUS_RISK_LEVELS:
+
+        reason = (
+            data.reason
+            or "GPS 기반 위험도 모델에서 위험 단계가 감지되었습니다."
+        )
+
+        if data.risk_score is not None:
+            score_text = (
+                f" (위험 점수: {data.risk_score:g})"
+            )
+        else:
+            score_text = ""
+
+        created_alerts = create_alerts_for_subject(
+            db,
+            subject_id=data.subject_id,
+            alert_type="risk",
+            message=(
+                f"{subject.name}님 위험 감지: "
+                f"{reason}{score_text}"
+            ),
+        )
+
+    db.commit()
+
+    for alert in created_alerts:
+        db.refresh(alert)
+
+    return {
+        "subject_id": data.subject_id,
+        "risk_level": data.risk_level,
+        "risk_score": data.risk_score,
+        "alert_created": bool(created_alerts),
+        "created_alert_ids": [
+            alert.id
+            for alert in created_alerts
+        ],
+    }
 
 @app.get(
     "/alerts",

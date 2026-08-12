@@ -218,6 +218,19 @@ class Subject(Base):
         cascade="all, delete-orphan",
         passive_deletes=True,
     )
+    alerts = relationship(
+        "Alert",
+        back_populates="subject",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
+
+    auth_codes = relationship(
+        "SubjectAuthCode",
+        back_populates="subject",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
 
 
 class GuardianRegistration(Base):
@@ -396,11 +409,87 @@ class GPSRecord(Base):
 class Alert(Base):
     __tablename__ = "alerts"
 
-    id = Column(BigInteger, primary_key=True, index=True)
-    type = Column(String(20), nullable=False)
-    subject_id = Column(BigInteger, nullable=True)
-    guardian_id = Column(BigInteger, nullable=True)
+    id = Column(Integer, primary_key=True, index=True)
+
+    subject_id = Column(
+        Integer,
+        ForeignKey("subjects.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+
+    guardian_id = Column(
+        Integer,
+        ForeignKey("guardians.id", ondelete="CASCADE"),
+        nullable=True,
+        index=True,
+    )
+
+    alert_type = Column(String(50), nullable=False, index=True)
+    title = Column(String(200), nullable=False)
     message = Column(Text, nullable=False)
+
+    risk_level = Column(String(30), nullable=True, index=True)
     risk_score = Column(Float, nullable=True)
-    is_read = Column(Boolean, default=False)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    latitude = Column(Float, nullable=True)
+    longitude = Column(Float, nullable=True)
+
+    is_read = Column(
+        Boolean,
+        nullable=False,
+        default=False,
+        server_default="false",
+    )
+
+    created_at = Column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        nullable=False,
+        index=True,
+    )
+
+    subject = relationship(
+        "Subject",
+        back_populates="alerts",
+    )
+
+    guardian = relationship("Guardian")
+
+
+class SubjectAuthCode(Base):
+    __tablename__ = "subject_auth_codes"
+
+    id = Column(Integer, primary_key=True, index=True)
+
+    subject_id = Column(
+        Integer,
+        ForeignKey("subjects.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+
+    code = Column(String(6), nullable=False, index=True)
+
+    expires_at = Column(
+        DateTime(timezone=True),
+        nullable=False,
+        index=True,
+    )
+
+    used_at = Column(
+        DateTime(timezone=True),
+        nullable=True,
+    )
+
+    created_at = Column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        nullable=False,
+        index=True,
+    )
+
+    subject = relationship(
+        "Subject",
+        back_populates="auth_codes",
+    )

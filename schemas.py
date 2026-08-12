@@ -305,3 +305,63 @@ class AlertResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+# =========================================================
+# 알림 / 위험도 모델 결과 / 인증코드
+# =========================================================
+
+class RiskResultCreate(BaseModel):
+    subject_id: int
+
+    risk_level: str = Field(
+        min_length=1,
+        max_length=30,
+        examples=["danger"],
+    )
+
+    risk_score: float | None = Field(
+        default=None,
+        ge=0,
+        le=100,
+    )
+
+    reason: str | None = Field(
+        default=None,
+        max_length=500,
+    )
+
+    latitude: float | None = Field(
+        default=None,
+        ge=-90,
+        le=90,
+    )
+
+    longitude: float | None = Field(
+        default=None,
+        ge=-180,
+        le=180,
+    )
+
+    @model_validator(mode="after")
+    def validate_coordinates(self):
+        if (self.latitude is None) != (self.longitude is None):
+            raise ValueError("위도와 경도는 함께 입력해야 합니다.")
+
+        return self
+
+
+class RiskResultResponse(BaseModel):
+    subject_id: int
+    risk_level: str
+    risk_score: float | None
+
+    alert_created: bool
+    created_alert_ids: list[int]
+
+
+class AuthCodeResponse(BaseModel):
+    subject_id: int
+    auth_code: str
+    expires_at: datetime
+
+    created_alert_ids: list[int]       
