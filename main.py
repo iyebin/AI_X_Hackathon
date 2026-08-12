@@ -136,8 +136,9 @@ def create_alerts_for_subject(
 
     for link in guardian_links:
         alert = models.Alert(
-            type=alert_type,
+            subject_id=subject_id,
             guardian_id=link.guardian_id,
+            type="risk",
             message=message,
             is_read=False,
         )
@@ -1824,15 +1825,15 @@ def save_auth_code(
     # 연결된 보호자마다 인증 요청 알림 생성
     for link in guardian_links:
         alert = models.Alert(
-            type="auth",
+            subject_id=subject.id,
             guardian_id=link.guardian_id,
+            type="auth",
             message=(
                 f"{subject.name}님의 인증 요청이 있습니다. "
                 f"인증코드: {subject.auth_code}"
             ),
             is_read=False,
         )
-
         db.add(alert)
 
     # 인증코드 저장 + 알림 저장을 한 번에 commit

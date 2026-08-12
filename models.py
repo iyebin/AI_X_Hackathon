@@ -405,7 +405,6 @@ class GPSRecord(Base):
         "Subject",
         back_populates="gps_records",
     )
-
 class Alert(Base):
     __tablename__ = "alerts"
 
@@ -414,7 +413,7 @@ class Alert(Base):
     subject_id = Column(
         Integer,
         ForeignKey("subjects.id", ondelete="CASCADE"),
-        nullable=False,
+        nullable=True,
         index=True,
     )
 
@@ -425,15 +424,16 @@ class Alert(Base):
         index=True,
     )
 
-    alert_type = Column(String(50), nullable=False, index=True)
-    title = Column(String(200), nullable=False)
-    message = Column(Text, nullable=False)
+    type = Column(
+        String(50),
+        nullable=False,
+        index=True,
+    )
 
-    risk_level = Column(String(30), nullable=True, index=True)
-    risk_score = Column(Float, nullable=True)
-
-    latitude = Column(Float, nullable=True)
-    longitude = Column(Float, nullable=True)
+    message = Column(
+        Text,
+        nullable=False,
+    )
 
     is_read = Column(
         Boolean,
@@ -448,14 +448,6 @@ class Alert(Base):
         nullable=False,
         index=True,
     )
-
-    subject = relationship(
-        "Subject",
-        back_populates="alerts",
-    )
-
-    guardian = relationship("Guardian")
-
 
 class SubjectAuthCode(Base):
     __tablename__ = "subject_auth_codes"
