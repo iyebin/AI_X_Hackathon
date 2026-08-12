@@ -48,4 +48,6 @@
     "eslint-config-expo": "~10.0.0"
   },
   "private": true
+
+    
 }
