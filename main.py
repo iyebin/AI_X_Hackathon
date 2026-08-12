@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 from facility_api import fetch_facilities
-from air import get_air_quality_by_gps
+from air import get_air_quality
 
 import models
 from models import Subject, Guardian
