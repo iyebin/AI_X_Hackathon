@@ -29,7 +29,7 @@ export default function CodeScreen() {
 
   const handleChangeText = (value: string, index: number) => {
     const nextCode = [...code];
-    nextCode[index] = value.replace(/\D/g, '').slice(-1);
+    nextCode[index] = value.slice(-1);
     setCode(nextCode);
 
     if (nextCode[index] && index < nextCode.length - 1) {
@@ -103,7 +103,9 @@ export default function CodeScreen() {
               value={digit}
               onChangeText={(value) => handleChangeText(value, index)}
               onKeyPress={(event) => handleKeyPress(event.nativeEvent.key, index)}
-              keyboardType="number-pad"
+              keyboardType="default"
+              autoCapitalize="none"
+              autoCorrect={false}
               maxLength={1}
               selectTextOnFocus
             />
