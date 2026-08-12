@@ -14,15 +14,26 @@
     "android": {
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.anonymous.ansim"
+      "package": "com.anonymous"
     },
     "web": {
       "output": "static",
       "favicon": "./assets/images/logo.png"
     },
+    // "plugins": [
+    //   "expo-router",
+    //   "expo-splash-screen"
+    // ],
     "plugins": [
       "expo-router",
-      "expo-splash-screen"
+      "expo-splash-screen",
+      [
+        "expo-location",
+        {
+          "isAndroidBackgroundLocationEnabled": true, //백그라운드일때 위치권한 설정
+          "isAndroidForegroundServiceEnabled": true //android 14이상
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
