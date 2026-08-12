@@ -14,7 +14,7 @@
     "android": {
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.anonymous"
+      "package": "com.anonymous.ansim"
     },
     "web": {
       "output": "static",
