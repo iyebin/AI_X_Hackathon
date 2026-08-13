@@ -98,28 +98,22 @@ def get_base_datetime():
         ZoneInfo("Asia/Seoul")
     )
 
-    # 최신 데이터 반영 지연을 고려해서
-    # 한 시간 전 실황 조회
-    target = now - timedelta(hours=1)
+   
+    if now.minute >= 45:
+        target = now
+    else:
+        target = now - timedelta(hours=1)
 
     return (
         target.strftime("%Y%m%d"),
         target.strftime("%H00"),
     )
-
-def get_weather_by_gps(
-    latitude: float,
-    longitude: float,
+def fetch_weather(
+    nx: int,
+    ny: int,
+    base_date: str,
+    base_time: str,
 ):
-    nx, ny = gps_to_grid(
-        latitude,
-        longitude,
-    )
-
-    base_date, base_time = (
-        get_base_datetime()
-    )
-
     params = {
         "serviceKey": KEY,
         "pageNo": "1",
@@ -141,7 +135,7 @@ def get_weather_by_gps(
 
     data = response.json()
 
-    items = (
+    return (
         data
         .get("response", {})
         .get("body", {})
@@ -149,9 +143,56 @@ def get_weather_by_gps(
         .get("item", [])
     )
 
+def get_weather_by_gps(
+    latitude: float,
+    longitude: float,
+):
+    nx, ny = gps_to_grid(
+        latitude,
+        longitude,
+    )
+
+    base_date, base_time = (
+        get_base_datetime()
+    )
+
+    items = fetch_weather(
+        nx,
+        ny,
+        base_date,
+        base_time,
+    )
+
+    # 최신 시각 데이터가 아직 없으면
+    # 한 시간 전 자료로 자동 재시도
+    if not items:
+        now = datetime.now(
+            ZoneInfo("Asia/Seoul")
+        )
+
+        fallback = now - timedelta(hours=1)
+
+        base_date = fallback.strftime("%Y%m%d")
+        base_time = fallback.strftime("%H00")
+
+        items = fetch_weather(
+            nx,
+            ny,
+            base_date,
+            base_time,
+        )
+
     if not items:
         return {
-            "message": "기상 데이터가 없습니다."
+            "gps": {
+                "latitude": latitude,
+                "longitude": longitude,
+            },
+            "grid": {
+                "nx": nx,
+                "ny": ny,
+            },
+            "message": "사용 가능한 최신 기상 실황이 없습니다.",
         }
 
     weather = {}
