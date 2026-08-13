@@ -551,7 +551,11 @@ def create_institution(
     return institution
 
 
-@app.get("/institutions")
+@app.get(
+    "/institutions",
+    response_model=List[schemas.InstitutionResponse],
+    tags=["기관"],
+)
 def list_institutions(
     skip: int = 0,
     limit: int = 100,
