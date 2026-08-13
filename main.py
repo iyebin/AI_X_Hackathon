@@ -559,7 +559,6 @@ def list_institutions(
 ):
     return (
         db.query(models.Institution)
-        .order_by(models.Institution.id)
         .offset(skip)
         .limit(limit)
         .all()
