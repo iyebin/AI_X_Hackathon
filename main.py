@@ -557,14 +557,10 @@ def create_institution(
     tags=["기관"],
 )
 def list_institutions(
-    skip: int = 0,
-    limit: int = 100,
     db: Session = Depends(get_db),
 ):
     return (
         db.query(models.Institution)
-        .offset(skip)
-        .limit(limit)
         .all()
     )
 
