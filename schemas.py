@@ -224,7 +224,32 @@ class InstitutionManagerResponse(ORMModel):
     created_at: datetime
     updated_at: datetime
 
+class InstitutionManagerSignup(BaseModel):
+    name: str
+    phone: str
+    email: str
+    login_id: str
+    password: str
+    institution_id: int
 
+
+class InstitutionManagerLogin(BaseModel):
+    login_id: str
+    password: str
+
+
+class InstitutionManagerAuthResponse(BaseModel):
+    id: int
+    name: str
+    phone: str
+    email: str
+    login_id: str
+    institution_id: int
+
+    model_config = ConfigDict(
+        from_attributes=True
+    )
+    
 class ManagerAssignmentCreate(BaseModel):
     manager_id: int
     subject_id: int

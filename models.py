@@ -302,6 +302,24 @@ class InstitutionManager(Base):
 
     name = Column(String(100), nullable=False)
     phone = Column(String(30), nullable=False)
+    email = Column(
+        String(255),
+        nullable=False,
+        unique=True,
+        index=True,
+    )
+
+    login_id = Column(
+        String(100),
+        nullable=False,
+        unique=True,
+        index=True,
+    )
+
+    password_hash = Column(
+        String(255),
+        nullable=False,
+    )
     position = Column(String(100), nullable=True)
 
     created_at = Column(
