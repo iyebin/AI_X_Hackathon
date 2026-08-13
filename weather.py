@@ -93,21 +93,18 @@ def gps_to_grid(lat: float, lon: float):
 
     return nx, ny
 
-def get_base_datetime():
+def get_base_datetime(hours_ago: int = 0):
     now = datetime.now(
         ZoneInfo("Asia/Seoul")
     )
 
-   
-    if now.minute >= 45:
-        target = now
-    else:
-        target = now - timedelta(hours=1)
+    target = now - timedelta(hours=hours_ago)
 
     return (
         target.strftime("%Y%m%d"),
         target.strftime("%H00"),
     )
+
 def fetch_weather(
     nx: int,
     ny: int,
@@ -152,28 +149,16 @@ def get_weather_by_gps(
         longitude,
     )
 
-    base_date, base_time = (
-        get_base_datetime()
-    )
+    items = []
+    used_date = None
+    used_time = None
 
-    items = fetch_weather(
-        nx,
-        ny,
-        base_date,
-        base_time,
-    )
+    # 현재 시간부터 최대 3시간 전까지 확인
+    for hours_ago in range(4):
 
-    # 최신 시각 데이터가 아직 없으면
-    # 한 시간 전 자료로 자동 재시도
-    if not items:
-        now = datetime.now(
-            ZoneInfo("Asia/Seoul")
+        base_date, base_time = (
+            get_base_datetime(hours_ago)
         )
-
-        fallback = now - timedelta(hours=1)
-
-        base_date = fallback.strftime("%Y%m%d")
-        base_time = fallback.strftime("%H00")
 
         items = fetch_weather(
             nx,
@@ -181,6 +166,11 @@ def get_weather_by_gps(
             base_date,
             base_time,
         )
+
+        if items:
+            used_date = base_date
+            used_time = base_time
+            break
 
     if not items:
         return {
@@ -213,8 +203,8 @@ def get_weather_by_gps(
             "ny": ny,
         },
 
-        "base_date": base_date,
-        "base_time": base_time,
+        "base_date": used_date,
+        "base_time": used_time,
 
         "temperature": weather.get("T1H"),
         "humidity": weather.get("REH"),
