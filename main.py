@@ -7,6 +7,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 from facility_api import fetch_facilities
 from air import get_air_quality_by_gps
+from weather import get_weather_by_gps
 
 import models
 from models import Subject, Guardian
@@ -1849,6 +1850,50 @@ def save_auth_code(
     "/environment/air/{subject_id}",
     tags=["환경정보"],
 )
+
+@app.get(
+    "/environment/weather/{subject_id}",
+    tags=["환경정보"],
+)
+def read_weather_by_gps(
+    subject_id: int,
+    db: Session = Depends(get_db),
+):
+    subject = db.get(
+        models.Subject,
+        subject_id,
+    )
+
+    if not subject:
+        raise HTTPException(
+            status_code=404,
+            detail="보호대상자를 찾을 수 없습니다.",
+        )
+
+    latest_gps = (
+        db.query(models.GPSRecord)
+        .filter(
+            models.GPSRecord.subject_id
+            == subject_id
+        )
+        .order_by(
+            models.GPSRecord.measured_at.desc(),
+            models.GPSRecord.gps_id.desc(),
+        )
+        .first()
+    )
+
+    if latest_gps is None:
+        raise HTTPException(
+            status_code=404,
+            detail="저장된 GPS 위치가 없습니다.",
+        )
+
+    return get_weather_by_gps(
+        latest_gps.latitude,
+        latest_gps.longitude,
+    )
+
 def read_air_quality(
     subject_id: int,
     db: Session = Depends(get_db),
