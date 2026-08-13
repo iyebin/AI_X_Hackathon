@@ -5,3 +5,6 @@ pydantic>=2
 python-dotenv
 psycopg2-binary
 httpx
+requests
+pyproj
+bcryptpyproj

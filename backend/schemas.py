@@ -35,7 +35,7 @@ class GuardianResponse(ORMModel):
     address: Optional[str]
     created_at: datetime
     updated_at: datetime
-
+    auth_code: Optional[str] = None
 
 class InstitutionCreate(BaseModel):
     institution_code: str = Field(min_length=1, max_length=100)
@@ -110,7 +110,7 @@ class SubjectResponse(ORMModel):
     institution_id: Optional[int]
     created_at: datetime
     updated_at: datetime
-
+    auth_code: Optional[str] = None
 
 class GuardianRegistrationCreate(BaseModel):
     guardian_id: int
@@ -224,7 +224,32 @@ class InstitutionManagerResponse(ORMModel):
     created_at: datetime
     updated_at: datetime
 
+class InstitutionManagerSignup(BaseModel):
+    name: str
+    phone: str
+    email: str
+    login_id: str
+    password: str
+    institution_id: int
 
+
+class InstitutionManagerLogin(BaseModel):
+    login_id: str
+    password: str
+
+
+class InstitutionManagerAuthResponse(BaseModel):
+    id: int
+    name: str
+    phone: str
+    email: str
+    login_id: str
+    institution_id: int
+
+    model_config = ConfigDict(
+        from_attributes=True
+    )
+    
 class ManagerAssignmentCreate(BaseModel):
     manager_id: int
     subject_id: int
@@ -264,9 +289,103 @@ class GPSCreate(BaseModel):
     longitude: float = Field(ge=-180, le=180)
 
 
-class GPSResponse(ORMModel):
-    id: int
-    subject_id: int
-    latitude: float
-    longitude: float
+class GPSResponse(GPSCreate):
+    gps_id: int
     measured_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+class AuthCodeResponse(BaseModel):
+    user_type: str
+    user_id: int
+    auth_code: str
+
+    class Config:
+        from_attributes = True
+
+
+class AuthCodeVerifyRequest(BaseModel):
+    auth_code: str
+
+
+class AuthCodeVerifyResponse(BaseModel):
+    valid: bool
+    user_type: Optional[str] = None
+    user_id: Optional[int] = None
+    message: str
+    
+class AuthCodeUpdate(BaseModel):
+    auth_code: str = Field(min_length=1, max_length=50)
+
+class AlertResponse(BaseModel):
+    id: int
+    type: str
+    subject_id: Optional[int] = None
+    guardian_id: Optional[int] = None
+    message: str
+    risk_score: Optional[float] = None
+    is_read: bool
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+# =========================================================
+# 알림 / 위험도 모델 결과 / 인증코드
+# =========================================================
+
+class RiskResultCreate(BaseModel):
+    subject_id: int
+
+    risk_level: str = Field(
+        min_length=1,
+        max_length=30,
+        examples=["danger"],
+    )
+
+    risk_score: float | None = Field(
+        default=None,
+        ge=0,
+        le=100,
+    )
+
+    reason: str | None = Field(
+        default=None,
+        max_length=500,
+    )
+
+    latitude: float | None = Field(
+        default=None,
+        ge=-90,
+        le=90,
+    )
+
+    longitude: float | None = Field(
+        default=None,
+        ge=-180,
+        le=180,
+    )
+
+    @model_validator(mode="after")
+    def validate_coordinates(self):
+        if (self.latitude is None) != (self.longitude is None):
+            raise ValueError("위도와 경도는 함께 입력해야 합니다.")
+
+        return self
+
+
+class RiskResultResponse(BaseModel):
+    subject_id: int
+    risk_level: str
+    risk_score: float | None
+
+    alert_created: bool
+    created_alert_ids: list[int]
+
+
+class AuthCodeResponse(BaseModel):
+    subject_id: int
+    auth_code: str
+    expires_at: datetime
+
+    created_alert_ids: list[int]       
