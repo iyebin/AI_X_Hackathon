@@ -23,6 +23,7 @@ from schemas import (
     AuthCodeVerifyRequest,
     AuthCodeVerifyResponse,
 )
+import bcrypt
 
 Base.metadata.create_all(bind=engine)
 
@@ -1268,7 +1269,108 @@ def delete_institution_manager(
     db.commit()
     return {"message": "기관 관리자가 삭제되었습니다.", "manager_id": manager_id}
 
+@app.post(
+    "/institution-managers/signup",
+    response_model=schemas.InstitutionManagerAuthResponse,
+    status_code=status.HTTP_201_CREATED,
+    tags=["기관 관리자 인증"],
+)
+def signup_institution_manager(
+    data: schemas.InstitutionManagerSignup,
+    db: Session = Depends(get_db),
+):
+    institution = db.get(
+        models.Institution,
+        data.institution_id,
+    )
 
+    if not institution:
+        raise HTTPException(
+            status_code=404,
+            detail="기관을 찾을 수 없습니다.",
+        )
+
+    existing_login_id = (
+        db.query(models.InstitutionManager)
+        .filter(
+            models.InstitutionManager.login_id
+            == data.login_id
+        )
+        .first()
+    )
+
+    if existing_login_id:
+        raise HTTPException(
+            status_code=409,
+            detail="이미 사용 중인 아이디입니다.",
+        )
+
+    existing_email = (
+        db.query(models.InstitutionManager)
+        .filter(
+            models.InstitutionManager.email
+            == data.email
+        )
+        .first()
+    )
+
+    if existing_email:
+        raise HTTPException(
+            status_code=409,
+            detail="이미 사용 중인 이메일입니다.",
+        )
+
+    manager = models.InstitutionManager(
+        institution_id=data.institution_id,
+        name=data.name,
+        phone=data.phone,
+        email=data.email,
+        login_id=data.login_id,
+        password_hash=hash_password(
+            data.password
+        ),
+    )
+
+    db.add(manager)
+    db.commit()
+    db.refresh(manager)
+
+    return manager
+
+@app.post(
+    "/institution-managers/login",
+    response_model=schemas.InstitutionManagerAuthResponse,
+    tags=["기관 관리자 인증"],
+)
+def login_institution_manager(
+    data: schemas.InstitutionManagerLogin,
+    db: Session = Depends(get_db),
+):
+    manager = (
+        db.query(models.InstitutionManager)
+        .filter(
+            models.InstitutionManager.login_id
+            == data.login_id
+        )
+        .first()
+    )
+
+    if not manager:
+        raise HTTPException(
+            status_code=401,
+            detail="아이디 또는 비밀번호가 올바르지 않습니다.",
+        )
+
+    if not verify_password(
+        data.password,
+        manager.password_hash,
+    ):
+        raise HTTPException(
+            status_code=401,
+            detail="아이디 또는 비밀번호가 올바르지 않습니다.",
+        )
+
+    return manager
 # =========================================================
 # 기관 관리자 ↔ 보호대상자 연결
 # =========================================================
@@ -2059,3 +2161,19 @@ def mark_alert_as_read(
     db.refresh(alert)
 
     return alert
+
+def hash_password(password: str) -> str:
+    return bcrypt.hashpw(
+        password.encode("utf-8"),
+        bcrypt.gensalt(),
+    ).decode("utf-8")
+
+
+def verify_password(
+    password: str,
+    password_hash: str,
+) -> bool:
+    return bcrypt.checkpw(
+        password.encode("utf-8"),
+        password_hash.encode("utf-8"),
+    )
