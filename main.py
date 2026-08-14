@@ -31,15 +31,24 @@ async def lifespan(app: FastAPI):
 
     print("[LMTAD] 모델 로딩 시작")
 
-    lmtad_runtime = LMTADRuntime()
+    try:
+        lmtad_runtime = LMTADRuntime()
 
-    print(
-        "[LMTAD] 모델 로딩 성공:",
-        f"features={lmtad_runtime.features},",
-        f"block_size={lmtad_runtime.block_size},",
-        f"vocab_size={lmtad_runtime.vocab_size},",
-        f"device={lmtad_runtime.device}",
-    )
+        print(
+            "[LMTAD] 모델 로딩 성공:",
+            f"features={lmtad_runtime.features},",
+            f"block_size={lmtad_runtime.block_size},",
+            f"vocab_size={lmtad_runtime.vocab_size},",
+            f"device={lmtad_runtime.device}",
+        )
+
+    except FileNotFoundError as e:
+        print(f"[LMTAD] 모델 파일 없음: {e}")
+        lmtad_runtime = None
+
+    except Exception as e:
+        print(f"[LMTAD] 모델 로딩 실패: {e}")
+        lmtad_runtime = None
 
     yield
 
