@@ -1,4 +1,6 @@
 from datetime import date, datetime
+from zoneinfo import ZoneInfo
+from pydantic import BaseModel, ConfigDict, Field, field_serializer
 from typing import Optional
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -290,7 +292,6 @@ class GPSCreate(BaseModel):
     # 기기에서 GPS를 실제로 측정한 시각. 누락 시에는 서버 저장 시각을 사용합니다.
     measured_at: Optional[datetime] = None
 
-
 class GPSResponse(ORMModel):
     gps_id: int
     subject_id: int
@@ -298,8 +299,16 @@ class GPSResponse(ORMModel):
     longitude: float
     measured_at: datetime
 
-    model_config = ConfigDict(from_attributes=True)
+    @field_serializer("measured_at")
+    def serialize_measured_at(self, value: datetime):
+        kst = ZoneInfo("Asia/Seoul")
 
+        if value.tzinfo is None:
+            value = value.replace(tzinfo=ZoneInfo("UTC"))
+
+        return value.astimezone(kst).isoformat(timespec="milliseconds")
+
+    model_config = ConfigDict(from_attributes=True)
 
 # model load
 class AIPlacePredictionRequest(BaseModel):
