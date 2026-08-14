@@ -354,10 +354,7 @@ def get_latest_gps_or_404(
     gps_record = (
         db.query(models.GPSRecord)
         .filter(models.GPSRecord.subject_id == subject_id)
-        .order_by(
-            models.GPSRecord.measured_at.desc(),
-            models.GPSRecord.gps_id.desc(),
-        )
+        .order_by(models.GPSRecord.gps_id.desc())
         .first()
     )
 
