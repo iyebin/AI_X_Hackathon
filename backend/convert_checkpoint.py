@@ -27,8 +27,8 @@ if not LMTAD_CODE_DIR.exists():
 sys.path.insert(0, str(LMTAD_CODE_DIR))
 
 # 원본 체크포인트 역직렬화에 필요
-from .model import LMTADConfig  # noqa: E402
-from backend.lmtad.datasets import POLConfig  # noqa: E402
+from lmtad.model import LMTADConfig  # noqa: E402
+from lmtad.datasets import POLConfig  # noqa: E402
 
 
 def convert_value(value):
