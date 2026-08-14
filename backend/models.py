@@ -12,6 +12,7 @@ from sqlalchemy import (
     String,
     Text,
     UniqueConstraint,
+    BigInteger,
 )
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
@@ -51,7 +52,7 @@ class Guardian(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(100), nullable=False)
-
+    auth_code = Column(String(6), nullable=True, index=True)
     gender = Column(
         SqlEnum(
             GenderType,
@@ -89,12 +90,12 @@ class Guardian(Base):
 class Institution(Base):
     __tablename__ = "institutions"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True)
+
     institution_code = Column(
         String(100),
-        nullable=False,
         unique=True,
-        index=True,
+        nullable=False,
     )
     name = Column(String(200), nullable=False)
 
@@ -143,6 +144,7 @@ class Subject(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(100), nullable=False)
+    auth_code = Column(String(6), nullable=True, index=True)
 
     gender = Column(
         SqlEnum(
@@ -167,18 +169,20 @@ class Subject(Base):
         nullable=False,
         default=SubjectType.GENERAL,
     )
+    auth_code = Column(
+        String(50),
+        nullable=True,
+        unique=True,
+        index=True,
+    )
 
     special_notes = Column(Text, nullable=True)
 
     institution_id = Column(
-        Integer,
-        ForeignKey(
-            "institutions.id",
-            ondelete="SET NULL",
-        ),
-        nullable=True,
-        index=True,
-    )
+    Integer,
+    ForeignKey("institutions.id", ondelete="SET NULL"),
+    nullable=True,
+)
 
     created_at = Column(
         DateTime(timezone=True),
@@ -210,6 +214,19 @@ class Subject(Base):
     )
     gps_records = relationship(
         "GPSRecord",
+        back_populates="subject",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
+    alerts = relationship(
+    "Alert",
+    back_populates="subject",
+    cascade="all, delete-orphan",
+    passive_deletes=True,
+)
+
+    auth_codes = relationship(
+        "SubjectAuthCode",
         back_populates="subject",
         cascade="all, delete-orphan",
         passive_deletes=True,
@@ -276,7 +293,7 @@ class InstitutionManager(Base):
     institution_id = Column(
         Integer,
         ForeignKey(
-            "institutions.id",
+            "institutions.institution_id",
             ondelete="CASCADE",
         ),
         nullable=False,
@@ -285,6 +302,24 @@ class InstitutionManager(Base):
 
     name = Column(String(100), nullable=False)
     phone = Column(String(30), nullable=False)
+    email = Column(
+        String(255),
+        nullable=False,
+        unique=True,
+        index=True,
+    )
+
+    login_id = Column(
+        String(100),
+        nullable=False,
+        unique=True,
+        index=True,
+    )
+
+    password_hash = Column(
+        String(255),
+        nullable=False,
+    )
     position = Column(String(100), nullable=True)
 
     created_at = Column(
@@ -298,7 +333,15 @@ class InstitutionManager(Base):
         onupdate=func.now(),
         nullable=False,
     )
-
+    institution_id = Column(
+            Integer,
+            ForeignKey(
+                "institutions.id",
+                ondelete="CASCADE",
+            ),
+            nullable=False,
+            index=True,
+        )
     institution = relationship(
         "Institution",
         back_populates="managers",
@@ -357,19 +400,18 @@ class ManagerAssignment(Base):
             name="uq_manager_subject",
         ),
     )
-
-
 class GPSRecord(Base):
     __tablename__ = "gps_records"
 
-    id = Column(Integer, primary_key=True, index=True)
+    gps_id = Column(
+        BigInteger,
+        primary_key=True,
+        index=True,
+    )
 
     subject_id = Column(
-        Integer,
-        ForeignKey(
-            "subjects.id",
-            ondelete="CASCADE",
-        ),
+        BigInteger,
+        ForeignKey("subjects.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
     )
@@ -387,4 +429,99 @@ class GPSRecord(Base):
     subject = relationship(
         "Subject",
         back_populates="gps_records",
+    )
+
+class Alert(Base):
+    __tablename__ = "alerts"
+
+    id = Column(
+        BigInteger,
+        primary_key=True,
+        index=True,
+    )
+
+    type = Column(
+        String(50),
+        nullable=False,
+    )
+
+    subject_id = Column(
+        BigInteger,
+        ForeignKey("subjects.id", ondelete="CASCADE"),
+        nullable=True,
+        index=True,
+    )
+
+    guardian_id = Column(
+        BigInteger,
+        ForeignKey("guardians.id", ondelete="CASCADE"),
+        nullable=True,
+        index=True,
+    )
+
+    message = Column(
+        Text,
+        nullable=False,
+    )
+
+    risk_score = Column(
+        Float,
+        nullable=True,
+    )
+
+    is_read = Column(
+        Boolean,
+        nullable=False,
+        default=False,
+        server_default="false",
+    )
+
+    created_at = Column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        nullable=False,
+        index=True,
+    )
+
+    # Subject.alerts 와 연결
+    subject = relationship(
+        "Subject",
+        back_populates="alerts",
+    )
+
+class SubjectAuthCode(Base):
+    __tablename__ = "subject_auth_codes"
+
+    id = Column(Integer, primary_key=True, index=True)
+
+    subject_id = Column(
+        Integer,
+        ForeignKey("subjects.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+
+    code = Column(String(6), nullable=False, index=True)
+
+    expires_at = Column(
+        DateTime(timezone=True),
+        nullable=False,
+        index=True,
+    )
+
+    used_at = Column(
+        DateTime(timezone=True),
+        nullable=True,
+    )
+
+    created_at = Column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        nullable=False,
+        index=True,
+    )
+
+    subject = relationship(
+        "Subject",
+        back_populates="auth_codes",
     )

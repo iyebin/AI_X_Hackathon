@@ -3,16 +3,22 @@ from typing import List
 
 from fastapi import Depends, FastAPI, HTTPException, Query, status
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 from facility_api import fetch_facilities
+from air import get_air_quality_by_gps
+from weather import get_weather_by_gps
 
 import models
 import schemas
 from database import Base, engine, get_db
 
 from contextlib import asynccontextmanager
+import secrets
+from datetime import datetime, timedelta, timezone
+import random
+import string
+import bcrypt
 
 from lmtad_runtime import LMTADRuntime
 
@@ -25,20 +31,72 @@ async def lifespan(app: FastAPI):
 
     print("[LMTAD] 모델 로딩 시작")
 
-    lmtad_runtime = LMTADRuntime()
+    try:
+        lmtad_runtime = LMTADRuntime()
 
-    print(
-        "[LMTAD] 모델 로딩 성공:",
-        f"features={lmtad_runtime.features},",
-        f"block_size={lmtad_runtime.block_size},",
-        f"vocab_size={lmtad_runtime.vocab_size},",
-        f"device={lmtad_runtime.device}",
-    )
+        print(
+            "[LMTAD] 모델 로딩 성공:",
+            f"features={lmtad_runtime.features},",
+            f"block_size={lmtad_runtime.block_size},",
+            f"vocab_size={lmtad_runtime.vocab_size},",
+            f"device={lmtad_runtime.device}",
+        )
+
+    except FileNotFoundError as e:
+        print(f"[LMTAD] 모델 파일 없음: {e}")
+        lmtad_runtime = None
+
+    except Exception as e:
+        print(f"[LMTAD] 모델 로딩 실패: {e}")
+        lmtad_runtime = None
 
     yield
 
     lmtad_runtime = None
     
+tags_metadata = [
+    {
+        "name": "기본",
+        "description": "서버 실행 상태를 확인합니다.",
+    },
+    {
+        "name": "기관",
+        "description": "기관 데이터 가져오기와 기관 CRUD를 관리합니다.",
+    },
+    {
+        "name": "보호대상자",
+        "description": "보호대상자를 등록·조회·수정·삭제합니다.",
+    },
+    {
+        "name": "보호자",
+        "description": "보호자를 등록·조회·수정·삭제합니다.",
+    },
+    {
+        "name": "보호자 등록 관계",
+        "description": "보호자와 보호대상자를 연결합니다.",
+    },
+    {
+        "name": "기관 관리자",
+        "description": "기관 소속 관리자를 관리합니다.",
+    },
+    {
+        "name": "담당 관리자 등록 관계",
+        "description": "기관 관리자를 보호대상자에게 배정합니다.",
+    },
+    {
+        "name": "GPS",
+        "description": "보호대상자의 위치를 저장하고 조회합니다.",
+    },
+    {
+        "name": "현재 위치 기반 기관 검색",
+        "description": "좌표 또는 최신 GPS 위치로 가까운 기관을 검색합니다.",
+    },
+    {
+        "name": "맞춤 기관 추천",
+        "description": "보호대상자 유형과 거리를 이용해 기관을 추천합니다.",
+    },
+]
+
 app = FastAPI(
     title="안심하랑께 백엔드 API",
     description="""
@@ -50,11 +108,12 @@ app = FastAPI(
 - GPS 위치 저장
 - 현재 위치 기반 주변 기관 검색
 - 보호대상자 유형과 거리 기반 맞춤 기관 추천
-- 브라우저 현재 위치 테스트 페이지
 """,
     version="3.0.0",
     lifespan=lifespan,
+    openapi_tags=tags_metadata,
 )
+AUTH_SPECIAL_CHARACTERS = "!@#$%^&*"
 
 app.add_middleware(
     CORSMiddleware,
@@ -70,6 +129,58 @@ def apply_updates(db_object, update_data):
     for field, value in values.items():
         setattr(db_object, field, value)
 
+# =========================================================
+# 알림 공통 함수
+# =========================================================
+
+DANGEROUS_RISK_LEVELS = {
+    "danger",
+    "emergency",
+    "critical",
+    "위험",
+    "긴급",
+    "심각",
+}
+
+
+def normalize_risk_level(value: str) -> str:
+    return value.strip().lower()
+
+def create_alerts_for_subject(
+    db: Session,
+    *,
+    subject_id: int,
+    alert_type: str,
+    message: str,
+    risk_score: float | None = None,
+):
+    # 해당 보호대상자와 연결된 보호자 조회
+    guardian_links = (
+        db.query(models.GuardianRegistration)
+        .filter(
+            models.GuardianRegistration.subject_id == subject_id
+        )
+        .all()
+    )
+
+    alerts = []
+
+    for link in guardian_links:
+        alert = models.Alert(
+            type=alert_type,
+            subject_id=subject_id,
+            guardian_id=link.guardian_id,
+            message=message,
+            risk_score=risk_score,
+            is_read=False,
+        )
+
+        db.add(alert)
+        alerts.append(alert)
+
+    db.flush()
+
+    return alerts
 
 def haversine_km(
     latitude1: float,
@@ -101,6 +212,51 @@ def haversine_km(
 
     return earth_radius_km * central_angle
 
+def generate_auth_code() -> str:
+    characters = [
+        random.choice(string.digits),
+        random.choice(string.digits),
+        random.choice(string.ascii_uppercase),
+        random.choice(string.ascii_lowercase),
+        random.choice(AUTH_SPECIAL_CHARACTERS),
+        random.choice(AUTH_SPECIAL_CHARACTERS),
+    ]
+
+    random.shuffle(characters)
+
+    return "".join(characters)
+
+def auth_code_exists(
+    db: Session,
+    auth_code: str,
+) -> bool:
+    subject_exists = (
+        db.query(models.Subject)
+        .filter(models.Subject.auth_code == auth_code)
+        .first()
+        is not None
+    )
+
+    guardian_exists = (
+        db.query(models.Guardian)
+        .filter(models.Guardian.auth_code == auth_code)
+        .first()
+        is not None
+    )
+
+    return subject_exists or guardian_exists
+
+def generate_unique_auth_code(db: Session) -> str:
+    for _ in range(100):
+        auth_code = generate_auth_code()
+
+        if not auth_code_exists(db, auth_code):
+            return auth_code
+
+    raise HTTPException(
+        status_code=500,
+        detail="고유한 인증코드를 생성하지 못했습니다.",
+    )
 
 def calculate_type_match_score(
     subject_type: models.SubjectType,
@@ -198,10 +354,7 @@ def get_latest_gps_or_404(
     gps_record = (
         db.query(models.GPSRecord)
         .filter(models.GPSRecord.subject_id == subject_id)
-        .order_by(
-            models.GPSRecord.measured_at.desc(),
-            models.GPSRecord.id.desc(),
-        )
+        .order_by(models.GPSRecord.gps_id.desc())
         .first()
     )
 
@@ -220,7 +373,6 @@ def root():
         "message": "안심하랑께 백엔드 서버가 실행 중입니다.",
         "version": "3.0.0",
         "swagger": "/docs",
-        "gps_test_page": "/gps-current",
     }
 
 
@@ -257,13 +409,6 @@ def create_guardian(
     db.refresh(guardian)
     return guardian
 
-@app.get("/test-api")
-async def test_api():
-    data = await fetch_facilities()
-    return {
-        "count": len(data),
-        "facilities": data
-    }
 
 @app.get(
     "/guardians",
@@ -299,7 +444,7 @@ def get_guardian(guardian_id: int, db: Session = Depends(get_db)):
 @app.patch(
     "/guardians/{guardian_id}",
     response_model=schemas.GuardianResponse,
-    tags=["보호자"],
+    tags=["보호자"],include_in_schema=False,
 )
 def update_guardian(
     guardian_id: int,
@@ -322,7 +467,7 @@ def update_guardian(
     return guardian
 
 
-@app.delete("/guardians/{guardian_id}", tags=["보호자"])
+@app.delete("/guardians/{guardian_id}", tags=["보호자"], include_in_schema=False,)
 def delete_guardian(guardian_id: int, db: Session = Depends(get_db)):
     guardian = db.get(models.Guardian, guardian_id)
     if not guardian:
@@ -438,15 +583,10 @@ def create_institution(
     tags=["기관"],
 )
 def list_institutions(
-    skip: int = Query(default=0, ge=0),
-    limit: int = Query(default=100, ge=1, le=500),
     db: Session = Depends(get_db),
 ):
     return (
         db.query(models.Institution)
-        .order_by(models.Institution.id)
-        .offset(skip)
-        .limit(limit)
         .all()
     )
 
@@ -500,76 +640,9 @@ def find_nearest_institutions(
 
 
 
-def find_nearest_facilities_compatibility(
-    latitude: float = Query(ge=-90, le=90),
-    longitude: float = Query(ge=-180, le=180),
-    radius_km: float = Query(default=10.0, gt=0, le=100),
-    limit: int = Query(default=5, ge=1, le=100),
-    db: Session = Depends(get_db),
-):
-    institutions = (
-        db.query(models.Institution)
-        .filter(
-            models.Institution.latitude.isnot(None),
-            models.Institution.longitude.isnot(None),
-        )
-        .all()
-    )
-
-    results = []
-
-    for institution in institutions:
-        distance = haversine_km(
-            latitude,
-            longitude,
-            institution.latitude,
-            institution.longitude,
-        )
-
-        if distance <= radius_km:
-            results.append(
-                {
-                    "id": institution.id,
-                    "external_id": institution.institution_code,
-                    "name": institution.name,
-                    "facility_type": institution.institution_type.value,
-                    "address": institution.address,
-                    "phone": institution.phone,
-                    "latitude": institution.latitude,
-                    "longitude": institution.longitude,
-                    "distance_km": round(distance, 3),
-                }
-            )
-
-    results.sort(key=lambda item: item["distance_km"])
-    return results[:limit]
-
-
-@app.get(
-    "/institutions/openapi-test",
-    tags=["공공데이터 기관 가져오기"],
-)
-async def test_institution_openapi():
-    """공공데이터 API 연결과 파싱 결과를 확인합니다. DB에는 저장하지 않습니다."""
-    try:
-        facilities = await fetch_facilities()
-        return {
-            "message": "공공데이터 API 연결 성공",
-            "count": len(facilities),
-            "sample": facilities[:5],
-        }
-    except RuntimeError as exc:
-        raise HTTPException(status_code=502, detail=str(exc)) from exc
-    except Exception as exc:
-        raise HTTPException(
-            status_code=500,
-            detail=f"예상하지 못한 오류가 발생했습니다: {exc}",
-        ) from exc
-
-
 @app.post(
     "/institutions/import-openapi",
-    tags=["공공데이터 기관 가져오기"],
+    tags=["기관"],
 )
 async def import_institutions_from_openapi(
     update_existing: bool = Query(
@@ -709,6 +782,7 @@ def get_institution(institution_id: int, db: Session = Depends(get_db)):
     "/institutions/{institution_id}",
     response_model=schemas.InstitutionResponse,
     tags=["기관"],
+    include_in_schema=False,
 )
 def update_institution(
     institution_id: int,
@@ -742,7 +816,7 @@ def update_institution(
     return institution
 
 
-@app.delete("/institutions/{institution_id}", tags=["기관"])
+@app.delete("/institutions/{institution_id}", tags=["기관"], include_in_schema=False,)
 def delete_institution(institution_id: int, db: Session = Depends(get_db)):
     institution = db.get(models.Institution, institution_id)
     if not institution:
@@ -787,6 +861,7 @@ def create_subject(
     db.add(subject)
     db.commit()
     db.refresh(subject)
+    
     return subject
 
 
@@ -825,6 +900,7 @@ def get_subject(subject_id: int, db: Session = Depends(get_db)):
     "/subjects/{subject_id}",
     response_model=schemas.SubjectResponse,
     tags=["보호대상자"],
+    include_in_schema=False,
 )
 def update_subject(
     subject_id: int,
@@ -848,6 +924,15 @@ def update_subject(
                 )
 
     apply_updates(subject, subject_data)
+    try:
+            db.commit()
+            db.refresh(subject)
+    except IntegrityError:
+            db.rollback()
+            raise HTTPException(status_code=409, detail="이미 사용 중인 연락처입니다.")
+
+    return subject
+        
 def guardian_registration_to_detail(
     registration: models.GuardianRegistration,
 ) -> dict:
@@ -892,17 +977,10 @@ def guardian_registration_to_detail(
             "institution_id": subject.institution_id,
         },
     }
-    try:
-        db.commit()
-        db.refresh(subject)
-    except IntegrityError:
-        db.rollback()
-        raise HTTPException(status_code=409, detail="이미 사용 중인 연락처입니다.")
-
-    return subject
 
 
-@app.delete("/subjects/{subject_id}", tags=["보호대상자"])
+
+@app.delete("/subjects/{subject_id}", tags=["보호대상자"], include_in_schema=False,)
 def delete_subject(subject_id: int, db: Session = Depends(get_db)):
     subject = db.get(models.Subject, subject_id)
     if not subject:
@@ -993,6 +1071,7 @@ def list_guardian_registrations(
     "/guardian-registrations/{guardian_id}/{subject_id}",
     response_model=schemas.GuardianRegistrationResponse,
     tags=["보호자 등록 관계"],
+    include_in_schema=False,
 )
 def update_guardian_registration(
     guardian_id: int,
@@ -1034,7 +1113,7 @@ def update_guardian_registration(
 
 @app.delete(
     "/guardian-registrations/{guardian_id}/{subject_id}",
-    tags=["보호자 등록 관계"],
+    tags=["보호자 등록 관계"],include_in_schema=False,
 )
 def delete_guardian_registration(
     guardian_id: int,
@@ -1125,6 +1204,7 @@ def get_institution_manager(
     "/institution-managers/{manager_id}",
     response_model=schemas.InstitutionManagerResponse,
     tags=["기관 관리자"],
+    include_in_schema=False,
 )
 def update_institution_manager(
     manager_id: int,
@@ -1154,7 +1234,7 @@ def update_institution_manager(
     return manager
 
 
-@app.delete("/institution-managers/{manager_id}", tags=["기관 관리자"])
+@app.delete("/institution-managers/{manager_id}", tags=["기관 관리자"], include_in_schema=False,)
 def delete_institution_manager(
     manager_id: int,
     db: Session = Depends(get_db),
@@ -1167,7 +1247,108 @@ def delete_institution_manager(
     db.commit()
     return {"message": "기관 관리자가 삭제되었습니다.", "manager_id": manager_id}
 
+@app.post(
+    "/institution-managers/signup",
+    response_model=schemas.InstitutionManagerAuthResponse,
+    status_code=status.HTTP_201_CREATED,
+    tags=["기관 관리자 인증"],
+)
+def signup_institution_manager(
+    data: schemas.InstitutionManagerSignup,
+    db: Session = Depends(get_db),
+):
+    institution = db.get(
+        models.Institution,
+        data.institution_id,
+    )
 
+    if not institution:
+        raise HTTPException(
+            status_code=404,
+            detail="기관을 찾을 수 없습니다.",
+        )
+
+    existing_login_id = (
+        db.query(models.InstitutionManager)
+        .filter(
+            models.InstitutionManager.login_id
+            == data.login_id
+        )
+        .first()
+    )
+
+    if existing_login_id:
+        raise HTTPException(
+            status_code=409,
+            detail="이미 사용 중인 아이디입니다.",
+        )
+
+    existing_email = (
+        db.query(models.InstitutionManager)
+        .filter(
+            models.InstitutionManager.email
+            == data.email
+        )
+        .first()
+    )
+
+    if existing_email:
+        raise HTTPException(
+            status_code=409,
+            detail="이미 사용 중인 이메일입니다.",
+        )
+
+    manager = models.InstitutionManager(
+        institution_id=data.institution_id,
+        name=data.name,
+        phone=data.phone,
+        email=data.email,
+        login_id=data.login_id,
+        password_hash=hash_password(
+            data.password
+        ),
+    )
+
+    db.add(manager)
+    db.commit()
+    db.refresh(manager)
+
+    return manager
+
+@app.post(
+    "/institution-managers/login",
+    response_model=schemas.InstitutionManagerAuthResponse,
+    tags=["기관 관리자 인증"],
+)
+def login_institution_manager(
+    data: schemas.InstitutionManagerLogin,
+    db: Session = Depends(get_db),
+):
+    manager = (
+        db.query(models.InstitutionManager)
+        .filter(
+            models.InstitutionManager.login_id
+            == data.login_id
+        )
+        .first()
+    )
+
+    if not manager:
+        raise HTTPException(
+            status_code=401,
+            detail="아이디 또는 비밀번호가 올바르지 않습니다.",
+        )
+
+    if not verify_password(
+        data.password,
+        manager.password_hash,
+    ):
+        raise HTTPException(
+            status_code=401,
+            detail="아이디 또는 비밀번호가 올바르지 않습니다.",
+        )
+
+    return manager
 # =========================================================
 # 기관 관리자 ↔ 보호대상자 연결
 # =========================================================
@@ -1242,6 +1423,7 @@ def list_manager_assignments(
     "/manager-assignments/{manager_id}/{subject_id}",
     response_model=schemas.ManagerAssignmentResponse,
     tags=["담당 관리자 등록 관계"],
+    include_in_schema=False,
 )
 def update_manager_assignment(
     manager_id: int,
@@ -1285,7 +1467,7 @@ def update_manager_assignment(
 
 @app.delete(
     "/manager-assignments/{manager_id}/{subject_id}",
-    tags=["담당 관리자 등록 관계"],
+    tags=["담당 관리자 등록 관계"],include_in_schema=False,
 )
 def delete_manager_assignment(
     manager_id: int,
@@ -1341,13 +1523,6 @@ def save_gps(
     return gps_record
 
 
-def save_gps_compatibility(
-    gps_data: schemas.GPSCreate,
-    db: Session = Depends(get_db),
-):
-    return save_gps(gps_data, db)
-
-
 @app.get(
     "/gps/latest/{subject_id}",
     response_model=schemas.GPSResponse,
@@ -1383,7 +1558,7 @@ def get_gps_history(
         .filter(models.GPSRecord.subject_id == subject_id)
         .order_by(
             models.GPSRecord.measured_at.desc(),
-            models.GPSRecord.id.desc(),
+            models.GPSRecord.gps_id.desc(),
         )
         .limit(limit)
         .all()
@@ -1533,288 +1708,443 @@ def recommend_institutions_for_subject(
         "recommendations": recommendations[:limit],
     }
 
-
-# =========================================================
-# 브라우저 현재 위치 테스트 페이지
-# =========================================================
-@app.get(
-    "/gps-current",
-    response_class=HTMLResponse,
-    tags=["GPS 테스트 페이지"],
+@app.post(
+    "/subjects/{subject_id}/auth-code",
+    response_model=schemas.AuthCodeResponse,
+    tags=["알림"],
 )
-def gps_current_page():
-    return """
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>현재 위치 기반 기관 검색</title>
-    <style>
-        body {
-            max-width: 760px;
-            margin: 40px auto;
-            padding: 20px;
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-        }
-        input, button {
-            box-sizing: border-box;
-            width: 100%;
-            margin: 8px 0;
-            padding: 12px;
-            font-size: 16px;
-        }
-        button {
-            cursor: pointer;
-        }
-        pre {
-            overflow-x: auto;
-            padding: 16px;
-            border-radius: 8px;
-            background: #f4f4f4;
-            white-space: pre-wrap;
-        }
-    </style>
-</head>
-<body>
-    <h1>현재 위치 기반 기관 검색</h1>
+def issue_subject_auth_code(
+    subject_id: int,
+    db: Session = Depends(get_db),
+):
+    subject = db.get(
+        models.Subject,
+        subject_id,
+    )
 
-    <label for="subjectId">보호대상자 ID</label>
-    <input id="subjectId" type="number" min="1" value="1">
-
-    <label for="radiusKm">검색 반경(km)</label>
-    <input id="radiusKm" type="number" min="1" max="100" value="10">
-
-    <button onclick="saveLocation()">현재 위치 저장</button>
-    <button onclick="saveAndFindNearest()">현재 위치 저장 후 주변 기관 찾기</button>
-    <button onclick="findNearest()">저장된 위치로 주변 기관 찾기</button>
-    <button onclick="findRecommended()">맞춤 기관 추천받기</button>
-
-    <h2>결과</h2>
-    <pre id="result">아직 실행하지 않았습니다.</pre>
-
-    <script>
-        const resultElement = document.getElementById("result");
-
-        function getSubjectId() {
-            const value = Number(document.getElementById("subjectId").value);
-            if (!value || value < 1) {
-                throw new Error("올바른 보호대상자 ID를 입력하세요.");
-            }
-            return value;
-        }
-
-        function getRadiusKm() {
-            const value = Number(document.getElementById("radiusKm").value);
-            if (!value || value <= 0) {
-                throw new Error("올바른 검색 반경을 입력하세요.");
-            }
-            return value;
-        }
-
-        function getCurrentPosition() {
-            return new Promise((resolve, reject) => {
-                if (!navigator.geolocation) {
-                    reject(new Error("현재 브라우저는 위치 기능을 지원하지 않습니다."));
-                    return;
-                }
-
-                navigator.geolocation.getCurrentPosition(
-                    resolve,
-                    (error) => {
-                        if (error.code === 1) {
-                            reject(
-                                new Error(
-                                    "위치 권한이 거부되었습니다. 브라우저 사이트 설정에서 위치 권한을 허용하세요."
-                                )
-                            );
-                            return;
-                        }
-                        reject(new Error("현재 위치를 가져오지 못했습니다."));
-                    },
-                    {
-                        enableHighAccuracy: true,
-                        timeout: 15000,
-                        maximumAge: 0
-                    }
-                );
-            });
-        }
-
-        async function saveLocation() {
-            const subjectId = getSubjectId();
-            resultElement.textContent = "현재 위치를 가져오는 중입니다...";
-
-            const position = await getCurrentPosition();
-
-            const response = await fetch("/gps", {
-                method: "POST",
-                headers: {"Content-Type": "application/json"},
-                body: JSON.stringify({
-                    subject_id: subjectId,
-                    latitude: position.coords.latitude,
-                    longitude: position.coords.longitude
-                })
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.detail || "GPS 저장 실패");
-            }
-
-            resultElement.textContent = JSON.stringify(data, null, 2);
-            return data;
-        }
-
-        async function findNearest() {
-            const subjectId = getSubjectId();
-            const radiusKm = getRadiusKm();
-
-            resultElement.textContent = "주변 기관을 검색하는 중입니다...";
-
-            const response = await fetch(
-                `/subjects/${subjectId}/institutions/nearest?radius_km=${radiusKm}&limit=10`
-            );
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.detail || "기관 검색 실패");
-            }
-
-            resultElement.textContent = JSON.stringify(data, null, 2);
-        }
-
-        async function saveAndFindNearest() {
-            await saveLocation();
-            await findNearest();
-        }
-
-        async function findRecommended() {
-            const subjectId = getSubjectId();
-            const radiusKm = getRadiusKm();
-
-            resultElement.textContent = "맞춤 기관을 추천하는 중입니다...";
-
-            const response = await fetch(
-                `/subjects/${subjectId}/institutions/recommended?radius_km=${radiusKm}&limit=10`
-            );
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.detail || "맞춤 추천 실패");
-            }
-
-            resultElement.textContent = JSON.stringify(data, null, 2);
-        }
-
-        async function runSafely(action) {
-            try {
-                await action();
-            } catch (error) {
-                resultElement.textContent = "오류: " + error.message;
-            }
-        }
-
-        const originalSaveLocation = saveLocation;
-        const originalSaveAndFindNearest = saveAndFindNearest;
-        const originalFindNearest = findNearest;
-        const originalFindRecommended = findRecommended;
-
-        saveLocation = () => runSafely(originalSaveLocation);
-        saveAndFindNearest = () => runSafely(originalSaveAndFindNearest);
-        findNearest = () => runSafely(originalFindNearest);
-        findRecommended = () => runSafely(originalFindRecommended);
-    </script>
-</body>
-</html>
-"""
-#ai 모델
-@app.get(
-    "/ai/health",
-    tags=["AI 모델"],
-)
-def ai_health():
-    if lmtad_runtime is None:
+    if not subject:
         raise HTTPException(
-            status_code=503,
-            detail="AI 모델이 로드되지 않았습니다.",
+            status_code=404,
+            detail="보호대상자를 찾을 수 없습니다.",
         )
+
+    # 6자리 인증코드 생성
+    code = f"{secrets.randbelow(1_000_000):06d}"
+
+    # 현재 시간 기준 10분 유효
+    expires_at = (
+        datetime.now(timezone.utc)
+        + timedelta(minutes=10)
+    )
+
+    # 인증코드 DB 저장
+    auth_code = models.SubjectAuthCode(
+        subject_id=subject_id,
+        code=code,
+        expires_at=expires_at,
+    )
+
+    db.add(auth_code)
+
+    # 보호자에게 인증 요청 알림 자동 생성
+    created_alerts = create_alerts_for_subject(
+        db,
+        subject_id=subject_id,
+        alert_type="auth_request",
+        message=(
+            "앱에서 보호자 인증을 요청했습니다. "
+            f"인증코드: {code} "
+            "(10분간 유효)"
+        ),
+    )
+
+    db.commit()
+
+    db.refresh(auth_code)
+
+    for alert in created_alerts:
+        db.refresh(alert)
 
     return {
-        "status": "ok",
-        "model_loaded": True,
-        "features": lmtad_runtime.features,
-        "block_size": int(
-            lmtad_runtime.block_size
-        ),
-        "vocab_size": int(
-            lmtad_runtime.vocab_size
-        ),
-        "loaded_vocab_size": len(
-            lmtad_runtime.vocab
-        ),
-        "device": str(
-            lmtad_runtime.device
-        ),
-        "threshold_configured": (
-            lmtad_runtime.threshold
-            is not None
-        ),
+        "subject_id": subject_id,
+        "auth_code": code,
+        "expires_at": expires_at,
+        "created_alert_ids": [
+            alert.id
+            for alert in created_alerts
+        ],
     }
 
+@app.post(
+    "/guardians/{guardian_id}/auth-code",
+    response_model=schemas.AuthCodeResponse,
+    tags=["인증코드"],
+)
+def issue_guardian_auth_code(
+    guardian_id: int,
+    db: Session = Depends(get_db),
+):
+    guardian = (
+        db.query(models.Guardian)
+        .filter(models.Guardian.id == guardian_id)
+        .first()
+    )
+
+    if guardian is None:
+        raise HTTPException(
+            status_code=404,
+            detail="보호자를 찾을 수 없습니다.",
+        )
+
+    auth_code = generate_unique_auth_code(db)
+    guardian.auth_code = auth_code
+
+    alert = models.Alert(
+        type="auth",
+        guardian_id=guardian.id,
+        message=f"{guardian.name}님의 인증코드가 발급되었습니다.",
+        is_read=False
+    )
+    db.add(alert)
+    db.commit()
+    db.refresh(guardian)
+    db.refresh(alert)
+
+    return {
+        "user_type": "guardian",
+        "user_id": guardian.id,
+        "auth_code": guardian.auth_code,
+    }
 
 @app.post(
-    "/ai/predict/places",
-    response_model=schemas.AIPlacePredictionResponse,
-    tags=["AI 모델"],
+    "/auth-codes/verify",
+    response_model=schemas.AuthCodeVerifyResponse,
+    tags=["인증코드"],
 )
-def predict_places(
-    data: schemas.AIPlacePredictionRequest,
+def verify_auth_code(
+    request: schemas.AuthCodeVerifyRequest,
+    db: Session = Depends(get_db),
 ):
-    if lmtad_runtime is None:
-        raise HTTPException(
-            status_code=503,
-            detail="AI 모델이 로드되지 않았습니다.",
-        )
+    auth_code = request.auth_code.strip()
 
-    try:
-        values, token_ids = (
-            lmtad_runtime.encode_places(
-                user_token=data.user_token,
-                weekday_token=data.weekday_token,
-                places=data.places,
-            )
-        )
-
-        anomaly_score = (
-            lmtad_runtime.predict(
-                token_ids
-            )
-        )
-
-    except ValueError as exc:
-        raise HTTPException(
-            status_code=422,
-            detail=str(exc),
-        ) from exc
-
-    is_anomaly = (
-        anomaly_score
-        >= lmtad_runtime.threshold
-        if lmtad_runtime.threshold
-        is not None
-        else None
+    subject = (
+        db.query(models.Subject)
+        .filter(models.Subject.auth_code == auth_code)
+        .first()
     )
+
+    if subject is not None:
+        return {
+            "valid": True,
+            "user_type": "subject",
+            "user_id": subject.id,
+            "message": "보호대상자 인증코드가 확인되었습니다.",
+        }
+
+    guardian = (
+        db.query(models.Guardian)
+        .filter(models.Guardian.auth_code == auth_code)
+        .first()
+    )
+
+    if guardian is not None:
+        return {
+            "valid": True,
+            "user_type": "guardian",
+            "user_id": guardian.id,
+            "message": "보호자 인증코드가 확인되었습니다.",
+        }
+
+    return {
+        "valid": False,
+        "user_type": None,
+        "user_id": None,
+        "message": "유효하지 않은 인증코드입니다.",
+    }
+
+@app.patch(
+    "/subjects/{subject_id}/verification-code",
+    tags=["보호대상자"],
+    include_in_schema=False,
+)
+@app.patch(
+    "/subjects/{subject_id}/auth-code",
+    tags=["보호대상자"],
+    include_in_schema=False,
+)
+def save_auth_code(
+    subject_id: int,
+    data: schemas.AuthCodeUpdate,
+    db: Session = Depends(get_db),
+):
+    subject = db.get(models.Subject, subject_id)
+
+    if not subject:
+        raise HTTPException(
+            status_code=404,
+            detail="보호대상자를 찾을 수 없습니다.",
+        )
+
+    subject.auth_code = data.auth_code
+
+    # 이 보호대상자와 연결된 보호자들 찾기
+    guardian_links = (
+        db.query(models.GuardianRegistration)
+        .filter(
+            models.GuardianRegistration.subject_id == subject.id
+        )
+        .all()
+    )
+
+    # 연결된 보호자마다 인증 요청 알림 생성
+    for link in guardian_links:
+        alert = models.Alert(
+            subject_id=subject.id,
+            guardian_id=link.guardian_id,
+            type="auth",
+            message=(
+                f"{subject.name}님의 인증 요청이 있습니다. "
+                f"인증코드: {subject.auth_code}"
+            ),
+            is_read=False,
+        )
+        db.add(alert)
+
+    # 인증코드 저장 + 알림 저장을 한 번에 commit
+    db.commit()
+    db.refresh(subject)
+
+    return {
+        "subject_id": subject.id,
+        "auth_code": subject.auth_code,
+    }
+@app.get(
+    "/environment/air/{subject_id}",
+    tags=["환경정보"],
+)
+
+@app.get(
+    "/environment/weather/{subject_id}",
+    tags=["환경정보"],
+)
+def read_weather_by_gps(
+    subject_id: int,
+    db: Session = Depends(get_db),
+):
+    subject = db.get(
+        models.Subject,
+        subject_id,
+    )
+
+    if not subject:
+        raise HTTPException(
+            status_code=404,
+            detail="보호대상자를 찾을 수 없습니다.",
+        )
+
+    latest_gps = (
+        db.query(models.GPSRecord)
+        .filter(
+            models.GPSRecord.subject_id
+            == subject_id
+        )
+        .order_by(
+            models.GPSRecord.measured_at.desc(),
+            models.GPSRecord.gps_id.desc(),
+        )
+        .first()
+    )
+
+    if latest_gps is None:
+        raise HTTPException(
+            status_code=404,
+            detail="저장된 GPS 위치가 없습니다.",
+        )
+
+    return get_weather_by_gps(
+        latest_gps.latitude,
+        latest_gps.longitude,
+    )
+
+def read_air_quality(
+    subject_id: int,
+    db: Session = Depends(get_db),
+):
+    latest_gps = (
+        db.query(models.GPSRecord)
+        .filter(
+            models.GPSRecord.subject_id == subject_id
+        )
+        .order_by(
+            models.GPSRecord.measured_at.desc(),
+            models.GPSRecord.gps_id.desc(),
+        )
+        .first()
+    )
+
+    if latest_gps is None:
+        raise HTTPException(
+            status_code=404,
+            detail="저장된 GPS 위치가 없습니다.",
+        )
+
+    return get_air_quality_by_gps(
+        latest_gps.latitude,
+        latest_gps.longitude,
+    )
+# =========================================================
+# AI 위험도 결과 → 위험 알림 자동 생성
+# =========================================================
+
+@app.post(
+    "/risk-results",
+    response_model=schemas.RiskResultResponse,
+    tags=["알림"],
+)
+def receive_risk_result(
+    data: schemas.RiskResultCreate,
+    db: Session = Depends(get_db),
+):
+    subject = db.get(
+        models.Subject,
+        data.subject_id,
+    )
+
+    if not subject:
+        raise HTTPException(
+            status_code=404,
+            detail="보호대상자를 찾을 수 없습니다.",
+        )
+
+    normalized = normalize_risk_level(
+        data.risk_level
+    )
+
+    created_alerts = []
+
+    latitude = data.latitude
+    longitude = data.longitude
+
+    # AI가 좌표를 안 보내면 최신 GPS 위치 사용
+    if latitude is None or longitude is None:
+        latest_gps = (
+            db.query(models.GPSRecord)
+            .filter(
+                models.GPSRecord.subject_id
+                == data.subject_id
+            )
+            .order_by(
+                models.GPSRecord.measured_at.desc(),
+                models.GPSRecord.gps_id.desc(),
+            )
+            .first()
+        )
+
+        if latest_gps:
+            latitude = latest_gps.latitude
+            longitude = latest_gps.longitude
+
+    # 위험 단계일 때만 알림 자동 생성
+    if normalized in DANGEROUS_RISK_LEVELS:
+
+        reason = (
+            data.reason
+            or "GPS 기반 위험도 모델에서 위험 단계가 감지되었습니다."
+        )
+
+        if data.risk_score is not None:
+            score_text = (
+                f" (위험 점수: {data.risk_score:g})"
+            )
+        else:
+            score_text = ""
+
+        created_alerts = create_alerts_for_subject(
+            db,
+            subject_id=data.subject_id,
+            alert_type="risk",
+            message=(
+                f"{subject.name}님 위험 감지: "
+                f"{reason}{score_text}"
+            ),
+            risk_score=data.risk_score,
+        )
+
+    db.commit()
+
+    for alert in created_alerts:
+        db.refresh(alert)
 
     return {
         "subject_id": data.subject_id,
-        "values": values,
-        "token_ids": token_ids,
-        "token_count": len(token_ids),
-        "anomaly_score": anomaly_score,
-        "is_anomaly": is_anomaly,
+        "risk_level": data.risk_level,
+        "risk_score": data.risk_score,
+        "alert_created": bool(created_alerts),
+        "created_alert_ids": [
+            alert.id
+            for alert in created_alerts
+        ],
     }
+
+@app.get(
+    "/alerts",
+    response_model=list[schemas.AlertResponse],
+    tags=["알림"]
+)
+def get_alerts(
+    is_read: bool | None = None,
+    alert_type: str | None = None,
+    db: Session = Depends(get_db)
+):
+    query = db.query(models.Alert)
+
+    if is_read is not None:
+        query = query.filter(models.Alert.is_read == is_read)
+
+    if alert_type:
+        query = query.filter(models.Alert.type == alert_type)
+
+    return query.order_by(models.Alert.created_at.desc()).all()
+
+@app.patch(
+    "/alerts/{alert_id}/read",
+    response_model=schemas.AlertResponse,
+    tags=["알림"]
+)
+def mark_alert_as_read(
+    alert_id: int,
+    db: Session = Depends(get_db)
+):
+    alert = (
+        db.query(models.Alert)
+        .filter(models.Alert.id == alert_id)
+        .first()
+    )
+
+    if not alert:
+        raise HTTPException(
+            status_code=404,
+            detail="알림을 찾을 수 없습니다."
+        )
+
+    alert.is_read = True
+    db.commit()
+    db.refresh(alert)
+
+    return alert
+
+def hash_password(password: str) -> str:
+    return bcrypt.hashpw(
+        password.encode("utf-8"),
+        bcrypt.gensalt(),
+    ).decode("utf-8")
+
+
+def verify_password(
+    password: str,
+    password_hash: str,
+) -> bool:
+    return bcrypt.checkpw(
+        password.encode("utf-8"),
+        password_hash.encode("utf-8"),
+    )
