@@ -272,3 +272,19 @@ class GPSResponse(ORMModel):
     latitude: float
     longitude: float
     measured_at: datetime
+
+#model load
+class AIPlacePredictionRequest(BaseModel):
+    subject_id: int
+    user_token: str
+    weekday_token: str
+    places: list[str]
+
+
+class AIPlacePredictionResponse(BaseModel):
+    subject_id: int
+    values: list[str]
+    token_ids: list[int]
+    token_count: int
+    anomaly_score: float
+    is_anomaly: bool | None

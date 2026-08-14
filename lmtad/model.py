@@ -12,7 +12,7 @@ import torch
 from torch import nn, Tensor
 from torch.nn import functional as F
 
-from utils import log
+from .utils import log
 
 
 class LayerNorm(nn.Module):
