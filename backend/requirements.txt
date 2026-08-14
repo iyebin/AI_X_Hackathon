@@ -9,3 +9,7 @@ torch
 numpy
 tqdm
 pandas
+requests
+pyproj
+bcrypt
+resend
