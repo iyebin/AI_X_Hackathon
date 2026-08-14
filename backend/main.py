@@ -21,6 +21,12 @@ import string
 import bcrypt
 
 from lmtad_runtime import LMTADRuntime
+import os
+import random
+from datetime import datetime, timedelta, timezone
+
+import resend
+resend.api_key = os.getenv("RESEND_API_KEY")
 
 lmtad_runtime: LMTADRuntime | None = None
 Base.metadata.create_all(bind=engine)
@@ -1268,6 +1274,24 @@ def signup_institution_manager(
             detail="기관을 찾을 수 없습니다.",
         )
 
+    verified_email = (
+        db.query(models.EmailVerification)
+        .filter(
+            models.EmailVerification.email == data.email.strip().lower(),
+            models.EmailVerification.verified_at.is_not(None),
+        )
+        .order_by(
+            models.EmailVerification.verified_at.desc()
+        )
+        .first()
+    )
+
+    if not verified_email:
+        raise HTTPException(
+            status_code=403,
+            detail="이메일 인증이 필요합니다.",
+        )
+    
     existing_login_id = (
         db.query(models.InstitutionManager)
         .filter(
@@ -2163,61 +2187,100 @@ def verify_password(
 def generate_sms_code() -> str:
     return f"{secrets.randbelow(1000000):06d}"
 
+def send_verification_email(
+    email: str,
+    code: str,
+):
+    if not resend.api_key:
+        raise HTTPException(
+            status_code=500,
+            detail="RESEND_API_KEY가 설정되지 않았습니다.",
+        )
+
+    try:
+        return resend.Emails.send({
+            "from": "안심하랑께 <onboarding@resend.dev>",
+            "to": [email],
+            "subject": "[안심하랑께] 이메일 인증번호",
+            "html": f"""
+                <h2>안심하랑께 이메일 인증</h2>
+                <p>인증번호는</p>
+                <h1>{code}</h1>
+                <p>입니다.</p>
+                <p>인증번호는 3분간 유효합니다.</p>
+            """,
+        })
+
+    except Exception as e:
+        print(f"[EMAIL ERROR] {e}")
+
+        raise HTTPException(
+            status_code=502,
+            detail="인증 이메일 발송에 실패했습니다.",
+        )
+
 @app.post(
-    "/auth/sms/send",
-    response_model=schemas.SMSSendResponse,
-    tags=["SMS 인증"],
+    "/auth/email/send",
+    tags=["이메일 인증"],
 )
-def send_sms_verification(
-    data: schemas.SMSSendRequest,
+def send_email_verification(
+    data: schemas.EmailSendRequest,
     db: Session = Depends(get_db),
 ):
-    code = generate_sms_code()
+    email = data.email.strip().lower()
 
-    expires_at = (
-        datetime.now(timezone.utc)
-        + timedelta(minutes=3)
-    )
+    code = f"{random.randint(0, 999999):06d}"
 
-    verification = models.SMSVerification(
-        phone=data.phone,
+    now = datetime.now(timezone.utc)
+    expires_at = now + timedelta(minutes=3)
+
+    verification = models.EmailVerification(
+        email=email,
         code=code,
         expires_at=expires_at,
+        attempts=0,
     )
 
     db.add(verification)
     db.commit()
+    db.refresh(verification)
 
-    # 실제 SMS 전송 서비스 연결 위치
-    # send_sms(data.phone, code)
+    try:
+        send_verification_email(
+            email=email,
+            code=code,
+        )
 
-    print(
-        f"[SMS 인증] phone={data.phone}, code={code}"
-    )
+    except Exception:
+        # 메일이 안 갔는데 DB에는 인증번호가 남는 상황 방지
+        db.delete(verification)
+        db.commit()
+        raise
 
     return {
-        "phone": data.phone,
+        "message": "인증번호를 이메일로 전송했습니다.",
+        "email": email,
         "expires_in": 180,
-        "message": "인증번호가 발송되었습니다.",
     }
 
 @app.post(
-    "/auth/sms/verify",
-    response_model=schemas.SMSVerifyResponse,
-    tags=["SMS 인증"],
+    "/auth/email/verify",
+    tags=["이메일 인증"],
 )
-def verify_sms_code(
-    data: schemas.SMSVerifyRequest,
+def verify_email(
+    data: schemas.EmailVerifyRequest,
     db: Session = Depends(get_db),
 ):
+    email = data.email.strip().lower()
+
     verification = (
-        db.query(models.SMSVerification)
+        db.query(models.EmailVerification)
         .filter(
-            models.SMSVerification.phone
-            == data.phone
+            models.EmailVerification.email == email,
+            models.EmailVerification.verified_at.is_(None),
         )
         .order_by(
-            models.SMSVerification.created_at.desc()
+            models.EmailVerification.id.desc()
         )
         .first()
     )
@@ -2230,13 +2293,15 @@ def verify_sms_code(
 
     now = datetime.now(timezone.utc)
 
-    if verification.verified_at is not None:
-        raise HTTPException(
-            status_code=400,
-            detail="이미 사용된 인증번호입니다.",
+    expires_at = verification.expires_at
+
+    # DB 드라이버가 timezone 정보를 제거해서 반환하는 경우 대비
+    if expires_at.tzinfo is None:
+        expires_at = expires_at.replace(
+            tzinfo=timezone.utc
         )
 
-    if verification.expires_at < now:
+    if now > expires_at:
         raise HTTPException(
             status_code=400,
             detail="인증번호가 만료되었습니다.",
@@ -2245,12 +2310,11 @@ def verify_sms_code(
     if verification.attempts >= 5:
         raise HTTPException(
             status_code=429,
-            detail="인증 시도 횟수를 초과했습니다.",
+            detail="인증번호 입력 횟수를 초과했습니다. 다시 요청해주세요.",
         )
 
-    verification.attempts += 1
-
     if verification.code != data.code:
+        verification.attempts += 1
         db.commit()
 
         raise HTTPException(
@@ -2259,10 +2323,10 @@ def verify_sms_code(
         )
 
     verification.verified_at = now
-
     db.commit()
 
     return {
         "verified": True,
-        "message": "휴대폰 인증이 완료되었습니다.",
+        "email": email,
+        "message": "이메일 인증이 완료되었습니다.",
     }

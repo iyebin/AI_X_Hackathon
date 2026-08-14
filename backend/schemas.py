@@ -374,21 +374,11 @@ class AlertResponse(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
-class SMSSendRequest(BaseModel):
-    phone: str
+
+class EmailSendRequest(BaseModel):
+    email: str
 
 
-class SMSSendResponse(BaseModel):
-    phone: str
-    expires_in: int
-    message: str
-
-
-class SMSVerifyRequest(BaseModel):
-    phone: str
+class EmailVerifyRequest(BaseModel):
+    email: str
     code: str
-
-
-class SMSVerifyResponse(BaseModel):
-    verified: bool
-    message: str
