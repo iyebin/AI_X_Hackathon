@@ -1,4 +1,6 @@
 from datetime import date, datetime
+from zoneinfo import ZoneInfo
+from pydantic import BaseModel, ConfigDict, Field, field_serializer
 from typing import Optional
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -287,22 +289,49 @@ class GPSCreate(BaseModel):
     subject_id: int
     latitude: float = Field(ge=-90, le=90)
     longitude: float = Field(ge=-180, le=180)
+    # 기기에서 GPS를 실제로 측정한 시각. 누락 시에는 서버 저장 시각을 사용합니다.
+    measured_at: Optional[datetime] = None
 
-
-class GPSResponse(GPSCreate):
+class GPSResponse(ORMModel):
     gps_id: int
+    subject_id: int
+    latitude: float
+    longitude: float
     measured_at: datetime
+
+    @field_serializer("measured_at")
+    def serialize_measured_at(self, value: datetime):
+        kst = ZoneInfo("Asia/Seoul")
+
+        if value.tzinfo is None:
+            value = value.replace(tzinfo=ZoneInfo("UTC"))
+
+        return value.astimezone(kst).isoformat(timespec="milliseconds")
 
     model_config = ConfigDict(from_attributes=True)
 
+# model load
+class AIPlacePredictionRequest(BaseModel):
+    subject_id: int
+    user_token: str
+    weekday_token: str
+    places: list[str]
+
+
+class AIPlacePredictionResponse(BaseModel):
+    subject_id: int
+    values: list[str]
+    token_ids: list[int]
+    token_count: int
+    anomaly_score: float
+    is_anomaly: bool | None
+
+
 class AuthCodeResponse(BaseModel):
-    user_type: str
-    user_id: int
+    subject_id: int
     auth_code: str
-
-    class Config:
-        from_attributes = True
-
+    expires_at: datetime
+    created_alert_ids: list[int]
 
 class AuthCodeVerifyRequest(BaseModel):
     auth_code: str
@@ -310,82 +339,46 @@ class AuthCodeVerifyRequest(BaseModel):
 
 class AuthCodeVerifyResponse(BaseModel):
     valid: bool
-    user_type: Optional[str] = None
-    user_id: Optional[int] = None
+    user_type: str | None
+    user_id: int | None
     message: str
-    
+
 class AuthCodeUpdate(BaseModel):
-    auth_code: str = Field(min_length=1, max_length=50)
-
-class AlertResponse(BaseModel):
-    id: int
-    type: str
-    subject_id: Optional[int] = None
-    guardian_id: Optional[int] = None
-    message: str
-    risk_score: Optional[float] = None
-    is_read: bool
-    created_at: datetime
-
-    class Config:
-        from_attributes = True
-
-# =========================================================
-# 알림 / 위험도 모델 결과 / 인증코드
-# =========================================================
+    auth_code: str
 
 class RiskResultCreate(BaseModel):
     subject_id: int
-
-    risk_level: str = Field(
-        min_length=1,
-        max_length=30,
-        examples=["danger"],
-    )
-
-    risk_score: float | None = Field(
-        default=None,
-        ge=0,
-        le=100,
-    )
-
-    reason: str | None = Field(
-        default=None,
-        max_length=500,
-    )
-
-    latitude: float | None = Field(
-        default=None,
-        ge=-90,
-        le=90,
-    )
-
-    longitude: float | None = Field(
-        default=None,
-        ge=-180,
-        le=180,
-    )
-
-    @model_validator(mode="after")
-    def validate_coordinates(self):
-        if (self.latitude is None) != (self.longitude is None):
-            raise ValueError("위도와 경도는 함께 입력해야 합니다.")
-
-        return self
+    risk_level: str
+    risk_score: float | None = None
+    reason: str | None = None
+    latitude: float | None = None
+    longitude: float | None = None
 
 
 class RiskResultResponse(BaseModel):
     subject_id: int
     risk_level: str
-    risk_score: float | None
-
+    risk_score: float | None = None
     alert_created: bool
     created_alert_ids: list[int]
 
+class AlertResponse(BaseModel):
+    id: int
+    type: str
+    subject_id: int | None = None
+    guardian_id: int | None = None
+    message: str
+    risk_score: float | None = None
+    is_read: bool
+    created_at: datetime
 
-class AuthCodeResponse(BaseModel):
-    subject_id: int
-    auth_code: str
-    expires_at: datetime
+    model_config = ConfigDict(from_attributes=True)
 
-    created_alert_ids: list[int]       
+
+class EmailSendRequest(BaseModel):
+    email: str
+
+
+class EmailVerifyRequest(BaseModel):
+    email: str
+    code: str

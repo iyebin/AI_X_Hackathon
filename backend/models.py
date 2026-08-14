@@ -288,12 +288,16 @@ class GuardianRegistration(Base):
 class InstitutionManager(Base):
     __tablename__ = "institution_managers"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(
+        Integer,
+        primary_key=True,
+        index=True,
+    )
 
     institution_id = Column(
         Integer,
         ForeignKey(
-            "institutions.institution_id",
+            "institutions.id",
             ondelete="CASCADE",
         ),
         nullable=False,
@@ -333,15 +337,6 @@ class InstitutionManager(Base):
         onupdate=func.now(),
         nullable=False,
     )
-    institution_id = Column(
-            Integer,
-            ForeignKey(
-                "institutions.id",
-                ondelete="CASCADE",
-            ),
-            nullable=False,
-            index=True,
-        )
     institution = relationship(
         "Institution",
         back_populates="managers",
@@ -352,7 +347,6 @@ class InstitutionManager(Base):
         cascade="all, delete-orphan",
         passive_deletes=True,
     )
-
 
 class ManagerAssignment(Base):
     __tablename__ = "manager_assignments"
@@ -524,4 +518,47 @@ class SubjectAuthCode(Base):
     subject = relationship(
         "Subject",
         back_populates="auth_codes",
+    )
+
+class EmailVerification(Base):
+    __tablename__ = "email_verifications"
+
+    id = Column(
+        Integer,
+        primary_key=True,
+        index=True,
+    )
+
+    email = Column(
+        String(255),
+        nullable=False,
+        index=True,
+    )
+
+    code = Column(
+        String(6),
+        nullable=False,
+    )
+
+    expires_at = Column(
+        DateTime(timezone=True),
+        nullable=False,
+        index=True,
+    )
+
+    verified_at = Column(
+        DateTime(timezone=True),
+        nullable=True,
+    )
+
+    attempts = Column(
+        Integer,
+        nullable=False,
+        default=0,
+    )
+
+    created_at = Column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        nullable=False,
     )
