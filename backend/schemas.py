@@ -35,7 +35,7 @@ class GuardianResponse(ORMModel):
     address: Optional[str]
     created_at: datetime
     updated_at: datetime
-
+    auth_code: Optional[str] = None
 
 class InstitutionCreate(BaseModel):
     institution_code: str = Field(min_length=1, max_length=100)
@@ -110,7 +110,7 @@ class SubjectResponse(ORMModel):
     institution_id: Optional[int]
     created_at: datetime
     updated_at: datetime
-
+    auth_code: Optional[str] = None
 
 class GuardianRegistrationCreate(BaseModel):
     guardian_id: int
@@ -224,7 +224,32 @@ class InstitutionManagerResponse(ORMModel):
     created_at: datetime
     updated_at: datetime
 
+class InstitutionManagerSignup(BaseModel):
+    name: str
+    phone: str
+    email: str
+    login_id: str
+    password: str
+    institution_id: int
 
+
+class InstitutionManagerLogin(BaseModel):
+    login_id: str
+    password: str
+
+
+class InstitutionManagerAuthResponse(BaseModel):
+    id: int
+    name: str
+    phone: str
+    email: str
+    login_id: str
+    institution_id: int
+
+    model_config = ConfigDict(
+        from_attributes=True
+    )
+    
 class ManagerAssignmentCreate(BaseModel):
     manager_id: int
     subject_id: int
@@ -267,13 +292,16 @@ class GPSCreate(BaseModel):
 
 
 class GPSResponse(ORMModel):
-    id: int
+    gps_id: int
     subject_id: int
     latitude: float
     longitude: float
     measured_at: datetime
 
-#model load
+    model_config = ConfigDict(from_attributes=True)
+
+
+# model load
 class AIPlacePredictionRequest(BaseModel):
     subject_id: int
     user_token: str
@@ -288,3 +316,51 @@ class AIPlacePredictionResponse(BaseModel):
     token_count: int
     anomaly_score: float
     is_anomaly: bool | None
+
+
+class AuthCodeResponse(BaseModel):
+    subject_id: int
+    auth_code: str
+    expires_at: datetime
+    created_alert_ids: list[int]
+
+class AuthCodeVerifyRequest(BaseModel):
+    auth_code: str
+
+
+class AuthCodeVerifyResponse(BaseModel):
+    valid: bool
+    user_type: str | None
+    user_id: int | None
+    message: str
+
+class AuthCodeUpdate(BaseModel):
+    auth_code: str
+
+class RiskResultCreate(BaseModel):
+    subject_id: int
+    risk_level: str
+    risk_score: float | None = None
+    reason: str | None = None
+    latitude: float | None = None
+    longitude: float | None = None
+
+
+class RiskResultResponse(BaseModel):
+    subject_id: int
+    risk_level: str
+    risk_score: float | None = None
+    alert_created: bool
+    created_alert_ids: list[int]
+
+class AlertResponse(BaseModel):
+    id: int
+    type: str
+    subject_id: int | None = None
+    guardian_id: int | None = None
+    message: str
+    risk_score: float | None = None
+    is_read: bool
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
