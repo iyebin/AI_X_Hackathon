@@ -2159,3 +2159,110 @@ def verify_password(
         password.encode("utf-8"),
         password_hash.encode("utf-8"),
     )
+
+def generate_sms_code() -> str:
+    return f"{secrets.randbelow(1000000):06d}"
+
+@app.post(
+    "/auth/sms/send",
+    response_model=schemas.SMSSendResponse,
+    tags=["SMS 인증"],
+)
+def send_sms_verification(
+    data: schemas.SMSSendRequest,
+    db: Session = Depends(get_db),
+):
+    code = generate_sms_code()
+
+    expires_at = (
+        datetime.now(timezone.utc)
+        + timedelta(minutes=3)
+    )
+
+    verification = models.SMSVerification(
+        phone=data.phone,
+        code=code,
+        expires_at=expires_at,
+    )
+
+    db.add(verification)
+    db.commit()
+
+    # 실제 SMS 전송 서비스 연결 위치
+    # send_sms(data.phone, code)
+
+    print(
+        f"[SMS 인증] phone={data.phone}, code={code}"
+    )
+
+    return {
+        "phone": data.phone,
+        "expires_in": 180,
+        "message": "인증번호가 발송되었습니다.",
+    }
+
+@app.post(
+    "/auth/sms/verify",
+    response_model=schemas.SMSVerifyResponse,
+    tags=["SMS 인증"],
+)
+def verify_sms_code(
+    data: schemas.SMSVerifyRequest,
+    db: Session = Depends(get_db),
+):
+    verification = (
+        db.query(models.SMSVerification)
+        .filter(
+            models.SMSVerification.phone
+            == data.phone
+        )
+        .order_by(
+            models.SMSVerification.created_at.desc()
+        )
+        .first()
+    )
+
+    if not verification:
+        raise HTTPException(
+            status_code=404,
+            detail="인증 요청을 찾을 수 없습니다.",
+        )
+
+    now = datetime.now(timezone.utc)
+
+    if verification.verified_at is not None:
+        raise HTTPException(
+            status_code=400,
+            detail="이미 사용된 인증번호입니다.",
+        )
+
+    if verification.expires_at < now:
+        raise HTTPException(
+            status_code=400,
+            detail="인증번호가 만료되었습니다.",
+        )
+
+    if verification.attempts >= 5:
+        raise HTTPException(
+            status_code=429,
+            detail="인증 시도 횟수를 초과했습니다.",
+        )
+
+    verification.attempts += 1
+
+    if verification.code != data.code:
+        db.commit()
+
+        raise HTTPException(
+            status_code=400,
+            detail="인증번호가 올바르지 않습니다.",
+        )
+
+    verification.verified_at = now
+
+    db.commit()
+
+    return {
+        "verified": True,
+        "message": "휴대폰 인증이 완료되었습니다.",
+    }

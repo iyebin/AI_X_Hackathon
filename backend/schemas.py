@@ -373,3 +373,22 @@ class AlertResponse(BaseModel):
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+class SMSSendRequest(BaseModel):
+    phone: str
+
+
+class SMSSendResponse(BaseModel):
+    phone: str
+    expires_in: int
+    message: str
+
+
+class SMSVerifyRequest(BaseModel):
+    phone: str
+    code: str
+
+
+class SMSVerifyResponse(BaseModel):
+    verified: bool
+    message: str
