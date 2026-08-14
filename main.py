@@ -152,6 +152,7 @@ def create_alerts_for_subject(
     subject_id: int,
     alert_type: str,
     message: str,
+    risk_score: float | None = None,
 ):
     # 해당 보호대상자와 연결된 보호자 조회
     guardian_links = (
@@ -1753,7 +1754,6 @@ def issue_subject_auth_code(
         db,
         subject_id=subject_id,
         alert_type="auth_request",
-        title=f"{subject.name}님 인증 요청",
         message=(
             "앱에서 보호자 인증을 요청했습니다. "
             f"인증코드: {code} "
@@ -2070,6 +2070,7 @@ def receive_risk_result(
                 f"{subject.name}님 위험 감지: "
                 f"{reason}{score_text}"
             ),
+            risk_score=data.risk_score,
         )
 
     db.commit()
