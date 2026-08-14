@@ -373,3 +373,12 @@ class AlertResponse(BaseModel):
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class EmailSendRequest(BaseModel):
+    email: str
+
+
+class EmailVerifyRequest(BaseModel):
+    email: str
+    code: str

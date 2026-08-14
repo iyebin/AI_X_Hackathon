@@ -21,6 +21,12 @@ import string
 import bcrypt
 
 from lmtad_runtime import LMTADRuntime
+import os
+import random
+from datetime import datetime, timedelta, timezone
+
+import resend
+resend.api_key = os.getenv("RESEND_API_KEY")
 
 lmtad_runtime: LMTADRuntime | None = None
 Base.metadata.create_all(bind=engine)
@@ -1268,6 +1274,24 @@ def signup_institution_manager(
             detail="기관을 찾을 수 없습니다.",
         )
 
+    verified_email = (
+        db.query(models.EmailVerification)
+        .filter(
+            models.EmailVerification.email == data.email.strip().lower(),
+            models.EmailVerification.verified_at.is_not(None),
+        )
+        .order_by(
+            models.EmailVerification.verified_at.desc()
+        )
+        .first()
+    )
+
+    if not verified_email:
+        raise HTTPException(
+            status_code=403,
+            detail="이메일 인증이 필요합니다.",
+        )
+    
     existing_login_id = (
         db.query(models.InstitutionManager)
         .filter(
@@ -1922,6 +1946,31 @@ def save_auth_code(
     "/environment/air/{subject_id}",
     tags=["환경정보"],
 )
+def read_air_quality(
+    subject_id: int,
+    db: Session = Depends(get_db),
+):
+    subject = db.get(
+        models.Subject,
+        subject_id,
+    )
+
+    if not subject:
+        raise HTTPException(
+            status_code=404,
+            detail="보호대상자를 찾을 수 없습니다.",
+        )
+
+    latest_gps = get_latest_gps_or_404(
+        db,
+        subject_id,
+    )
+
+    return get_air_quality_by_gps(
+        latest_gps.latitude,
+        latest_gps.longitude,
+    )
+
 
 @app.get(
     "/environment/weather/{subject_id}",
@@ -1942,24 +1991,10 @@ def read_weather_by_gps(
             detail="보호대상자를 찾을 수 없습니다.",
         )
 
-    latest_gps = (
-        db.query(models.GPSRecord)
-        .filter(
-            models.GPSRecord.subject_id
-            == subject_id
-        )
-        .order_by(
-            models.GPSRecord.measured_at.desc(),
-            models.GPSRecord.gps_id.desc(),
-        )
-        .first()
+    latest_gps = get_latest_gps_or_404(
+        db,
+        subject_id,
     )
-
-    if latest_gps is None:
-        raise HTTPException(
-            status_code=404,
-            detail="저장된 GPS 위치가 없습니다.",
-        )
 
     return get_weather_by_gps(
         latest_gps.latitude,
@@ -2148,3 +2183,150 @@ def verify_password(
         password.encode("utf-8"),
         password_hash.encode("utf-8"),
     )
+
+def generate_sms_code() -> str:
+    return f"{secrets.randbelow(1000000):06d}"
+
+def send_verification_email(
+    email: str,
+    code: str,
+):
+    if not resend.api_key:
+        raise HTTPException(
+            status_code=500,
+            detail="RESEND_API_KEY가 설정되지 않았습니다.",
+        )
+
+    try:
+        return resend.Emails.send({
+            "from": "안심하랑께 <onboarding@resend.dev>",
+            "to": [email],
+            "subject": "[안심하랑께] 이메일 인증번호",
+            "html": f"""
+                <h2>안심하랑께 이메일 인증</h2>
+                <p>인증번호는</p>
+                <h1>{code}</h1>
+                <p>입니다.</p>
+                <p>인증번호는 3분간 유효합니다.</p>
+            """,
+        })
+
+    except Exception as e:
+        print(f"[EMAIL ERROR] {e}")
+
+        raise HTTPException(
+            status_code=502,
+            detail="인증 이메일 발송에 실패했습니다.",
+        )
+
+@app.post(
+    "/auth/email/send",
+    tags=["이메일 인증"],
+)
+def send_email_verification(
+    data: schemas.EmailSendRequest,
+    db: Session = Depends(get_db),
+):
+    email = data.email.strip().lower()
+
+    code = f"{random.randint(0, 999999):06d}"
+
+    now = datetime.now(timezone.utc)
+    expires_at = now + timedelta(minutes=3)
+
+    verification = models.EmailVerification(
+        email=email,
+        code=code,
+        expires_at=expires_at,
+        attempts=0,
+    )
+
+    db.add(verification)
+    db.commit()
+    db.refresh(verification)
+
+    try:
+        send_verification_email(
+            email=email,
+            code=code,
+        )
+
+    except Exception:
+        # 메일이 안 갔는데 DB에는 인증번호가 남는 상황 방지
+        db.delete(verification)
+        db.commit()
+        raise
+
+    return {
+        "message": "인증번호를 이메일로 전송했습니다.",
+        "email": email,
+        "expires_in": 180,
+    }
+
+@app.post(
+    "/auth/email/verify",
+    tags=["이메일 인증"],
+)
+def verify_email(
+    data: schemas.EmailVerifyRequest,
+    db: Session = Depends(get_db),
+):
+    email = data.email.strip().lower()
+
+    verification = (
+        db.query(models.EmailVerification)
+        .filter(
+            models.EmailVerification.email == email,
+            models.EmailVerification.verified_at.is_(None),
+        )
+        .order_by(
+            models.EmailVerification.id.desc()
+        )
+        .first()
+    )
+
+    if not verification:
+        raise HTTPException(
+            status_code=404,
+            detail="인증 요청을 찾을 수 없습니다.",
+        )
+
+    now = datetime.now(timezone.utc)
+
+    expires_at = verification.expires_at
+
+    # DB 드라이버가 timezone 정보를 제거해서 반환하는 경우 대비
+    if expires_at.tzinfo is None:
+        expires_at = expires_at.replace(
+            tzinfo=timezone.utc
+        )
+
+    if now > expires_at:
+        raise HTTPException(
+            status_code=400,
+            detail="인증번호가 만료되었습니다.",
+        )
+
+    if verification.attempts >= 5:
+        raise HTTPException(
+            status_code=429,
+            detail="인증번호 입력 횟수를 초과했습니다. 다시 요청해주세요.",
+        )
+
+    if verification.code != data.code:
+        verification.attempts += 1
+        db.commit()
+
+        raise HTTPException(
+            status_code=400,
+            detail="인증번호가 올바르지 않습니다.",
+        )
+
+    verification.verified_at = now
+    db.commit()
+
+    return {
+        "verified": True,
+        "email": email,
+        "message": "이메일 인증이 완료되었습니다.",
+    }

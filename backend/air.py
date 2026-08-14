@@ -64,17 +64,33 @@ def get_air_quality(station_name: str):
         grade = khai / 5
 
     return {
-        "station_name": station_name,
-        "data_time": item.get("dataTime"),
-        "khai": khai,
-        "pm10": item.get("pm10Value"),
-        "pm25": item.get("pm25Value"),
-        "o3": item.get("o3Value"),
-        "no2": item.get("no2Value"),
-        "co": item.get("coValue"),
-        "so2": item.get("so2Value"),
-        "air_risk_score": grade,
-    }
+    "station_name": station_name,
+    "data_time": item.get("dataTime"),
+
+    "khai": khai,
+    "khai_grade": item.get("khaiGrade"),
+
+    "pm10": item.get("pm10Value"),
+    "pm10_grade": item.get("pm10Grade"),
+
+    "pm25": item.get("pm25Value"),
+    "pm25_grade": item.get("pm25Grade"),
+
+    "o3": item.get("o3Value"),
+    "o3_grade": item.get("o3Grade"),
+
+    "no2": item.get("no2Value"),
+    "no2_grade": item.get("no2Grade"),
+
+    "co": item.get("coValue"),
+    "co_grade": item.get("coGrade"),
+
+    "so2": item.get("so2Value"),
+    "so2_grade": item.get("so2Grade"),
+
+    "air_risk_score": grade,
+}
+
 def gps_to_tm(
     latitude: float,
     longitude: float,
