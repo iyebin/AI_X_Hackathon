@@ -288,12 +288,16 @@ class GuardianRegistration(Base):
 class InstitutionManager(Base):
     __tablename__ = "institution_managers"
 
-    id = Column(Integer, primary_key=True, index=True)
-
+    id = Column(
+        Integer,
+        primary_key=True,
+        index=True,
+    )
+    
     institution_id = Column(
         Integer,
         ForeignKey(
-            "institutions.institution_id",
+            "institutions.id",
             ondelete="CASCADE",
         ),
         nullable=False,
