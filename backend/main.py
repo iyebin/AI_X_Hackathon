@@ -12,9 +12,33 @@ import models
 import schemas
 from database import Base, engine, get_db
 
+from contextlib import asynccontextmanager
 
+from lmtad_runtime import LMTADRuntime
+
+lmtad_runtime: LMTADRuntime | None = None
 Base.metadata.create_all(bind=engine)
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    global lmtad_runtime
+
+    print("[LMTAD] 모델 로딩 시작")
+
+    lmtad_runtime = LMTADRuntime()
+
+    print(
+        "[LMTAD] 모델 로딩 성공:",
+        f"features={lmtad_runtime.features},",
+        f"block_size={lmtad_runtime.block_size},",
+        f"vocab_size={lmtad_runtime.vocab_size},",
+        f"device={lmtad_runtime.device}",
+    )
+
+    yield
+
+    lmtad_runtime = None
+    
 app = FastAPI(
     title="안심하랑께 백엔드 API",
     description="""
