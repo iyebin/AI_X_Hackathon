@@ -19,9 +19,10 @@ import { getProtectorPhone } from '@/features/contacts/protector-contact-store';
 export default function ProtectedMainScreen() {
   const router = useRouter();
 
-  const { userName, protectorPhone, tab } = useLocalSearchParams<{
+  const { userName, protectorPhone, subjectId, tab } = useLocalSearchParams<{
     userName?: string;
     protectorPhone?: string;
+    subjectId?: string;
     tab?: 'home' | 'map' | 'notification' | 'setting';
   }>();
 
@@ -58,7 +59,8 @@ export default function ProtectedMainScreen() {
       pathname: '/protected-facility',
       params: {
         targetName: displayName,
-        isProtected: 'true'
+        isProtected: 'true',
+        subjectId,
       },
     });
   };

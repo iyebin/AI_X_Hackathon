@@ -18,11 +18,15 @@ import HeaderBadge from '@/components/common/header-badge';
 import LocationMapView from '@/components/map/location-map-view';
 import NotificationView from '@/components/notifications/alarm';
 import SettingView from '@/components/settings/setting-view';
+import { getCurrentGuardianName } from '@/features/auth/current-session';
+import { formatTimeSince, getLatestGps, GpsLocation } from '@/features/gps/gps-api';
 
 export default function ProtectorMainScreen() {
   const router = useRouter();
+  const guardianName = getCurrentGuardianName() || '보호자';
 
   const params = useLocalSearchParams<{
+    subjectId?: string;
     targetName?: string;
     targetStatus?: '안전' | '주의' | '위험';
     targetScore?: string;
@@ -42,10 +46,30 @@ export default function ProtectorMainScreen() {
   const [activeTab, setActiveTab] = useState<string>(params.tab ?? 'home');
   const [mapRefreshKey, setMapRefreshKey] = useState(0);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [gpsLocation, setGpsLocation] = useState<GpsLocation | null>(null);
+  const [gpsError, setGpsError] = useState<string | null>(null);
 
   useEffect(() => {
     if (params.tab) setActiveTab(params.tab);
   }, [params.tab]);
+
+  useEffect(() => {
+    const subjectId = Number(params.subjectId);
+    if (!Number.isInteger(subjectId) || subjectId <= 0) {
+      setGpsError('보호대상자 ID가 없습니다.');
+      return;
+    }
+
+    getLatestGps(subjectId)
+      .then((location) => {
+        setGpsLocation(location);
+        setGpsError(null);
+      })
+      .catch((error) => {
+        setGpsLocation(null);
+        setGpsError(error instanceof Error ? error.message : 'GPS 위치를 가져오지 못했습니다.');
+      });
+  }, [params.subjectId, mapRefreshKey]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -73,6 +97,7 @@ export default function ProtectorMainScreen() {
       pathname: '/facility',
       params: { 
         targetName,
+        subjectId: params.subjectId,
         isProtected: 'false'
       },
     });
@@ -85,7 +110,8 @@ export default function ProtectorMainScreen() {
     ]);
   };
 
-  const currentPos = [37.5665, 126.978];
+  const currentPos = [gpsLocation?.latitude ?? 37.5665, gpsLocation?.longitude ?? 126.978];
+  const gpsUpdatedAgo = gpsLocation ? `${formatTimeSince(gpsLocation.measuredAt)} 전` : '정보 없음';
 
   const simpleMapHtml = `
     <!DOCTYPE html>
@@ -183,13 +209,13 @@ export default function ProtectorMainScreen() {
             <View style={styles.locationHeader}>
               <Text style={styles.locationTitle}>실시간 위치</Text>
               <View style={styles.refreshRow}>
-                <Text style={styles.refreshText}>마지막 업데이트 {lastUpdated} 전 </Text>
+                <Text style={styles.refreshText}>마지막 업데이트 {gpsUpdatedAgo}</Text>
                 <Ionicons name="refresh" size={18} color="#555" />
               </View>
             </View>
 
             <TouchableOpacity activeOpacity={0.9} onPress={() => setActiveTab('map')}>
-              <LocationMapView targetName={targetName} height={180} />
+              <LocationMapView targetName={targetName} latitude={currentPos[0]} longitude={currentPos[1]} height={180} />
             </TouchableOpacity>
 
             <View style={styles.circleButtonsRow}>
@@ -249,6 +275,8 @@ export default function ProtectorMainScreen() {
               </View>
             </View>
 
+            {gpsError ? <Text style={styles.gpsErrorText}>{gpsError}</Text> : null}
+
             <View style={styles.divider} />
 
             <Text style={styles.statusSectionTitle}>현재 상태</Text>
@@ -268,7 +296,7 @@ export default function ProtectorMainScreen() {
 
               <View style={styles.statusRow}>
                 <Ionicons name="time-outline" size={26} color="#59A03D" style={styles.statusIcon} />
-                <Text style={styles.statusText}>최근 업데이트 {lastUpdated} 전</Text>
+                <Text style={styles.statusText}>최근 업데이트 {gpsUpdatedAgo}</Text>
               </View>
 
               <View style={styles.statusRow}>
@@ -327,7 +355,7 @@ export default function ProtectorMainScreen() {
             <View style={styles.sidebarProfile}>
               <View style={styles.sidebarAvatar}><Ionicons name="person" size={43} color="#FFFFFF" /></View>
               <View>
-                <Text style={styles.sidebarName}>허균</Text>
+                <Text style={styles.sidebarName}>{guardianName}</Text>
                 <Text style={styles.sidebarRole}>보호자</Text>
               </View>
             </View>
@@ -550,6 +578,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     color: '#333333',
+  },
+  gpsErrorText: {
+    textAlign: 'center',
+    color: '#777777',
+    fontSize: 13,
+    marginBottom: 8,
   },
   divider: {
     height: 1,

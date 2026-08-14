@@ -35,10 +35,10 @@ export default function SummaryDetailScreen() {
   const theme = THEME[status];
   const sortedRiskItems = [...RISK_ITEMS].sort((a, b) => b.percent - a.percent);
   const riskColors = RISK_COLORS[status];
-  const chartHtml = `<!doctype html><html><body style="margin:0;background:transparent;overflow:hidden"><canvas id="chart" width="220" height="220"></canvas><script>
+  const chartHtml = `<!doctype html><html><head><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"></head><body style="margin:0;background:transparent;overflow:hidden"><canvas id="chart" width="180" height="180"></canvas><script>
     const items=${JSON.stringify(sortedRiskItems.map((item, index) => ({ percent: item.percent, color: riskColors[index] })))};
     const ctx=document.getElementById('chart').getContext('2d');let start=-Math.PI/2;
-    items.forEach((item)=>{const angle=item.percent/100*Math.PI*2;ctx.beginPath();ctx.moveTo(110,110);ctx.arc(110,110,106,start,start+angle);ctx.closePath();ctx.fillStyle=item.color;ctx.fill();start+=angle;});
+    items.forEach((item)=>{const angle=item.percent/100*Math.PI*2;ctx.beginPath();ctx.moveTo(90,90);ctx.arc(90,90,88,start,start+angle);ctx.closePath();ctx.fillStyle=item.color;ctx.fill();start+=angle;});
   </script></body></html>`;
 
   return (
@@ -109,8 +109,8 @@ const styles = StyleSheet.create({
   content: { paddingHorizontal: 26, paddingTop: 24, paddingBottom: 40 },
   sectionLabel: { color: '#666666', fontSize: 19, fontWeight: 'bold' },
   chartArea: { flexDirection: 'row', alignItems: 'center', marginTop: 28 },
-  chart: { width: 220, height: 220, overflow: 'hidden' },
-  chartWebView: { width: 220, height: 220, backgroundColor: 'transparent' },
+  chart: { width: 180, height: 180, overflow: 'hidden', flexShrink: 0 },
+  chartWebView: { width: 180, height: 180, backgroundColor: 'transparent' },
   legend: { marginLeft: 12, gap: 10 },
   legendText: { color: '#666666', fontSize: 17, fontWeight: 'bold' },
   legendRow: { flexDirection: 'row', alignItems: 'center' },
