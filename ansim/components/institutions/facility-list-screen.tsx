@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Href, useRouter } from 'expo-router';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Alert,
   FlatList,
@@ -13,6 +13,8 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { WebView } from 'react-native-webview';
+import { FACILITY_SEARCH_LOCATION, getNearestInstitutions } from '@/features/institutions/nearest-institutions';
 
 type FacilityCategory = '전체' | '복지관' | '노인센터' | '병원' | '기타';
 
@@ -79,20 +81,65 @@ const CATEGORIES: FacilityCategory[] = ['전체', '복지관', '노인센터', '
 type Props = {
   variant: 'protected' | 'guardian';
   returnRoute: Href;
+  subjectId?: number;
 };
 
-export default function FacilityListScreen({ variant, returnRoute }: Props) {
+export default function FacilityListScreen({ variant, returnRoute, subjectId }: Props) {
   const router = useRouter();
   const [selectedCategory, setSelectedCategory] = useState<FacilityCategory>('전체');
   const [selectedFacility, setSelectedFacility] = useState<Facility | null>(null);
+  const [selectedMapFacility, setSelectedMapFacility] = useState<Facility | null>(null);
+  const [serverFacilities, setServerFacilities] = useState<Facility[]>([]);
+  const [currentLocation, setCurrentLocation] = useState(FACILITY_SEARCH_LOCATION);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const mapRef = useRef<WebView>(null);
   const themeColor = variant === 'protected' ? '#59A03D' : '#F7931E';
+
+  useEffect(() => {
+    getNearestInstitutions(subjectId ?? 0)
+      .then((result) => {
+        setServerFacilities(result.facilities as Facility[]);
+        setCurrentLocation(result.currentLocation);
+        setLoadError(null);
+      })
+      .catch((error) => setLoadError(error instanceof Error ? error.message : '가까운 복지시설을 불러오지 못했습니다.'))
+      .finally(() => setIsLoading(false));
+  }, [subjectId]);
 
   const facilities = useMemo(
     () => selectedCategory === '전체'
-      ? DUMMY_FACILITIES
-      : DUMMY_FACILITIES.filter((facility) => facility.category === selectedCategory),
-    [selectedCategory],
+      ? serverFacilities
+      : serverFacilities.filter((facility) => facility.category === selectedCategory),
+    [selectedCategory, serverFacilities],
   );
+
+  const mapCenter = selectedMapFacility
+    ? { latitude: selectedMapFacility.latitude, longitude: selectedMapFacility.longitude }
+    : currentLocation;
+  // 카테고리 필터에 맞는 시설만 지도에 표시하고, 현재 위치 마커는 항상 유지합니다.
+  const mapMarkers = serverFacilities
+    .filter((facility) => Number.isFinite(facility.latitude) && Number.isFinite(facility.longitude) && facility.latitude !== 0 && facility.longitude !== 0)
+    .map((facility) => ({ id: facility.facilityId, name: facility.name, latitude: facility.latitude, longitude: facility.longitude }));
+  const mapHtml = `<!doctype html><html><head><meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no"><link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"><script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script><style>html,body,#map{width:100%;height:100%;margin:0}.current{width:16px;height:16px;border:3px solid #fff;border-radius:50%;background:#1677ff;box-shadow:0 0 5px #1677ff}.facility{width:18px;height:18px;border:3px solid #fff;border-radius:50%;background:#F7931E;box-shadow:0 0 5px #b65b00}.selected{background:#FF2525}</style></head><body><div id="map"></div><script>const facilities=${JSON.stringify(mapMarkers)};const selectedId=${JSON.stringify(selectedMapFacility?.facilityId ?? null)};const current=[${currentLocation.latitude},${currentLocation.longitude}];const map=L.map('map',{zoomControl:false,attributionControl:false}).setView([${mapCenter.latitude},${mapCenter.longitude}],16);L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(map);const currentIcon=L.divIcon({className:'current',iconSize:[22,22],iconAnchor:[11,11]});L.marker(current,{icon:currentIcon}).addTo(map).bindPopup('현재 위치');facilities.forEach((facility)=>{const icon=L.divIcon({className:selectedId===facility.id?'facility selected':'facility',iconSize:[24,24],iconAnchor:[12,12]});L.marker([facility.latitude,facility.longitude],{icon}).addTo(map).bindPopup(facility.name).on('click',()=>window.ReactNativeWebView.postMessage(facility.id));});const points=[current,...facilities.map((facility)=>[facility.latitude,facility.longitude])];if(points.length>1)map.fitBounds(points,{padding:[22,22],maxZoom:selectedId?14:15});</script></body></html>`;
+
+  const focusedMapHtml = (selectedMapFacility
+    ? mapHtml.replace(
+      'if(points.length>1)map.fitBounds(points,{padding:[22,22],maxZoom:selectedId?14:15});',
+      'const selected=facilities.find((facility)=>facility.id===selectedId);if(selected){map.setView([selected.latitude,selected.longitude],14);}else if(points.length>1){map.fitBounds(points,{padding:[22,22],maxZoom:15});}',
+    )
+    : mapHtml)
+    .replace(
+      "className:selectedId===facility.id?'facility selected':'facility'",
+      "className:(selectedId===facility.id?'facility selected':'facility')+' marker-'+facility.id",
+    );
+
+  useEffect(() => {
+    const visibleIds = JSON.stringify(facilities.map((facility) => facility.facilityId));
+    mapRef.current?.injectJavaScript(`(function(){const visibleIds=new Set(${visibleIds});document.querySelectorAll('.facility').forEach((element)=>{const markerClass=[...element.classList].find((className)=>className.startsWith('marker-'));if(markerClass){element.style.display=visibleIds.has(markerClass.slice(7))?'block':'none';}});true;})()`);
+  }, [facilities]);
+
+  const selectMapFacility = (facility: Facility) => setSelectedMapFacility(facility);
 
   const handleCall = async (phone: string) => {
     const phoneUrl = `tel:${phone.replace(/[^0-9+]/g, '')}`;
@@ -122,7 +169,19 @@ export default function FacilityListScreen({ variant, returnRoute }: Props) {
       </View>
 
       {/* 추후 지도 컴포넌트가 들어갈 영역 */}
-      <View style={styles.mapPlaceholder} />
+      <View style={styles.mapPlaceholder}>
+        <WebView
+          key={selectedMapFacility?.facilityId ?? 'current'}
+          ref={mapRef}
+          originWhitelist={['*']}
+          source={{ html: focusedMapHtml }}
+          scrollEnabled={false}
+          onMessage={(event) => {
+            const facility = facilities.find((item) => item.facilityId === event.nativeEvent.data);
+            if (facility) selectMapFacility(facility);
+          }}
+        />
+      </View>
 
       <View style={styles.filterArea}>
         <ScrollView
@@ -152,7 +211,7 @@ export default function FacilityListScreen({ variant, returnRoute }: Props) {
           <TouchableOpacity
             style={styles.facilityRow}
             activeOpacity={0.7}
-            onPress={() => setSelectedFacility(facility)}>
+            onPress={() => selectMapFacility(facility)}>
             <View style={styles.facilityTitleRow}>
               <Ionicons name="location" size={30} color={themeColor} />
               <Text style={styles.facilityName}>{facility.name}</Text>
@@ -177,7 +236,7 @@ export default function FacilityListScreen({ variant, returnRoute }: Props) {
         )}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>해당 유형의 복지시설이 없습니다.</Text>
+            <Text style={styles.emptyText}>{isLoading ? '가까운 복지시설을 불러오는 중입니다.' : loadError ?? '해당 유형의 복지시설이 없습니다.'}</Text>
           </View>
         }
       />
@@ -236,8 +295,8 @@ const styles = StyleSheet.create({
   headerSpace: { width: 31 },
   titleBadge: { height: 40, borderRadius: 16, paddingHorizontal: 20, justifyContent: 'center', alignItems: 'center' },
   title: { color: '#FFFFFF', fontSize: 20, fontWeight: 'bold', includeFontPadding: false },
-  mapPlaceholder: { height: 168, backgroundColor: '#FFFFFF' },
-  filterArea: { height: 110, justifyContent: 'center' },
+  mapPlaceholder: { height: 168, backgroundColor: '#FFFFFF', marginBottom: 20 },
+  filterArea: { height: 72, justifyContent: 'flex-start' },
   filterRow: { height: 42, alignItems: 'center', gap: 6, paddingHorizontal: 10 },
   filterChip: { width: 'auto', height: 42, minHeight: 42, maxHeight: 42, alignSelf: 'center', borderWidth: 1, borderColor: '#D8D8D8', borderRadius: 15, paddingHorizontal: 13, paddingVertical: 0, justifyContent: 'center', alignItems: 'center', overflow: 'hidden' },
   filterText: { color: '#5B5B5B', fontSize: 19, fontWeight: '700', lineHeight: 24, includeFontPadding: false },
