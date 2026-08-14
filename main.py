@@ -53,6 +53,7 @@ app = FastAPI(
 - 브라우저 현재 위치 테스트 페이지
 """,
     version="3.0.0",
+    lifespan=lifespan,
 )
 
 app.add_middleware(
@@ -1731,3 +1732,89 @@ def gps_current_page():
 </body>
 </html>
 """
+#ai 모델
+@app.get(
+    "/ai/health",
+    tags=["AI 모델"],
+)
+def ai_health():
+    if lmtad_runtime is None:
+        raise HTTPException(
+            status_code=503,
+            detail="AI 모델이 로드되지 않았습니다.",
+        )
+
+    return {
+        "status": "ok",
+        "model_loaded": True,
+        "features": lmtad_runtime.features,
+        "block_size": int(
+            lmtad_runtime.block_size
+        ),
+        "vocab_size": int(
+            lmtad_runtime.vocab_size
+        ),
+        "loaded_vocab_size": len(
+            lmtad_runtime.vocab
+        ),
+        "device": str(
+            lmtad_runtime.device
+        ),
+        "threshold_configured": (
+            lmtad_runtime.threshold
+            is not None
+        ),
+    }
+
+
+@app.post(
+    "/ai/predict/places",
+    response_model=schemas.AIPlacePredictionResponse,
+    tags=["AI 모델"],
+)
+def predict_places(
+    data: schemas.AIPlacePredictionRequest,
+):
+    if lmtad_runtime is None:
+        raise HTTPException(
+            status_code=503,
+            detail="AI 모델이 로드되지 않았습니다.",
+        )
+
+    try:
+        values, token_ids = (
+            lmtad_runtime.encode_places(
+                user_token=data.user_token,
+                weekday_token=data.weekday_token,
+                places=data.places,
+            )
+        )
+
+        anomaly_score = (
+            lmtad_runtime.predict(
+                token_ids
+            )
+        )
+
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=422,
+            detail=str(exc),
+        ) from exc
+
+    is_anomaly = (
+        anomaly_score
+        >= lmtad_runtime.threshold
+        if lmtad_runtime.threshold
+        is not None
+        else None
+    )
+
+    return {
+        "subject_id": data.subject_id,
+        "values": values,
+        "token_ids": token_ids,
+        "token_count": len(token_ids),
+        "anomaly_score": anomaly_score,
+        "is_anomaly": is_anomaly,
+    }
