@@ -27,8 +27,9 @@ import random
 from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 
-import resend
-resend.api_key = os.getenv("RESEND_API_KEY")
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 lmtad_runtime: LMTADRuntime | None = None
 Base.metadata.create_all(bind=engine)
@@ -2391,34 +2392,86 @@ def send_verification_email(
     email: str,
     code: str,
 ):
-    if not resend.api_key:
+    gmail_address = os.getenv("GMAIL_ADDRESS")
+    gmail_app_password = os.getenv(
+        "GMAIL_APP_PASSWORD"
+    )
+
+    if not gmail_address:
         raise HTTPException(
             status_code=500,
-            detail="RESEND_API_KEY가 설정되지 않았습니다.",
+            detail="GMAIL_ADDRESS가 설정되지 않았습니다.",
         )
 
+    if not gmail_app_password:
+        raise HTTPException(
+            status_code=500,
+            detail="GMAIL_APP_PASSWORD가 설정되지 않았습니다.",
+        )
+
+    message = MIMEMultipart("alternative")
+
+    message["Subject"] = (
+        "[안심하랑께] 이메일 인증번호"
+    )
+    message["From"] = (
+        f"안심하랑께 <{gmail_address}>"
+    )
+    message["To"] = email
+
+    html = f"""
+    <html>
+        <body>
+            <h2>안심하랑께 이메일 인증</h2>
+
+            <p>인증번호는</p>
+
+            <h1>{code}</h1>
+
+            <p>입니다.</p>
+
+            <p>
+                인증번호는 3분간 유효합니다.
+            </p>
+        </body>
+    </html>
+    """
+
+    message.attach(
+        MIMEText(
+            html,
+            "html",
+            "utf-8",
+        )
+    )
+
     try:
-        return resend.Emails.send({
-            "from": "안심하랑께 <onboarding@resend.dev>",
-            "to": [email],
-            "subject": "[안심하랑께] 이메일 인증번호",
-            "html": f"""
-                <h2>안심하랑께 이메일 인증</h2>
-                <p>인증번호는</p>
-                <h1>{code}</h1>
-                <p>입니다.</p>
-                <p>인증번호는 3분간 유효합니다.</p>
-            """,
-        })
+        with smtplib.SMTP_SSL(
+            "smtp.gmail.com",
+            465,
+            timeout=15,
+        ) as smtp:
+            smtp.login(
+                gmail_address,
+                gmail_app_password,
+            )
+
+            smtp.sendmail(
+                gmail_address,
+                email,
+                message.as_string(),
+            )
 
     except Exception as e:
-        print(f"[EMAIL ERROR] {e}")
+        print(
+            f"[EMAIL ERROR] {type(e).__name__}: {e}"
+        )
 
         raise HTTPException(
             status_code=502,
             detail="인증 이메일 발송에 실패했습니다.",
         )
-
+    
 @app.post(
     "/auth/email/send",
     tags=["이메일 인증"],
