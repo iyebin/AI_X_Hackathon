@@ -2426,7 +2426,7 @@ def send_email_verification(
     data: schemas.EmailSendRequest,
     db: Session = Depends(get_db),
 ):
-    email = email.strip().lower()
+    email = data.email.strip().lower()
 
     code = f"{random.randint(0, 999999):06d}"
 
@@ -2470,7 +2470,7 @@ def verify_email(
     data: schemas.EmailVerifyRequest,
     db: Session = Depends(get_db),
 ):
-    email = email.strip().lower()
+    email = data.email.strip().lower()
 
     verification = (
         db.query(models.EmailVerification)
