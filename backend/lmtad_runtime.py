@@ -235,3 +235,43 @@ class LMTADRuntime:
         ).mean()
 
         return float(score.item())
+
+    def encode_trajectory(
+        self,
+        user_token: str,
+        weekday_token: str,
+        trajectory_tokens: list[str],
+    ) -> tuple[list[str], list[int]]:
+        if not trajectory_tokens:
+            raise ValueError("궤적 토큰이 없습니다.")
+
+        values = [
+            user_token,
+            weekday_token,
+            *trajectory_tokens,
+            "EOT",
+        ]
+
+        missing = [
+            value
+            for value in dict.fromkeys(values)
+            if value not in self.vocab
+        ]
+
+        if missing:
+            raise ValueError(
+                f"vocab에 없는 토큰: {missing[:10]}"
+            )
+
+        token_ids = [
+            self.vocab[value]
+            for value in values
+        ]
+
+        if len(token_ids) > self.block_size:
+            raise ValueError(
+                f"입력 길이 초과: "
+                f"{len(token_ids)}/{self.block_size}"
+            )
+
+        return values, token_ids
