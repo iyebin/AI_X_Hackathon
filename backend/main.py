@@ -232,26 +232,42 @@ def generate_auth_code() -> str:
     random.shuffle(characters)
 
     return "".join(characters)
-
 def auth_code_exists(
     db: Session,
     auth_code: str,
 ) -> bool:
     subject_exists = (
         db.query(models.Subject)
-        .filter(models.Subject.auth_code == auth_code)
+        .filter(
+            models.Subject.auth_code == auth_code
+        )
         .first()
         is not None
     )
 
     guardian_exists = (
         db.query(models.Guardian)
-        .filter(models.Guardian.auth_code == auth_code)
+        .filter(
+            models.Guardian.auth_code == auth_code
+        )
         .first()
         is not None
     )
 
-    return subject_exists or guardian_exists
+    subject_auth_code_exists = (
+        db.query(models.SubjectAuthCode)
+        .filter(
+            models.SubjectAuthCode.code == auth_code
+        )
+        .first()
+        is not None
+    )
+
+    return (
+        subject_exists
+        or guardian_exists
+        or subject_auth_code_exists
+    )
 
 def generate_unique_auth_code(db: Session) -> str:
     for _ in range(100):
@@ -1754,7 +1770,7 @@ def issue_subject_auth_code(
         )
 
     # 6자리 인증코드 생성
-    code = f"{secrets.randbelow(1_000_000):06d}"
+    code = generate_unique_auth_code(db)
 
     # 현재 시간 기준 10분 유효
     expires_at = (
@@ -1853,17 +1869,24 @@ def verify_auth_code(
 ):
     auth_code = request.auth_code.strip()
 
-    subject = (
-        db.query(models.Subject)
-        .filter(models.Subject.auth_code == auth_code)
+    subject_auth_code = (
+        db.query(models.SubjectAuthCode)
+        .filter(
+            models.SubjectAuthCode.code == auth_code,
+            models.SubjectAuthCode.expires_at
+            > datetime.now(timezone.utc),
+        )
+        .order_by(
+            models.SubjectAuthCode.created_at.desc()
+        )
         .first()
     )
 
-    if subject is not None:
+    if subject_auth_code is not None:
         return {
             "valid": True,
             "user_type": "subject",
-            "user_id": subject.id,
+            "user_id": subject_auth_code.subject_id,
             "message": "보호대상자 인증코드가 확인되었습니다.",
         }
 
