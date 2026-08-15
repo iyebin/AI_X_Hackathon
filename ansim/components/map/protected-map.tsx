@@ -4,8 +4,10 @@ import React, { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { WebView } from 'react-native-webview';
 import HeaderBadge from '@/components/common/header-badge';
+import { getWeatherSummary } from '@/features/environment/weather-api';
 
 interface ProtectedMapViewProps {
+  subjectId?: number;
   targetName?: string;
   latitude?: number;
   longitude?: number;
@@ -14,16 +16,19 @@ interface ProtectedMapViewProps {
 }
 
 export default function ProtectedMapView({
+  subjectId,
   targetName = '보호대상자',
   latitude = 37.5665,
   longitude = 126.978,
   lastUpdated = '정보 없음',
-  weatherText = '구름 많음 26°C',
+  weatherText,
 }: ProtectedMapViewProps) {
   const [refreshKey, setRefreshKey] = useState(0);
   const [currentLocation, setCurrentLocation] = useState({ latitude, longitude });
   const [locationError, setLocationError] = useState<string | null>(null);
   const [lastMeasuredAt, setLastMeasuredAt] = useState<Date | null>(null);
+  const [serverWeatherText, setServerWeatherText] = useState<string | null>('날씨 정보를 불러오는 중입니다.');
+  const displayWeatherText = serverWeatherText ?? weatherText;
 
   const updateCurrentLocation = async () => {
     const permission = await Location.requestForegroundPermissionsAsync();
@@ -63,6 +68,18 @@ export default function ProtectedMapView({
     return () => subscription?.remove();
   }, []);
 
+  useEffect(() => {
+    const numericSubjectId = Number(subjectId);
+    if (!Number.isInteger(numericSubjectId) || numericSubjectId <= 0) {
+      setServerWeatherText('날씨 정보를 확인할 수 없습니다.');
+      return;
+    }
+
+    void getWeatherSummary(numericSubjectId)
+      .then((weather) => setServerWeatherText(weather.text))
+      .catch(() => setServerWeatherText('날씨 정보를 불러오지 못했습니다.'));
+  }, [subjectId, refreshKey]);
+
   const handleRefresh = () => {
     setRefreshKey((previous) => previous + 1);
     updateCurrentLocation().catch(() => setLocationError('현재 위치를 가져오지 못했습니다.'));
@@ -98,10 +115,10 @@ export default function ProtectedMapView({
           <Ionicons name="time-outline" size={26} color="#59A03D" style={styles.statusIcon} />
           <Text style={styles.statusText}>최근 업데이트 {lastMeasuredAt ? '방금 전' : lastUpdated}</Text>
         </View>
-        <View style={styles.statusRow}>
+        {displayWeatherText ? <View style={styles.statusRow}>
           <Ionicons name="cloudy-outline" size={26} color="#59A03D" style={styles.statusIcon} />
-          <Text style={styles.statusText}>날씨: {weatherText}</Text>
-        </View>
+          <Text style={styles.statusText}>{displayWeatherText}</Text>
+        </View> : null}
         {locationError ? <Text style={styles.locationErrorText}>{locationError}</Text> : null}
       </View>
     </ScrollView>
@@ -118,6 +135,6 @@ const styles = StyleSheet.create({
   statusSectionTitle: { fontSize: 20, fontWeight: 'bold', color: '#000000', marginBottom: 16 },
   statusRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 16 },
   statusIcon: { marginRight: 12 },
-  statusText: { fontSize: 17, fontWeight: 'bold', color: '#444444' },
+  statusText: { flex: 1, flexShrink: 1, fontSize: 17, fontWeight: 'bold', color: '#444444', lineHeight: 24 },
   locationErrorText: { color: '#777777', fontSize: 14, marginTop: 2 },
 });

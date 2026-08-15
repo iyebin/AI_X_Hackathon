@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AuthRole, verifyAuthCode } from '@/features/auth/verify-code';
-import { setCurrentGuardian } from '@/features/auth/current-session';
+import { saveSession, setCurrentGuardian } from '@/features/auth/current-session';
 import { setProtectorPhone } from '@/features/contacts/protector-contact-store';
 import { startGpsTracking } from '@/features/gps/tracking';
 import { getGuardiansForSubject } from '@/features/relationships/guardian-registration';
@@ -76,12 +76,18 @@ export default function CodeScreen() {
           throw new Error('연결된 보호자의 전화번호를 찾을 수 없습니다.');
         }
         setProtectorPhone(emergencyGuardian.phone);
+        await saveSession({
+          role: 'protected',
+          userId: subjectId,
+          userName: authenticatedUser.name,
+          protectorPhone: emergencyGuardian.phone,
+        });
       }
 
       Alert.alert('인증 완료', `${authenticatedUser.name ?? roleTitle}님, 인증이 완료되었습니다.`, [
         {
           text: '확인',
-          onPress: () => {
+          onPress: async () => {
             if (isProtected) {
               router.replace({
                 pathname: '/protected-main',
@@ -92,6 +98,11 @@ export default function CodeScreen() {
                 throw new Error('서버 응답에 보호자 ID(guardian_id)가 없습니다.');
               }
               setCurrentGuardian(authenticatedUser.guardianId, authenticatedUser.name);
+              await saveSession({
+                role: 'guardian',
+                userId: authenticatedUser.guardianId,
+                userName: authenticatedUser.name,
+              });
               router.replace({
                 pathname: '/protector-select',
                 params: { guardianId: String(authenticatedUser.guardianId) },

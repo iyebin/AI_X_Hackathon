@@ -14,7 +14,8 @@
     "android": {
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.anonymous.ansim"
+      "package": "com.anonymous.ansim",
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "output": "static",
@@ -22,11 +23,19 @@
     },
     "plugins": [
       "expo-router",
-      "expo-splash-screen"
+      "expo-splash-screen",
+      "expo-notifications"
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "394b9b60-8e49-42a4-8ebc-2265267b8fc3"
+      }
+    },
+    "owner": "ai_x_hackathon-2026"
   }
 }

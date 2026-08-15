@@ -24,6 +24,7 @@ export interface TargetUser {
 export default function ProtectorSelectScreen() {
   const router = useRouter();
   const { guardianId } = useLocalSearchParams<{ guardianId?: string }>();
+  const activeGuardianId = Number(guardianId) || getCurrentGuardianId();
   const [activeTab, setActiveTab] = useState<'home' | 'notification' | 'setting'>('home');
   const [targets, setTargets] = useState<TargetUser[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -117,8 +118,8 @@ export default function ProtectorSelectScreen() {
   const content = activeTab === 'home'
     ? renderHome()
     : activeTab === 'notification'
-      ? <NotificationView />
-      : <SettingView isProtected={false} />;
+      ? <NotificationView targets={targets} />
+      : <SettingView isProtected={false} notificationUser={activeGuardianId ? { userId: activeGuardianId, userType: 'guardian' } : undefined} />;
 
   return (
     <SafeAreaView style={styles.container}>
