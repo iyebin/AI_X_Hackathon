@@ -58,10 +58,15 @@ def get_air_quality(station_name: str):
 
     if khai_raw in (None, "", "-"):
         khai = None
-        grade = None
+        air_risk_score = None
     else:
         khai = int(khai_raw)
-        grade = khai / 5
+
+        # KHAI(통합대기환경지수)를 0~100 위험점수로 정규화
+        air_risk_score = min(
+            100.0,
+            max(0.0, khai / 5.0),
+        )
 
     return {
     "station_name": station_name,
