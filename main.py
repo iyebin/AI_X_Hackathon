@@ -25,6 +25,7 @@ from lmtad_runtime import LMTADRuntime
 import os
 import random
 from datetime import datetime, timedelta, timezone
+from zoneinfo import ZoneInfo
 
 import resend
 resend.api_key = os.getenv("RESEND_API_KEY")
@@ -1809,7 +1810,7 @@ def issue_subject_auth_code(
     return {
         "subject_id": subject_id,
         "auth_code": code,
-        "expires_at": expires_at,
+        "expires_at": expires_at.astimezone(ZoneInfo("Asia/Seoul")),
         "created_alert_ids": [
             alert.id
             for alert in created_alerts
