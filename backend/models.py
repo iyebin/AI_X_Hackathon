@@ -339,31 +339,37 @@ class InstitutionManager(Base):
             "institutions.id",
             ondelete="CASCADE",
         ),
-        nullable=False,
+        nullable=True,
         index=True,
     )
 
-    name = Column(String(100), nullable=False)
-    phone = Column(String(30), nullable=False)
+    name = Column(String(100), nullable=True)
+    phone = Column(String(30), nullable=True)
     email = Column(
         String(255),
-        nullable=False,
-        unique=True,
+        nullable=True,
         index=True,
     )
 
-    login_id = Column(
-        String(100),
+    provider = Column(
+        String(20),
         nullable=False,
-        unique=True,
-        index=True,
     )
 
-    password_hash = Column(
+    provider_user_id = Column(
         String(255),
         nullable=False,
     )
+
     position = Column(String(100), nullable=True)
+
+    __table_args__ = (
+        UniqueConstraint(
+            "provider",
+            "provider_user_id",
+            name="uq_institution_manager_social",
+        ),
+    )
 
     created_at = Column(
         DateTime(timezone=True),
@@ -612,47 +618,4 @@ class SubjectAuthCode(Base):
     subject = relationship(
         "Subject",
         back_populates="auth_codes",
-    )
-
-class EmailVerification(Base):
-    __tablename__ = "email_verifications"
-
-    id = Column(
-        Integer,
-        primary_key=True,
-        index=True,
-    )
-
-    email = Column(
-        String(255),
-        nullable=False,
-        index=True,
-    )
-
-    code = Column(
-        String(6),
-        nullable=False,
-    )
-
-    expires_at = Column(
-        DateTime(timezone=True),
-        nullable=False,
-        index=True,
-    )
-
-    verified_at = Column(
-        DateTime(timezone=True),
-        nullable=True,
-    )
-
-    attempts = Column(
-        Integer,
-        nullable=False,
-        default=0,
-    )
-
-    created_at = Column(
-        DateTime(timezone=True),
-        server_default=func.now(),
-        nullable=False,
     )
