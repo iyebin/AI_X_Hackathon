@@ -1802,9 +1802,10 @@ def issue_subject_auth_code(
 
 @app.post(
     "/guardians/{guardian_id}/auth-code",
-    response_model=schemas.AuthCodeResponse,
+    response_model=schemas.GuardianAuthCodeResponse,
     tags=["인증코드"],
 )
+
 def issue_guardian_auth_code(
     guardian_id: int,
     db: Session = Depends(get_db),
