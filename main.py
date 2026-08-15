@@ -2795,3 +2795,142 @@ def register_push_token(
         "user_id": device_token.user_id,
         "push_token": device_token.token,
     }
+
+def calculate_integrated_risk(
+    lmtad_score: float,
+    weather_score: float,
+    air_score: float,
+):
+    # 임시 가중치
+    lmtad_weight = 0.60
+    weather_weight = 0.25
+    air_weight = 0.15
+
+    final_score = (
+        lmtad_score * lmtad_weight
+        + weather_score * weather_weight
+        + air_score * air_weight
+    )
+
+    final_score = max(
+        0.0,
+        min(100.0, final_score),
+    )
+
+    if final_score >= 70:
+        risk_level = "danger"
+
+    elif final_score >= 40:
+        risk_level = "caution"
+
+    else:
+        risk_level = "safe"
+
+    return round(final_score, 2), risk_level
+
+@app.post(
+    "/subjects/{subject_id}/integrated-risk",
+    response_model=schemas.RiskStatusResponse,
+    tags=["위험도"],
+)
+def calculate_subject_integrated_risk(
+    subject_id: int,
+    lmtad_score: float,
+    db: Session = Depends(get_db),
+):
+    subject = db.get(
+        models.Subject,
+        subject_id,
+    )
+
+    if not subject:
+        raise HTTPException(
+            status_code=404,
+            detail="보호대상자를 찾을 수 없습니다.",
+        )
+
+    # 최신 GPS 조회
+    latest_gps = (
+        db.query(models.GPSRecord)
+        .filter(
+            models.GPSRecord.subject_id
+            == subject_id
+        )
+        .order_by(
+            models.GPSRecord.measured_at.desc(),
+            models.GPSRecord.gps_id.desc(),
+        )
+        .first()
+    )
+
+    if not latest_gps:
+        raise HTTPException(
+            status_code=404,
+            detail="GPS 기록이 없습니다.",
+        )
+
+    latitude = latest_gps.latitude
+    longitude = latest_gps.longitude
+
+    # 기상 조회
+    weather_data = get_weather_by_gps(
+        latitude,
+        longitude,
+    )
+
+    weather_score = weather_data.get(
+        "weather_risk_score"
+    )
+
+    # 대기 조회
+    air_data = get_air_quality_by_gps(
+        latitude,
+        longitude,
+    )
+
+    air_quality = air_data.get(
+        "air_quality",
+        {},
+    )
+
+    air_score = air_quality.get(
+        "air_risk_score"
+    )
+
+    # 외부 API 데이터가 없으면 계산 불가
+    if weather_score is None:
+        raise HTTPException(
+            status_code=503,
+            detail="기상 위험점수를 불러올 수 없습니다.",
+        )
+
+    if air_score is None:
+        raise HTTPException(
+            status_code=503,
+            detail="대기 위험점수를 불러올 수 없습니다.",
+        )
+
+    # 통합 위험도 계산
+    final_score, risk_level = (
+        calculate_integrated_risk(
+            lmtad_score=lmtad_score,
+            weather_score=weather_score,
+            air_score=air_score,
+        )
+    )
+
+    # DB 이력 저장
+    risk_status = models.RiskStatusHistory(
+        subject_id=subject_id,
+        risk_level=risk_level,
+        risk_score=final_score,
+        lmtad_score=lmtad_score,
+        weather_score=weather_score,
+        air_score=air_score,
+    )
+
+    db.add(risk_status)
+    db.commit()
+    db.refresh(risk_status)
+
+    return risk_status
