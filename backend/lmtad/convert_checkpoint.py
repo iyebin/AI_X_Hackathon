@@ -67,7 +67,7 @@ def main():
     parser.add_argument(
         "--input",
         required=True,
-        default="artifacts/ckptepoch_49_batch_389.pt",
+        default="artifacts/ckptepoch_13_batch_389.pt",
         help="원본 체크포인트 경로",
     )
     parser.add_argument(
