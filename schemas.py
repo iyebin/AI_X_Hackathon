@@ -383,14 +383,14 @@ class EmailVerifyRequest(BaseModel):
     email: str
     code: str
 
-class DeviceTokenCreate(BaseModel):
-    token: str
+class PushTokenCreate(BaseModel):
+    user_type: Literal["guardian", "subject"]
+    user_id: int
+    push_token: str
 
 
-class DeviceTokenResponse(BaseModel):
+class PushTokenResponse(BaseModel):
     id: int
-    guardian_id: int
-    token: str
-
-    class Config:
-        from_attributes = True
+    user_type: str
+    user_id: int
+    push_token: str

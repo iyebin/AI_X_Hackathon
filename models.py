@@ -85,18 +85,23 @@ class Guardian(Base):
         cascade="all, delete-orphan",
         passive_deletes=True,
     )
-
 class DeviceToken(Base):
     __tablename__ = "device_tokens"
 
-    id = Column(Integer, primary_key=True, index=True)
-
-    guardian_id = Column(
+    id = Column(
         Integer,
-        ForeignKey(
-            "guardians.id",
-            ondelete="CASCADE",
-        ),
+        primary_key=True,
+        index=True,
+    )
+
+    user_type = Column(
+        String(20),
+        nullable=False,
+        index=True,
+    )
+
+    user_id = Column(
+        Integer,
         nullable=False,
         index=True,
     )
