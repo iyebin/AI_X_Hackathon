@@ -9,5 +9,5 @@ torch
 numpy
 requests
 pyproj
-bcrypt
 firebase-admin
+google-auth

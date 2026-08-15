@@ -233,53 +233,91 @@ class GuardianRegistrationDetailResponse(BaseModel):
 
     guardian: GuardianSummary
     subject: SubjectSummary
+
 class InstitutionManagerCreate(BaseModel):
-    institution_id: int
-    name: str = Field(min_length=1, max_length=100)
-    phone: str = Field(min_length=5, max_length=30)
-    position: Optional[str] = Field(default=None, max_length=100)
+    institution_id: Optional[int] = None
+    name: Optional[str] = Field(
+        default=None,
+        min_length=1,
+        max_length=100,
+    )
+    phone: Optional[str] = Field(
+        default=None,
+        min_length=5,
+        max_length=30,
+    )
+    email: Optional[str] = None
+    provider: str
+    provider_user_id: str
+    position: Optional[str] = Field(
+        default=None,
+        max_length=100,
+    )
 
 
 class InstitutionManagerUpdate(BaseModel):
     institution_id: Optional[int] = None
-    name: Optional[str] = Field(default=None, min_length=1, max_length=100)
-    phone: Optional[str] = Field(default=None, min_length=5, max_length=30)
-    position: Optional[str] = Field(default=None, max_length=100)
+    name: Optional[str] = Field(
+        default=None,
+        min_length=1,
+        max_length=100,
+    )
+    phone: Optional[str] = Field(
+        default=None,
+        min_length=5,
+        max_length=30,
+    )
+    position: Optional[str] = Field(
+        default=None,
+        max_length=100,
+    )
 
 
 class InstitutionManagerResponse(ORMModel):
     id: int
-    institution_id: int
-    name: str
-    phone: str
+    institution_id: Optional[int]
+    name: Optional[str]
+    phone: Optional[str]
+    email: Optional[str]
+    provider: str
     position: Optional[str]
     created_at: datetime
     updated_at: datetime
 
-class InstitutionManagerSignup(BaseModel):
-    name: str
-    phone: str
-    email: str
-    login_id: str
-    password: str
-    institution_id: int
+
+class SocialLoginRequest(BaseModel):
+    provider: str
+    token: str
 
 
-class InstitutionManagerLogin(BaseModel):
-    login_id: str
-    password: str
-
-
-class InstitutionManagerAuthResponse(BaseModel):
+class SocialLoginResponse(BaseModel):
     id: int
-    name: str
-    phone: str
-    email: str
-    login_id: str
-    institution_id: int
+    institution_id: Optional[int]
+    name: Optional[str]
+    phone: Optional[str]
+    email: Optional[str]
+    provider: str
+    position: Optional[str]
+    profile_completed: bool
 
     model_config = ConfigDict(
         from_attributes=True
+    )
+
+
+class SocialProfileComplete(BaseModel):
+    name: str = Field(
+        min_length=1,
+        max_length=100,
+    )
+    phone: str = Field(
+        min_length=5,
+        max_length=30,
+    )
+    institution_id: int
+    position: Optional[str] = Field(
+        default=None,
+        max_length=100,
     )
     
 class ManagerAssignmentCreate(BaseModel):
@@ -404,20 +442,10 @@ class AlertResponse(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
-
-class EmailSendRequest(BaseModel):
-    email: str
-
-
-class EmailVerifyRequest(BaseModel):
-    email: str
-    code: str
-
 class PushTokenCreate(BaseModel):
     user_type: Literal["guardian", "subject"]
     user_id: int
     push_token: str
-
 
 class PushTokenResponse(BaseModel):
     id: int
@@ -455,3 +483,26 @@ class RiskStatusResponse(KSTBaseModel):
     model_config = ConfigDict(
         from_attributes=True
     )
+
+    
+# GPS inference
+class GPSInferenceResponse(BaseModel):
+    subject_id: int
+    target_date: date
+    point_count: int
+    gps_token_count: int
+    tokens: list[str]
+    anomaly_score: float
+    threshold: float
+    risk_level: str
+
+#gps inference
+class GPSInferenceResponse(BaseModel):
+    subject_id: int
+    target_date: date
+    point_count: int
+    gps_token_count: int
+    tokens: list[str]
+    anomaly_score: float
+    threshold: float
+    risk_level: str

@@ -17,20 +17,20 @@ from database import Base, engine, get_db
 
 from contextlib import asynccontextmanager
 import secrets
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 import random
 import string
-import bcrypt
 
 from lmtad_runtime import LMTADRuntime
 import os
 import random
 from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
+from inference_service import run_gps_inference
+import requests
 
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+from google.oauth2 import id_token
+from google.auth.transport import requests as google_requests
 
 lmtad_runtime: LMTADRuntime | None = None
 Base.metadata.create_all(bind=engine)
@@ -1288,17 +1288,192 @@ def delete_institution_manager(
     db.delete(manager)
     db.commit()
     return {"message": "기관 관리자가 삭제되었습니다.", "manager_id": manager_id}
-
 @app.post(
-    "/institution-managers/signup",
-    response_model=schemas.InstitutionManagerAuthResponse,
-    status_code=status.HTTP_201_CREATED,
+    "/auth/social/login",
+    response_model=schemas.SocialLoginResponse,
     tags=["기관 관리자 인증"],
 )
-def signup_institution_manager(
-    data: schemas.InstitutionManagerSignup,
+def social_login(
+    data: schemas.SocialLoginRequest,
     db: Session = Depends(get_db),
 ):
+    provider = data.provider.strip().lower()
+
+    if provider not in ("google", "kakao"):
+        raise HTTPException(
+            status_code=400,
+            detail="지원하지 않는 소셜 로그인입니다.",
+        )
+
+    provider_user_id = None
+    email = None
+
+    # =====================================================
+    # Google 로그인
+    # =====================================================
+    if provider == "google":
+        google_client_id = os.getenv(
+            "GOOGLE_CLIENT_ID"
+        )
+
+        if not google_client_id:
+            raise HTTPException(
+                status_code=500,
+                detail="GOOGLE_CLIENT_ID가 설정되지 않았습니다.",
+            )
+
+        try:
+            id_info = id_token.verify_oauth2_token(
+                data.token,
+                google_requests.Request(),
+                google_client_id,
+            )
+
+            provider_user_id = id_info.get("sub")
+            email = id_info.get("email")
+
+        except Exception as e:
+            print(
+                f"[GOOGLE LOGIN ERROR] "
+                f"{type(e).__name__}: {e}"
+            )
+
+            raise HTTPException(
+                status_code=401,
+                detail="Google 로그인 인증에 실패했습니다.",
+            )
+
+    # =====================================================
+    # Kakao 로그인
+    # =====================================================
+    elif provider == "kakao":
+        try:
+            response = requests.get(
+                "https://kapi.kakao.com/v2/user/me",
+                headers={
+                    "Authorization": (
+                        f"Bearer {data.token}"
+                    )
+                },
+                timeout=10,
+            )
+
+            if response.status_code != 200:
+                raise HTTPException(
+                    status_code=401,
+                    detail="Kakao 로그인 인증에 실패했습니다.",
+                )
+
+            kakao_user = response.json()
+
+            provider_user_id = str(
+                kakao_user.get("id")
+            )
+
+            kakao_account = (
+                kakao_user.get("kakao_account")
+                or {}
+            )
+
+            email = kakao_account.get("email")
+
+        except HTTPException:
+            raise
+
+        except Exception as e:
+            print(
+                f"[KAKAO LOGIN ERROR] "
+                f"{type(e).__name__}: {e}"
+            )
+
+            raise HTTPException(
+                status_code=401,
+                detail="Kakao 로그인 인증에 실패했습니다.",
+            )
+
+    # =====================================================
+    # 소셜 계정 ID 확인
+    # =====================================================
+    if not provider_user_id:
+        raise HTTPException(
+            status_code=401,
+            detail="소셜 사용자 정보를 확인할 수 없습니다.",
+        )
+
+    # =====================================================
+    # 기존 관리자 조회
+    # =====================================================
+    manager = (
+        db.query(models.InstitutionManager)
+        .filter(
+            models.InstitutionManager.provider
+            == provider,
+            models.InstitutionManager.provider_user_id
+            == provider_user_id,
+        )
+        .first()
+    )
+
+    # =====================================================
+    # 최초 로그인 → 관리자 기본 계정 생성
+    # =====================================================
+    if not manager:
+        manager = models.InstitutionManager(
+            provider=provider,
+            provider_user_id=provider_user_id,
+            email=email,
+        )
+
+        db.add(manager)
+        db.commit()
+        db.refresh(manager)
+
+    # 소셜 서비스에서 이메일이 변경된 경우 갱신
+    elif email and manager.email != email:
+        manager.email = email
+        db.commit()
+        db.refresh(manager)
+
+    profile_completed = all(
+        [
+            manager.name,
+            manager.phone,
+            manager.institution_id,
+        ]
+    )
+
+    return {
+        "id": manager.id,
+        "institution_id": manager.institution_id,
+        "name": manager.name,
+        "phone": manager.phone,
+        "email": manager.email,
+        "provider": manager.provider,
+        "position": manager.position,
+        "profile_completed": profile_completed,
+    }
+
+@app.patch(
+    "/institution-managers/{manager_id}/complete-profile",
+    response_model=schemas.SocialLoginResponse,
+    tags=["기관 관리자 인증"],
+)
+def complete_social_profile(
+    manager_id: int,
+    data: schemas.SocialProfileComplete,
+    db: Session = Depends(get_db),
+):
+    manager = db.get(
+        models.InstitutionManager,
+        manager_id,
+    )
+
+    if not manager:
+        raise HTTPException(
+            status_code=404,
+            detail="기관 관리자를 찾을 수 없습니다.",
+        )
+
     institution = db.get(
         models.Institution,
         data.institution_id,
@@ -1310,105 +1485,25 @@ def signup_institution_manager(
             detail="기관을 찾을 수 없습니다.",
         )
 
-    verified_email = (
-        db.query(models.EmailVerification)
-        .filter(
-            models.EmailVerification.email == data.email.strip().lower(),
-            models.EmailVerification.verified_at.is_not(None),
-        )
-        .order_by(
-            models.EmailVerification.verified_at.desc()
-        )
-        .first()
-    )
+    manager.name = data.name
+    manager.phone = data.phone
+    manager.institution_id = data.institution_id
+    manager.position = data.position
 
-    if not verified_email:
-        raise HTTPException(
-            status_code=403,
-            detail="이메일 인증이 필요합니다.",
-        )
-    
-    existing_login_id = (
-        db.query(models.InstitutionManager)
-        .filter(
-            models.InstitutionManager.login_id
-            == data.login_id
-        )
-        .first()
-    )
-
-    if existing_login_id:
-        raise HTTPException(
-            status_code=409,
-            detail="이미 사용 중인 아이디입니다.",
-        )
-
-    existing_email = (
-        db.query(models.InstitutionManager)
-        .filter(
-            models.InstitutionManager.email
-            == data.email
-        )
-        .first()
-    )
-
-    if existing_email:
-        raise HTTPException(
-            status_code=409,
-            detail="이미 사용 중인 이메일입니다.",
-        )
-
-    manager = models.InstitutionManager(
-        institution_id=data.institution_id,
-        name=data.name,
-        phone=data.phone,
-        email=data.email,
-        login_id=data.login_id,
-        password_hash=hash_password(
-            data.password
-        ),
-    )
-
-    db.add(manager)
     db.commit()
     db.refresh(manager)
 
-    return manager
+    return {
+        "id": manager.id,
+        "institution_id": manager.institution_id,
+        "name": manager.name,
+        "phone": manager.phone,
+        "email": manager.email,
+        "provider": manager.provider,
+        "position": manager.position,
+        "profile_completed": True,
+    }
 
-@app.post(
-    "/institution-managers/login",
-    response_model=schemas.InstitutionManagerAuthResponse,
-    tags=["기관 관리자 인증"],
-)
-def login_institution_manager(
-    data: schemas.InstitutionManagerLogin,
-    db: Session = Depends(get_db),
-):
-    manager = (
-        db.query(models.InstitutionManager)
-        .filter(
-            models.InstitutionManager.login_id
-            == data.login_id
-        )
-        .first()
-    )
-
-    if not manager:
-        raise HTTPException(
-            status_code=401,
-            detail="아이디 또는 비밀번호가 올바르지 않습니다.",
-        )
-
-    if not verify_password(
-        data.password,
-        manager.password_hash,
-    ):
-        raise HTTPException(
-            status_code=401,
-            detail="아이디 또는 비밀번호가 올바르지 않습니다.",
-        )
-
-    return manager
 # =========================================================
 # 기관 관리자 ↔ 보호대상자 연결
 # =========================================================
@@ -2511,220 +2606,8 @@ def mark_alert_as_read(
 
     return alert
 
-def hash_password(password: str) -> str:
-    return bcrypt.hashpw(
-        password.encode("utf-8"),
-        bcrypt.gensalt(),
-    ).decode("utf-8")
-
-
-def verify_password(
-    password: str,
-    password_hash: str,
-) -> bool:
-    return bcrypt.checkpw(
-        password.encode("utf-8"),
-        password_hash.encode("utf-8"),
-    )
-
 def generate_sms_code() -> str:
     return f"{secrets.randbelow(1000000):06d}"
-
-def send_verification_email(
-    email: str,
-    code: str,
-):
-    gmail_address = os.getenv("GMAIL_ADDRESS")
-    gmail_app_password = os.getenv(
-        "GMAIL_APP_PASSWORD"
-    )
-
-    if not gmail_address:
-        raise HTTPException(
-            status_code=500,
-            detail="GMAIL_ADDRESS가 설정되지 않았습니다.",
-        )
-
-    if not gmail_app_password:
-        raise HTTPException(
-            status_code=500,
-            detail="GMAIL_APP_PASSWORD가 설정되지 않았습니다.",
-        )
-
-    message = MIMEMultipart("alternative")
-
-    message["Subject"] = (
-        "[안심하랑께] 이메일 인증번호"
-    )
-    message["From"] = (
-        f"안심하랑께 <{gmail_address}>"
-    )
-    message["To"] = email
-
-    html = f"""
-    <html>
-        <body>
-            <h2>안심하랑께 이메일 인증</h2>
-
-            <p>인증번호는</p>
-
-            <h1>{code}</h1>
-
-            <p>입니다.</p>
-
-            <p>
-                인증번호는 3분간 유효합니다.
-            </p>
-        </body>
-    </html>
-    """
-
-    message.attach(
-        MIMEText(
-            html,
-            "html",
-            "utf-8",
-        )
-    )
-
-    try:
-        with smtplib.SMTP_SSL(
-            "smtp.gmail.com",
-            465,
-            timeout=15,
-        ) as smtp:
-            smtp.login(
-                gmail_address,
-                gmail_app_password,
-            )
-
-            smtp.sendmail(
-                gmail_address,
-                email,
-                message.as_string(),
-            )
-
-    except Exception as e:
-        print(
-            f"[EMAIL ERROR] {type(e).__name__}: {e}"
-        )
-
-        raise HTTPException(
-            status_code=502,
-            detail="인증 이메일 발송에 실패했습니다.",
-        )
-    
-@app.post(
-    "/auth/email/send",
-    tags=["이메일 인증"],
-)
-def send_email_verification(
-    data: schemas.EmailSendRequest,
-    db: Session = Depends(get_db),
-):
-    email = data.email.strip().lower()
-
-    code = f"{random.randint(0, 999999):06d}"
-
-    now = datetime.now(timezone.utc)
-    expires_at = now + timedelta(minutes=3)
-
-    verification = models.EmailVerification(
-        email=email,
-        code=code,
-        expires_at=expires_at,
-        attempts=0,
-    )
-
-    db.add(verification)
-    db.commit()
-    db.refresh(verification)
-
-    try:
-        send_verification_email(
-            email=email,
-            code=code,
-        )
-
-    except Exception:
-        # 메일이 안 갔는데 DB에는 인증번호가 남는 상황 방지
-        db.delete(verification)
-        db.commit()
-        raise
-
-    return {
-        "message": "인증번호를 이메일로 전송했습니다.",
-        "email": email,
-        "expires_in": 180,
-    }
-
-@app.post(
-    "/auth/email/verify",
-    tags=["이메일 인증"],
-)
-def verify_email(
-    data: schemas.EmailVerifyRequest,
-    db: Session = Depends(get_db),
-):
-    email = data.email.strip().lower()
-
-    verification = (
-        db.query(models.EmailVerification)
-        .filter(
-            models.EmailVerification.email == email,
-            models.EmailVerification.verified_at.is_(None),
-        )
-        .order_by(
-            models.EmailVerification.id.desc()
-        )
-        .first()
-    )
-
-    if not verification:
-        raise HTTPException(
-            status_code=404,
-            detail="인증 요청을 찾을 수 없습니다.",
-        )
-
-    now = datetime.now(timezone.utc)
-
-    expires_at = verification.expires_at
-
-    # DB 드라이버가 timezone 정보를 제거해서 반환하는 경우 대비
-    if expires_at.tzinfo is None:
-        expires_at = expires_at.replace(
-            tzinfo=timezone.utc
-        )
-
-    if now > expires_at:
-        raise HTTPException(
-            status_code=400,
-            detail="인증번호가 만료되었습니다.",
-        )
-
-    if verification.attempts >= 5:
-        raise HTTPException(
-            status_code=429,
-            detail="인증번호 입력 횟수를 초과했습니다. 다시 요청해주세요.",
-        )
-
-    if verification.code != data.code:
-        verification.attempts += 1
-        db.commit()
-
-        raise HTTPException(
-            status_code=400,
-            detail="인증번호가 올바르지 않습니다.",
-        )
-
-    verification.verified_at = now
-    db.commit()
-
-    return {
-        "verified": True,
-        "email": email,
-        "message": "이메일 인증이 완료되었습니다.",
-    }
 
 @app.post(
     "/push-tokens",
@@ -2827,6 +2710,39 @@ def calculate_integrated_risk(
         risk_level = "safe"
 
     return round(final_score, 2), risk_level
+
+# =========================================================
+# GPS AI 추론
+# =========================================================
+@app.post(
+    "/subjects/{subject_id}/gps-inference",
+    response_model=schemas.GPSInferenceResponse,
+    tags=["AI"],
+)
+def infer_subject_gps(
+    subject_id: int,
+    target_date: date = Query(default_factory=date.today),
+    db: Session = Depends(get_db),
+):
+    try:
+        result = run_gps_inference(
+            db=db,
+            subject_id=subject_id,
+            target_date=target_date,
+        )
+    except ValueError as error:
+        raise HTTPException(
+            status_code=422,
+            detail=str(error),
+        )
+
+    result["risk_level"] = (
+        "danger"
+        if result.pop("is_anomaly")
+        else "safe"
+    )
+
+    return result
 
 @app.post(
     "/subjects/{subject_id}/integrated-risk",
@@ -2934,3 +2850,41 @@ def calculate_subject_integrated_risk(
     db.refresh(risk_status)
 
     return risk_status
+
+#gps inference
+@app.post(
+    "/subjects/{subject_id}/gps-inference",
+    response_model=schemas.GPSInferenceResponse,
+    tags=["AI"],
+)
+def infer_subject_gps(
+    subject_id: int,
+    target_date: date = Query(default_factory=date.today),
+    db: Session = Depends(get_db),
+):
+    if lmtad_runtime is None:
+        raise HTTPException(
+            status_code=503,
+            detail="LMTAD 모델이 로드되지 않았습니다.",
+        )
+
+    try:
+        result = run_gps_inference(
+            db=db,
+            runtime=lmtad_runtime,
+            subject_id=subject_id,
+            target_date=target_date,
+        )
+    except ValueError as error:
+        raise HTTPException(
+            status_code=422,
+            detail=str(error),
+        )
+
+    result["risk_level"] = (
+        "danger"
+        if result.pop("is_anomaly")
+        else "safe"
+    )
+
+    return result
