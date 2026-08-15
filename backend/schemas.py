@@ -394,3 +394,8 @@ class PushTokenResponse(BaseModel):
     user_type: str
     user_id: int
     push_token: str
+
+class GuardianAuthCodeResponse(BaseModel):
+    user_type: str
+    user_id: int
+    auth_code: str
