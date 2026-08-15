@@ -2227,7 +2227,7 @@ def send_email_verification(
     data: schemas.EmailSendRequest,
     db: Session = Depends(get_db),
 ):
-    email = data.email.strip().lower()
+    email = email.strip().lower()
 
     code = f"{random.randint(0, 999999):06d}"
 
@@ -2271,7 +2271,7 @@ def verify_email(
     data: schemas.EmailVerifyRequest,
     db: Session = Depends(get_db),
 ):
-    email = data.email.strip().lower()
+    email = email.strip().lower()
 
     verification = (
         db.query(models.EmailVerification)
@@ -2330,3 +2330,51 @@ def verify_email(
         "email": email,
         "message": "이메일 인증이 완료되었습니다.",
     }
+
+@app.post(
+    "/guardians/{guardian_id}/device-token",
+    response_model=schemas.DeviceTokenResponse,
+    tags=["알림"],
+)
+def register_device_token(
+    guardian_id: int,
+    data: schemas.DeviceTokenCreate,
+    db: Session = Depends(get_db),
+):
+    guardian = db.get(
+        models.Guardian,
+        guardian_id,
+    )
+
+    if not guardian:
+        raise HTTPException(
+            status_code=404,
+            detail="보호자를 찾을 수 없습니다.",
+        )
+
+    existing_token = (
+        db.query(models.DeviceToken)
+        .filter(
+            models.DeviceToken.token == data.token
+        )
+        .first()
+    )
+
+    if existing_token:
+        existing_token.guardian_id = guardian_id
+
+        db.commit()
+        db.refresh(existing_token)
+
+        return existing_token
+
+    device_token = models.DeviceToken(
+        guardian_id=guardian_id,
+        token=data.token,
+    )
+
+    db.add(device_token)
+    db.commit()
+    db.refresh(device_token)
+
+    return device_token

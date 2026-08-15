@@ -86,7 +86,41 @@ class Guardian(Base):
         passive_deletes=True,
     )
 
+class DeviceToken(Base):
+    __tablename__ = "device_tokens"
 
+    id = Column(Integer, primary_key=True, index=True)
+
+    guardian_id = Column(
+        Integer,
+        ForeignKey(
+            "guardians.id",
+            ondelete="CASCADE",
+        ),
+        nullable=False,
+        index=True,
+    )
+
+    token = Column(
+        Text,
+        nullable=False,
+        unique=True,
+        index=True,
+    )
+
+    created_at = Column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        nullable=False,
+    )
+
+    updated_at = Column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+        nullable=False,
+    )
+    
 class Institution(Base):
     __tablename__ = "institutions"
 
