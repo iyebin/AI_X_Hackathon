@@ -399,3 +399,29 @@ class GuardianAuthCodeResponse(BaseModel):
     user_type: str
     user_id: int
     auth_code: str
+
+class RiskStatusCreate(BaseModel):
+    subject_id: int
+    risk_level: str
+
+    risk_score: float | None = None
+    lmtad_score: float | None = None
+    weather_score: float | None = None
+    air_score: float | None = None
+
+
+class RiskStatusResponse(BaseModel):
+    id: int
+    subject_id: int
+    risk_level: str
+
+    risk_score: float | None = None
+    lmtad_score: float | None = None
+    weather_score: float | None = None
+    air_score: float | None = None
+
+    created_at: datetime
+
+    model_config = ConfigDict(
+        from_attributes=True
+    )
