@@ -522,6 +522,61 @@ class Alert(Base):
         back_populates="alerts",
     )
 
+class RiskStatusHistory(Base):
+    __tablename__ = "risk_status_history"
+
+    id = Column(
+        BigInteger,
+        primary_key=True,
+        index=True,
+    )
+
+    subject_id = Column(
+        BigInteger,
+        ForeignKey(
+            "subjects.id",
+            ondelete="CASCADE",
+        ),
+        nullable=False,
+        index=True,
+    )
+
+    # safe / caution / danger
+    risk_level = Column(
+        String(20),
+        nullable=False,
+        index=True,
+    )
+
+    # 최종 통합 위험 점수
+    risk_score = Column(
+        Float,
+        nullable=True,
+    )
+
+    # 각각의 세부 점수
+    lmtad_score = Column(
+        Float,
+        nullable=True,
+    )
+
+    weather_score = Column(
+        Float,
+        nullable=True,
+    )
+
+    air_score = Column(
+        Float,
+        nullable=True,
+    )
+
+    created_at = Column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        nullable=False,
+        index=True,
+    )
+
 class SubjectAuthCode(Base):
     __tablename__ = "subject_auth_codes"
 

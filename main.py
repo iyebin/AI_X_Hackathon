@@ -2246,7 +2246,132 @@ def receive_risk_result(
             for alert in created_alerts
         ],
     }
-    
+
+@app.post(
+    "/risk-status",
+    response_model=schemas.RiskStatusResponse,
+    tags=["위험도"],
+)
+def create_risk_status(
+    data: schemas.RiskStatusCreate,
+    db: Session = Depends(get_db),
+):
+    subject = db.get(
+        models.Subject,
+        data.subject_id,
+    )
+
+    if not subject:
+        raise HTTPException(
+            status_code=404,
+            detail="보호대상자를 찾을 수 없습니다.",
+        )
+
+    allowed_levels = {
+        "safe",
+        "caution",
+        "danger",
+    }
+
+    if data.risk_level not in allowed_levels:
+        raise HTTPException(
+            status_code=400,
+            detail="risk_level은 safe, caution, danger 중 하나여야 합니다.",
+        )
+
+    risk_status = models.RiskStatusHistory(
+        subject_id=data.subject_id,
+        risk_level=data.risk_level,
+        risk_score=data.risk_score,
+        lmtad_score=data.lmtad_score,
+        weather_score=data.weather_score,
+        air_score=data.air_score,
+    )
+
+    db.add(risk_status)
+    db.commit()
+    db.refresh(risk_status)
+
+    return risk_status
+
+@app.get(
+    "/subjects/{subject_id}/risk-status",
+    response_model=schemas.RiskStatusResponse,
+    tags=["위험도"],
+)
+def get_current_risk_status(
+    subject_id: int,
+    db: Session = Depends(get_db),
+):
+    subject = db.get(
+        models.Subject,
+        subject_id,
+    )
+
+    if not subject:
+        raise HTTPException(
+            status_code=404,
+            detail="보호대상자를 찾을 수 없습니다.",
+        )
+
+    risk_status = (
+        db.query(models.RiskStatusHistory)
+        .filter(
+            models.RiskStatusHistory.subject_id
+            == subject_id
+        )
+        .order_by(
+            models.RiskStatusHistory.created_at.desc(),
+            models.RiskStatusHistory.id.desc(),
+        )
+        .first()
+    )
+
+    if not risk_status:
+        raise HTTPException(
+            status_code=404,
+            detail="위험도 기록이 없습니다.",
+        )
+
+    return risk_status
+
+@app.get(
+    "/subjects/{subject_id}/risk-history",
+    response_model=list[schemas.RiskStatusResponse],
+    tags=["위험도"],
+)
+def get_risk_history(
+    subject_id: int,
+    limit: int = 50,
+    db: Session = Depends(get_db),
+):
+    subject = db.get(
+        models.Subject,
+        subject_id,
+    )
+
+    if not subject:
+        raise HTTPException(
+            status_code=404,
+            detail="보호대상자를 찾을 수 없습니다.",
+        )
+
+    history = (
+        db.query(models.RiskStatusHistory)
+        .filter(
+            models.RiskStatusHistory.subject_id
+            == subject_id
+        )
+        .order_by(
+            models.RiskStatusHistory.created_at.desc(),
+            models.RiskStatusHistory.id.desc(),
+        )
+        .limit(limit)
+        .all()
+    )
+
+    return history
+
 @app.get(
     "/alerts",
     response_model=list[schemas.AlertResponse],
