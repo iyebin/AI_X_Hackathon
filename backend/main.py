@@ -15,7 +15,7 @@ from database import Base, engine, get_db
 
 from contextlib import asynccontextmanager
 import secrets
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 import random
 import string
 import bcrypt
