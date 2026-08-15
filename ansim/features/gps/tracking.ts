@@ -6,6 +6,8 @@ type GpsModule = {
   stopTracking: () => void;
 };
 
+let trackingEnabled = false;
+
 function getGpsModule(): GpsModule {
   if (Platform.OS !== 'android') {
     throw new Error('GPS 백그라운드 추적은 현재 Android 앱에서만 지원합니다.');
@@ -31,8 +33,14 @@ export async function startGpsTracking(subjectId: number) {
   }
 
   getGpsModule().startTracking(subjectId);
+  trackingEnabled = true;
 }
 
 export function stopGpsTracking() {
   getGpsModule().stopTracking();
+  trackingEnabled = false;
+}
+
+export function isGpsTrackingEnabled() {
+  return trackingEnabled;
 }

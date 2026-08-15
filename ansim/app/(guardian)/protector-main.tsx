@@ -1,6 +1,6 @@
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Alert,
   DimensionValue,
@@ -18,11 +18,15 @@ import HeaderBadge from '@/components/common/header-badge';
 import LocationMapView from '@/components/map/location-map-view';
 import NotificationView from '@/components/notifications/alarm';
 import SettingView from '@/components/settings/setting-view';
-import { getCurrentGuardianName } from '@/features/auth/current-session';
+import { clearSavedSession, getCurrentGuardianId, getCurrentGuardianName } from '@/features/auth/current-session';
+import { getAlerts } from '@/features/alerts/alerts-api';
 import { formatTimeSince, getLatestGps, GpsLocation } from '@/features/gps/gps-api';
+import { getWeatherSummary } from '@/features/environment/weather-api';
+import { registerPushNotifications } from '@/features/notifications/push-registration';
 
 export default function ProtectorMainScreen() {
   const router = useRouter();
+  const guardianId = getCurrentGuardianId();
   const guardianName = getCurrentGuardianName() || '보호자';
 
   const params = useLocalSearchParams<{
@@ -48,10 +52,21 @@ export default function ProtectorMainScreen() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [gpsLocation, setGpsLocation] = useState<GpsLocation | null>(null);
   const [gpsError, setGpsError] = useState<string | null>(null);
+  const [weatherText, setWeatherText] = useState<string | null>('날씨 정보를 불러오는 중입니다.');
+  const shownDangerAlertId = useRef<string | null>(null);
+  const hasShownAutomaticDangerModal = useRef(false);
 
   useEffect(() => {
     if (params.tab) setActiveTab(params.tab);
   }, [params.tab]);
+
+  useEffect(() => {
+    const guardianId = getCurrentGuardianId();
+    if (!guardianId) return;
+    void registerPushNotifications({ userId: guardianId, userType: 'guardian' }).catch((error) => {
+      console.warn('푸시 알림 등록에 실패했습니다.', error);
+    });
+  }, []);
 
   useEffect(() => {
     const subjectId = Number(params.subjectId);
@@ -70,6 +85,53 @@ export default function ProtectorMainScreen() {
         setGpsError(error instanceof Error ? error.message : 'GPS 위치를 가져오지 못했습니다.');
       });
   }, [params.subjectId, mapRefreshKey]);
+
+  useEffect(() => {
+    const subjectId = Number(params.subjectId);
+    if (!Number.isInteger(subjectId) || subjectId <= 0) {
+      setWeatherText('날씨 정보를 확인할 수 없습니다.');
+      return;
+    }
+
+    void getWeatherSummary(subjectId)
+      .then((weather) => setWeatherText(weather.text))
+      .catch(() => setWeatherText('날씨 정보를 불러오지 못했습니다.'));
+  }, [params.subjectId, mapRefreshKey]);
+
+  useEffect(() => {
+    const subjectId = Number(params.subjectId);
+    if (!Number.isInteger(subjectId) || subjectId <= 0) return;
+
+    const checkDangerAlerts = async () => {
+      try {
+        if (hasShownAutomaticDangerModal.current) return;
+        const dangerAlert = (await getAlerts(subjectId)).find(
+          (alert) => alert.kind === 'danger' && !alert.isRead && alert.id !== shownDangerAlertId.current,
+        );
+        if (!dangerAlert) return;
+
+        shownDangerAlertId.current = dangerAlert.id;
+        hasShownAutomaticDangerModal.current = true;
+        router.push({
+          pathname: '/danger-modal',
+          params: {
+            alertId: dangerAlert.id,
+            subjectId: String(subjectId),
+            targetName,
+            targetPhone,
+            dangerScore: String(dangerAlert.riskScore ?? targetScore),
+            dangerReasons: dangerAlert.reason ?? dangerAlert.message ?? '위험 요인 정보 없음',
+          },
+        });
+      } catch {
+        // 네트워크 오류가 나도 메인 화면 사용은 계속할 수 있어야 합니다.
+      }
+    };
+
+    void checkDangerAlerts();
+    const intervalId = setInterval(() => void checkDangerAlerts(), 30_000);
+    return () => clearInterval(intervalId);
+  }, [params.subjectId, router, targetName, targetPhone, targetScore]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -98,6 +160,11 @@ export default function ProtectorMainScreen() {
       params: { 
         targetName,
         subjectId: params.subjectId,
+        targetStatus,
+        targetScore,
+        targetGps,
+        targetPhone,
+        updatedTime: params.updatedTime,
         isProtected: 'false'
       },
     });
@@ -299,19 +366,19 @@ export default function ProtectorMainScreen() {
                 <Text style={styles.statusText}>최근 업데이트 {gpsUpdatedAgo}</Text>
               </View>
 
-              <View style={styles.statusRow}>
+              {weatherText ? <View style={styles.statusRow}>
                 <Ionicons name="cloudy-outline" size={26} color="#59A03D" style={styles.statusIcon} />
-                <Text style={styles.statusText}>날씨: 구름 많음 26°C</Text>
-              </View>
+                <Text style={styles.statusText}>{weatherText}</Text>
+              </View> : null}
             </View>
           </ScrollView>
         );
 
       case 'notification':
-        return <NotificationView filterTargetName={targetName} />;
+        return <NotificationView filterTargetName={targetName} subjectId={Number(params.subjectId)} targetPhone={targetPhone} />;
 
       case 'setting':
-        return <SettingView isProtected={false} />;
+        return <SettingView isProtected={false} notificationUser={guardianId ? { userId: guardianId, userType: 'guardian' } : undefined} />;
 
       default:
         return null;
@@ -376,7 +443,7 @@ export default function ProtectorMainScreen() {
 
             <View style={styles.sidebarBottom}>
               <View style={styles.sidebarDivider} />
-              <TouchableOpacity style={styles.sidebarLogout} onPress={() => router.replace('/select-type')}>
+              <TouchableOpacity style={styles.sidebarLogout} onPress={async () => { await clearSavedSession(); router.replace('/select-type'); }}>
                 <Ionicons name="log-out-outline" size={27} color="#FF2525" /><Text style={styles.sidebarLogoutText}>로그아웃</Text>
               </TouchableOpacity>
             </View>
@@ -609,9 +676,12 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   statusText: {
+    flex: 1,
+    flexShrink: 1,
     fontSize: 18,
     fontWeight: 'bold',
     color: '#444444',
+    lineHeight: 25,
   },
   bottomTabBar: {
     flexDirection: 'row',

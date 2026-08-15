@@ -54,6 +54,28 @@ export async function getSubjectsForGuardian(guardianId: number): Promise<Relate
   }));
 }
 
+/** 보호대상자 상세 정보를 직접 조회합니다. 위험 알림처럼 목록 파라미터가 없는 화면에서 사용합니다. */
+export async function getSubjectProfile(subjectId: number): Promise<RelatedSubject> {
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE_URL}/subjects/${subjectId}`);
+  } catch {
+    throw new Error('보호대상자 정보를 불러오지 못했습니다.');
+  }
+
+  const data: unknown = await response.json().catch(() => null);
+  if (!response.ok || typeof data !== 'object' || data === null) {
+    throw new Error('보호대상자 정보를 불러오지 못했습니다.');
+  }
+
+  const subject = data as Person & { subject_type?: string; special_notes?: string | null };
+  return {
+    ...subject,
+    subjectType: subject.subject_type,
+    specialNotes: subject.special_notes,
+  };
+}
+
 export function getAge(birthDate?: string | null): string {
   if (!birthDate) return '나이 정보 없음';
   const birth = new Date(birthDate);
