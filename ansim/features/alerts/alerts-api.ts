@@ -1,0 +1,111 @@
+const API_BASE_URL = 'https://ai-x-hackathon-backend.onrender.com';
+
+export type AlertKind = 'danger' | 'warning' | 'info';
+
+export interface AppAlert {
+  id: string;
+  subjectId?: number;
+  type: string;
+  title: string;
+  reason?: string;
+  message?: string;
+  createdAt?: string;
+  riskScore?: number;
+  isRead: boolean;
+  kind: AlertKind;
+}
+
+type AlertPayload = Record<string, unknown>;
+
+function asText(value: unknown): string | undefined {
+  return typeof value === 'string' && value.trim() ? value.trim() : undefined;
+}
+
+function asNumber(value: unknown): number | undefined {
+  const numberValue = typeof value === 'number' ? value : Number(value);
+  return Number.isFinite(numberValue) ? numberValue : undefined;
+}
+
+function getKind(payload: AlertPayload, title: string, message?: string): AlertKind {
+  const value = [payload.alert_type, payload.type, payload.level, payload.severity, title, message]
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase();
+
+  if (/danger|risk|high|위험|긴급/.test(value)) return 'danger';
+  if (/warning|caution|medium|주의|경고/.test(value)) return 'warning';
+  return 'info';
+}
+
+function extractReason(explicitReason: string | undefined, message?: string): string | undefined {
+  if (explicitReason) return explicitReason;
+  if (!message) return undefined;
+
+  // 예: "김유빈님 위험 감지 : GPS 이탈 및 장시간 정지 감지 (위험 점수 : 85)"
+  // 위험 모달에는 분석 이유 부분만 표시합니다.
+  const afterLabel = message.includes(':') ? message.slice(message.indexOf(':') + 1) : message;
+  const withoutScore = afterLabel.replace(/\s*\(\s*위험\s*점수\s*:\s*[^)]*\)\s*$/u, '');
+  return withoutScore.trim() || undefined;
+}
+
+function toAppAlert(payload: AlertPayload): AppAlert | null {
+  const id = payload.id ?? payload.alert_id;
+  if (id === undefined || id === null) return null;
+
+  const explicitReason = asText(payload.reason);
+  const message = asText(payload.message) ?? asText(payload.content) ?? asText(payload.description);
+  const reason = extractReason(explicitReason, message);
+  const title =
+    asText(payload.title) ??
+    asText(payload.alert_type) ??
+    asText(payload.type) ??
+    message ??
+    '새 알림';
+
+  return {
+    id: String(id),
+    subjectId: asNumber(payload.subject_id ?? payload.subjectId),
+    type: asText(payload.type) ?? asText(payload.alert_type) ?? '',
+    title,
+    reason,
+    message: message === title ? undefined : message,
+    createdAt:
+      asText(payload.created_at) ??
+      asText(payload.alerted_at) ??
+      asText(payload.timestamp) ??
+      asText(payload.createdAt),
+    riskScore: asNumber(payload.risk_score ?? payload.riskScore),
+    isRead: Boolean(payload.is_read ?? payload.read ?? false),
+    kind: getKind(payload, title, message),
+  };
+}
+
+export async function getAlerts(subjectId?: number): Promise<AppAlert[]> {
+  const response = await fetch(`${API_BASE_URL}/alerts`);
+  if (!response.ok) throw new Error('알림을 불러오지 못했습니다.');
+
+  const payload: unknown = await response.json();
+  const items = Array.isArray(payload)
+    ? payload
+    : Array.isArray((payload as { alerts?: unknown[] })?.alerts)
+      ? (payload as { alerts: unknown[] }).alerts
+      : Array.isArray((payload as { items?: unknown[] })?.items)
+        ? (payload as { items: unknown[] }).items
+        : Array.isArray((payload as { data?: unknown[] })?.data)
+          ? (payload as { data: unknown[] }).data
+          : [];
+
+  return items
+    .filter((item): item is AlertPayload => Boolean(item) && typeof item === 'object')
+    .map(toAppAlert)
+    .filter((item): item is AppAlert => item !== null)
+    .filter((item) => subjectId === undefined || item.subjectId === undefined || item.subjectId === subjectId)
+    .sort((left, right) => Date.parse(right.createdAt ?? '') - Date.parse(left.createdAt ?? ''));
+}
+
+export async function markAlertAsRead(alertId: string): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/alerts/${encodeURIComponent(alertId)}/read`, {
+    method: 'PATCH',
+  });
+  if (!response.ok) throw new Error('알림을 읽음 처리하지 못했습니다.');
+}

@@ -12,10 +12,11 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { AuthRole, verifyAuthCode } from '@/features/auth/verify-code';
+import { saveSession, setCurrentGuardian } from '@/features/auth/current-session';
+import { setProtectorPhone } from '@/features/contacts/protector-contact-store';
 import { startGpsTracking } from '@/features/gps/tracking';
-
-const TEMP_VALID_CODE = '123456';
-const TEST_SUBJECT_ID = 3;
+import { getGuardiansForSubject } from '@/features/relationships/guardian-registration';
 
 export default function CodeScreen() {
   const router = useRouter();
@@ -45,36 +46,74 @@ export default function CodeScreen() {
 
   const handleConnect = async () => {
     const enteredCode = code.join('');
-    if (enteredCode.length !== TEMP_VALID_CODE.length) {
+    if (enteredCode.length !== code.length) {
       Alert.alert('인증 코드 확인', '6자리 인증 코드를 모두 입력해 주세요.');
       return;
     }
 
-    if (enteredCode !== TEMP_VALID_CODE) {
-      Alert.alert('인증 실패', '인증 코드가 올바르지 않습니다.');
-      return;
-    }
+    try {
+      const role: AuthRole = isProtected ? 'protected' : 'guardian';
+      const authenticatedUser = await verifyAuthCode(enteredCode, role);
 
-    if (isProtected) {
-      try {
-        await startGpsTracking(TEST_SUBJECT_ID);
-      } catch (error) {
-        Alert.alert(
-          '위치 추적을 시작할 수 없습니다',
-          error instanceof Error ? error.message : '위치 권한을 확인해 주세요.'
-        );
-        return;
+      if (isProtected) {
+        const subjectId = authenticatedUser.subjectId;
+        if (!subjectId) {
+          throw new Error('서버 응답에 보호대상자 ID(subject_id)가 없습니다.');
+        }
+        try {
+          await startGpsTracking(subjectId);
+        } catch (error) {
+          Alert.alert(
+            '위치 추적을 시작할 수 없습니다',
+            error instanceof Error ? error.message : '위치 권한을 확인해 주세요.'
+          );
+          return;
+        }
+
+        const guardians = await getGuardiansForSubject(subjectId);
+        const emergencyGuardian = guardians.find((guardian) => guardian.phone);
+        if (!emergencyGuardian?.phone) {
+          throw new Error('연결된 보호자의 전화번호를 찾을 수 없습니다.');
+        }
+        setProtectorPhone(emergencyGuardian.phone);
+        await saveSession({
+          role: 'protected',
+          userId: subjectId,
+          userName: authenticatedUser.name,
+          protectorPhone: emergencyGuardian.phone,
+        });
       }
-    }
 
-    Alert.alert('인증 완료', `${roleTitle} 인증이 완료되었습니다.`, [
-      {
-        text: '확인',
-        onPress: () => {
-          router.replace(isProtected ? '/protected-main' : '/protector-select');
+      Alert.alert('인증 완료', `${authenticatedUser.name ?? roleTitle}님, 인증이 완료되었습니다.`, [
+        {
+          text: '확인',
+          onPress: async () => {
+            if (isProtected) {
+              router.replace({
+                pathname: '/protected-main',
+                params: { userName: authenticatedUser.name, subjectId: String(authenticatedUser.subjectId) },
+              });
+            } else {
+              if (!authenticatedUser.guardianId) {
+                throw new Error('서버 응답에 보호자 ID(guardian_id)가 없습니다.');
+              }
+              setCurrentGuardian(authenticatedUser.guardianId, authenticatedUser.name);
+              await saveSession({
+                role: 'guardian',
+                userId: authenticatedUser.guardianId,
+                userName: authenticatedUser.name,
+              });
+              router.replace({
+                pathname: '/protector-select',
+                params: { guardianId: String(authenticatedUser.guardianId) },
+              });
+            }
+          },
         },
-      },
-    ]);
+      ]);
+    } catch (error) {
+      Alert.alert('인증 실패', error instanceof Error ? error.message : '인증 중 오류가 발생했습니다.');
+    }
   };
 
   return (

@@ -1,6 +1,6 @@
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Alert,
   DimensionValue,
@@ -18,11 +18,19 @@ import HeaderBadge from '@/components/common/header-badge';
 import LocationMapView from '@/components/map/location-map-view';
 import NotificationView from '@/components/notifications/alarm';
 import SettingView from '@/components/settings/setting-view';
+import { clearSavedSession, getCurrentGuardianId, getCurrentGuardianName } from '@/features/auth/current-session';
+import { getAlerts } from '@/features/alerts/alerts-api';
+import { formatTimeSince, getLatestGps, GpsLocation } from '@/features/gps/gps-api';
+import { getWeatherSummary } from '@/features/environment/weather-api';
+import { registerPushNotifications } from '@/features/notifications/push-registration';
 
 export default function ProtectorMainScreen() {
   const router = useRouter();
+  const guardianId = getCurrentGuardianId();
+  const guardianName = getCurrentGuardianName() || '보호자';
 
   const params = useLocalSearchParams<{
+    subjectId?: string;
     targetName?: string;
     targetStatus?: '안전' | '주의' | '위험';
     targetScore?: string;
@@ -42,10 +50,88 @@ export default function ProtectorMainScreen() {
   const [activeTab, setActiveTab] = useState<string>(params.tab ?? 'home');
   const [mapRefreshKey, setMapRefreshKey] = useState(0);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [gpsLocation, setGpsLocation] = useState<GpsLocation | null>(null);
+  const [gpsError, setGpsError] = useState<string | null>(null);
+  const [weatherText, setWeatherText] = useState<string | null>('날씨 정보를 불러오는 중입니다.');
+  const shownDangerAlertId = useRef<string | null>(null);
+  const hasShownAutomaticDangerModal = useRef(false);
 
   useEffect(() => {
     if (params.tab) setActiveTab(params.tab);
   }, [params.tab]);
+
+  useEffect(() => {
+    const guardianId = getCurrentGuardianId();
+    if (!guardianId) return;
+    void registerPushNotifications({ userId: guardianId, userType: 'guardian' }).catch((error) => {
+      console.warn('푸시 알림 등록에 실패했습니다.', error);
+    });
+  }, []);
+
+  useEffect(() => {
+    const subjectId = Number(params.subjectId);
+    if (!Number.isInteger(subjectId) || subjectId <= 0) {
+      setGpsError('보호대상자 ID가 없습니다.');
+      return;
+    }
+
+    getLatestGps(subjectId)
+      .then((location) => {
+        setGpsLocation(location);
+        setGpsError(null);
+      })
+      .catch((error) => {
+        setGpsLocation(null);
+        setGpsError(error instanceof Error ? error.message : 'GPS 위치를 가져오지 못했습니다.');
+      });
+  }, [params.subjectId, mapRefreshKey]);
+
+  useEffect(() => {
+    const subjectId = Number(params.subjectId);
+    if (!Number.isInteger(subjectId) || subjectId <= 0) {
+      setWeatherText('날씨 정보를 확인할 수 없습니다.');
+      return;
+    }
+
+    void getWeatherSummary(subjectId)
+      .then((weather) => setWeatherText(weather.text))
+      .catch(() => setWeatherText('날씨 정보를 불러오지 못했습니다.'));
+  }, [params.subjectId, mapRefreshKey]);
+
+  useEffect(() => {
+    const subjectId = Number(params.subjectId);
+    if (!Number.isInteger(subjectId) || subjectId <= 0) return;
+
+    const checkDangerAlerts = async () => {
+      try {
+        if (hasShownAutomaticDangerModal.current) return;
+        const dangerAlert = (await getAlerts(subjectId)).find(
+          (alert) => alert.kind === 'danger' && !alert.isRead && alert.id !== shownDangerAlertId.current,
+        );
+        if (!dangerAlert) return;
+
+        shownDangerAlertId.current = dangerAlert.id;
+        hasShownAutomaticDangerModal.current = true;
+        router.push({
+          pathname: '/danger-modal',
+          params: {
+            alertId: dangerAlert.id,
+            subjectId: String(subjectId),
+            targetName,
+            targetPhone,
+            dangerScore: String(dangerAlert.riskScore ?? targetScore),
+            dangerReasons: dangerAlert.reason ?? dangerAlert.message ?? '위험 요인 정보 없음',
+          },
+        });
+      } catch {
+        // 네트워크 오류가 나도 메인 화면 사용은 계속할 수 있어야 합니다.
+      }
+    };
+
+    void checkDangerAlerts();
+    const intervalId = setInterval(() => void checkDangerAlerts(), 30_000);
+    return () => clearInterval(intervalId);
+  }, [params.subjectId, router, targetName, targetPhone, targetScore]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -73,6 +159,12 @@ export default function ProtectorMainScreen() {
       pathname: '/facility',
       params: { 
         targetName,
+        subjectId: params.subjectId,
+        targetStatus,
+        targetScore,
+        targetGps,
+        targetPhone,
+        updatedTime: params.updatedTime,
         isProtected: 'false'
       },
     });
@@ -85,7 +177,8 @@ export default function ProtectorMainScreen() {
     ]);
   };
 
-  const currentPos = [37.5665, 126.978];
+  const currentPos = [gpsLocation?.latitude ?? 37.5665, gpsLocation?.longitude ?? 126.978];
+  const gpsUpdatedAgo = gpsLocation ? `${formatTimeSince(gpsLocation.measuredAt)} 전` : '정보 없음';
 
   const simpleMapHtml = `
     <!DOCTYPE html>
@@ -183,13 +276,13 @@ export default function ProtectorMainScreen() {
             <View style={styles.locationHeader}>
               <Text style={styles.locationTitle}>실시간 위치</Text>
               <View style={styles.refreshRow}>
-                <Text style={styles.refreshText}>마지막 업데이트 {lastUpdated} 전 </Text>
+                <Text style={styles.refreshText}>마지막 업데이트 {gpsUpdatedAgo}</Text>
                 <Ionicons name="refresh" size={18} color="#555" />
               </View>
             </View>
 
             <TouchableOpacity activeOpacity={0.9} onPress={() => setActiveTab('map')}>
-              <LocationMapView targetName={targetName} height={180} />
+              <LocationMapView targetName={targetName} latitude={currentPos[0]} longitude={currentPos[1]} height={180} />
             </TouchableOpacity>
 
             <View style={styles.circleButtonsRow}>
@@ -249,6 +342,8 @@ export default function ProtectorMainScreen() {
               </View>
             </View>
 
+            {gpsError ? <Text style={styles.gpsErrorText}>{gpsError}</Text> : null}
+
             <View style={styles.divider} />
 
             <Text style={styles.statusSectionTitle}>현재 상태</Text>
@@ -268,22 +363,22 @@ export default function ProtectorMainScreen() {
 
               <View style={styles.statusRow}>
                 <Ionicons name="time-outline" size={26} color="#59A03D" style={styles.statusIcon} />
-                <Text style={styles.statusText}>최근 업데이트 {lastUpdated} 전</Text>
+                <Text style={styles.statusText}>최근 업데이트 {gpsUpdatedAgo}</Text>
               </View>
 
-              <View style={styles.statusRow}>
+              {weatherText ? <View style={styles.statusRow}>
                 <Ionicons name="cloudy-outline" size={26} color="#59A03D" style={styles.statusIcon} />
-                <Text style={styles.statusText}>날씨: 구름 많음 26°C</Text>
-              </View>
+                <Text style={styles.statusText}>{weatherText}</Text>
+              </View> : null}
             </View>
           </ScrollView>
         );
 
       case 'notification':
-        return <NotificationView filterTargetName={targetName} />;
+        return <NotificationView filterTargetName={targetName} subjectId={Number(params.subjectId)} targetPhone={targetPhone} />;
 
       case 'setting':
-        return <SettingView isProtected={false} />;
+        return <SettingView isProtected={false} notificationUser={guardianId ? { userId: guardianId, userType: 'guardian' } : undefined} />;
 
       default:
         return null;
@@ -327,7 +422,7 @@ export default function ProtectorMainScreen() {
             <View style={styles.sidebarProfile}>
               <View style={styles.sidebarAvatar}><Ionicons name="person" size={43} color="#FFFFFF" /></View>
               <View>
-                <Text style={styles.sidebarName}>허균</Text>
+                <Text style={styles.sidebarName}>{guardianName}</Text>
                 <Text style={styles.sidebarRole}>보호자</Text>
               </View>
             </View>
@@ -348,7 +443,7 @@ export default function ProtectorMainScreen() {
 
             <View style={styles.sidebarBottom}>
               <View style={styles.sidebarDivider} />
-              <TouchableOpacity style={styles.sidebarLogout} onPress={() => router.replace('/select-type')}>
+              <TouchableOpacity style={styles.sidebarLogout} onPress={async () => { await clearSavedSession(); router.replace('/select-type'); }}>
                 <Ionicons name="log-out-outline" size={27} color="#FF2525" /><Text style={styles.sidebarLogoutText}>로그아웃</Text>
               </TouchableOpacity>
             </View>
@@ -551,6 +646,12 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#333333',
   },
+  gpsErrorText: {
+    textAlign: 'center',
+    color: '#777777',
+    fontSize: 13,
+    marginBottom: 8,
+  },
   divider: {
     height: 1,
     backgroundColor: '#EAEAEA',
@@ -575,9 +676,12 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   statusText: {
+    flex: 1,
+    flexShrink: 1,
     fontSize: 18,
     fontWeight: 'bold',
     color: '#444444',
+    lineHeight: 25,
   },
   bottomTabBar: {
     flexDirection: 'row',

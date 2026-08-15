@@ -4,8 +4,8 @@ from pathlib import Path
 
 import torch
 
-
-BACKEND_DIR = Path(__file__).resolve().parent
+LMTAD_DIR = Path(__file__).resolve().parent
+BACKEND_DIR = LMTAD_DIR.parent
 PROJECT_ROOT = BACKEND_DIR.parent
 
 # 원본 LMTAD 코드 위치
@@ -67,7 +67,7 @@ def main():
     parser.add_argument(
         "--input",
         required=True,
-        default="artifacts/ckptepoch_49_batch_389.pt",
+        default="artifacts/ckptepoch_13_batch_389.pt",
         help="원본 체크포인트 경로",
     )
     parser.add_argument(
@@ -108,6 +108,39 @@ def main():
         map_location="cpu",
         weights_only=False,
     )
+
+    #key 확인   
+    print("\n체크포인트 최상위 키:")
+    print(list(checkpoint.keys()))
+
+    required_keys = {
+        "model",
+        "model_config",
+        "args",
+    }
+
+    missing_keys = required_keys - checkpoint.keys()
+
+    if missing_keys:
+        raise KeyError(
+            f"필수 체크포인트 키가 없습니다: "
+            f"{sorted(missing_keys)}"
+        )
+
+    print("\nmodel_config:")
+    print(vars(checkpoint["model_config"]))
+
+    print("\nfeatures:")
+    print(checkpoint["args"].features)
+
+    print("\nstate_dict 앞부분:")
+    for key, tensor in list(
+        checkpoint["model"].items()
+    )[:10]:
+        print(
+            key,
+            tuple(tensor.shape),
+        )
 
     cleaned_state_dict = {}
 

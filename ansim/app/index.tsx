@@ -1,6 +1,15 @@
+import * as Notifications from 'expo-notifications';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import { Animated, Easing, ImageBackground, StyleSheet, View } from 'react-native';
+import { getSavedSession, setCurrentGuardian } from '@/features/auth/current-session';
+import { getAlerts } from '@/features/alerts/alerts-api';
+import { setProtectorPhone } from '@/features/contacts/protector-contact-store';
+
+function asPositiveInteger(value: unknown): number | undefined {
+  const numberValue = typeof value === 'number' ? value : Number(value);
+  return Number.isInteger(numberValue) && numberValue > 0 ? numberValue : undefined;
+}
 
 export default function LoadingScreen() {
   const router = useRouter();
@@ -27,7 +36,61 @@ export default function LoadingScreen() {
     }
 
     const timer = setTimeout(() => {
-      router.replace('/select-type');
+      void (async () => {
+        try {
+          const session = await getSavedSession();
+          if (!session) {
+            router.replace('/select-type');
+            return;
+          }
+
+          if (session.role === 'guardian') {
+            setCurrentGuardian(session.userId, session.userName);
+            router.replace({ pathname: '/protector-select', params: { guardianId: String(session.userId) } });
+            void (async () => {
+              const response = await Notifications.getLastNotificationResponseAsync();
+              if (!response) return;
+
+              const data = response.notification.request.content.data;
+              const alertId = String(data.alert_id ?? data.alertId ?? '');
+              const alert = alertId
+                ? await getAlerts()
+                  .then((alerts) => alerts.find((item) => item.id === alertId))
+                  .catch(() => undefined)
+                : undefined;
+              const subjectId = asPositiveInteger(data.subject_id ?? data.subjectId) ?? alert?.subjectId;
+              const severity = String(data.risk_level ?? data.riskLevel ?? data.type ?? '').toLowerCase();
+              if (alertId && subjectId && (severity === 'danger' || severity === 'risk' || alert?.kind === 'danger')) {
+                setTimeout(() => {
+                  router.push({
+                    pathname: '/danger-modal',
+                    params: {
+                      alertId,
+                      subjectId: String(subjectId),
+                      dangerScore: String(data.risk_score ?? data.riskScore ?? alert?.riskScore ?? ''),
+                      dangerReasons: String(data.reason ?? alert?.reason ?? alert?.message ?? ''),
+                    },
+                  });
+                }, 700);
+              }
+              await Notifications.clearLastNotificationResponseAsync();
+            })().catch(() => {});
+            return;
+          }
+
+          if (session.protectorPhone) setProtectorPhone(session.protectorPhone);
+          router.replace({
+            pathname: '/protected-main',
+            params: {
+              subjectId: String(session.userId),
+              userName: session.userName,
+              protectorPhone: session.protectorPhone,
+            },
+          });
+        } catch {
+          router.replace('/select-type');
+        }
+      })();
     }, 2500);
 
     return () => {
