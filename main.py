@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 from facility_api import fetch_facilities
 from air import get_air_quality_by_gps
 from weather import get_weather_by_gps
+from firebase_service import send_push_notification
 
 import models
 import schemas
@@ -2030,6 +2031,86 @@ def read_air_quality(
 # =========================================================
 # AI 위험도 결과 → 위험 알림 자동 생성
 # =========================================================
+def send_risk_push_to_guardian(
+    db: Session,
+    guardian_id: int,
+    subject_id: int,
+    subject_name: str,
+    risk_level: str,
+    risk_score=None,
+):
+    tokens = (
+        db.query(models.DeviceToken)
+        .filter(
+            models.DeviceToken.guardian_id
+            == guardian_id
+        )
+        .all()
+    )
+
+    if not tokens:
+        print(
+            f"[FCM] guardian {guardian_id}: "
+            "registered token not found"
+        )
+        return
+
+    for device in tokens:
+        try:
+            send_push_notification(
+                token=device.token,
+                title="위험 알림",
+                body=(
+                    f"{subject_name}님의 "
+                    "위험 상황이 감지되었습니다."
+                ),
+                data={
+                    "type": "risk",
+                    "subject_id": str(subject_id),
+                    "guardian_id": str(
+                        guardian_id
+                    ),
+                    "risk_level": str(
+                        risk_level
+                    ),
+                    "risk_score": str(
+                        risk_score
+                        if risk_score is not None
+                        else ""
+                    ),
+                },
+            )
+
+        except Exception as e:
+            print(
+                f"[FCM] Push failed "
+                f"guardian={guardian_id}: {e}"
+            )
+   five_minutes_ago = (
+    datetime.now(timezone.utc)
+    - timedelta(minutes=5)
+)
+
+recent_alert = (
+    db.query(models.Alert)
+    .filter(
+        models.Alert.subject_id
+        == data.subject_id,
+
+        models.Alert.guardian_id
+        == guardian.id,
+
+        models.Alert.type
+        == "risk",
+
+        models.Alert.created_at
+        >= five_minutes_ago,
+    )
+    .order_by(
+        models.Alert.created_at.desc()
+    )
+    .first()
+)
 
 @app.post(
     "/risk-results",
@@ -2082,33 +2163,86 @@ def receive_risk_result(
     # 위험 단계일 때만 알림 자동 생성
     if normalized in DANGEROUS_RISK_LEVELS:
 
-        reason = (
-            data.reason
-            or "GPS 기반 위험도 모델에서 위험 단계가 감지되었습니다."
+        # -----------------------------
+        # 5분 이내 중복 위험 알림 확인
+        # -----------------------------
+        five_minutes_ago = (
+            datetime.now(timezone.utc)
+            - timedelta(minutes=5)
         )
 
-        if data.risk_score is not None:
-            score_text = (
-                f" (위험 점수: {data.risk_score:g})"
+        recent_alert = (
+            db.query(models.Alert)
+            .filter(
+                models.Alert.subject_id
+                == data.subject_id,
+                models.Alert.type
+                == "risk",
+                models.Alert.created_at
+                >= five_minutes_ago,
             )
-        else:
-            score_text = ""
-
-        created_alerts = create_alerts_for_subject(
-            db,
-            subject_id=data.subject_id,
-            alert_type="risk",
-            message=(
-                f"{subject.name}님 위험 감지: "
-                f"{reason}{score_text}"
-            ),
-            risk_score=data.risk_score,
+            .order_by(
+                models.Alert.created_at.desc()
+            )
+            .first()
         )
+
+        # 최근 5분 이내 위험 알림이 없을 때만 새 알림 생성
+        if not recent_alert:
+
+            reason = (
+                data.reason
+                or "GPS 기반 위험도 모델에서 위험 단계가 감지되었습니다."
+            )
+
+            if data.risk_score is not None:
+                score_text = (
+                    f" (위험 점수: {data.risk_score:g})"
+                )
+            else:
+                score_text = ""
+
+            created_alerts = create_alerts_for_subject(
+                db,
+                subject_id=data.subject_id,
+                alert_type="risk",
+                message=(
+                    f"{subject.name}님 위험 감지: "
+                    f"{reason}{score_text}"
+                ),
+                risk_score=data.risk_score,
+            )
+
+        else:
+            print(
+                "[FCM] 최근 5분 이내 위험 알림이 있어 "
+                f"중복 알림을 생략합니다. "
+                f"subject_id={data.subject_id}"
+            )
 
     db.commit()
 
+    # 생성된 Alert들의 ID / guardian_id 확정
     for alert in created_alerts:
         db.refresh(alert)
+
+    # -----------------------------
+    # 생성된 위험 알림이 있을 때 FCM PUSH
+    # -----------------------------
+    for alert in created_alerts:
+
+        # 연결된 보호자가 없는 특수한 경우 방어
+        if alert.guardian_id is None:
+            continue
+
+        send_risk_push_to_guardian(
+            db=db,
+            guardian_id=alert.guardian_id,
+            subject_id=data.subject_id,
+            subject_name=subject.name,
+            risk_level=normalized,
+            risk_score=data.risk_score,
+        )
 
     return {
         "subject_id": data.subject_id,
@@ -2146,6 +2280,79 @@ def get_alerts(
     response_model=schemas.AlertResponse,
     tags=["알림"]
 )
+
+@app.post(
+    "/guardians/{guardian_id}/test-push",
+    tags=["알림"],
+)
+def test_push(
+    guardian_id: int,
+    db: Session = Depends(get_db),
+):
+    guardian = db.get(
+        models.Guardian,
+        guardian_id,
+    )
+
+    if not guardian:
+        raise HTTPException(
+            status_code=404,
+            detail="보호자를 찾을 수 없습니다.",
+        )
+
+    tokens = (
+        db.query(models.DeviceToken)
+        .filter(
+            models.DeviceToken.guardian_id
+            == guardian_id
+        )
+        .all()
+    )
+
+    if not tokens:
+        raise HTTPException(
+            status_code=404,
+            detail="등록된 기기 토큰이 없습니다.",
+        )
+
+    results = []
+
+    for device in tokens:
+        try:
+            result = send_push_notification(
+                token=device.token,
+                title="FCM 테스트 알림",
+                body="백엔드에서 보낸 테스트 알림입니다.",
+                data={
+                    "type": "test",
+                    "guardian_id": str(
+                        guardian_id
+                    ),
+                },
+            )
+
+            results.append(
+                {
+                    "token_id": device.id,
+                    "success": True,
+                    "result": result,
+                }
+            )
+
+        except Exception as e:
+            results.append(
+                {
+                    "token_id": device.id,
+                    "success": False,
+                    "error": str(e),
+                }
+            )
+
+    return {
+        "guardian_id": guardian_id,
+        "results": results,
+    }
+
 def mark_alert_as_read(
     alert_id: int,
     db: Session = Depends(get_db)
