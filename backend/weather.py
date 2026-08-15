@@ -4,6 +4,8 @@ import requests
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
+from weather_alert import get_warning_for_gps
+
 
 WEATHER_URL = (
     "https://apis.data.go.kr/1360000/"
@@ -197,6 +199,18 @@ def get_weather_by_gps(
         weather.get("WSD"),
     )
 
+    # 현재 GPS 위치의 기상특보 조회
+    warning_data = get_warning_for_gps(
+        latitude,
+        longitude,
+    )
+
+    # 특보 단계에 따라 기상 위험점수 보정
+    weather_risk_score = apply_weather_warning_score(
+        weather_risk_score,
+        warning_data.get("highest_level"),
+    )
+
     return {
         "gps": {
             "latitude": latitude,
@@ -219,7 +233,8 @@ def get_weather_by_gps(
         "wind_direction": weather.get("VEC"),
 
         "weather_risk_score": weather_risk_score,
-    }
+        "weather_warning": warning_data,
+        }
 
 def calculate_weather_risk_score(
     temperature,
@@ -301,3 +316,29 @@ def calculate_weather_risk_score(
             wind_score,
         )
     )
+
+
+def apply_weather_warning_score(
+    weather_score: float,
+    warning_level: str | None,
+) -> float:
+
+    if warning_level == "예비":
+        return max(
+            weather_score,
+            50.0,
+        )
+
+    if warning_level == "주의":
+        return max(
+            weather_score,
+            70.0,
+        )
+
+    if warning_level == "경보":
+        return max(
+            weather_score,
+            100.0,
+        )
+
+    return weather_score
