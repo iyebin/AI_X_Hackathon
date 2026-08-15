@@ -29,13 +29,32 @@ def get_air_quality(station_name: str):
         "ver": "1.0",
     }
 
-    response = requests.get(
-        AIR_QUALITY_URL,
-        params=params,
-        timeout=10,
-    )
+    try:
+        response = requests.get(
+            AIR_QUALITY_URL,
+            params=params,
+            timeout=15,
+        )
 
-    response.raise_for_status()
+        response.raise_for_status()
+
+    except requests.exceptions.Timeout:
+        return {
+            "station_name": station_name,
+            "message": "대기질 API 응답 시간이 초과되었습니다.",
+            "air_risk_score": None,
+        }
+
+    except requests.exceptions.RequestException as e:
+        print(
+            f"[AIR API ERROR] air quality: {e}"
+        )
+
+        return {
+            "station_name": station_name,
+            "message": "대기질 정보를 불러오지 못했습니다.",
+            "air_risk_score": None,
+        }
 
     data = response.json()
 
@@ -93,7 +112,7 @@ def get_air_quality(station_name: str):
     "so2": item.get("so2Value"),
     "so2_grade": item.get("so2Grade"),
 
-    "air_risk_score": grade,
+    "air_risk_score": air_risk_score,
 }
 
 def gps_to_tm(
@@ -130,14 +149,24 @@ def find_nearest_station(
         "ver": "1.1",
     }
 
-    response = requests.get(
-        NEARBY_STATION_URL,
-        params=params,
-        timeout=10,
-    )
+    try:
+        response = requests.get(
+            NEARBY_STATION_URL,
+            params=params,
+            timeout=15,
+        )
 
-    response.raise_for_status()
+        response.raise_for_status()
 
+    except requests.exceptions.Timeout:
+        return None
+
+    except requests.exceptions.RequestException as e:
+        print(
+            f"[AIR API ERROR] nearest station: {e}"
+        )
+        return None
+    
     data = response.json()
 
     items = (
