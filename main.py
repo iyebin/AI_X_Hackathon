@@ -2086,31 +2086,7 @@ def send_risk_push_to_guardian(
                 f"[FCM] Push failed "
                 f"guardian={guardian_id}: {e}"
             )
-five_minutes_ago = (
-    datetime.now(timezone.utc)
-    - timedelta(minutes=5)
-)
 
-recent_alert = (
-    db.query(models.Alert)
-    .filter(
-        models.Alert.subject_id
-        == data.subject_id,
-
-        models.Alert.guardian_id
-        == guardian.id,
-
-        models.Alert.type
-        == "risk",
-
-        models.Alert.created_at
-        >= five_minutes_ago,
-    )
-    .order_by(
-        models.Alert.created_at.desc()
-    )
-    .first()
-)
 
 @app.post(
     "/risk-results",
