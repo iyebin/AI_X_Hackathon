@@ -1,16 +1,46 @@
-from datetime import date, datetime
+from datetime import date, datetime, timezone, timedelta
 from zoneinfo import ZoneInfo
-from pydantic import BaseModel, ConfigDict, Field, field_serializer
 from typing import Optional, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    field_serializer,
+    model_validator,
+)
 
 from models import GenderType, InstitutionType, SubjectType
 
 
-class ORMModel(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
+KST = timezone(timedelta(hours=9))
 
+
+def to_kst(dt: datetime | None):
+    if dt is None:
+        return None
+
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+
+    return dt.astimezone(KST)
+
+
+class KSTBaseModel(BaseModel):
+    @field_serializer(
+        "*",
+        check_fields=False,
+        when_used="json",
+    )
+    def serialize_datetime(self, value):
+        if isinstance(value, datetime):
+            return to_kst(value).isoformat()
+
+        return value
+
+
+class ORMModel(KSTBaseModel):
+    model_config = ConfigDict(from_attributes=True)
 
 class GuardianCreate(BaseModel):
     name: str = Field(min_length=1, max_length=100)
@@ -410,7 +440,7 @@ class RiskStatusCreate(BaseModel):
     air_score: float | None = None
 
 
-class RiskStatusResponse(BaseModel):
+class RiskStatusResponse(KSTBaseModel):
     id: int
     subject_id: int
     risk_level: str

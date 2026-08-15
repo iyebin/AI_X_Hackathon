@@ -3,6 +3,7 @@ from typing import List
 
 from fastapi import Depends, FastAPI, HTTPException, Query, status
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.encoders import ENCODERS_BY_TYPE
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 from facility_api import fetch_facilities
@@ -105,6 +106,22 @@ tags_metadata = [
         "description": "보호대상자 유형과 거리를 이용해 기관을 추천합니다.",
     },
 ]
+
+KST = timezone(timedelta(hours=9))
+
+
+def datetime_to_kst(value: datetime) -> str:
+    if value.tzinfo is None:
+        value = value.replace(
+            tzinfo=timezone.utc
+        )
+
+    return value.astimezone(
+        KST
+    ).isoformat()
+
+
+ENCODERS_BY_TYPE[datetime] = datetime_to_kst
 
 app = FastAPI(
     title="안심하랑께 백엔드 API",
