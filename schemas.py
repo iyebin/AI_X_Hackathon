@@ -382,3 +382,15 @@ class EmailSendRequest(BaseModel):
 class EmailVerifyRequest(BaseModel):
     email: str
     code: str
+
+class DeviceTokenCreate(BaseModel):
+    token: str
+
+
+class DeviceTokenResponse(BaseModel):
+    id: int
+    guardian_id: int
+    token: str
+
+    class Config:
+        from_attributes = True
