@@ -24,6 +24,7 @@ from lmtad_runtime import LMTADRuntime
 import os
 import random
 from datetime import datetime, timedelta, timezone
+from inference_service import run_gps_inference
 
 import resend
 resend.api_key = os.getenv("RESEND_API_KEY")
@@ -2330,3 +2331,41 @@ def verify_email(
         "email": email,
         "message": "이메일 인증이 완료되었습니다.",
     }
+
+#gps inference
+@app.post(
+    "/subjects/{subject_id}/gps-inference",
+    response_model=schemas.GPSInferenceResponse,
+    tags=["AI"],
+)
+def infer_subject_gps(
+    subject_id: int,
+    target_date: date = Query(default_factory=date.today),
+    db: Session = Depends(get_db),
+):
+    if lmtad_runtime is None:
+        raise HTTPException(
+            status_code=503,
+            detail="LMTAD 모델이 로드되지 않았습니다.",
+        )
+
+    try:
+        result = run_gps_inference(
+            db=db,
+            runtime=lmtad_runtime,
+            subject_id=subject_id,
+            target_date=target_date,
+        )
+    except ValueError as error:
+        raise HTTPException(
+            status_code=422,
+            detail=str(error),
+        )
+
+    result["risk_level"] = (
+        "danger"
+        if result.pop("is_anomaly")
+        else "safe"
+    )
+
+    return result

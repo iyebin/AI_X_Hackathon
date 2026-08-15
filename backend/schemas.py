@@ -382,3 +382,14 @@ class EmailSendRequest(BaseModel):
 class EmailVerifyRequest(BaseModel):
     email: str
     code: str
+
+#gps inference
+class GPSInferenceResponse(BaseModel):
+    subject_id: int
+    target_date: date
+    point_count: int
+    gps_token_count: int
+    tokens: list[str]
+    anomaly_score: float
+    threshold: float
+    risk_level: str
