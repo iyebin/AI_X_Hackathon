@@ -2086,7 +2086,7 @@ def send_risk_push_to_guardian(
                 f"[FCM] Push failed "
                 f"guardian={guardian_id}: {e}"
             )
-   five_minutes_ago = (
+five_minutes_ago = (
     datetime.now(timezone.utc)
     - timedelta(minutes=5)
 )
@@ -2162,10 +2162,6 @@ def receive_risk_result(
 
     # 위험 단계일 때만 알림 자동 생성
     if normalized in DANGEROUS_RISK_LEVELS:
-
-        # -----------------------------
-        # 5분 이내 중복 위험 알림 확인
-        # -----------------------------
         five_minutes_ago = (
             datetime.now(timezone.utc)
             - timedelta(minutes=5)
@@ -2187,9 +2183,7 @@ def receive_risk_result(
             .first()
         )
 
-        # 최근 5분 이내 위험 알림이 없을 때만 새 알림 생성
         if not recent_alert:
-
             reason = (
                 data.reason
                 or "GPS 기반 위험도 모델에서 위험 단계가 감지되었습니다."
@@ -2222,16 +2216,10 @@ def receive_risk_result(
 
     db.commit()
 
-    # 생성된 Alert들의 ID / guardian_id 확정
     for alert in created_alerts:
         db.refresh(alert)
 
-    # -----------------------------
-    # 생성된 위험 알림이 있을 때 FCM PUSH
-    # -----------------------------
     for alert in created_alerts:
-
-        # 연결된 보호자가 없는 특수한 경우 방어
         if alert.guardian_id is None:
             continue
 
@@ -2254,7 +2242,7 @@ def receive_risk_result(
             for alert in created_alerts
         ],
     }
-
+    
 @app.get(
     "/alerts",
     response_model=list[schemas.AlertResponse],
