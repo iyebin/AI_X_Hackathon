@@ -20,6 +20,9 @@
   --red: #f32834;
   --red-soft: #fff2f3;
 
+  --orange: #f59e0b;
+  --orange-soft: #fff5df;
+
   --auth-blue: #176df5;
   --auth-blue-soft: #f1f7ff;
 
@@ -292,6 +295,477 @@ body.drawer-open .page-container:not(.hidden) {
 
 
 /* ==================================================
+   DASHBOARD
+================================================== */
+
+.dashboard-page {
+  width: 100%;
+  height: 100%;
+
+  overflow-y: auto;
+
+  padding: 26px 31px 28px;
+}
+
+
+.dashboard-heading {
+  margin-bottom: 21px;
+}
+
+
+.dashboard-heading h1 {
+  margin: 0 0 5px;
+
+  font-size: 27px;
+  font-weight: 850;
+  letter-spacing: -1px;
+}
+
+
+.dashboard-heading p {
+  margin: 0;
+
+  color: #748088;
+  font-size: 13px;
+}
+
+
+.dashboard-summary-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(5, minmax(145px, 1fr));
+
+  gap: 13px;
+
+  margin-bottom: 18px;
+}
+
+
+.dashboard-summary-card {
+  min-height: 132px;
+
+  display: flex;
+  flex-direction: column;
+
+  padding: 18px 18px 16px;
+
+  border: 1px solid #e0e7eb;
+  border-radius: 13px;
+
+  background: white;
+
+  box-shadow:
+    0 2px 8px rgba(25, 55, 75, 0.025);
+}
+
+
+.summary-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  margin-bottom: 12px;
+}
+
+
+.summary-card-title {
+  color: #3b474f;
+
+  font-size: 13px;
+  font-weight: 750;
+}
+
+
+.danger-text {
+  color: #e13943;
+}
+
+
+.caution-text {
+  color: #e49a15;
+}
+
+
+.safe-text {
+  color: #2a9d48;
+}
+
+
+.summary-icon {
+  width: 35px;
+  height: 35px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 9px;
+}
+
+
+.summary-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+
+.summary-icon.blue {
+  background: #eaf5fc;
+  color: #2388c8;
+}
+
+
+.summary-icon.danger {
+  background: #fff0f1;
+  color: #e64049;
+}
+
+
+.summary-icon.caution {
+  background: #fff5df;
+  color: #ed9e12;
+}
+
+
+.summary-icon.safe {
+  background: #eaf8ee;
+  color: #2fa64d;
+}
+
+
+.summary-number {
+  color: #171d21;
+
+  font-size: 27px;
+  font-weight: 850;
+
+  letter-spacing: -0.8px;
+}
+
+
+.summary-description {
+  margin-top: 5px;
+
+  color: #8a949a;
+
+  font-size: 11px;
+}
+
+
+.summary-percent {
+  width: fit-content;
+
+  margin-top: 5px;
+
+  padding: 3px 8px;
+
+  border-radius: 999px;
+
+  font-size: 10px;
+  font-weight: 750;
+}
+
+
+.summary-percent.danger {
+  background: #fff0f1;
+  color: #dd3943;
+}
+
+
+.summary-percent.caution {
+  background: #fff5df;
+  color: #d9900e;
+}
+
+
+.summary-percent.safe {
+  background: #eaf8ee;
+  color: #278d42;
+}
+
+
+.dashboard-risk-card {
+  min-height: 410px;
+
+  overflow: hidden;
+
+  border: 1px solid #dde5e9;
+  border-radius: 14px;
+
+  background: white;
+
+  box-shadow:
+    0 2px 8px rgba(25, 55, 75, 0.025);
+}
+
+
+.dashboard-risk-header {
+  min-height: 74px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 17px 21px;
+
+  border-bottom: 1px solid #edf0f2;
+}
+
+
+.dashboard-risk-header h2 {
+  margin: 0 0 4px;
+
+  font-size: 16px;
+  font-weight: 820;
+}
+
+
+.dashboard-risk-header p {
+  margin: 0;
+
+  color: #8a949a;
+  font-size: 11px;
+}
+
+
+.dashboard-view-all {
+  display: flex;
+  align-items: center;
+
+  gap: 3px;
+
+  border: 0;
+
+  background: transparent;
+
+  color: var(--blue);
+
+  font-size: 12px;
+  font-weight: 750;
+}
+
+
+.dashboard-view-all svg {
+  width: 15px;
+  height: 15px;
+}
+
+
+.dashboard-table-wrap {
+  width: 100%;
+
+  overflow-x: auto;
+}
+
+
+.dashboard-risk-table {
+  width: 100%;
+
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+
+.dashboard-risk-table thead {
+  background: #f7f9fa;
+}
+
+
+.dashboard-risk-table th {
+  height: 46px;
+
+  padding: 0 16px;
+
+  color: #68747b;
+
+  font-size: 11px;
+  font-weight: 750;
+
+  text-align: left;
+}
+
+
+.dashboard-risk-table td {
+  height: 58px;
+
+  padding: 0 16px;
+
+  border-bottom: 1px solid #edf0f2;
+
+  color: #303a40;
+
+  font-size: 12px;
+  font-weight: 550;
+}
+
+
+.dashboard-risk-table th:nth-child(1),
+.dashboard-risk-table td:nth-child(1) {
+  width: 7%;
+}
+
+
+.dashboard-risk-table th:nth-child(2),
+.dashboard-risk-table td:nth-child(2) {
+  width: 15%;
+}
+
+
+.dashboard-risk-table th:nth-child(3),
+.dashboard-risk-table td:nth-child(3) {
+  width: 12%;
+}
+
+
+.dashboard-risk-table th:nth-child(4),
+.dashboard-risk-table td:nth-child(4) {
+  width: 12%;
+}
+
+
+.dashboard-risk-table th:nth-child(5),
+.dashboard-risk-table td:nth-child(5) {
+  width: 22%;
+}
+
+
+.dashboard-risk-table th:nth-child(6),
+.dashboard-risk-table td:nth-child(6) {
+  width: 18%;
+}
+
+
+.dashboard-risk-table th:nth-child(7),
+.dashboard-risk-table td:nth-child(7) {
+  width: 14%;
+}
+
+
+.dashboard-rank {
+  font-size: 13px;
+  font-weight: 850;
+}
+
+
+.dashboard-rank.danger {
+  color: #e63742;
+}
+
+
+.dashboard-rank.caution {
+  color: #df9411;
+}
+
+
+.dashboard-rank.safe {
+  color: #299549;
+}
+
+
+.dashboard-score {
+  font-size: 13px;
+  font-weight: 850;
+}
+
+
+.dashboard-score.danger {
+  color: #e63742;
+}
+
+
+.dashboard-score.caution {
+  color: #df9411;
+}
+
+
+.dashboard-score.safe {
+  color: #299549;
+}
+
+
+.risk-level-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-width: 48px;
+
+  padding: 4px 9px;
+
+  border-radius: 999px;
+
+  font-size: 10px;
+  font-weight: 800;
+}
+
+
+.risk-level-badge.danger {
+  background: #fff0f1;
+  color: #dd3741;
+}
+
+
+.risk-level-badge.caution {
+  background: #fff5df;
+  color: #d98d0a;
+}
+
+
+.risk-level-badge.safe {
+  background: #eaf8ee;
+  color: #288f44;
+}
+
+
+.dashboard-monitor-button {
+  min-width: 83px;
+  height: 31px;
+
+  border: 1px solid #d3dde3;
+  border-radius: 7px;
+
+  background: white;
+
+  color: #45525a;
+
+  font-size: 11px;
+  font-weight: 750;
+}
+
+
+.dashboard-monitor-button:hover {
+  border-color: #92c8e9;
+  color: var(--blue);
+}
+
+
+.dashboard-info {
+  min-height: 48px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+
+  padding: 0 20px;
+
+  background: #f6fafc;
+
+  color: #6e7b83;
+
+  font-size: 10px;
+}
+
+
+.dashboard-info svg {
+  width: 16px;
+  height: 16px;
+
+  color: var(--blue);
+}
+
+
+/* ==================================================
    HEADING
 ================================================== */
 
@@ -484,12 +958,6 @@ body.drawer-open .page-container:not(.hidden) {
 }
 
 
-/*
-  사용자 관리의 "전체 유형"
-  알림 내역의 "전체 상태"
-  둘 다 이미지처럼 작고 연하게 통일
-*/
-
 .type-filter {
   height: 46px;
 
@@ -508,11 +976,6 @@ body.drawer-open .page-container:not(.hidden) {
   font-weight: 500;
 
   cursor: pointer;
-
-  transition:
-    background 0.15s ease,
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
 }
 
 
@@ -2489,4 +2952,105 @@ td {
       minmax(390px, 1fr)
       310px;
   }
+
+  .dashboard-summary-grid {
+    grid-template-columns:
+      repeat(3, minmax(150px, 1fr));
+  }
+}
+
+/* ==================================================
+   DASHBOARD LAYOUT UPDATE
+   2026.08.12
+================================================== */
+
+/* 대시보드 전체를 살짝 아래로 */
+.dashboard-page {
+  padding-top: 34px;
+}
+
+/* 제목과 요약 카드 사이 */
+.dashboard-heading {
+  margin-bottom: 24px;
+}
+
+/* 요약 카드와 위험도 표 사이 간격 */
+.dashboard-summary-grid {
+  margin-bottom: 30px;
+}
+
+/* 위험도 카드가 너무 위로 붙어 보이지 않도록 */
+.dashboard-risk-card {
+  margin-top: 0;
+}
+
+/* 7명 표시 시 화면 비율 자연스럽게 */
+.dashboard-risk-table td {
+  height: 56px;
+}
+
+/* 전체 보기 / 접기 버튼 */
+.dashboard-view-all {
+  min-width: 76px;
+  justify-content: flex-end;
+}
+
+/* ==================================================
+   SIDEBAR BACK BUTTON
+================================================== */
+
+.brand {
+  gap: 8px;
+}
+
+/* 기존 로고가 버튼 들어갈 공간을 확보하도록 */
+.brand-logo {
+  width: 158px;
+  flex-shrink: 1;
+}
+
+/* 로고 오른쪽 뒤로가기 */
+.sidebar-back-button {
+  width: 32px;
+  height: 32px;
+
+  flex: 0 0 32px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid #dbe4e9;
+  border-radius: 8px;
+
+  background: #ffffff;
+  color: #68747d;
+
+  padding: 0;
+
+  transition:
+    background 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.sidebar-back-button svg {
+  width: 17px;
+  height: 17px;
+}
+
+.sidebar-back-button:hover {
+  background: #eef7fc;
+  border-color: #afd4eb;
+  color: var(--blue);
+}
+
+/* 전체보기로 표가 길어졌을 때
+   대시보드 자체에서 스크롤되도록 */
+.dashboard-page.dashboard-expanded {
+  overflow-y: auto;
+}
+
+.dashboard-page.dashboard-expanded .dashboard-risk-card {
+  margin-bottom: 30px;
 }

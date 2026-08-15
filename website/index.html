@@ -16,7 +16,6 @@
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-  <!-- 카카오 도로명주소 검색 -->
   <script src="https://t1.kakaocdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 </head>
 
@@ -36,27 +35,17 @@
 
     <nav class="nav">
 
-      <button class="nav-item" id="dashboardNav">
+      <button class="nav-item active" id="dashboardNav">
         <i data-lucide="house"></i>
         <span>대시보드</span>
       </button>
 
-      <button class="nav-item active" id="userNav">
+      <button class="nav-item" id="userNav">
         <i data-lucide="users"></i>
         <span>사용자 관리</span>
       </button>
 
-      <button class="nav-item" id="realtimeNav">
-        <i data-lucide="map-pin"></i>
-        <span>실시간 관제</span>
-      </button>
-
-      <button class="nav-item" id="authNav">
-        <i data-lucide="badge-check"></i>
-        <span>인증코드 관리</span>
-      </button>
-
-      <button class="nav-item alert-nav-item" id="alertNav">
+       <button class="nav-item alert-nav-item" id="alertNav">
         <i data-lucide="bell"></i>
         <span>알림 내역</span>
 
@@ -68,9 +57,14 @@
         </span>
       </button>
 
-      <button class="nav-item" id="settingsNav">
-        <i data-lucide="settings"></i>
-        <span>설정</span>
+      <button class="nav-item" id="realtimeNav">
+        <i data-lucide="map-pin"></i>
+        <span>실시간 관제</span>
+      </button>
+
+      <button class="nav-item" id="authNav">
+        <i data-lucide="badge-check"></i>
+        <span>인증코드 관리</span>
       </button>
 
     </nav>
@@ -103,12 +97,249 @@
     <main class="main">
 
       <!-- ==================================================
+           대시보드
+      =================================================== -->
+
+      <section
+        id="dashboardPage"
+        class="dashboard-page"
+      >
+
+        <div class="dashboard-heading">
+
+          <div>
+            <h1>대시보드</h1>
+
+            <p>
+              보호대상자의 현재 상태와 주요 현황을 확인하세요.
+            </p>
+          </div>
+
+        </div>
+
+
+        <div class="dashboard-summary-grid">
+
+          <article class="dashboard-summary-card">
+
+            <div class="summary-card-top">
+
+              <span class="summary-card-title">
+                전체 보호대상자
+              </span>
+
+              <div class="summary-icon blue">
+                <i data-lucide="users"></i>
+              </div>
+
+            </div>
+
+            <strong
+              id="dashboardTotalSubjects"
+              class="summary-number"
+            >
+              0명
+            </strong>
+
+            <span class="summary-description">
+              전체 등록 인원
+            </span>
+
+          </article>
+
+
+          <article class="dashboard-summary-card">
+
+            <div class="summary-card-top">
+
+              <span class="summary-card-title danger-text">
+                위험
+              </span>
+
+              <div class="summary-icon danger">
+                <i data-lucide="shield-alert"></i>
+              </div>
+
+            </div>
+
+            <strong
+              id="dashboardDangerCount"
+              class="summary-number"
+            >
+              0명
+            </strong>
+
+            <span
+              id="dashboardDangerPercent"
+              class="summary-percent danger"
+            >
+              0%
+            </span>
+
+          </article>
+
+
+          <article class="dashboard-summary-card">
+
+            <div class="summary-card-top">
+
+              <span class="summary-card-title caution-text">
+                주의
+              </span>
+
+              <div class="summary-icon caution">
+                <i data-lucide="triangle-alert"></i>
+              </div>
+
+            </div>
+
+            <strong
+              id="dashboardCautionCount"
+              class="summary-number"
+            >
+              0명
+            </strong>
+
+            <span
+              id="dashboardCautionPercent"
+              class="summary-percent caution"
+            >
+              0%
+            </span>
+
+          </article>
+
+
+          <article class="dashboard-summary-card">
+
+            <div class="summary-card-top">
+
+              <span class="summary-card-title safe-text">
+                안전
+              </span>
+
+              <div class="summary-icon safe">
+                <i data-lucide="shield-check"></i>
+              </div>
+
+            </div>
+
+            <strong
+              id="dashboardSafeCount"
+              class="summary-number"
+            >
+              0명
+            </strong>
+
+            <span
+              id="dashboardSafePercent"
+              class="summary-percent safe"
+            >
+              0%
+            </span>
+
+          </article>
+
+
+          <article class="dashboard-summary-card">
+
+            <div class="summary-card-top">
+
+              <span class="summary-card-title">
+                오늘 알림
+              </span>
+
+              <div class="summary-icon blue">
+                <i data-lucide="bell"></i>
+              </div>
+
+            </div>
+
+            <strong
+              id="dashboardTodayAlerts"
+              class="summary-number"
+            >
+              0건
+            </strong>
+
+            <span class="summary-description">
+              오늘 발생한 알림
+            </span>
+
+          </article>
+
+        </div>
+
+
+        <section class="dashboard-risk-card">
+
+          <div class="dashboard-risk-header">
+
+            <div>
+              <h2>위험도 높은 보호대상자</h2>
+
+              <p>
+                위험도 점수가 높은 순으로 표시됩니다.
+              </p>
+            </div>
+
+            <button
+              id="dashboardViewAllButton"
+              class="dashboard-view-all"
+            >
+              전체 보기
+              <i data-lucide="chevron-right"></i>
+            </button>
+
+          </div>
+
+
+          <div class="dashboard-table-wrap">
+
+            <table class="dashboard-risk-table">
+
+              <thead>
+                <tr>
+                  <th>순위</th>
+                  <th>이름</th>
+                  <th>위험도</th>
+                  <th>상태</th>
+                  <th>주요 위험요인</th>
+                  <th>최근 위치 업데이트</th>
+                  <th>조치</th>
+                </tr>
+              </thead>
+
+              <tbody id="dashboardRiskTableBody"></tbody>
+
+            </table>
+
+          </div>
+
+
+          <div class="dashboard-info">
+
+            <i data-lucide="info"></i>
+
+            <span>
+              현재 위험도와 주요 위험요인은 임시 데이터를 사용하고 있으며,
+              추후 AI 분석 결과 및 최신 GPS 데이터와 연동됩니다.
+            </span>
+
+          </div>
+
+        </section>
+
+      </section>
+
+
+      <!-- ==================================================
            사용자 관리
       =================================================== -->
 
       <section
         id="userManagementPage"
-        class="page-container"
+        class="page-container hidden"
       >
 
         <div class="page-heading">
@@ -464,46 +695,67 @@
 
                   <h3>주변 상황</h3>
 
-                  <span class="temporary-badge">
-                    추후 API 연동
-                  </span>
-
                 </div>
 
 
-                <div class="surround-grid">
+              <div class="surround-grid">
 
-                  <div class="surround-card">
-                    <i data-lucide="sun"></i>
-                    <b>날씨</b>
-                    <span>맑음</span>
-                    <small>26°C</small>
-                  </div>
+  <div class="surround-card">
+    <i data-lucide="cloud-sun"></i>
+    <b>현재 날씨</b>
 
-                  <div class="surround-card">
-                    <i data-lucide="wind"></i>
-                    <b>미세먼지</b>
-                    <span>좋음</span>
-                    <small>23㎍/㎥</small>
-                  </div>
+    <span id="monitorWeatherTemperature">
+      -
+    </span>
 
-                  <div class="surround-card">
-                    <i data-lucide="users"></i>
-                    <b>유동인구</b>
-                    <span>정보 준비 중</span>
-                    <small>추후 연동</small>
-                  </div>
+    <small id="monitorWeatherCondition">
+      정보 조회 전
+    </small>
+  </div>
 
-                  <div class="surround-card">
-                    <i data-lucide="triangle-alert"></i>
-                    <b>위험지역</b>
-                    <span>정보 준비 중</span>
-                    <small>추후 연동</small>
-                  </div>
 
-                </div>
+  <div class="surround-card">
+    <i data-lucide="droplets"></i>
+    <b>습도 · 강수</b>
 
-              </section>
+    <span id="monitorWeatherHumidity">
+      -
+    </span>
+
+    <small id="monitorWeatherRainfall">
+      -
+    </small>
+  </div>
+
+
+  <div class="surround-card">
+    <i data-lucide="wind"></i>
+    <b>바람</b>
+
+    <span id="monitorWeatherWindSpeed">
+      -
+    </span>
+
+    <small id="monitorWeatherWindDirection">
+      -
+    </small>
+  </div>
+
+
+  <div class="surround-card">
+    <i data-lucide="leaf"></i>
+    <b>대기질</b>
+
+    <span id="monitorAirQualityGrade">
+      -
+    </span>
+
+    <small id="monitorAirQualityDust">
+      -
+    </small>
+  </div>
+
+</div>
 
 
               <section class="monitor-section">
@@ -551,7 +803,6 @@
             </p>
           </div>
 
-          <!-- 화면에서는 숨김: 기존 JS 호환용 -->
           <button
             id="refreshAuthButton"
             class="primary-button hidden"
@@ -659,7 +910,6 @@
             </p>
           </div>
 
-          <!-- 화면에서는 숨김: 기존 JS 호환용 -->
           <button
             id="refreshAlertButton"
             class="outline-button hidden"
@@ -799,9 +1049,7 @@
       </section>
 
 
-      <!-- ==================================================
-           사용자 상세
-      =================================================== -->
+      <!-- 사용자 상세 -->
 
       <aside
         id="userDetailDrawer"
@@ -832,9 +1080,7 @@
 
             <div class="profile-title">
 
-              <h3 id="userDetailName">
-                -
-              </h3>
+              <h3 id="userDetailName">-</h3>
 
               <span
                 id="userDetailStatus"
@@ -845,9 +1091,7 @@
 
             </div>
 
-            <p id="userDetailRole">
-              -
-            </p>
+            <p id="userDetailRole">-</p>
 
           </div>
 
@@ -903,9 +1147,7 @@
       </aside>
 
 
-      <!-- ==================================================
-           인증코드 상세
-      =================================================== -->
+      <!-- 인증코드 상세 -->
 
       <aside
         id="authDetailDrawer"
@@ -934,13 +1176,8 @@
 
           <div>
 
-            <h3 id="authDetailName">
-              -
-            </h3>
-
-            <p id="authDetailRole">
-              -
-            </p>
+            <h3 id="authDetailName">-</h3>
+            <p id="authDetailRole">-</p>
 
           </div>
 
@@ -1024,9 +1261,7 @@
 </div>
 
 
-<!-- ==================================================
-     사용자 추가 MODAL
-=================================================== -->
+<!-- 사용자 추가 MODAL -->
 
 <div
   id="addUserModal"
@@ -1086,59 +1321,38 @@
       <div class="form-grid">
 
         <label class="form-field">
-
           <span>이름 *</span>
-
-          <input
-            id="subjectName"
-            required
-            placeholder="이름"
-          />
-
+          <input id="subjectName" required placeholder="이름" />
         </label>
 
-
         <label class="form-field">
-
           <span>성별 *</span>
 
           <select id="subjectGender" required>
-
             <option value="">선택</option>
             <option value="male">남성</option>
             <option value="female">여성</option>
             <option value="unknown">미상</option>
-
           </select>
-
         </label>
 
-
         <label class="form-field">
-
           <span>전화번호 *</span>
-
           <input
             id="subjectPhone"
             required
             placeholder="010-0000-0000"
           />
-
         </label>
 
-
         <label class="form-field">
-
           <span>생년월일 *</span>
-
           <input
             id="subjectBirthDate"
             type="date"
             required
           />
-
         </label>
-
 
         <div class="form-field full">
 
@@ -1168,9 +1382,7 @@
 
         </div>
 
-
         <label class="form-field full">
-
           <span>상세주소</span>
 
           <input
@@ -1178,16 +1390,13 @@
             type="text"
             placeholder="동, 호수 등 상세주소를 입력하세요."
           />
-
         </label>
-
 
         <label class="form-field">
 
           <span>유형 *</span>
 
           <select id="subjectType" required>
-
             <option value="">선택</option>
             <option value="child">아동</option>
             <option value="dementia">치매환자</option>
@@ -1195,26 +1404,19 @@
             <option value="disability">장애인</option>
             <option value="general">일반</option>
             <option value="other">기타</option>
-
           </select>
 
         </label>
-
 
         <label class="form-field">
 
           <span>소속 기관</span>
 
           <select id="subjectInstitution">
-
-            <option value="">
-              소속 기관 없음
-            </option>
-
+            <option value="">소속 기관 없음</option>
           </select>
 
         </label>
-
 
         <label class="form-field full">
 
@@ -1262,36 +1464,24 @@
       <div class="form-grid">
 
         <label class="form-field">
-
           <span>이름 *</span>
-
-          <input
-            id="guardianName"
-            required
-            placeholder="이름"
-          />
-
+          <input id="guardianName" required placeholder="이름" />
         </label>
-
 
         <label class="form-field">
 
           <span>성별 *</span>
 
           <select id="guardianGender" required>
-
             <option value="">선택</option>
             <option value="male">남성</option>
             <option value="female">여성</option>
             <option value="unknown">미상</option>
-
           </select>
 
         </label>
 
-
         <label class="form-field">
-
           <span>전화번호 *</span>
 
           <input
@@ -1299,12 +1489,9 @@
             required
             placeholder="010-0000-0000"
           />
-
         </label>
 
-
         <label class="form-field">
-
           <span>생년월일 *</span>
 
           <input
@@ -1312,9 +1499,7 @@
             type="date"
             required
           />
-
         </label>
-
 
         <div class="form-field full">
 
@@ -1344,9 +1529,7 @@
 
         </div>
 
-
         <label class="form-field full">
-
           <span>상세주소</span>
 
           <input
@@ -1354,7 +1537,6 @@
             type="text"
             placeholder="동, 호수 등 상세주소를 입력하세요."
           />
-
         </label>
 
       </div>
@@ -1387,9 +1569,7 @@
 </div>
 
 
-<!-- ==================================================
-     인증코드 MODAL
-=================================================== -->
+<!-- 인증코드 MODAL -->
 
 <div
   id="authCodeModal"
@@ -1405,22 +1585,17 @@
       <i data-lucide="x"></i>
     </button>
 
-
     <div class="modal-icon">
       <i data-lucide="badge-check"></i>
     </div>
-
 
     <h2>인증코드</h2>
 
     <p id="authModalName">-</p>
 
-
     <div class="issued-code-box">
 
-      <span id="authModalCode">
-        -
-      </span>
+      <span id="authModalCode">-</span>
 
       <button id="copyModalCode">
         <i data-lucide="copy"></i>
@@ -1428,11 +1603,9 @@
 
     </div>
 
-
     <p class="modal-description">
       사용자가 앱에서 입력할 인증코드입니다.
     </p>
-
 
     <button
       id="confirmAuthModal"
@@ -1445,7 +1618,7 @@
 
 </div>
 
-
+<script src="login.js"></script>
 <script src="script.js"></script>
 
 </body>
