@@ -2040,13 +2040,15 @@ def send_risk_push_to_guardian(
     risk_score=None,
 ):
     tokens = (
-        db.query(models.DeviceToken)
-        .filter(
-            models.DeviceToken.guardian_id
-            == guardian_id
-        )
-        .all()
+    db.query(models.DeviceToken)
+    .filter(
+        models.DeviceToken.user_type
+        == "guardian",
+        models.DeviceToken.user_id
+        == guardian_id,
     )
+    .all()
+)
 
     if not tokens:
         print(
@@ -2265,13 +2267,15 @@ def test_push(
         )
 
     tokens = (
-        db.query(models.DeviceToken)
-        .filter(
-            models.DeviceToken.guardian_id
-            == guardian_id
-        )
-        .all()
+    db.query(models.DeviceToken)
+    .filter(
+        models.DeviceToken.user_type
+        == "guardian",
+        models.DeviceToken.user_id
+        == guardian_id,
     )
+    .all()
+)
 
     if not tokens:
         raise HTTPException(
@@ -2503,49 +2507,71 @@ def verify_email(
     }
 
 @app.post(
-    "/guardians/{guardian_id}/device-token",
-    response_model=schemas.DeviceTokenResponse,
+    "/push-tokens",
+    response_model=schemas.PushTokenResponse,
     tags=["알림"],
 )
-def register_device_token(
-    guardian_id: int,
-    data: schemas.DeviceTokenCreate,
+def register_push_token(
+    data: schemas.PushTokenCreate,
     db: Session = Depends(get_db),
 ):
-    guardian = db.get(
-        models.Guardian,
-        guardian_id,
-    )
-
-    if not guardian:
-        raise HTTPException(
-            status_code=404,
-            detail="보호자를 찾을 수 없습니다.",
+    # 실제 사용자가 존재하는지 확인
+    if data.user_type == "guardian":
+        user = db.get(
+            models.Guardian,
+            data.user_id,
+        )
+    else:
+        user = db.get(
+            models.Subject,
+            data.user_id,
         )
 
+    if not user:
+        raise HTTPException(
+            status_code=404,
+            detail="사용자를 찾을 수 없습니다.",
+        )
+
+    # 같은 FCM token이 이미 등록되어 있는지 확인
     existing_token = (
         db.query(models.DeviceToken)
         .filter(
-            models.DeviceToken.token == data.token
+            models.DeviceToken.token
+            == data.push_token
         )
         .first()
     )
 
+    # 이미 있으면 현재 로그인한 사용자 정보로 갱신
     if existing_token:
-        existing_token.guardian_id = guardian_id
+        existing_token.user_type = data.user_type
+        existing_token.user_id = data.user_id
 
         db.commit()
         db.refresh(existing_token)
 
-        return existing_token
+        return {
+            "id": existing_token.id,
+            "user_type": existing_token.user_type,
+            "user_id": existing_token.user_id,
+            "push_token": existing_token.token,
+        }
 
+    # 처음 등록되는 token
     device_token = models.DeviceToken(
-        guardian_id=guardian_id,
-        token=data.token,
+        user_type=data.user_type,
+        user_id=data.user_id,
+        token=data.push_token,
     )
 
     db.add(device_token)
     db.commit()
     db.refresh(device_token)
 
-    return device_token
+    return {
+        "id": device_token.id,
+        "user_type": device_token.user_type,
+        "user_id": device_token.user_id,
+        "push_token": device_token.token,
+    }
