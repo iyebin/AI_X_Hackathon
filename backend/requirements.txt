@@ -11,3 +11,4 @@ requests
 pyproj
 bcrypt
 resend
+firebase-admin
