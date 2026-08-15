@@ -3,6 +3,10 @@ import io
 import os
 import requests
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 
 KMA_APIHUB_KEY = os.getenv("KMA_APIHUB_KEY")
 
