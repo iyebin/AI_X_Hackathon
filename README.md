@@ -25,7 +25,8 @@ https://github.com/jonathankabala/LMTAD
 ### POL 데이터 생성
 
 https://drive.google.com/drive/folders/1RGi5-AYUKt7TvVKBa0iqyUNp8vfA_6ia?usp=sharing
-위 링크에서 아래 내용을 확인해주세요.
+
+아래 내용을 확인해주세요.
 
 - incheon ~ seoul 생성된 POL 데이터
 - incheon ~ seoul 전처리 데이터
