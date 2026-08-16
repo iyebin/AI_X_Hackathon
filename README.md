@@ -48,7 +48,10 @@ bounding_box = [126.6233889470779,
 
 실행 후 Checkin.tsv 파일을 학습 폴더의 데이터로 사용
 
+
 ### 전처리, 학습, 추론
+
+
 https://github.com/jonathankabala/LMTAD 
 위 페이지와 동일하게 진행함
 
