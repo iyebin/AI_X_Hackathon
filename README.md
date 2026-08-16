@@ -51,10 +51,11 @@ bounding_box = [126.6233889470779,
 
 ### 전처리, 학습, 추론
 
-
+---
 https://github.com/jonathankabala/LMTAD 
 위 페이지와 동일하게 진행함
 
+---
 
 ## 안심하랑께 백엔드
 
