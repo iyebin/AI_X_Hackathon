@@ -1984,7 +1984,8 @@ def issue_subject_auth_code(
     # 6자리 인증코드 생성
     code = generate_unique_auth_code(db)
 
-    # 현재 시간 기준 10분 유효
+    # 기존 응답 형식과 DB 호환성을 위해 만료 예정 시각은 저장하지만,
+    # 인증코드 검증 시에는 만료 여부를 확인하지 않는다.
     expires_at = (
         datetime.now(timezone.utc)
         + timedelta(minutes=10)
@@ -2006,8 +2007,7 @@ def issue_subject_auth_code(
         alert_type="auth_request",
         message=(
             "앱에서 보호자 인증을 요청했습니다. "
-            f"인증코드: {code} "
-            "(10분간 유효)"
+            f"인증코드: {code}"
         ),
     )
 
@@ -2085,8 +2085,6 @@ def verify_auth_code(
         db.query(models.SubjectAuthCode)
         .filter(
             models.SubjectAuthCode.code == auth_code,
-            models.SubjectAuthCode.expires_at
-            > datetime.now(timezone.utc),
         )
         .order_by(
             models.SubjectAuthCode.created_at.desc()
