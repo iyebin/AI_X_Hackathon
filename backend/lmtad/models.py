@@ -435,6 +435,14 @@ class GPSRecord(Base):
         back_populates="gps_records",
     )
 
+    token_probability = Column(Float, nullable=True)
+    anomaly_score = Column(Float, nullable=True)
+
+    scored_at = Column(
+        DateTime(timezone=True),
+        nullable=True,
+    )
+
 class Alert(Base):
     __tablename__ = "alerts"
 

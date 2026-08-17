@@ -8,6 +8,8 @@ from zoneinfo import ZoneInfo
 from database import engine
 from database import SessionLocal
 from models import GPSRecord
+from gps_evaluation import score_gps_record
+from load_checkpoint import load_inference_model
 
 
 def check_server():
@@ -185,7 +187,8 @@ def transfer_epsg(
 
         print("좌표 변환 및 토큰 저장 완료")
         print(
-            {
+            {   
+
                 "gps_id": managed_record.gps_id,
                 "x": managed_record.x,
                 "y": managed_record.y,
@@ -224,9 +227,20 @@ Korea 2000 / Unified CS
 '''
 
 def main():
-    check_server()
-    transfer_epsg()
+    checkpoint_path = "artifacts/ckptepoch_7_batch_387.pt"
+    vocab_path = "artifacts/vocab_gps.json"
 
+    inference = load_inference_model(checkpoint_path, vocab_path)
+    check_server()
+    processed_record = transfer_epsg()
+    if processed_record is not None:
+        score_gps_record(
+            gps_id=processed_record.gps_id,
+            model=inference["model"],
+            dictionary=inference["dictionary"],
+            device=inference["device"],
+            block_size=inference["block_size"],
+        )
 
 if __name__ == "__main__":
     main()
