@@ -28,12 +28,27 @@ from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 from inference_service import run_gps_inference
 import requests
-
-from google.oauth2 import id_token
-from google.auth.transport import requests as google_requests
+import bcrypt
 
 lmtad_runtime: LMTADRuntime | None = None
 Base.metadata.create_all(bind=engine)
+
+
+def hash_password(password: str) -> str:
+    return bcrypt.hashpw(
+        password.encode("utf-8"),
+        bcrypt.gensalt(),
+    ).decode("utf-8")
+
+
+def verify_password(password: str, password_hash: str) -> bool:
+    try:
+        return bcrypt.checkpw(
+            password.encode("utf-8"),
+            password_hash.encode("utf-8"),
+        )
+    except (ValueError, TypeError, AttributeError):
+        return False
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -1201,7 +1216,26 @@ def create_institution_manager(
     if not institution:
         raise HTTPException(status_code=404, detail="기관을 찾을 수 없습니다.")
 
-    manager = models.InstitutionManager(**manager_data.model_dump())
+    existing_manager = (
+        db.query(models.InstitutionManager)
+        .filter(
+            (models.InstitutionManager.login_id == manager_data.login_id.strip())
+            | (models.InstitutionManager.email == manager_data.email.strip().lower())
+        )
+        .first()
+    )
+    if existing_manager:
+        raise HTTPException(status_code=409, detail="이미 사용 중인 아이디 또는 이메일입니다.")
+
+    manager = models.InstitutionManager(
+        institution_id=manager_data.institution_id,
+        name=manager_data.name.strip(),
+        phone=manager_data.phone.strip(),
+        email=manager_data.email.strip().lower(),
+        login_id=manager_data.login_id.strip(),
+        password_hash=hash_password(manager_data.password),
+        position=manager_data.position,
+    )
     db.add(manager)
     db.commit()
     db.refresh(manager)
@@ -1289,220 +1323,66 @@ def delete_institution_manager(
     db.commit()
     return {"message": "기관 관리자가 삭제되었습니다.", "manager_id": manager_id}
 @app.post(
-    "/auth/social/login",
-    response_model=schemas.SocialLoginResponse,
+    "/institution-managers/signup",
+    response_model=schemas.InstitutionManagerAuthResponse,
+    status_code=status.HTTP_201_CREATED,
     tags=["기관 관리자 인증"],
 )
-def social_login(
-    data: schemas.SocialLoginRequest,
+def signup_institution_manager(
+    data: schemas.InstitutionManagerSignup,
     db: Session = Depends(get_db),
 ):
-    provider = data.provider.strip().lower()
-
-    if provider not in ("google", "kakao"):
-        raise HTTPException(
-            status_code=400,
-            detail="지원하지 않는 소셜 로그인입니다.",
-        )
-
-    provider_user_id = None
-    email = None
-
-    # =====================================================
-    # Google 로그인
-    # =====================================================
-    if provider == "google":
-        google_client_id = os.getenv(
-            "GOOGLE_CLIENT_ID"
-        )
-
-        if not google_client_id:
-            raise HTTPException(
-                status_code=500,
-                detail="GOOGLE_CLIENT_ID가 설정되지 않았습니다.",
-            )
-
-        try:
-            id_info = id_token.verify_oauth2_token(
-                data.token,
-                google_requests.Request(),
-                google_client_id,
-            )
-
-            provider_user_id = id_info.get("sub")
-            email = id_info.get("email")
-
-        except Exception as e:
-            print(
-                f"[GOOGLE LOGIN ERROR] "
-                f"{type(e).__name__}: {e}"
-            )
-
-            raise HTTPException(
-                status_code=401,
-                detail="Google 로그인 인증에 실패했습니다.",
-            )
-
-    # =====================================================
-    # Kakao 로그인
-    # =====================================================
-    elif provider == "kakao":
-        try:
-            response = requests.get(
-                "https://kapi.kakao.com/v2/user/me",
-                headers={
-                    "Authorization": (
-                        f"Bearer {data.token}"
-                    )
-                },
-                timeout=10,
-            )
-
-            if response.status_code != 200:
-                raise HTTPException(
-                    status_code=401,
-                    detail="Kakao 로그인 인증에 실패했습니다.",
-                )
-
-            kakao_user = response.json()
-
-            provider_user_id = str(
-                kakao_user.get("id")
-            )
-
-            kakao_account = (
-                kakao_user.get("kakao_account")
-                or {}
-            )
-
-            email = kakao_account.get("email")
-
-        except HTTPException:
-            raise
-
-        except Exception as e:
-            print(
-                f"[KAKAO LOGIN ERROR] "
-                f"{type(e).__name__}: {e}"
-            )
-
-            raise HTTPException(
-                status_code=401,
-                detail="Kakao 로그인 인증에 실패했습니다.",
-            )
-
-    # =====================================================
-    # 소셜 계정 ID 확인
-    # =====================================================
-    if not provider_user_id:
-        raise HTTPException(
-            status_code=401,
-            detail="소셜 사용자 정보를 확인할 수 없습니다.",
-        )
-
-    # =====================================================
-    # 기존 관리자 조회
-    # =====================================================
-    manager = (
-        db.query(models.InstitutionManager)
-        .filter(
-            models.InstitutionManager.provider
-            == provider,
-            models.InstitutionManager.provider_user_id
-            == provider_user_id,
-        )
-        .first()
-    )
-
-    # =====================================================
-    # 최초 로그인 → 관리자 기본 계정 생성
-    # =====================================================
-    if not manager:
-        manager = models.InstitutionManager(
-            provider=provider,
-            provider_user_id=provider_user_id,
-            email=email,
-        )
-
-        db.add(manager)
-        db.commit()
-        db.refresh(manager)
-
-    # 소셜 서비스에서 이메일이 변경된 경우 갱신
-    elif email and manager.email != email:
-        manager.email = email
-        db.commit()
-        db.refresh(manager)
-
-    profile_completed = all(
-        [
-            manager.name,
-            manager.phone,
-            manager.institution_id,
-        ]
-    )
-
-    return {
-        "id": manager.id,
-        "institution_id": manager.institution_id,
-        "name": manager.name,
-        "phone": manager.phone,
-        "email": manager.email,
-        "provider": manager.provider,
-        "position": manager.position,
-        "profile_completed": profile_completed,
-    }
-
-@app.patch(
-    "/institution-managers/{manager_id}/complete-profile",
-    response_model=schemas.SocialLoginResponse,
-    tags=["기관 관리자 인증"],
-)
-def complete_social_profile(
-    manager_id: int,
-    data: schemas.SocialProfileComplete,
-    db: Session = Depends(get_db),
-):
-    manager = db.get(
-        models.InstitutionManager,
-        manager_id,
-    )
-
-    if not manager:
-        raise HTTPException(
-            status_code=404,
-            detail="기관 관리자를 찾을 수 없습니다.",
-        )
-
-    institution = db.get(
-        models.Institution,
-        data.institution_id,
-    )
-
+    institution = db.get(models.Institution, data.institution_id)
     if not institution:
-        raise HTTPException(
-            status_code=404,
-            detail="기관을 찾을 수 없습니다.",
-        )
+        raise HTTPException(status_code=404, detail="기관을 찾을 수 없습니다.")
 
-    manager.name = data.name
-    manager.phone = data.phone
-    manager.institution_id = data.institution_id
-    manager.position = data.position
+    login_id = data.login_id.strip()
+    email = data.email.strip().lower()
 
+    if db.query(models.InstitutionManager).filter(
+        models.InstitutionManager.login_id == login_id
+    ).first():
+        raise HTTPException(status_code=409, detail="이미 사용 중인 아이디입니다.")
+
+    if db.query(models.InstitutionManager).filter(
+        models.InstitutionManager.email == email
+    ).first():
+        raise HTTPException(status_code=409, detail="이미 사용 중인 이메일입니다.")
+
+    manager = models.InstitutionManager(
+        institution_id=data.institution_id,
+        name=data.name.strip(),
+        phone=data.phone.strip(),
+        email=email,
+        login_id=login_id,
+        password_hash=hash_password(data.password),
+    )
+    db.add(manager)
     db.commit()
     db.refresh(manager)
+    return manager
 
-    return {
-        "id": manager.id,
-        "institution_id": manager.institution_id,
-        "name": manager.name,
-        "phone": manager.phone,
-        "email": manager.email,
-        "provider": manager.provider,
-        "position": manager.position,
-        "profile_completed": True,
-    }
+
+@app.post(
+    "/institution-managers/login",
+    response_model=schemas.InstitutionManagerAuthResponse,
+    tags=["기관 관리자 인증"],
+)
+def login_institution_manager(
+    data: schemas.InstitutionManagerLogin,
+    db: Session = Depends(get_db),
+):
+    manager = db.query(models.InstitutionManager).filter(
+        models.InstitutionManager.login_id == data.login_id.strip()
+    ).first()
+
+    if not manager or not verify_password(data.password, manager.password_hash):
+        raise HTTPException(
+            status_code=401,
+            detail="아이디 또는 비밀번호가 올바르지 않습니다.",
+        )
+
+    return manager
 
 # =========================================================
 # 기관 관리자 ↔ 보호대상자 연결

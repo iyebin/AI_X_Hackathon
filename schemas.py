@@ -235,20 +235,12 @@ class GuardianRegistrationDetailResponse(BaseModel):
     subject: SubjectSummary
 
 class InstitutionManagerCreate(BaseModel):
-    institution_id: Optional[int] = None
-    name: Optional[str] = Field(
-        default=None,
-        min_length=1,
-        max_length=100,
-    )
-    phone: Optional[str] = Field(
-        default=None,
-        min_length=5,
-        max_length=30,
-    )
-    email: Optional[str] = None
-    provider: str
-    provider_user_id: str
+    institution_id: int
+    name: str = Field(min_length=1, max_length=100)
+    phone: str = Field(min_length=5, max_length=30)
+    email: str = Field(min_length=3, max_length=255)
+    login_id: str = Field(min_length=4, max_length=100)
+    password: str = Field(min_length=8, max_length=128)
     position: Optional[str] = Field(
         default=None,
         max_length=100,
@@ -279,45 +271,37 @@ class InstitutionManagerResponse(ORMModel):
     name: Optional[str]
     phone: Optional[str]
     email: Optional[str]
-    provider: str
+    login_id: Optional[str]
     position: Optional[str]
     created_at: datetime
     updated_at: datetime
 
 
-class SocialLoginRequest(BaseModel):
-    provider: str
-    token: str
+class InstitutionManagerSignup(BaseModel):
+    name: str = Field(min_length=1, max_length=100)
+    phone: str = Field(min_length=5, max_length=30)
+    email: str = Field(min_length=3, max_length=255)
+    login_id: str = Field(min_length=4, max_length=100)
+    password: str = Field(min_length=8, max_length=128)
+    institution_id: int
 
 
-class SocialLoginResponse(BaseModel):
+class InstitutionManagerLogin(BaseModel):
+    login_id: str
+    password: str
+
+
+class InstitutionManagerAuthResponse(BaseModel):
     id: int
-    institution_id: Optional[int]
-    name: Optional[str]
-    phone: Optional[str]
-    email: Optional[str]
-    provider: str
+    institution_id: int
+    name: str
+    phone: str
+    email: str
+    login_id: str
     position: Optional[str]
-    profile_completed: bool
 
     model_config = ConfigDict(
         from_attributes=True
-    )
-
-
-class SocialProfileComplete(BaseModel):
-    name: str = Field(
-        min_length=1,
-        max_length=100,
-    )
-    phone: str = Field(
-        min_length=5,
-        max_length=30,
-    )
-    institution_id: int
-    position: Optional[str] = Field(
-        default=None,
-        max_length=100,
     )
     
 class ManagerAssignmentCreate(BaseModel):

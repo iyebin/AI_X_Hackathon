@@ -348,28 +348,23 @@ class InstitutionManager(Base):
     email = Column(
         String(255),
         nullable=True,
+        unique=True,
         index=True,
     )
 
-    provider = Column(
-        String(20),
-        nullable=False,
+    login_id = Column(
+        String(100),
+        nullable=True,
+        unique=True,
+        index=True,
     )
 
-    provider_user_id = Column(
+    password_hash = Column(
         String(255),
-        nullable=False,
+        nullable=True,
     )
 
     position = Column(String(100), nullable=True)
-
-    __table_args__ = (
-        UniqueConstraint(
-            "provider",
-            "provider_user_id",
-            name="uq_institution_manager_social",
-        ),
-    )
 
     created_at = Column(
         DateTime(timezone=True),
