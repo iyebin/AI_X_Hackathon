@@ -12,7 +12,7 @@ def main():
             db.query(GPSRecord)
             .order_by(
                 GPSRecord.measured_at.desc(),
-                GPSRecord.id.desc(),
+                GPSRecord.gps_id.desc(),
             )
             .limit(10)
             .all()
@@ -23,7 +23,7 @@ def main():
         for record in records:
             print(
                 {
-                    "id": record.id,
+                    "gps_id": record.gps_id,
                     "subject_id": record.subject_id,
                     "latitude": record.latitude,
                     "longitude": record.longitude,

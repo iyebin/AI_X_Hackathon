@@ -15,24 +15,35 @@ import ProtectedMapView from '@/components/map/protected-map';
 import ProtectedNotificationScreen from '@/components/notifications/protected-notification-screen';
 import SettingView from '@/components/settings/setting-view';
 import { getProtectorPhone } from '@/features/contacts/protector-contact-store';
+import { startGpsTracking, stopGpsTracking } from '@/features/gps/tracking';
+import { registerPushNotifications } from '@/features/notifications/push-registration';
 
 export default function ProtectedMainScreen() {
   const router = useRouter();
 
-  const { userName, protectorPhone, tab } = useLocalSearchParams<{
+  const { userName, protectorPhone, subjectId, tab } = useLocalSearchParams<{
     userName?: string;
     protectorPhone?: string;
+    subjectId?: string;
     tab?: 'home' | 'map' | 'notification' | 'setting';
   }>();
 
   const displayName = userName || '슝슝슝';
   const [targetPhone, setTargetPhone] = useState(getProtectorPhone() || protectorPhone || '01012345678');
+  const numericSubjectId = Number(subjectId);
 
   const [activeTab, setActiveTab] = useState<string>(tab ?? 'home');
 
   useEffect(() => {
     if (tab) setActiveTab(tab);
   }, [tab]);
+
+  useEffect(() => {
+    if (!Number.isInteger(numericSubjectId) || numericSubjectId <= 0) return;
+    void registerPushNotifications({ userId: numericSubjectId, userType: 'subject' }).catch((error) => {
+      console.warn('푸시 알림 등록에 실패했습니다.', error);
+    });
+  }, [subjectId, numericSubjectId]);
 
   useEffect(() => {
     if (protectorPhone) setTargetPhone(protectorPhone);
@@ -58,7 +69,8 @@ export default function ProtectedMainScreen() {
       pathname: '/protected-facility',
       params: {
         targetName: displayName,
-        isProtected: 'true'
+        isProtected: 'true',
+        subjectId,
       },
     });
   };
@@ -68,6 +80,28 @@ export default function ProtectedMainScreen() {
       { text: '취소', style: 'cancel' },
       { text: '신고하기', onPress: () => Linking.openURL('tel:112') },
     ]);
+  };
+
+  const handleLocationTrackingChange = async (enabled: boolean) => {
+    const numericSubjectId = Number(subjectId);
+    if (!Number.isInteger(numericSubjectId) || numericSubjectId <= 0) {
+      Alert.alert('위치 추적 실패', '보호대상자 정보를 찾을 수 없습니다.');
+      return false;
+    }
+
+    try {
+      if (enabled) {
+        await startGpsTracking(numericSubjectId);
+        Alert.alert('위치 추적 시작', '5분 간격으로 현재 위치를 전송합니다.');
+      } else {
+        stopGpsTracking();
+        Alert.alert('위치 추적 중지', 'GPS 수집과 위치 전송을 중지했습니다.');
+      }
+      return true;
+    } catch (error) {
+      Alert.alert('위치 추적 실패', error instanceof Error ? error.message : '위치 추적 설정을 변경하지 못했습니다.');
+      return false;
+    }
   };
 
   const renderContent = () => {
@@ -130,17 +164,17 @@ export default function ProtectedMainScreen() {
       case 'map':
         return (
           <ProtectedMapView
+            subjectId={numericSubjectId}
             targetName={displayName}
             lastUpdated="1분 전"
-            weatherText="구름 많음 26°C"
           />
         );
 
       case 'notification':
-        return <ProtectedNotificationScreen />;
+        return <ProtectedNotificationScreen subjectId={Number(subjectId)} />;
 
       case 'setting':
-        return <SettingView isProtected={true} onEmergencyContactSaved={() => setTargetPhone(getProtectorPhone())} />;
+        return <SettingView isProtected={true} notificationUser={Number.isInteger(numericSubjectId) && numericSubjectId > 0 ? { userId: numericSubjectId, userType: 'subject' } : undefined} onLocationTrackingChange={handleLocationTrackingChange} onEmergencyContactSaved={() => setTargetPhone(getProtectorPhone())} />;
 
       default:
         return null;

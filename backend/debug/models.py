@@ -85,47 +85,8 @@ class Guardian(Base):
         cascade="all, delete-orphan",
         passive_deletes=True,
     )
-class DeviceToken(Base):
-    __tablename__ = "device_tokens"
 
-    id = Column(
-        Integer,
-        primary_key=True,
-        index=True,
-    )
 
-    user_type = Column(
-        String(20),
-        nullable=False,
-        index=True,
-    )
-
-    user_id = Column(
-        Integer,
-        nullable=False,
-        index=True,
-    )
-
-    token = Column(
-        Text,
-        nullable=False,
-        unique=True,
-        index=True,
-    )
-
-    created_at = Column(
-        DateTime(timezone=True),
-        server_default=func.now(),
-        nullable=False,
-    )
-
-    updated_at = Column(
-        DateTime(timezone=True),
-        server_default=func.now(),
-        onupdate=func.now(),
-        nullable=False,
-    )
-    
 class Institution(Base):
     __tablename__ = "institutions"
 
@@ -339,37 +300,31 @@ class InstitutionManager(Base):
             "institutions.id",
             ondelete="CASCADE",
         ),
-        nullable=True,
+        nullable=False,
         index=True,
     )
 
-    name = Column(String(100), nullable=True)
-    phone = Column(String(30), nullable=True)
+    name = Column(String(100), nullable=False)
+    phone = Column(String(30), nullable=False)
     email = Column(
         String(255),
-        nullable=True,
+        nullable=False,
+        unique=True,
         index=True,
     )
 
-    provider = Column(
-        String(20),
+    login_id = Column(
+        String(100),
         nullable=False,
+        unique=True,
+        index=True,
     )
 
-    provider_user_id = Column(
+    password_hash = Column(
         String(255),
         nullable=False,
     )
-
     position = Column(String(100), nullable=True)
-
-    __table_args__ = (
-        UniqueConstraint(
-            "provider",
-            "provider_user_id",
-            name="uq_institution_manager_social",
-        ),
-    )
 
     created_at = Column(
         DateTime(timezone=True),
@@ -528,61 +483,6 @@ class Alert(Base):
         back_populates="alerts",
     )
 
-class RiskStatusHistory(Base):
-    __tablename__ = "risk_status_history"
-
-    id = Column(
-        BigInteger,
-        primary_key=True,
-        index=True,
-    )
-
-    subject_id = Column(
-        BigInteger,
-        ForeignKey(
-            "subjects.id",
-            ondelete="CASCADE",
-        ),
-        nullable=False,
-        index=True,
-    )
-
-    # safe / caution / danger
-    risk_level = Column(
-        String(20),
-        nullable=False,
-        index=True,
-    )
-
-    # 최종 통합 위험 점수
-    risk_score = Column(
-        Float,
-        nullable=True,
-    )
-
-    # 각각의 세부 점수
-    lmtad_score = Column(
-        Float,
-        nullable=True,
-    )
-
-    weather_score = Column(
-        Float,
-        nullable=True,
-    )
-
-    air_score = Column(
-        Float,
-        nullable=True,
-    )
-
-    created_at = Column(
-        DateTime(timezone=True),
-        server_default=func.now(),
-        nullable=False,
-        index=True,
-    )
-
 class SubjectAuthCode(Base):
     __tablename__ = "subject_auth_codes"
 
@@ -618,4 +518,47 @@ class SubjectAuthCode(Base):
     subject = relationship(
         "Subject",
         back_populates="auth_codes",
+    )
+
+class EmailVerification(Base):
+    __tablename__ = "email_verifications"
+
+    id = Column(
+        Integer,
+        primary_key=True,
+        index=True,
+    )
+
+    email = Column(
+        String(255),
+        nullable=False,
+        index=True,
+    )
+
+    code = Column(
+        String(6),
+        nullable=False,
+    )
+
+    expires_at = Column(
+        DateTime(timezone=True),
+        nullable=False,
+        index=True,
+    )
+
+    verified_at = Column(
+        DateTime(timezone=True),
+        nullable=True,
+    )
+
+    attempts = Column(
+        Integer,
+        nullable=False,
+        default=0,
+    )
+
+    created_at = Column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        nullable=False,
     )

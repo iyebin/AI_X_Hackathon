@@ -4,6 +4,8 @@ import requests
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
+from weather_alert import get_warning_for_gps
+
 
 WEATHER_URL = (
     "https://apis.data.go.kr/1360000/"
@@ -191,6 +193,23 @@ def get_weather_by_gps(
         weather[item["category"]] = (
             item["obsrValue"]
         )
+    weather_risk_score = calculate_weather_risk_score(
+        weather.get("T1H"),
+        weather.get("RN1"),
+        weather.get("WSD"),
+    )
+
+    # 현재 GPS 위치의 기상특보 조회
+    warning_data = get_warning_for_gps(
+        latitude,
+        longitude,
+    )
+
+    # 특보 단계에 따라 기상 위험점수 보정
+    weather_risk_score = apply_weather_warning_score(
+        weather_risk_score,
+        warning_data.get("highest_level"),
+    )
 
     return {
         "gps": {
@@ -212,4 +231,114 @@ def get_weather_by_gps(
         "precipitation_type": weather.get("PTY"),
         "wind_speed": weather.get("WSD"),
         "wind_direction": weather.get("VEC"),
-    }
+
+        "weather_risk_score": weather_risk_score,
+        "weather_warning": warning_data,
+        }
+
+def calculate_weather_risk_score(
+    temperature,
+    rainfall_1h,
+    wind_speed,
+) -> float:
+
+    # 문자열 → 숫자 변환
+    try:
+        temperature = float(temperature)
+    except (TypeError, ValueError):
+        temperature = None
+
+    try:
+        rainfall = float(rainfall_1h)
+    except (TypeError, ValueError):
+        rainfall = 0.0
+
+    try:
+        wind = float(wind_speed)
+    except (TypeError, ValueError):
+        wind = 0.0
+
+    # -------------------------
+    # 기온 위험도
+    # -------------------------
+    temperature_score = 0
+
+    if temperature is not None:
+        if temperature >= 38:
+            temperature_score = 100
+        elif temperature >= 35:
+            temperature_score = 70
+        elif temperature >= 33:
+            temperature_score = 40
+        elif temperature >= 30:
+            temperature_score = 20
+
+        elif temperature <= -10:
+            temperature_score = 100
+        elif temperature <= -5:
+            temperature_score = 60
+        elif temperature <= 0:
+            temperature_score = 30
+
+    # -------------------------
+    # 강수 위험도
+    # -------------------------
+    if rainfall >= 30:
+        rainfall_score = 100
+    elif rainfall >= 15:
+        rainfall_score = 60
+    elif rainfall >= 5:
+        rainfall_score = 30
+    elif rainfall > 0:
+        rainfall_score = 10
+    else:
+        rainfall_score = 0
+
+    # -------------------------
+    # 풍속 위험도
+    # -------------------------
+    if wind >= 20:
+        wind_score = 100
+    elif wind >= 15:
+        wind_score = 80
+    elif wind >= 10:
+        wind_score = 50
+    elif wind >= 5:
+        wind_score = 20
+    else:
+        wind_score = 0
+
+    # 가장 위험한 기상 요소 사용
+    return float(
+        max(
+            temperature_score,
+            rainfall_score,
+            wind_score,
+        )
+    )
+
+
+def apply_weather_warning_score(
+    weather_score: float,
+    warning_level: str | None,
+) -> float:
+
+    if warning_level == "예비":
+        return max(
+            weather_score,
+            50.0,
+        )
+
+    if warning_level == "주의":
+        return max(
+            weather_score,
+            70.0,
+        )
+
+    if warning_level == "경보":
+        return max(
+            weather_score,
+            100.0,
+        )
+
+    return weather_score

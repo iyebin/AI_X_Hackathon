@@ -3,11 +3,13 @@ from typing import List
 
 from fastapi import Depends, FastAPI, HTTPException, Query, status
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.encoders import ENCODERS_BY_TYPE
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 from facility_api import fetch_facilities
 from air import get_air_quality_by_gps
 from weather import get_weather_by_gps
+from firebase_service import send_push_notification
 
 import models
 import schemas
@@ -15,19 +17,20 @@ from database import Base, engine, get_db
 
 from contextlib import asynccontextmanager
 import secrets
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 import random
 import string
-import bcrypt
 
 from lmtad_runtime import LMTADRuntime
 import os
 import random
 from datetime import datetime, timedelta, timezone
+from zoneinfo import ZoneInfo
 from inference_service import run_gps_inference
+import requests
 
-import resend
-resend.api_key = os.getenv("RESEND_API_KEY")
+from google.oauth2 import id_token
+from google.auth.transport import requests as google_requests
 
 lmtad_runtime: LMTADRuntime | None = None
 Base.metadata.create_all(bind=engine)
@@ -103,6 +106,22 @@ tags_metadata = [
         "description": "보호대상자 유형과 거리를 이용해 기관을 추천합니다.",
     },
 ]
+
+KST = timezone(timedelta(hours=9))
+
+
+def datetime_to_kst(value: datetime) -> str:
+    if value.tzinfo is None:
+        value = value.replace(
+            tzinfo=timezone.utc
+        )
+
+    return value.astimezone(
+        KST
+    ).isoformat()
+
+
+ENCODERS_BY_TYPE[datetime] = datetime_to_kst
 
 app = FastAPI(
     title="안심하랑께 백엔드 API",
@@ -232,26 +251,42 @@ def generate_auth_code() -> str:
     random.shuffle(characters)
 
     return "".join(characters)
-
 def auth_code_exists(
     db: Session,
     auth_code: str,
 ) -> bool:
     subject_exists = (
         db.query(models.Subject)
-        .filter(models.Subject.auth_code == auth_code)
+        .filter(
+            models.Subject.auth_code == auth_code
+        )
         .first()
         is not None
     )
 
     guardian_exists = (
         db.query(models.Guardian)
-        .filter(models.Guardian.auth_code == auth_code)
+        .filter(
+            models.Guardian.auth_code == auth_code
+        )
         .first()
         is not None
     )
 
-    return subject_exists or guardian_exists
+    subject_auth_code_exists = (
+        db.query(models.SubjectAuthCode)
+        .filter(
+            models.SubjectAuthCode.code == auth_code
+        )
+        .first()
+        is not None
+    )
+
+    return (
+        subject_exists
+        or guardian_exists
+        or subject_auth_code_exists
+    )
 
 def generate_unique_auth_code(db: Session) -> str:
     for _ in range(100):
@@ -1253,17 +1288,192 @@ def delete_institution_manager(
     db.delete(manager)
     db.commit()
     return {"message": "기관 관리자가 삭제되었습니다.", "manager_id": manager_id}
-
 @app.post(
-    "/institution-managers/signup",
-    response_model=schemas.InstitutionManagerAuthResponse,
-    status_code=status.HTTP_201_CREATED,
+    "/auth/social/login",
+    response_model=schemas.SocialLoginResponse,
     tags=["기관 관리자 인증"],
 )
-def signup_institution_manager(
-    data: schemas.InstitutionManagerSignup,
+def social_login(
+    data: schemas.SocialLoginRequest,
     db: Session = Depends(get_db),
 ):
+    provider = data.provider.strip().lower()
+
+    if provider not in ("google", "kakao"):
+        raise HTTPException(
+            status_code=400,
+            detail="지원하지 않는 소셜 로그인입니다.",
+        )
+
+    provider_user_id = None
+    email = None
+
+    # =====================================================
+    # Google 로그인
+    # =====================================================
+    if provider == "google":
+        google_client_id = os.getenv(
+            "GOOGLE_CLIENT_ID"
+        )
+
+        if not google_client_id:
+            raise HTTPException(
+                status_code=500,
+                detail="GOOGLE_CLIENT_ID가 설정되지 않았습니다.",
+            )
+
+        try:
+            id_info = id_token.verify_oauth2_token(
+                data.token,
+                google_requests.Request(),
+                google_client_id,
+            )
+
+            provider_user_id = id_info.get("sub")
+            email = id_info.get("email")
+
+        except Exception as e:
+            print(
+                f"[GOOGLE LOGIN ERROR] "
+                f"{type(e).__name__}: {e}"
+            )
+
+            raise HTTPException(
+                status_code=401,
+                detail="Google 로그인 인증에 실패했습니다.",
+            )
+
+    # =====================================================
+    # Kakao 로그인
+    # =====================================================
+    elif provider == "kakao":
+        try:
+            response = requests.get(
+                "https://kapi.kakao.com/v2/user/me",
+                headers={
+                    "Authorization": (
+                        f"Bearer {data.token}"
+                    )
+                },
+                timeout=10,
+            )
+
+            if response.status_code != 200:
+                raise HTTPException(
+                    status_code=401,
+                    detail="Kakao 로그인 인증에 실패했습니다.",
+                )
+
+            kakao_user = response.json()
+
+            provider_user_id = str(
+                kakao_user.get("id")
+            )
+
+            kakao_account = (
+                kakao_user.get("kakao_account")
+                or {}
+            )
+
+            email = kakao_account.get("email")
+
+        except HTTPException:
+            raise
+
+        except Exception as e:
+            print(
+                f"[KAKAO LOGIN ERROR] "
+                f"{type(e).__name__}: {e}"
+            )
+
+            raise HTTPException(
+                status_code=401,
+                detail="Kakao 로그인 인증에 실패했습니다.",
+            )
+
+    # =====================================================
+    # 소셜 계정 ID 확인
+    # =====================================================
+    if not provider_user_id:
+        raise HTTPException(
+            status_code=401,
+            detail="소셜 사용자 정보를 확인할 수 없습니다.",
+        )
+
+    # =====================================================
+    # 기존 관리자 조회
+    # =====================================================
+    manager = (
+        db.query(models.InstitutionManager)
+        .filter(
+            models.InstitutionManager.provider
+            == provider,
+            models.InstitutionManager.provider_user_id
+            == provider_user_id,
+        )
+        .first()
+    )
+
+    # =====================================================
+    # 최초 로그인 → 관리자 기본 계정 생성
+    # =====================================================
+    if not manager:
+        manager = models.InstitutionManager(
+            provider=provider,
+            provider_user_id=provider_user_id,
+            email=email,
+        )
+
+        db.add(manager)
+        db.commit()
+        db.refresh(manager)
+
+    # 소셜 서비스에서 이메일이 변경된 경우 갱신
+    elif email and manager.email != email:
+        manager.email = email
+        db.commit()
+        db.refresh(manager)
+
+    profile_completed = all(
+        [
+            manager.name,
+            manager.phone,
+            manager.institution_id,
+        ]
+    )
+
+    return {
+        "id": manager.id,
+        "institution_id": manager.institution_id,
+        "name": manager.name,
+        "phone": manager.phone,
+        "email": manager.email,
+        "provider": manager.provider,
+        "position": manager.position,
+        "profile_completed": profile_completed,
+    }
+
+@app.patch(
+    "/institution-managers/{manager_id}/complete-profile",
+    response_model=schemas.SocialLoginResponse,
+    tags=["기관 관리자 인증"],
+)
+def complete_social_profile(
+    manager_id: int,
+    data: schemas.SocialProfileComplete,
+    db: Session = Depends(get_db),
+):
+    manager = db.get(
+        models.InstitutionManager,
+        manager_id,
+    )
+
+    if not manager:
+        raise HTTPException(
+            status_code=404,
+            detail="기관 관리자를 찾을 수 없습니다.",
+        )
+
     institution = db.get(
         models.Institution,
         data.institution_id,
@@ -1275,105 +1485,25 @@ def signup_institution_manager(
             detail="기관을 찾을 수 없습니다.",
         )
 
-    verified_email = (
-        db.query(models.EmailVerification)
-        .filter(
-            models.EmailVerification.email == data.email.strip().lower(),
-            models.EmailVerification.verified_at.is_not(None),
-        )
-        .order_by(
-            models.EmailVerification.verified_at.desc()
-        )
-        .first()
-    )
+    manager.name = data.name
+    manager.phone = data.phone
+    manager.institution_id = data.institution_id
+    manager.position = data.position
 
-    if not verified_email:
-        raise HTTPException(
-            status_code=403,
-            detail="이메일 인증이 필요합니다.",
-        )
-    
-    existing_login_id = (
-        db.query(models.InstitutionManager)
-        .filter(
-            models.InstitutionManager.login_id
-            == data.login_id
-        )
-        .first()
-    )
-
-    if existing_login_id:
-        raise HTTPException(
-            status_code=409,
-            detail="이미 사용 중인 아이디입니다.",
-        )
-
-    existing_email = (
-        db.query(models.InstitutionManager)
-        .filter(
-            models.InstitutionManager.email
-            == data.email
-        )
-        .first()
-    )
-
-    if existing_email:
-        raise HTTPException(
-            status_code=409,
-            detail="이미 사용 중인 이메일입니다.",
-        )
-
-    manager = models.InstitutionManager(
-        institution_id=data.institution_id,
-        name=data.name,
-        phone=data.phone,
-        email=data.email,
-        login_id=data.login_id,
-        password_hash=hash_password(
-            data.password
-        ),
-    )
-
-    db.add(manager)
     db.commit()
     db.refresh(manager)
 
-    return manager
+    return {
+        "id": manager.id,
+        "institution_id": manager.institution_id,
+        "name": manager.name,
+        "phone": manager.phone,
+        "email": manager.email,
+        "provider": manager.provider,
+        "position": manager.position,
+        "profile_completed": True,
+    }
 
-@app.post(
-    "/institution-managers/login",
-    response_model=schemas.InstitutionManagerAuthResponse,
-    tags=["기관 관리자 인증"],
-)
-def login_institution_manager(
-    data: schemas.InstitutionManagerLogin,
-    db: Session = Depends(get_db),
-):
-    manager = (
-        db.query(models.InstitutionManager)
-        .filter(
-            models.InstitutionManager.login_id
-            == data.login_id
-        )
-        .first()
-    )
-
-    if not manager:
-        raise HTTPException(
-            status_code=401,
-            detail="아이디 또는 비밀번호가 올바르지 않습니다.",
-        )
-
-    if not verify_password(
-        data.password,
-        manager.password_hash,
-    ):
-        raise HTTPException(
-            status_code=401,
-            detail="아이디 또는 비밀번호가 올바르지 않습니다.",
-        )
-
-    return manager
 # =========================================================
 # 기관 관리자 ↔ 보호대상자 연결
 # =========================================================
@@ -1754,7 +1884,7 @@ def issue_subject_auth_code(
         )
 
     # 6자리 인증코드 생성
-    code = f"{secrets.randbelow(1_000_000):06d}"
+    code = generate_unique_auth_code(db)
 
     # 현재 시간 기준 10분 유효
     expires_at = (
@@ -1793,7 +1923,7 @@ def issue_subject_auth_code(
     return {
         "subject_id": subject_id,
         "auth_code": code,
-        "expires_at": expires_at,
+        "expires_at": expires_at.astimezone(ZoneInfo("Asia/Seoul")),
         "created_alert_ids": [
             alert.id
             for alert in created_alerts
@@ -1802,9 +1932,10 @@ def issue_subject_auth_code(
 
 @app.post(
     "/guardians/{guardian_id}/auth-code",
-    response_model=schemas.AuthCodeResponse,
+    response_model=schemas.GuardianAuthCodeResponse,
     tags=["인증코드"],
 )
+
 def issue_guardian_auth_code(
     guardian_id: int,
     db: Session = Depends(get_db),
@@ -1852,17 +1983,24 @@ def verify_auth_code(
 ):
     auth_code = request.auth_code.strip()
 
-    subject = (
-        db.query(models.Subject)
-        .filter(models.Subject.auth_code == auth_code)
+    subject_auth_code = (
+        db.query(models.SubjectAuthCode)
+        .filter(
+            models.SubjectAuthCode.code == auth_code,
+            models.SubjectAuthCode.expires_at
+            > datetime.now(timezone.utc),
+        )
+        .order_by(
+            models.SubjectAuthCode.created_at.desc()
+        )
         .first()
     )
 
-    if subject is not None:
+    if subject_auth_code is not None:
         return {
             "valid": True,
             "user_type": "subject",
-            "user_id": subject.id,
+            "user_id": subject_auth_code.subject_id,
             "message": "보호대상자 인증코드가 확인되었습니다.",
         }
 
@@ -2031,6 +2169,64 @@ def read_air_quality(
 # =========================================================
 # AI 위험도 결과 → 위험 알림 자동 생성
 # =========================================================
+def send_risk_push_to_guardian(
+    db: Session,
+    guardian_id: int,
+    subject_id: int,
+    subject_name: str,
+    risk_level: str,
+    risk_score=None,
+):
+    tokens = (
+    db.query(models.DeviceToken)
+    .filter(
+        models.DeviceToken.user_type
+        == "guardian",
+        models.DeviceToken.user_id
+        == guardian_id,
+    )
+    .all()
+)
+
+    if not tokens:
+        print(
+            f"[FCM] guardian {guardian_id}: "
+            "registered token not found"
+        )
+        return
+
+    for device in tokens:
+        try:
+            send_push_notification(
+                token=device.token,
+                title="위험 알림",
+                body=(
+                    f"{subject_name}님의 "
+                    "위험 상황이 감지되었습니다."
+                ),
+                data={
+                    "type": "risk",
+                    "subject_id": str(subject_id),
+                    "guardian_id": str(
+                        guardian_id
+                    ),
+                    "risk_level": str(
+                        risk_level
+                    ),
+                    "risk_score": str(
+                        risk_score
+                        if risk_score is not None
+                        else ""
+                    ),
+                },
+            )
+
+        except Exception as e:
+            print(
+                f"[FCM] Push failed "
+                f"guardian={guardian_id}: {e}"
+            )
+
 
 @app.post(
     "/risk-results",
@@ -2082,34 +2278,75 @@ def receive_risk_result(
 
     # 위험 단계일 때만 알림 자동 생성
     if normalized in DANGEROUS_RISK_LEVELS:
-
-        reason = (
-            data.reason
-            or "GPS 기반 위험도 모델에서 위험 단계가 감지되었습니다."
+        five_minutes_ago = (
+            datetime.now(timezone.utc)
+            - timedelta(minutes=5)
         )
 
-        if data.risk_score is not None:
-            score_text = (
-                f" (위험 점수: {data.risk_score:g})"
+        recent_alert = (
+            db.query(models.Alert)
+            .filter(
+                models.Alert.subject_id
+                == data.subject_id,
+                models.Alert.type
+                == "risk",
+                models.Alert.created_at
+                >= five_minutes_ago,
             )
-        else:
-            score_text = ""
-
-        created_alerts = create_alerts_for_subject(
-            db,
-            subject_id=data.subject_id,
-            alert_type="risk",
-            message=(
-                f"{subject.name}님 위험 감지: "
-                f"{reason}{score_text}"
-            ),
-            risk_score=data.risk_score,
+            .order_by(
+                models.Alert.created_at.desc()
+            )
+            .first()
         )
+
+        if not recent_alert:
+            reason = (
+                data.reason
+                or "GPS 기반 위험도 모델에서 위험 단계가 감지되었습니다."
+            )
+
+            if data.risk_score is not None:
+                score_text = (
+                    f" (위험 점수: {data.risk_score:g})"
+                )
+            else:
+                score_text = ""
+
+            created_alerts = create_alerts_for_subject(
+                db,
+                subject_id=data.subject_id,
+                alert_type="risk",
+                message=(
+                    f"{subject.name}님 위험 감지: "
+                    f"{reason}{score_text}"
+                ),
+                risk_score=data.risk_score,
+            )
+
+        else:
+            print(
+                "[FCM] 최근 5분 이내 위험 알림이 있어 "
+                f"중복 알림을 생략합니다. "
+                f"subject_id={data.subject_id}"
+            )
 
     db.commit()
 
     for alert in created_alerts:
         db.refresh(alert)
+
+    for alert in created_alerts:
+        if alert.guardian_id is None:
+            continue
+
+        send_risk_push_to_guardian(
+            db=db,
+            guardian_id=alert.guardian_id,
+            subject_id=data.subject_id,
+            subject_name=subject.name,
+            risk_level=normalized,
+            risk_score=data.risk_score,
+        )
 
     return {
         "subject_id": data.subject_id,
@@ -2121,6 +2358,131 @@ def receive_risk_result(
             for alert in created_alerts
         ],
     }
+
+@app.post(
+    "/risk-status",
+    response_model=schemas.RiskStatusResponse,
+    tags=["위험도"],
+)
+def create_risk_status(
+    data: schemas.RiskStatusCreate,
+    db: Session = Depends(get_db),
+):
+    subject = db.get(
+        models.Subject,
+        data.subject_id,
+    )
+
+    if not subject:
+        raise HTTPException(
+            status_code=404,
+            detail="보호대상자를 찾을 수 없습니다.",
+        )
+
+    allowed_levels = {
+        "safe",
+        "caution",
+        "danger",
+    }
+
+    if data.risk_level not in allowed_levels:
+        raise HTTPException(
+            status_code=400,
+            detail="risk_level은 safe, caution, danger 중 하나여야 합니다.",
+        )
+
+    risk_status = models.RiskStatusHistory(
+        subject_id=data.subject_id,
+        risk_level=data.risk_level,
+        risk_score=data.risk_score,
+        lmtad_score=data.lmtad_score,
+        weather_score=data.weather_score,
+        air_score=data.air_score,
+    )
+
+    db.add(risk_status)
+    db.commit()
+    db.refresh(risk_status)
+
+    return risk_status
+
+@app.get(
+    "/subjects/{subject_id}/risk-status",
+    response_model=schemas.RiskStatusResponse,
+    tags=["위험도"],
+)
+def get_current_risk_status(
+    subject_id: int,
+    db: Session = Depends(get_db),
+):
+    subject = db.get(
+        models.Subject,
+        subject_id,
+    )
+
+    if not subject:
+        raise HTTPException(
+            status_code=404,
+            detail="보호대상자를 찾을 수 없습니다.",
+        )
+
+    risk_status = (
+        db.query(models.RiskStatusHistory)
+        .filter(
+            models.RiskStatusHistory.subject_id
+            == subject_id
+        )
+        .order_by(
+            models.RiskStatusHistory.created_at.desc(),
+            models.RiskStatusHistory.id.desc(),
+        )
+        .first()
+    )
+
+    if not risk_status:
+        raise HTTPException(
+            status_code=404,
+            detail="위험도 기록이 없습니다.",
+        )
+
+    return risk_status
+
+@app.get(
+    "/subjects/{subject_id}/risk-history",
+    response_model=list[schemas.RiskStatusResponse],
+    tags=["위험도"],
+)
+def get_risk_history(
+    subject_id: int,
+    limit: int = 50,
+    db: Session = Depends(get_db),
+):
+    subject = db.get(
+        models.Subject,
+        subject_id,
+    )
+
+    if not subject:
+        raise HTTPException(
+            status_code=404,
+            detail="보호대상자를 찾을 수 없습니다.",
+        )
+
+    history = (
+        db.query(models.RiskStatusHistory)
+        .filter(
+            models.RiskStatusHistory.subject_id
+            == subject_id
+        )
+        .order_by(
+            models.RiskStatusHistory.created_at.desc(),
+            models.RiskStatusHistory.id.desc(),
+        )
+        .limit(limit)
+        .all()
+    )
+
+    return history
 
 @app.get(
     "/alerts",
@@ -2147,6 +2509,81 @@ def get_alerts(
     response_model=schemas.AlertResponse,
     tags=["알림"]
 )
+
+@app.post(
+    "/guardians/{guardian_id}/test-push",
+    tags=["알림"],
+)
+def test_push(
+    guardian_id: int,
+    db: Session = Depends(get_db),
+):
+    guardian = db.get(
+        models.Guardian,
+        guardian_id,
+    )
+
+    if not guardian:
+        raise HTTPException(
+            status_code=404,
+            detail="보호자를 찾을 수 없습니다.",
+        )
+
+    tokens = (
+    db.query(models.DeviceToken)
+    .filter(
+        models.DeviceToken.user_type
+        == "guardian",
+        models.DeviceToken.user_id
+        == guardian_id,
+    )
+    .all()
+)
+
+    if not tokens:
+        raise HTTPException(
+            status_code=404,
+            detail="등록된 기기 토큰이 없습니다.",
+        )
+
+    results = []
+
+    for device in tokens:
+        try:
+            result = send_push_notification(
+                token=device.token,
+                title="FCM 테스트 알림",
+                body="백엔드에서 보낸 테스트 알림입니다.",
+                data={
+                    "type": "test",
+                    "guardian_id": str(
+                        guardian_id
+                    ),
+                },
+            )
+
+            results.append(
+                {
+                    "token_id": device.id,
+                    "success": True,
+                    "result": result,
+                }
+            )
+
+        except Exception as e:
+            results.append(
+                {
+                    "token_id": device.id,
+                    "success": False,
+                    "error": str(e),
+                }
+            )
+
+    return {
+        "guardian_id": guardian_id,
+        "results": results,
+    }
+
 def mark_alert_as_read(
     alert_id: int,
     db: Session = Depends(get_db)
@@ -2169,168 +2606,250 @@ def mark_alert_as_read(
 
     return alert
 
-def hash_password(password: str) -> str:
-    return bcrypt.hashpw(
-        password.encode("utf-8"),
-        bcrypt.gensalt(),
-    ).decode("utf-8")
-
-
-def verify_password(
-    password: str,
-    password_hash: str,
-) -> bool:
-    return bcrypt.checkpw(
-        password.encode("utf-8"),
-        password_hash.encode("utf-8"),
-    )
-
 def generate_sms_code() -> str:
     return f"{secrets.randbelow(1000000):06d}"
 
-def send_verification_email(
-    email: str,
-    code: str,
-):
-    if not resend.api_key:
-        raise HTTPException(
-            status_code=500,
-            detail="RESEND_API_KEY가 설정되지 않았습니다.",
-        )
-
-    try:
-        return resend.Emails.send({
-            "from": "안심하랑께 <onboarding@resend.dev>",
-            "to": [email],
-            "subject": "[안심하랑께] 이메일 인증번호",
-            "html": f"""
-                <h2>안심하랑께 이메일 인증</h2>
-                <p>인증번호는</p>
-                <h1>{code}</h1>
-                <p>입니다.</p>
-                <p>인증번호는 3분간 유효합니다.</p>
-            """,
-        })
-
-    except Exception as e:
-        print(f"[EMAIL ERROR] {e}")
-
-        raise HTTPException(
-            status_code=502,
-            detail="인증 이메일 발송에 실패했습니다.",
-        )
-
 @app.post(
-    "/auth/email/send",
-    tags=["이메일 인증"],
+    "/push-tokens",
+    response_model=schemas.PushTokenResponse,
+    tags=["알림"],
 )
-def send_email_verification(
-    data: schemas.EmailSendRequest,
+def register_push_token(
+    data: schemas.PushTokenCreate,
     db: Session = Depends(get_db),
 ):
-    email = data.email.strip().lower()
-
-    code = f"{random.randint(0, 999999):06d}"
-
-    now = datetime.now(timezone.utc)
-    expires_at = now + timedelta(minutes=3)
-
-    verification = models.EmailVerification(
-        email=email,
-        code=code,
-        expires_at=expires_at,
-        attempts=0,
-    )
-
-    db.add(verification)
-    db.commit()
-    db.refresh(verification)
-
-    try:
-        send_verification_email(
-            email=email,
-            code=code,
+    # 실제 사용자가 존재하는지 확인
+    if data.user_type == "guardian":
+        user = db.get(
+            models.Guardian,
+            data.user_id,
+        )
+    else:
+        user = db.get(
+            models.Subject,
+            data.user_id,
         )
 
-    except Exception:
-        # 메일이 안 갔는데 DB에는 인증번호가 남는 상황 방지
-        db.delete(verification)
-        db.commit()
-        raise
+    if not user:
+        raise HTTPException(
+            status_code=404,
+            detail="사용자를 찾을 수 없습니다.",
+        )
 
-    return {
-        "message": "인증번호를 이메일로 전송했습니다.",
-        "email": email,
-        "expires_in": 180,
-    }
-
-@app.post(
-    "/auth/email/verify",
-    tags=["이메일 인증"],
-)
-def verify_email(
-    data: schemas.EmailVerifyRequest,
-    db: Session = Depends(get_db),
-):
-    email = data.email.strip().lower()
-
-    verification = (
-        db.query(models.EmailVerification)
+    # 같은 FCM token이 이미 등록되어 있는지 확인
+    existing_token = (
+        db.query(models.DeviceToken)
         .filter(
-            models.EmailVerification.email == email,
-            models.EmailVerification.verified_at.is_(None),
-        )
-        .order_by(
-            models.EmailVerification.id.desc()
+            models.DeviceToken.token
+            == data.push_token
         )
         .first()
     )
 
-    if not verification:
-        raise HTTPException(
-            status_code=404,
-            detail="인증 요청을 찾을 수 없습니다.",
-        )
+    # 이미 있으면 현재 로그인한 사용자 정보로 갱신
+    if existing_token:
+        existing_token.user_type = data.user_type
+        existing_token.user_id = data.user_id
 
-    now = datetime.now(timezone.utc)
-
-    expires_at = verification.expires_at
-
-    # DB 드라이버가 timezone 정보를 제거해서 반환하는 경우 대비
-    if expires_at.tzinfo is None:
-        expires_at = expires_at.replace(
-            tzinfo=timezone.utc
-        )
-
-    if now > expires_at:
-        raise HTTPException(
-            status_code=400,
-            detail="인증번호가 만료되었습니다.",
-        )
-
-    if verification.attempts >= 5:
-        raise HTTPException(
-            status_code=429,
-            detail="인증번호 입력 횟수를 초과했습니다. 다시 요청해주세요.",
-        )
-
-    if verification.code != data.code:
-        verification.attempts += 1
         db.commit()
+        db.refresh(existing_token)
 
-        raise HTTPException(
-            status_code=400,
-            detail="인증번호가 올바르지 않습니다.",
-        )
+        return {
+            "id": existing_token.id,
+            "user_type": existing_token.user_type,
+            "user_id": existing_token.user_id,
+            "push_token": existing_token.token,
+        }
 
-    verification.verified_at = now
+    # 처음 등록되는 token
+    device_token = models.DeviceToken(
+        user_type=data.user_type,
+        user_id=data.user_id,
+        token=data.push_token,
+    )
+
+    db.add(device_token)
     db.commit()
+    db.refresh(device_token)
 
     return {
-        "verified": True,
-        "email": email,
-        "message": "이메일 인증이 완료되었습니다.",
+        "id": device_token.id,
+        "user_type": device_token.user_type,
+        "user_id": device_token.user_id,
+        "push_token": device_token.token,
     }
+
+def calculate_integrated_risk(
+    lmtad_score: float,
+    weather_score: float,
+    air_score: float,
+):
+    # 임시 가중치
+    lmtad_weight = 0.60
+    weather_weight = 0.25
+    air_weight = 0.15
+
+    final_score = (
+        lmtad_score * lmtad_weight
+        + weather_score * weather_weight
+        + air_score * air_weight
+    )
+
+    final_score = max(
+        0.0,
+        min(100.0, final_score),
+    )
+
+    if final_score >= 70:
+        risk_level = "danger"
+
+    elif final_score >= 40:
+        risk_level = "caution"
+
+    else:
+        risk_level = "safe"
+
+    return round(final_score, 2), risk_level
+
+# =========================================================
+# GPS AI 추론
+# =========================================================
+@app.post(
+    "/subjects/{subject_id}/gps-inference",
+    response_model=schemas.GPSInferenceResponse,
+    tags=["AI"],
+)
+def infer_subject_gps(
+    subject_id: int,
+    target_date: date = Query(default_factory=date.today),
+    db: Session = Depends(get_db),
+):
+    try:
+        result = run_gps_inference(
+            db=db,
+            subject_id=subject_id,
+            target_date=target_date,
+        )
+    except ValueError as error:
+        raise HTTPException(
+            status_code=422,
+            detail=str(error),
+        )
+
+    result["risk_level"] = (
+        "danger"
+        if result.pop("is_anomaly")
+        else "safe"
+    )
+
+    return result
+
+@app.post(
+    "/subjects/{subject_id}/integrated-risk",
+    response_model=schemas.RiskStatusResponse,
+    tags=["위험도"],
+)
+def calculate_subject_integrated_risk(
+    subject_id: int,
+    lmtad_score: float,
+    db: Session = Depends(get_db),
+):
+    subject = db.get(
+        models.Subject,
+        subject_id,
+    )
+
+    if not subject:
+        raise HTTPException(
+            status_code=404,
+            detail="보호대상자를 찾을 수 없습니다.",
+        )
+
+    # 최신 GPS 조회
+    latest_gps = (
+        db.query(models.GPSRecord)
+        .filter(
+            models.GPSRecord.subject_id
+            == subject_id
+        )
+        .order_by(
+            models.GPSRecord.measured_at.desc(),
+            models.GPSRecord.gps_id.desc(),
+        )
+        .first()
+    )
+
+    if not latest_gps:
+        raise HTTPException(
+            status_code=404,
+            detail="GPS 기록이 없습니다.",
+        )
+
+    latitude = latest_gps.latitude
+    longitude = latest_gps.longitude
+
+    # 기상 조회
+    weather_data = get_weather_by_gps(
+        latitude,
+        longitude,
+    )
+
+    weather_score = weather_data.get(
+        "weather_risk_score"
+    )
+
+    # 대기 조회
+    air_data = get_air_quality_by_gps(
+        latitude,
+        longitude,
+    )
+
+    air_quality = air_data.get(
+        "air_quality",
+        {},
+    )
+
+    air_score = air_quality.get(
+        "air_risk_score"
+    )
+
+    # 외부 API 데이터가 없으면 계산 불가
+    if weather_score is None:
+        raise HTTPException(
+            status_code=503,
+            detail="기상 위험점수를 불러올 수 없습니다.",
+        )
+
+    if air_score is None:
+        raise HTTPException(
+            status_code=503,
+            detail="대기 위험점수를 불러올 수 없습니다.",
+        )
+
+    # 통합 위험도 계산
+    final_score, risk_level = (
+        calculate_integrated_risk(
+            lmtad_score=lmtad_score,
+            weather_score=weather_score,
+            air_score=air_score,
+        )
+    )
+
+    # DB 이력 저장
+    risk_status = models.RiskStatusHistory(
+        subject_id=subject_id,
+        risk_level=risk_level,
+        risk_score=final_score,
+        lmtad_score=lmtad_score,
+        weather_score=weather_score,
+        air_score=air_score,
+    )
+
+    db.add(risk_status)
+    db.commit()
+    db.refresh(risk_status)
+
+    return risk_status
 
 #gps inference
 @app.post(

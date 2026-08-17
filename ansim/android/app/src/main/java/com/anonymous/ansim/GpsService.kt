@@ -80,8 +80,9 @@ class GpsService : Service() {
                 connection.connectTimeout = NETWORK_TIMEOUT_MILLIS
                 connection.readTimeout = NETWORK_TIMEOUT_MILLIS
                 connection.doOutput = true
-                val measuredAt = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US).apply {
-                    timeZone = TimeZone.getTimeZone("UTC")
+                // 서버와 AI가 모두 한국 시간 기준의 숫자를 사용하도록, 시간대 접미사 없이 KST 시각을 전송합니다.
+                val measuredAt = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX", Locale.US).apply {
+                    timeZone = TimeZone.getTimeZone("Asia/Seoul")
                 }.format(Date(measuredAtMillis))
                 val body = "{\"subject_id\":$currentSubjectId,\"latitude\":$latitude,\"longitude\":$longitude,\"measured_at\":\"$measuredAt\"}"
                 OutputStreamWriter(connection.outputStream, Charsets.UTF_8).use { writer -> writer.write(body) }

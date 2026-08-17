@@ -1,16 +1,46 @@
-from datetime import date, datetime
+from datetime import date, datetime, timezone, timedelta
 from zoneinfo import ZoneInfo
-from pydantic import BaseModel, ConfigDict, Field, field_serializer
-from typing import Optional
+from typing import Optional, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    field_serializer,
+    model_validator,
+)
 
 from models import GenderType, InstitutionType, SubjectType
 
 
-class ORMModel(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
+KST = timezone(timedelta(hours=9))
 
+
+def to_kst(dt: datetime | None):
+    if dt is None:
+        return None
+
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+
+    return dt.astimezone(KST)
+
+
+class KSTBaseModel(BaseModel):
+    @field_serializer(
+        "*",
+        check_fields=False,
+        when_used="json",
+    )
+    def serialize_datetime(self, value):
+        if isinstance(value, datetime):
+            return to_kst(value).isoformat()
+
+        return value
+
+
+class ORMModel(KSTBaseModel):
+    model_config = ConfigDict(from_attributes=True)
 
 class GuardianCreate(BaseModel):
     name: str = Field(min_length=1, max_length=100)
@@ -203,53 +233,91 @@ class GuardianRegistrationDetailResponse(BaseModel):
 
     guardian: GuardianSummary
     subject: SubjectSummary
+
 class InstitutionManagerCreate(BaseModel):
-    institution_id: int
-    name: str = Field(min_length=1, max_length=100)
-    phone: str = Field(min_length=5, max_length=30)
-    position: Optional[str] = Field(default=None, max_length=100)
+    institution_id: Optional[int] = None
+    name: Optional[str] = Field(
+        default=None,
+        min_length=1,
+        max_length=100,
+    )
+    phone: Optional[str] = Field(
+        default=None,
+        min_length=5,
+        max_length=30,
+    )
+    email: Optional[str] = None
+    provider: str
+    provider_user_id: str
+    position: Optional[str] = Field(
+        default=None,
+        max_length=100,
+    )
 
 
 class InstitutionManagerUpdate(BaseModel):
     institution_id: Optional[int] = None
-    name: Optional[str] = Field(default=None, min_length=1, max_length=100)
-    phone: Optional[str] = Field(default=None, min_length=5, max_length=30)
-    position: Optional[str] = Field(default=None, max_length=100)
+    name: Optional[str] = Field(
+        default=None,
+        min_length=1,
+        max_length=100,
+    )
+    phone: Optional[str] = Field(
+        default=None,
+        min_length=5,
+        max_length=30,
+    )
+    position: Optional[str] = Field(
+        default=None,
+        max_length=100,
+    )
 
 
 class InstitutionManagerResponse(ORMModel):
     id: int
-    institution_id: int
-    name: str
-    phone: str
+    institution_id: Optional[int]
+    name: Optional[str]
+    phone: Optional[str]
+    email: Optional[str]
+    provider: str
     position: Optional[str]
     created_at: datetime
     updated_at: datetime
 
-class InstitutionManagerSignup(BaseModel):
-    name: str
-    phone: str
-    email: str
-    login_id: str
-    password: str
-    institution_id: int
+
+class SocialLoginRequest(BaseModel):
+    provider: str
+    token: str
 
 
-class InstitutionManagerLogin(BaseModel):
-    login_id: str
-    password: str
-
-
-class InstitutionManagerAuthResponse(BaseModel):
+class SocialLoginResponse(BaseModel):
     id: int
-    name: str
-    phone: str
-    email: str
-    login_id: str
-    institution_id: int
+    institution_id: Optional[int]
+    name: Optional[str]
+    phone: Optional[str]
+    email: Optional[str]
+    provider: str
+    position: Optional[str]
+    profile_completed: bool
 
     model_config = ConfigDict(
         from_attributes=True
+    )
+
+
+class SocialProfileComplete(BaseModel):
+    name: str = Field(
+        min_length=1,
+        max_length=100,
+    )
+    phone: str = Field(
+        min_length=5,
+        max_length=30,
+    )
+    institution_id: int
+    position: Optional[str] = Field(
+        default=None,
+        max_length=100,
     )
     
 class ManagerAssignmentCreate(BaseModel):
@@ -374,14 +442,59 @@ class AlertResponse(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
+class PushTokenCreate(BaseModel):
+    user_type: Literal["guardian", "subject"]
+    user_id: int
+    push_token: str
 
-class EmailSendRequest(BaseModel):
-    email: str
+class PushTokenResponse(BaseModel):
+    id: int
+    user_type: str
+    user_id: int
+    push_token: str
+
+class GuardianAuthCodeResponse(BaseModel):
+    user_type: str
+    user_id: int
+    auth_code: str
+
+class RiskStatusCreate(BaseModel):
+    subject_id: int
+    risk_level: str
+
+    risk_score: float | None = None
+    lmtad_score: float | None = None
+    weather_score: float | None = None
+    air_score: float | None = None
 
 
-class EmailVerifyRequest(BaseModel):
-    email: str
-    code: str
+class RiskStatusResponse(KSTBaseModel):
+    id: int
+    subject_id: int
+    risk_level: str
+
+    risk_score: float | None = None
+    lmtad_score: float | None = None
+    weather_score: float | None = None
+    air_score: float | None = None
+
+    created_at: datetime
+
+    model_config = ConfigDict(
+        from_attributes=True
+    )
+
+    
+# GPS inference
+class GPSInferenceResponse(BaseModel):
+    subject_id: int
+    target_date: date
+    point_count: int
+    gps_token_count: int
+    tokens: list[str]
+    anomaly_score: float
+    threshold: float
+    risk_level: str
 
 #gps inference
 class GPSInferenceResponse(BaseModel):

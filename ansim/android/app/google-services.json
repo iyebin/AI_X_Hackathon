@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "384839490768",
+    "project_id": "ansim-6ca80",
+    "storage_bucket": "ansim-6ca80.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:384839490768:android:c4f5cebd671f3266a792d5",
+        "android_client_info": {
+          "package_name": "com.anonymous.ansim"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAXdbV9LWmUk6vG5qNdSoemCEyqxQY4JDk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

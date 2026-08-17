@@ -11,5 +11,7 @@ tqdm
 pandas
 requests
 pyproj
+firebase-admin
+google-auth
 bcrypt
 resend
