@@ -2,6 +2,7 @@
 from pyproj import Transformer
 import os
 from sqlalchemy import text
+from zoneinfo import ZoneInfo
 
 #files
 from database import engine
@@ -9,12 +10,9 @@ from database import SessionLocal
 from models import GPSRecord
 
 
-def __init__():
+def check_server():
     #setting parameters
     DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres.zuubggonagdhdkphxzrq:ansimhackathon@aws-0-ap-southeast-1.pooler.supabase.com:5432/postgres")
-    target_epsg = "EPSG:5179"
-    output_epsg = "EPSG:4326"
-    
 
     #server check
     with engine.connect() as connection:
@@ -89,33 +87,126 @@ def search_latest_gps():
     finally:
         db.close()
 
+def create_token(x, y, all_records, grid_length=25):
+    valid_records = [
+        record
+        for record in all_records
+        if record.x is not None and record.y is not None
+    ]
 
+    if not valid_records:
+        raise ValueError("x, y가 저장된 GPS 데이터가 없습니다.")
 
-def transfer_epsg(TARGET_EPSG, output_epsg, record, output_dir):
+    x_min = min(record.x for record in valid_records)
+    y_min = min(record.y for record in valid_records)
+
+    x_d = int((float(x) - float(x_min)) // grid_length) + 1
+    y_d = int((float(y) - float(y_min)) // grid_length) + 1
+
+    token = x_d + y_d
+
+    return x_d, y_d, token
+
+def create_dayofweek(measured_at):
+    if measured_at is None:
+        raise ValueError("measured_at 값이 없습니다.")
+
+    korea_time = measured_at.astimezone(
+        ZoneInfo("Asia/Seoul")
+    )
+
+    return f"day_{korea_time.weekday()}"
+    
+
+def transfer_epsg(
+    target_epsg="EPSG:5179",
+    source_epsg="EPSG:4326",
+    grid_length=25,
+):
+    record = search_latest_gps()
+
+    if record is None:
+        return None
+
+    transformer = Transformer.from_crs(
+        source_epsg,
+        target_epsg,
+        always_xy=True,
+    )
+
+    x, y = transformer.transform(
+        float(record.longitude),
+        float(record.latitude),
+    )
 
     db = SessionLocal()
 
-    transformer = Transformer.from_crs(
-        output_epsg, #경위도
-        TARGET_EPSG, #평면 좌표
-        always_xy=True
-    )
+    try:
+        # 이전 세션에서 반환된 객체를 현재 세션에 연결
+        managed_record = db.merge(record)
 
-    record = search_latest_gps
+        # 변환 좌표 저장
+        managed_record.x = x
+        managed_record.y = y
 
-    longitude = record.longitude
-    latitude = record.latitude
+        # INSERT/UPDATE 내용을 같은 트랜잭션의 조회에 반영
+        db.flush()
 
-    x, y = transformer.transform(longitude, latitude)
+        # x, y가 계산된 전체 레코드 조회
+        all_records = (
+            db.query(GPSRecord)
+            .filter(
+                GPSRecord.x.isnot(None),
+                GPSRecord.y.isnot(None),
+            )
+            .all()
+        )
 
-    record.x = x
-    record.y = y
+        # 격자 좌표와 토큰 계산
+        x_d, y_d, token = create_token(
+            x=x,
+            y=y,
+            all_records=all_records,
+            grid_length=grid_length,
+        )
 
-    db.commit()
-    db.refresh(record)
+        dayofweek = create_dayofweek(
+            managed_record.measured_at
+        )
 
-    print("x:", x)
-    print("y:", y)
+        # 계산 결과 저장
+        managed_record.x_d = x_d
+        managed_record.y_d = y_d
+        managed_record.token = token
+        managed_record.dayofweek = dayofweek
+
+        db.commit()
+        db.refresh(managed_record)
+
+        print("좌표 변환 및 토큰 저장 완료")
+        print(
+            {
+                "gps_id": managed_record.gps_id,
+                "x": managed_record.x,
+                "y": managed_record.y,
+                "x_d": managed_record.x_d,
+                "y_d": managed_record.y_d,
+                "token": managed_record.token,
+                "dayofweek": managed_record.dayofweek,
+                "measured_at": managed_record.measured_at,
+            }
+        )
+
+        return managed_record
+
+    except Exception:
+        db.rollback()
+        raise
+
+    finally:
+        db.close()
+
+
 
 '''
 EPSG
@@ -133,5 +224,10 @@ Korea 2000 / Unified CS
 '''
 
 def main():
-    pass
+    check_server()
+    transfer_epsg()
+
+
+if __name__ == "__main__":
+    main()
     
