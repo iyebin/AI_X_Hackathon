@@ -197,6 +197,13 @@ def get_weather_by_gps(
         weather.get("T1H"),
         weather.get("RN1"),
         weather.get("WSD"),
+        weather.get("REH"),
+        weather.get("PTY"),
+    )
+
+    apparent_temperature = calculate_apparent_temperature(
+        weather.get("T1H"),
+        weather.get("REH"),
     )
 
     # 현재 GPS 위치의 기상특보 조회
@@ -226,6 +233,7 @@ def get_weather_by_gps(
         "base_time": used_time,
 
         "temperature": weather.get("T1H"),
+        "apparent_temperature": apparent_temperature,
         "humidity": weather.get("REH"),
         "rainfall_1h": weather.get("RN1"),
         "precipitation_type": weather.get("PTY"),
@@ -240,6 +248,8 @@ def calculate_weather_risk_score(
     temperature,
     rainfall_1h,
     wind_speed,
+    humidity=None,
+    precipitation_type=None,
 ) -> float:
 
     # 문자열 → 숫자 변환
@@ -258,26 +268,40 @@ def calculate_weather_risk_score(
     except (TypeError, ValueError):
         wind = 0.0
 
+    try:
+        precipitation_type = int(
+            float(precipitation_type)
+        )
+    except (TypeError, ValueError):
+        precipitation_type = 0
+
+    apparent_temperature = (
+        calculate_apparent_temperature(
+            temperature,
+            humidity,
+        )
+    )
+
     # -------------------------
     # 기온 위험도
     # -------------------------
     temperature_score = 0
 
-    if temperature is not None:
-        if temperature >= 38:
+    if apparent_temperature is not None:
+        if apparent_temperature >= 38:
             temperature_score = 100
-        elif temperature >= 35:
+        elif apparent_temperature >= 35:
             temperature_score = 70
-        elif temperature >= 33:
+        elif apparent_temperature >= 33:
             temperature_score = 40
-        elif temperature >= 30:
+        elif apparent_temperature >= 30:
             temperature_score = 20
 
-        elif temperature <= -10:
+        elif apparent_temperature <= -10:
             temperature_score = 100
-        elif temperature <= -5:
+        elif apparent_temperature <= -5:
             temperature_score = 60
-        elif temperature <= 0:
+        elif apparent_temperature <= 0:
             temperature_score = 30
 
     # -------------------------
@@ -293,6 +317,22 @@ def calculate_weather_risk_score(
         rainfall_score = 10
     else:
         rainfall_score = 0
+
+    # 강수량이 0 또는 미제공이어도 강수 형태가 관측되면
+    # 보행 미끄러짐·시야 저하 위험을 최소 점수로 반영한다.
+    precipitation_type_score = {
+        1: 10,  # 비
+        2: 30,  # 비/눈
+        3: 30,  # 눈
+        5: 10,  # 빗방울
+        6: 20,  # 빗방울/눈날림
+        7: 20,  # 눈날림
+    }.get(precipitation_type, 0)
+
+    rainfall_score = max(
+        rainfall_score,
+        precipitation_type_score,
+    )
 
     # -------------------------
     # 풍속 위험도
@@ -316,6 +356,40 @@ def calculate_weather_risk_score(
             wind_score,
         )
     )
+
+
+def calculate_apparent_temperature(
+    temperature,
+    humidity,
+) -> float | None:
+    """고온·고습일 때 NOAA 열지수 기반 체감온도를 계산한다."""
+    try:
+        temperature = float(temperature)
+        humidity = float(humidity)
+    except (TypeError, ValueError):
+        return None
+
+    # 열지수 공식은 덥고 습한 조건에서만 의미가 있다.
+    if temperature < 27 or humidity < 40:
+        return round(temperature, 1)
+
+    fahrenheit = temperature * 9 / 5 + 32
+    heat_index_f = (
+        -42.379
+        + 2.04901523 * fahrenheit
+        + 10.14333127 * humidity
+        - 0.22475541 * fahrenheit * humidity
+        - 0.00683783 * fahrenheit**2
+        - 0.05481717 * humidity**2
+        + 0.00122874 * fahrenheit**2 * humidity
+        + 0.00085282 * fahrenheit * humidity**2
+        - 0.00000199
+        * fahrenheit**2
+        * humidity**2
+    )
+
+    heat_index_c = (heat_index_f - 32) * 5 / 9
+    return round(max(temperature, heat_index_c), 1)
 
 
 def apply_weather_warning_score(
