@@ -2384,12 +2384,6 @@ def get_alerts(
 
     return query.order_by(models.Alert.created_at.desc()).all()
 
-@app.patch(
-    "/alerts/{alert_id}/read",
-    response_model=schemas.AlertResponse,
-    tags=["알림"]
-)
-
 @app.post(
     "/guardians/{guardian_id}/test-push",
     tags=["알림"],
@@ -2464,9 +2458,14 @@ def test_push(
         "results": results,
     }
 
+@app.patch(
+    "/alerts/{alert_id}/read",
+    response_model=schemas.AlertResponse,
+    tags=["알림"],
+)
 def mark_alert_as_read(
     alert_id: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     alert = (
         db.query(models.Alert)
@@ -2595,43 +2594,13 @@ def calculate_integrated_risk(
 # GPS AI 추론
 # =========================================================
 @app.post(
-    "/subjects/{subject_id}/gps-inference",
-    response_model=schemas.GPSInferenceResponse,
-    tags=["AI"],
-)
-def infer_subject_gps(
-    subject_id: int,
-    target_date: date = Query(default_factory=date.today),
-    db: Session = Depends(get_db),
-):
-    try:
-        result = run_gps_inference(
-            db=db,
-            subject_id=subject_id,
-            target_date=target_date,
-        )
-    except ValueError as error:
-        raise HTTPException(
-            status_code=422,
-            detail=str(error),
-        )
-
-    result["risk_level"] = (
-        "danger"
-        if result.pop("is_anomaly")
-        else "safe"
-    )
-
-    return result
-
-@app.post(
     "/subjects/{subject_id}/integrated-risk",
     response_model=schemas.RiskStatusResponse,
     tags=["위험도"],
 )
 def calculate_subject_integrated_risk(
     subject_id: int,
-    lmtad_score: float,
+    lmtad_score: float = Query(ge=0, le=100),
     db: Session = Depends(get_db),
 ):
     subject = db.get(
@@ -2729,9 +2698,51 @@ def calculate_subject_integrated_risk(
     db.commit()
     db.refresh(risk_status)
 
+    # 통합 위험도가 danger이면 보호자 알림과 FCM 푸시를 자동 생성합니다.
+    if risk_level == "danger":
+        five_minutes_ago = (
+            datetime.now(timezone.utc)
+            - timedelta(minutes=5)
+        )
+        recent_alert = (
+            db.query(models.Alert)
+            .filter(
+                models.Alert.subject_id == subject_id,
+                models.Alert.type == "risk",
+                models.Alert.created_at >= five_minutes_ago,
+            )
+            .first()
+        )
+
+        if not recent_alert:
+            created_alerts = create_alerts_for_subject(
+                db,
+                subject_id=subject_id,
+                alert_type="risk",
+                message=(
+                    f"{subject.name}님 통합 위험도에서 "
+                    f"위험 단계가 감지되었습니다. "
+                    f"(위험 점수: {final_score:g})"
+                ),
+                risk_score=final_score,
+            )
+            db.commit()
+
+            for alert in created_alerts:
+                db.refresh(alert)
+                if alert.guardian_id is not None:
+                    send_risk_push_to_guardian(
+                        db=db,
+                        guardian_id=alert.guardian_id,
+                        subject_id=subject_id,
+                        subject_name=subject.name,
+                        risk_level=risk_level,
+                        risk_score=final_score,
+                    )
+
     return risk_status
 
-#gps inference
+# GPS inference
 @app.post(
     "/subjects/{subject_id}/gps-inference",
     response_model=schemas.GPSInferenceResponse,
