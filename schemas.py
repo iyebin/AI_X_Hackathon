@@ -427,7 +427,7 @@ class AlertResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 class PushTokenCreate(BaseModel):
-    user_type: Literal["guardian", "subject"]
+    user_type: Literal["guardian", "subject", "institution_manager"]
     user_id: int
     push_token: str
 
@@ -470,17 +470,6 @@ class RiskStatusResponse(KSTBaseModel):
 
     
 # GPS inference
-class GPSInferenceResponse(BaseModel):
-    subject_id: int
-    target_date: date
-    point_count: int
-    gps_token_count: int
-    tokens: list[str]
-    anomaly_score: float
-    threshold: float
-    risk_level: str
-
-#gps inference
 class GPSInferenceResponse(BaseModel):
     subject_id: int
     target_date: date

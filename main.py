@@ -1,3 +1,4 @@
+import json
 import math
 from typing import List
 
@@ -222,6 +223,223 @@ def create_alerts_for_subject(
     db.flush()
 
     return alerts
+
+
+RISK_DANGER_REPEAT_MINUTES = int(
+    os.getenv("RISK_DANGER_REPEAT_MINUTES", "5")
+)
+RISK_DANGER_TO_CAUTION_MINUTES = int(
+    os.getenv("RISK_DANGER_TO_CAUTION_MINUTES", "10")
+)
+
+
+def send_push_to_user(
+    db: Session,
+    *,
+    user_type: str,
+    user_id: int,
+    title: str,
+    body: str,
+    data: dict,
+):
+    tokens = (
+        db.query(models.DeviceToken)
+        .filter(
+            models.DeviceToken.user_type == user_type,
+            models.DeviceToken.user_id == user_id,
+        )
+        .all()
+    )
+
+    for device in tokens:
+        try:
+            send_push_notification(
+                token=device.token,
+                title=title,
+                body=body,
+                data={
+                    key: str(value)
+                    for key, value in data.items()
+                },
+            )
+        except Exception as error:
+            print(
+                "[FCM] Push failed "
+                f"user_type={user_type}, "
+                f"user_id={user_id}: {error}"
+            )
+
+
+def get_guardian_ids_for_subject(
+    db: Session,
+    subject_id: int,
+) -> list[int]:
+    return [
+        link.guardian_id
+        for link in (
+            db.query(models.GuardianRegistration)
+            .filter(
+                models.GuardianRegistration.subject_id
+                == subject_id
+            )
+            .all()
+        )
+    ]
+
+
+def get_manager_ids_for_subject(
+    db: Session,
+    subject_id: int,
+) -> list[int]:
+    return [
+        assignment.manager_id
+        for assignment in (
+            db.query(models.ManagerAssignment)
+            .filter(
+                models.ManagerAssignment.subject_id
+                == subject_id
+            )
+            .all()
+        )
+    ]
+
+
+def get_nearby_facilities_for_alert(
+    db: Session,
+    *,
+    latitude: float,
+    longitude: float,
+    limit: int = 3,
+) -> list[dict]:
+    facilities = []
+
+    for institution in (
+        db.query(models.Institution)
+        .filter(
+            models.Institution.latitude.isnot(None),
+            models.Institution.longitude.isnot(None),
+        )
+        .all()
+    ):
+        distance = haversine_km(
+            latitude,
+            longitude,
+            institution.latitude,
+            institution.longitude,
+        )
+        facilities.append(
+            {
+                "name": institution.name,
+                "distance_km": round(distance, 2),
+                "address": institution.address,
+                "phone": institution.phone,
+            }
+        )
+
+    facilities.sort(
+        key=lambda item: item["distance_km"]
+    )
+    return facilities[:limit]
+
+
+def format_nearby_facilities(
+    facilities: list[dict],
+) -> str:
+    if not facilities:
+        return "인근 시설 정보 없음"
+
+    return " / ".join(
+        (
+            f"{facility['name']} "
+            f"({facility['distance_km']}km, "
+            f"{facility.get('address') or '주소 없음'}, "
+            f"{facility.get('phone') or '전화번호 없음'})"
+        )
+        for facility in facilities
+    )
+
+
+def notify_risk_transition(
+    db: Session,
+    *,
+    subject: models.Subject,
+    alert_type: str,
+    risk_level: str,
+    risk_score: float,
+    message: str,
+    notify_guardians: bool,
+    notify_subject: bool,
+    notify_managers: bool,
+    nearby_facilities: list[dict] | None = None,
+):
+    guardian_ids = (
+        get_guardian_ids_for_subject(db, subject.id)
+        if notify_guardians
+        else []
+    )
+    manager_ids = (
+        get_manager_ids_for_subject(db, subject.id)
+        if notify_managers
+        else []
+    )
+
+    if notify_guardians:
+        for guardian_id in guardian_ids:
+            db.add(
+                models.Alert(
+                    type=alert_type,
+                    subject_id=subject.id,
+                    guardian_id=guardian_id,
+                    message=message,
+                    risk_score=risk_score,
+                    is_read=False,
+                )
+            )
+
+    db.commit()
+
+    push_data = {
+        "type": alert_type,
+        "subject_id": subject.id,
+        "risk_level": risk_level,
+        "risk_score": risk_score,
+    }
+    if nearby_facilities is not None:
+        push_data["nearby_facilities"] = json.dumps(
+            nearby_facilities,
+            ensure_ascii=False,
+        )
+
+    for guardian_id in guardian_ids:
+        send_push_to_user(
+            db,
+            user_type="guardian",
+            user_id=guardian_id,
+            title="안심하랑께 위험도 알림",
+            body=message,
+            data=push_data,
+        )
+
+    if notify_subject:
+        send_push_to_user(
+            db,
+            user_type="subject",
+            user_id=subject.id,
+            title="안심하랑께 위험도 알림",
+            body=message,
+            data=push_data,
+        )
+
+    for manager_id in manager_ids:
+        send_push_to_user(
+            db,
+            user_type="institution_manager",
+            user_id=manager_id,
+            title="안심하랑께 기관 위험 알림",
+            body=message,
+            data=push_data,
+        )
+
 
 def haversine_km(
     latitude1: float,
@@ -2503,9 +2721,14 @@ def register_push_token(
             models.Guardian,
             data.user_id,
         )
-    else:
+    elif data.user_type == "subject":
         user = db.get(
             models.Subject,
+            data.user_id,
+        )
+    else:
+        user = db.get(
+            models.InstitutionManager,
             data.user_id,
         )
 
@@ -2684,6 +2907,25 @@ def calculate_subject_integrated_risk(
         )
     )
 
+    # 직전 상태를 먼저 조회해 단계 변화를 판단합니다.
+    previous_status = (
+        db.query(models.RiskStatusHistory)
+        .filter(
+            models.RiskStatusHistory.subject_id
+            == subject_id
+        )
+        .order_by(
+            models.RiskStatusHistory.created_at.desc(),
+            models.RiskStatusHistory.id.desc(),
+        )
+        .first()
+    )
+    previous_level = (
+        previous_status.risk_level
+        if previous_status
+        else None
+    )
+
     # DB 이력 저장
     risk_status = models.RiskStatusHistory(
         subject_id=subject_id,
@@ -2698,47 +2940,138 @@ def calculate_subject_integrated_risk(
     db.commit()
     db.refresh(risk_status)
 
-    # 통합 위험도가 danger이면 보호자 알림과 FCM 푸시를 자동 생성합니다.
-    if risk_level == "danger":
-        five_minutes_ago = (
-            datetime.now(timezone.utc)
-            - timedelta(minutes=5)
+    now = datetime.now(timezone.utc)
+
+    if risk_level == "safe":
+        if previous_level in {"caution", "danger"}:
+            notify_risk_transition(
+                db,
+                subject=subject,
+                alert_type="risk_recovered_safe",
+                risk_level=risk_level,
+                risk_score=final_score,
+                message=(
+                    f"{subject.name}님의 위험 단계가 "
+                    "안전으로 변경되었습니다."
+                ),
+                notify_guardians=True,
+                notify_subject=False,
+                notify_managers=False,
+            )
+
+    elif risk_level == "caution":
+        if previous_level in {None, "safe"}:
+            notify_risk_transition(
+                db,
+                subject=subject,
+                alert_type="risk_caution",
+                risk_level=risk_level,
+                risk_score=final_score,
+                message=(
+                    f"{subject.name}님이 주의 단계에 "
+                    f"진입했습니다. (위험 점수: {final_score:g})"
+                ),
+                notify_guardians=True,
+                notify_subject=True,
+                notify_managers=False,
+            )
+
+        elif previous_level == "caution":
+            last_non_caution = (
+                db.query(models.RiskStatusHistory)
+                .filter(
+                    models.RiskStatusHistory.subject_id
+                    == subject_id,
+                    models.RiskStatusHistory.risk_level
+                    != "caution",
+                )
+                .order_by(
+                    models.RiskStatusHistory.created_at.desc(),
+                    models.RiskStatusHistory.id.desc(),
+                )
+                .first()
+            )
+
+            if (
+                last_non_caution
+                and last_non_caution.risk_level == "danger"
+                and last_non_caution.created_at
+                <= now
+                - timedelta(
+                    minutes=RISK_DANGER_TO_CAUTION_MINUTES
+                )
+            ):
+                already_notified = (
+                    db.query(models.Alert)
+                    .filter(
+                        models.Alert.subject_id == subject_id,
+                        models.Alert.type
+                        == "risk_danger_to_caution",
+                        models.Alert.created_at
+                        >= last_non_caution.created_at,
+                    )
+                    .first()
+                )
+
+                if not already_notified:
+                    notify_risk_transition(
+                        db,
+                        subject=subject,
+                        alert_type="risk_danger_to_caution",
+                        risk_level=risk_level,
+                        risk_score=final_score,
+                        message=(
+                            f"{subject.name}님의 위험 단계가 "
+                            f"{RISK_DANGER_TO_CAUTION_MINUTES}분 동안 "
+                            "주의로 유지되어 단계가 완화되었습니다."
+                        ),
+                        notify_guardians=True,
+                        notify_subject=False,
+                        notify_managers=False,
+                    )
+
+    else:
+        repeat_cutoff = now - timedelta(
+            minutes=RISK_DANGER_REPEAT_MINUTES
         )
-        recent_alert = (
+        recent_danger_alert = (
             db.query(models.Alert)
             .filter(
                 models.Alert.subject_id == subject_id,
-                models.Alert.type == "risk",
-                models.Alert.created_at >= five_minutes_ago,
+                models.Alert.type == "risk_danger",
+                models.Alert.created_at >= repeat_cutoff,
             )
             .first()
         )
 
-        if not recent_alert:
-            created_alerts = create_alerts_for_subject(
-                db,
-                subject_id=subject_id,
-                alert_type="risk",
-                message=(
-                    f"{subject.name}님 통합 위험도에서 "
-                    f"위험 단계가 감지되었습니다. "
-                    f"(위험 점수: {final_score:g})"
-                ),
-                risk_score=final_score,
+        if previous_level != "danger" or not recent_danger_alert:
+            nearby_facilities = (
+                get_nearby_facilities_for_alert(
+                    db,
+                    latitude=latitude,
+                    longitude=longitude,
+                )
             )
-            db.commit()
+            facility_text = format_nearby_facilities(
+                nearby_facilities
+            )
 
-            for alert in created_alerts:
-                db.refresh(alert)
-                if alert.guardian_id is not None:
-                    send_risk_push_to_guardian(
-                        db=db,
-                        guardian_id=alert.guardian_id,
-                        subject_id=subject_id,
-                        subject_name=subject.name,
-                        risk_level=risk_level,
-                        risk_score=final_score,
-                    )
+            notify_risk_transition(
+                db,
+                subject=subject,
+                alert_type="risk_danger",
+                risk_level=risk_level,
+                risk_score=final_score,
+                message=(
+                    f"{subject.name}님이 위험 단계에 "
+                    f"진입했습니다. (위험 점수: {final_score:g}) "
+                    f"인근 시설: {facility_text}"
+                ),
+                notify_guardians=True,
+                notify_subject=True,
+                notify_managers=True,
+                nearby_facilities=nearby_facilities,
+            )
 
     return risk_status
 
