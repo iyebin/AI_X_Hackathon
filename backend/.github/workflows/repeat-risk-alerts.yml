@@ -77,18 +77,51 @@ jobs:
                       params={"target_date": target_date},
                       timeout=120,
                   )
+
+                  if response.status_code == 503:
+                      detail = ""
+                      try:
+                          detail = response.json().get("detail", "")
+                      except Exception:
+                          detail = response.text[:200]
+
+                      if "LMTAD" in detail or "모델" in detail:
+                          print(
+                              "[AUTO RISK] SKIP",
+                              subject_id,
+                              "LM-TAD model is not ready:",
+                              detail,
+                          )
+                          continue
+
+                  if response.status_code >= 400:
+                      print(
+                          "[AUTO RISK] SKIP",
+                          subject_id,
+                          response.status_code,
+                          response.text[:500],
+                      )
+                      continue
+
                   print(
-                      "[AUTO RISK]",
+                      "[AUTO RISK] OK",
                       subject_id,
                       response.status_code,
                       response.text[:500],
                   )
-              except Exception as exc:
-                  print("[AUTO RISK] failed", subject_id, exc)
+              except requests.RequestException as exc:
+                  print("[AUTO RISK] SKIP", subject_id, exc)
           PY
 
       - name: Send repeated risk alerts
+        if: ${{ secrets.DATABASE_URL != '' }}
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           FIREBASE_CREDENTIALS: ${{ secrets.FIREBASE_CREDENTIALS }}
         run: python repeat_risk_alerts.py
+
+      - name: Explain skipped repeated alerts
+        if: ${{ secrets.DATABASE_URL == '' }}
+        run: |
+          echo "[RISK CRON] SKIP repeated alerts: DATABASE_URL secret is not configured."
+          echo "AI evaluation skips gracefully while LM-TAD is not deployed."
