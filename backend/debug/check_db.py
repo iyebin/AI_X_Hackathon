@@ -2,7 +2,7 @@
 
 from sqlalchemy import text
 
-from database import engine
+from backend.database import engine
 
 
 def main():

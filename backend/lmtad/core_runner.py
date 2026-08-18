@@ -5,12 +5,17 @@ from sqlalchemy import text
 from zoneinfo import ZoneInfo
 
 #files
-from database import engine
-from database import SessionLocal
-from models import GPSRecord
-from gps_evaluation import score_gps_record
-from load_checkpoint import load_inference_model
+# from database import engine
+# from database import SessionLocal
+# from models import GPSRecord
+# from gps_evaluation import score_gps_record
+# from load_checkpoint import load_inference_model
 from convert_checkpoint import *
+
+from backend.database import engine, SessionLocal
+from backend.models import GPSRecord
+from backend.lmtad.gps_evaluation import score_gps_record
+from backend.lmtad.load_checkpoint import load_inference_model
 
 
 def check_server():

@@ -2,8 +2,8 @@ from pathlib import Path
 
 import torch
 
-from datasets import VocabDictionary
-from model import LMTAD, LMTADConfig
+from backend.lmtad.datasets import VocabDictionary
+from backend.lmtad.model import LMTAD, LMTADConfig
 
 
 def load_inference_model(
