@@ -1,0 +1,94 @@
+name: Risk Pipeline Checks and Alerts
+
+on:
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Compile Python sources
+        run: python -m compileall -q .
+
+      - name: Import core modules
+        run: |
+          python - <<'PY'
+          import schemas
+          import risk_policy
+          import risk_pipeline
+          import inference_service
+          print("core imports ok")
+          PY
+
+  repeat-risk-alerts:
+    if: github.event_name != 'push'
+    needs: validate
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Trigger integrated risk evaluation on Render
+        env:
+          BACKEND_URL: https://ai-x-hackathon-backend.onrender.com
+        run: |
+          python - <<'PY'
+          import os
+          import requests
+          from datetime import datetime
+          from zoneinfo import ZoneInfo
+
+          base = os.environ["BACKEND_URL"].rstrip("/")
+          subjects_response = requests.get(f"{base}/subjects", timeout=60)
+          subjects_response.raise_for_status()
+          subjects = subjects_response.json()
+          target_date = datetime.now(ZoneInfo("Asia/Seoul")).date().isoformat()
+
+          for subject in subjects:
+              subject_id = subject["id"]
+              try:
+                  response = requests.post(
+                      f"{base}/subjects/{subject_id}/gps-inference",
+                      params={"target_date": target_date},
+                      timeout=120,
+                  )
+                  print(
+                      "[AUTO RISK]",
+                      subject_id,
+                      response.status_code,
+                      response.text[:500],
+                  )
+              except Exception as exc:
+                  print("[AUTO RISK] failed", subject_id, exc)
+          PY
+
+      - name: Send repeated risk alerts
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          FIREBASE_CREDENTIALS: ${{ secrets.FIREBASE_CREDENTIALS }}
+        run: python repeat_risk_alerts.py

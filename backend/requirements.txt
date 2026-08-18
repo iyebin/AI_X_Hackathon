@@ -10,4 +10,4 @@ numpy
 requests
 pyproj
 firebase-admin
-google-auth
+bcrypt

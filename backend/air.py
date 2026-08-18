@@ -1,4 +1,4 @@
-import math
+import os
 import requests
 from pyproj import Transformer
 
@@ -15,8 +15,14 @@ NEARBY_STATION_URL = (
     "getNearbyMsrstnList"
 )
 
+# 기존 Render 설정을 깨지 않기 위해 현재 키를 fallback으로 유지하되,
+# 운영에서는 AIRKOREA_API_KEY 환경변수를 우선 사용한다.
+_LEGACY_KEY = "cb83a3d8edb3968426800dfca5c696e9b91d78897f0558811095044644b8a3d7"
+KEY = os.getenv("AIRKOREA_API_KEY", _LEGACY_KEY)
 
-KEY = "cb83a3d8edb3968426800dfca5c696e9b91d78897f0558811095044644b8a3d7"
+if KEY == _LEGACY_KEY:
+    print("[AIR API] AIRKOREA_API_KEY 미설정: legacy key fallback 사용 중")
+
 
 def get_air_quality(station_name: str):
     params = {
@@ -35,21 +41,15 @@ def get_air_quality(station_name: str):
             params=params,
             timeout=15,
         )
-
         response.raise_for_status()
-
     except requests.exceptions.Timeout:
         return {
             "station_name": station_name,
             "message": "대기질 API 응답 시간이 초과되었습니다.",
             "air_risk_score": None,
         }
-
     except requests.exceptions.RequestException as e:
-        print(
-            f"[AIR API ERROR] air quality: {e}"
-        )
-
+        print(f"[AIR API ERROR] air quality: {e}")
         return {
             "station_name": station_name,
             "message": "대기질 정보를 불러오지 못했습니다.",
@@ -57,10 +57,8 @@ def get_air_quality(station_name: str):
         }
 
     data = response.json()
-
     items = (
-        data
-        .get("response", {})
+        data.get("response", {})
         .get("body", {})
         .get("items", [])
     )
@@ -69,10 +67,10 @@ def get_air_quality(station_name: str):
         return {
             "station_name": station_name,
             "message": "대기질 데이터가 없습니다.",
+            "air_risk_score": None,
         }
 
     item = items[0]
-
     khai_raw = item.get("khaiValue")
 
     if khai_raw in (None, "", "-"):
@@ -80,40 +78,31 @@ def get_air_quality(station_name: str):
         air_risk_score = None
     else:
         khai = int(khai_raw)
-
-        # KHAI(통합대기환경지수)를 0~100 위험점수로 정규화
         air_risk_score = min(
             100.0,
             max(0.0, khai / 5.0),
         )
 
     return {
-    "station_name": station_name,
-    "data_time": item.get("dataTime"),
+        "station_name": station_name,
+        "data_time": item.get("dataTime"),
+        "khai": khai,
+        "khai_grade": item.get("khaiGrade"),
+        "pm10": item.get("pm10Value"),
+        "pm10_grade": item.get("pm10Grade"),
+        "pm25": item.get("pm25Value"),
+        "pm25_grade": item.get("pm25Grade"),
+        "o3": item.get("o3Value"),
+        "o3_grade": item.get("o3Grade"),
+        "no2": item.get("no2Value"),
+        "no2_grade": item.get("no2Grade"),
+        "co": item.get("coValue"),
+        "co_grade": item.get("coGrade"),
+        "so2": item.get("so2Value"),
+        "so2_grade": item.get("so2Grade"),
+        "air_risk_score": air_risk_score,
+    }
 
-    "khai": khai,
-    "khai_grade": item.get("khaiGrade"),
-
-    "pm10": item.get("pm10Value"),
-    "pm10_grade": item.get("pm10Grade"),
-
-    "pm25": item.get("pm25Value"),
-    "pm25_grade": item.get("pm25Grade"),
-
-    "o3": item.get("o3Value"),
-    "o3_grade": item.get("o3Grade"),
-
-    "no2": item.get("no2Value"),
-    "no2_grade": item.get("no2Grade"),
-
-    "co": item.get("coValue"),
-    "co_grade": item.get("coGrade"),
-
-    "so2": item.get("so2Value"),
-    "so2_grade": item.get("so2Grade"),
-
-    "air_risk_score": air_risk_score,
-}
 
 def gps_to_tm(
     latitude: float,
@@ -124,13 +113,11 @@ def gps_to_tm(
         "EPSG:2097",
         always_xy=True,
     )
-
-    tm_x, tm_y = transformer.transform(
+    return transformer.transform(
         longitude,
         latitude,
     )
 
-    return tm_x, tm_y
 
 def find_nearest_station(
     latitude: float,
@@ -155,23 +142,16 @@ def find_nearest_station(
             params=params,
             timeout=15,
         )
-
         response.raise_for_status()
-
     except requests.exceptions.Timeout:
         return None
-
     except requests.exceptions.RequestException as e:
-        print(
-            f"[AIR API ERROR] nearest station: {e}"
-        )
+        print(f"[AIR API ERROR] nearest station: {e}")
         return None
-    
-    data = response.json()
 
+    data = response.json()
     items = (
-        data
-        .get("response", {})
+        data.get("response", {})
         .get("body", {})
         .get("items", [])
     )
@@ -179,14 +159,14 @@ def find_nearest_station(
     if not items:
         return None
 
-    # API가 가까운 순으로 반환
     nearest = items[0]
-
     return {
         "station_name": nearest.get("stationName"),
         "address": nearest.get("addr"),
         "distance": nearest.get("tm"),
     }
+
+
 def get_air_quality_by_gps(
     latitude: float,
     longitude: float,
@@ -214,8 +194,6 @@ def get_air_quality_by_gps(
             "latitude": latitude,
             "longitude": longitude,
         },
-
         "nearest_station": station,
-
         "air_quality": air_quality,
     }
