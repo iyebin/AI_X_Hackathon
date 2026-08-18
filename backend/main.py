@@ -2934,3 +2934,103 @@ def calculate_subject_integrated_risk(
     db.refresh(risk_status)
 
     return risk_status
+
+# =========================================================
+# 위험도 상세 분석 조회
+# GPS 이탈 + 기상 + 대기
+# =========================================================
+@app.get(
+    "/subjects/{subject_id}/risk-analysis",
+    response_model=schemas.RiskAnalysisResponse,
+    tags=["위험도"],
+)
+def get_risk_analysis(
+    subject_id: int,
+    db: Session = Depends(get_db),
+):
+    subject = db.get(models.Subject, subject_id)
+
+    if not subject:
+        raise HTTPException(
+            status_code=404,
+            detail="보호대상자를 찾을 수 없습니다.",
+        )
+
+    risk_status = (
+        db.query(models.RiskStatusHistory)
+        .filter(
+            models.RiskStatusHistory.subject_id == subject_id
+        )
+        .order_by(
+            models.RiskStatusHistory.created_at.desc(),
+            models.RiskStatusHistory.id.desc(),
+        )
+        .first()
+    )
+
+    if not risk_status:
+        raise HTTPException(
+            status_code=404,
+            detail="위험도 기록이 없습니다.",
+        )
+
+    gps_score = float(risk_status.lmtad_score or 0)
+    weather_score = float(risk_status.weather_score or 0)
+    air_score = float(risk_status.air_score or 0)
+
+    factor_total = gps_score + weather_score + air_score
+
+    total_score = float(
+        risk_status.risk_score
+        if risk_status.risk_score is not None
+        else factor_total
+    )
+
+    def percentage(score: float) -> int:
+        if factor_total <= 0:
+            return 0
+        return round(score / factor_total * 100)
+
+    factors = [
+        {
+            "type": "gps_deviation",
+            "name": "GPS 이탈",
+            "score": gps_score,
+            "percentage": percentage(gps_score),
+            "description": (
+                "평소 이동 패턴과 다른 위치 이동이 감지되었습니다."
+                if gps_score > 0
+                else "현재 GPS 이동 패턴에서 특이사항이 없습니다."
+            ),
+        },
+        {
+            "type": "weather",
+            "name": "기상",
+            "score": weather_score,
+            "percentage": percentage(weather_score),
+            "description": (
+                "현재 위치의 기상 상황이 위험도에 영향을 주고 있습니다."
+                if weather_score > 0
+                else "현재 기상으로 인한 추가 위험이 없습니다."
+            ),
+        },
+        {
+            "type": "air",
+            "name": "대기",
+            "score": air_score,
+            "percentage": percentage(air_score),
+            "description": (
+                "현재 위치의 대기질이 위험도에 영향을 주고 있습니다."
+                if air_score > 0
+                else "현재 대기질로 인한 추가 위험이 없습니다."
+            ),
+        },
+    ]
+
+    return {
+        "subject_id": subject_id,
+        "total_score": total_score,
+        "risk_level": risk_status.risk_level,
+        "measured_at": risk_status.created_at,
+        "factors": factors,
+    }
