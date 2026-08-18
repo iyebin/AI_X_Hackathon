@@ -3954,15 +3954,54 @@ async function createSubject(event) {
   event.preventDefault();
 
 
-  if (
-    !subjectAddress.value.trim()
-  ) {
+  if (!subjectAddress.value.trim()) {
 
     alert(
       "주소 검색을 통해 주소를 선택해주세요."
     );
 
     return;
+  }
+
+
+  const guardianMode =
+    document.getElementById(
+      "subjectGuardianMode"
+    )?.value;
+
+
+  const relationshipCode =
+    document.getElementById(
+      "subjectRelationship"
+    )?.value;
+
+
+  if (!relationshipCode) {
+
+    alert(
+      "보호자와의 관계를 선택해주세요."
+    );
+
+    return;
+  }
+
+
+  if (guardianMode === "existing") {
+
+    const selectedGuardianId =
+      document.getElementById(
+        "subjectExistingGuardian"
+      )?.value;
+
+
+    if (!selectedGuardianId) {
+
+      alert(
+        "연결할 보호자를 선택해주세요."
+      );
+
+      return;
+    }
   }
 
 
@@ -4011,22 +4050,181 @@ async function createSubject(event) {
       "추가 중...";
 
 
-    await apiRequest(
-      "/subjects",
-      {
-        method: "POST",
+    /* ======================================
+       1. 보호대상자 생성
+    ====================================== */
 
-        headers: {
-          "Content-Type":
-            "application/json"
-        },
+    const createdSubject =
+      await apiRequest(
+        "/subjects",
+        {
+          method: "POST",
 
-        body:
-          JSON.stringify(
-            payload
-          )
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
+
+          body:
+            JSON.stringify(
+              payload
+            )
+        }
+      );
+
+
+    if (!createdSubject?.id) {
+
+      throw new Error(
+        "생성된 보호대상자의 ID를 확인할 수 없습니다."
+      );
+    }
+
+
+    const subjectId =
+      createdSubject.id;
+
+
+    let guardianId;
+
+
+    /* ======================================
+       2-A. 기존 보호자 연결
+    ====================================== */
+
+    if (
+      guardianMode ===
+      "existing"
+    ) {
+
+      guardianId =
+        Number(
+          document.getElementById(
+            "subjectExistingGuardian"
+          ).value
+        );
+    }
+
+
+    /* ======================================
+       2-B. 새 보호자 생성
+    ====================================== */
+
+    else {
+
+      const newGuardianName =
+        document.getElementById(
+          "subjectNewGuardianName"
+        )?.value.trim();
+
+
+      const newGuardianGender =
+        document.getElementById(
+          "subjectNewGuardianGender"
+        )?.value;
+
+
+      const newGuardianPhone =
+        document.getElementById(
+          "subjectNewGuardianPhone"
+        )?.value.trim();
+
+
+      const newGuardianBirthDate =
+        document.getElementById(
+          "subjectNewGuardianBirthDate"
+        )?.value;
+
+
+      const newGuardianAddress =
+        document.getElementById(
+          "subjectNewGuardianAddress"
+        )?.value.trim();
+
+
+      const newGuardianAddressDetail =
+        document.getElementById(
+          "subjectNewGuardianAddressDetail"
+        )?.value.trim();
+
+
+      if (
+        !newGuardianName ||
+        !newGuardianGender ||
+        !newGuardianPhone ||
+        !newGuardianBirthDate ||
+        !newGuardianAddress
+      ) {
+
+        throw new Error(
+          "새 보호자 정보를 모두 입력해주세요."
+        );
       }
+
+
+      const createdGuardian =
+        await apiRequest(
+          "/guardians",
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type":
+                "application/json"
+            },
+
+            body:
+              JSON.stringify({
+
+                name:
+                  newGuardianName,
+
+                gender:
+                  newGuardianGender,
+
+                phone:
+                  newGuardianPhone,
+
+                birth_date:
+                  newGuardianBirthDate,
+
+                address:
+                  makeFullAddress(
+                    newGuardianAddress,
+                    newGuardianAddressDetail
+                  )
+              })
+          }
+        );
+
+
+      if (!createdGuardian?.id) {
+
+        throw new Error(
+          "생성된 보호자의 ID를 확인할 수 없습니다."
+        );
+      }
+
+
+      guardianId =
+        createdGuardian.id;
+    }
+
+
+    /* ======================================
+       3. 보호대상자 ↔ 보호자 관계 생성
+    ====================================== */
+
+    await createGuardianRegistration(
+      subjectId,
+      guardianId,
+      relationshipCode
     );
+
+
+    /* 기존 관계 캐시 제거 */
+
+    relationCache.clear();
 
 
     userTab =
@@ -4040,14 +4238,20 @@ async function createSubject(event) {
 
 
     alert(
-      "보호대상자가 DB에 추가되었습니다."
+      "보호대상자와 보호자가 함께 등록되었습니다."
     );
 
 
   } catch (error) {
 
+    console.error(
+      "보호대상자 등록 실패:",
+      error
+    );
+
+
     alert(
-      `보호대상자 추가 실패\n${error.message}`
+      `보호대상자 등록 실패\n${error.message}`
     );
 
 
@@ -4062,23 +4266,42 @@ async function createSubject(event) {
   }
 }
 
-
 async function createGuardian(event) {
 
   event.preventDefault();
 
-
-  if (
-    !guardianAddress.value.trim()
-  ) {
-
-    alert(
-      "주소 검색을 통해 주소를 선택해주세요."
-    );
-
+  if (!guardianAddress.value.trim()) {
+    alert("주소 검색을 통해 주소를 선택해주세요.");
     return;
   }
 
+  const subjectMode =
+    document.getElementById(
+      "guardianSubjectMode"
+    )?.value;
+
+  const relationshipCode =
+    document.getElementById(
+      "guardianRelationship"
+    )?.value;
+
+  if (!relationshipCode) {
+    alert("보호대상자와의 관계를 선택해주세요.");
+    return;
+  }
+
+  if (subjectMode === "existing") {
+
+    const selectedSubjectId =
+      document.getElementById(
+        "guardianExistingSubject"
+      )?.value;
+
+    if (!selectedSubjectId) {
+      alert("연결할 보호대상자를 선택해주세요.");
+      return;
+    }
+  }
 
   const payload = {
 
@@ -4101,68 +4324,244 @@ async function createGuardian(event) {
       )
   };
 
-
   try {
 
-    submitGuardianButton.disabled =
-      true;
+    submitGuardianButton.disabled = true;
+    submitGuardianButton.textContent = "추가 중...";
 
 
-    submitGuardianButton.textContent =
-      "추가 중...";
+    /* ======================================
+       1. 보호자 생성
+    ====================================== */
+
+    const createdGuardian =
+      await apiRequest(
+        "/guardians",
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type": "application/json"
+          },
+
+          body: JSON.stringify(payload)
+        }
+      );
+
+    if (!createdGuardian?.id) {
+      throw new Error(
+        "생성된 보호자의 ID를 확인할 수 없습니다."
+      );
+    }
+
+    const guardianId =
+      createdGuardian.id;
+
+    let subjectId;
 
 
-    await apiRequest(
-      "/guardians",
-      {
-        method: "POST",
+    /* ======================================
+       2-A. 기존 보호대상자 연결
+    ====================================== */
 
-        headers: {
-          "Content-Type":
-            "application/json"
-        },
+    if (subjectMode === "existing") {
 
-        body:
-          JSON.stringify(
-            payload
-          )
+      subjectId =
+        Number(
+          document.getElementById(
+            "guardianExistingSubject"
+          ).value
+        );
+    }
+
+
+    /* ======================================
+       2-B. 새 보호대상자 생성
+    ====================================== */
+
+    else {
+
+      const newSubjectName =
+        document.getElementById(
+          "guardianNewSubjectName"
+        )?.value.trim();
+
+      const newSubjectGender =
+        document.getElementById(
+          "guardianNewSubjectGender"
+        )?.value;
+
+      const newSubjectPhone =
+        document.getElementById(
+          "guardianNewSubjectPhone"
+        )?.value.trim();
+
+      const newSubjectBirthDate =
+        document.getElementById(
+          "guardianNewSubjectBirthDate"
+        )?.value;
+
+      const newSubjectAddress =
+        document.getElementById(
+          "guardianNewSubjectAddress"
+        )?.value.trim();
+
+      const newSubjectAddressDetail =
+        document.getElementById(
+          "guardianNewSubjectAddressDetail"
+        )?.value.trim();
+
+      const newSubjectType =
+        document.getElementById(
+          "guardianNewSubjectType"
+        )?.value;
+
+      const newSubjectInstitution =
+        document.getElementById(
+          "guardianNewSubjectInstitution"
+        )?.value;
+
+      const newSubjectSpecialNotes =
+        document.getElementById(
+          "guardianNewSubjectSpecialNotes"
+        )?.value.trim();
+
+
+      if (
+        !newSubjectName ||
+        !newSubjectGender ||
+        !newSubjectPhone ||
+        !newSubjectBirthDate ||
+        !newSubjectAddress ||
+        !newSubjectType
+      ) {
+        throw new Error(
+          "새 보호대상자의 필수 정보를 모두 입력해주세요."
+        );
       }
+
+
+      const createdSubject =
+        await apiRequest(
+          "/subjects",
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({
+
+              name:
+                newSubjectName,
+
+              gender:
+                newSubjectGender,
+
+              phone:
+                newSubjectPhone,
+
+              birth_date:
+                newSubjectBirthDate,
+
+              address:
+                makeFullAddress(
+                  newSubjectAddress,
+                  newSubjectAddressDetail
+                ),
+
+              subject_type:
+                newSubjectType,
+
+              institution_id:
+                newSubjectInstitution
+                  ? Number(newSubjectInstitution)
+                  : null,
+
+              special_notes:
+                newSubjectSpecialNotes || ""
+            })
+          }
+        );
+
+      if (!createdSubject?.id) {
+        throw new Error(
+          "생성된 보호대상자의 ID를 확인할 수 없습니다."
+        );
+      }
+
+      subjectId =
+        createdSubject.id;
+    }
+
+
+    /* ======================================
+       3. 보호자 ↔ 보호대상자 관계 생성
+    ====================================== */
+
+    await createGuardianRegistration(
+      subjectId,
+      guardianId,
+      relationshipCode
     );
 
 
-    userTab =
-      "guardians";
+    relationCache.clear();
 
+    userTab = "guardians";
 
     closeUserAddModal();
 
-
     await loadBaseData();
 
-
     alert(
-      "보호자가 DB에 추가되었습니다."
+      "보호자와 보호대상자가 함께 등록되었습니다."
     );
 
 
   } catch (error) {
 
-    alert(
-      `보호자 추가 실패\n${error.message}`
+    console.error(
+      "보호자 등록 실패:",
+      error
     );
 
+    alert(
+      `보호자 등록 실패\n${error.message}`
+    );
 
   } finally {
 
-    submitGuardianButton.disabled =
-      false;
-
-
-    submitGuardianButton.textContent =
-      "보호자 추가";
+    submitGuardianButton.disabled = false;
+    submitGuardianButton.textContent = "보호자 추가";
   }
 }
 
+async function createGuardianRegistration(
+  subjectId,
+  guardianId,
+  relationshipCode
+) {
+
+  return apiRequest(
+    "/guardian-registrations",
+    {
+      method: "POST",
+
+      headers: {
+        "Content-Type": "application/json"
+      },
+
+      body: JSON.stringify({
+        subject_id: Number(subjectId),
+        guardian_id: Number(guardianId),
+        relationship_code: relationshipCode,
+        is_primary: false
+      })
+    }
+  );
+}
 
 /* ==================================================
    RELATION
@@ -9033,3 +9432,54 @@ guardianNewSubjectAddressSearchButton?.addEventListener(
     );
   }
 );
+
+const subjectRelationship =
+  document.getElementById("subjectRelationship");
+
+const subjectRelationshipEtcBox =
+  document.getElementById("subjectRelationshipEtcBox");
+
+const subjectRelationshipEtc =
+  document.getElementById("subjectRelationshipEtc");
+
+
+const guardianRelationship =
+  document.getElementById("guardianRelationship");
+
+const guardianRelationshipEtcBox =
+  document.getElementById("guardianRelationshipEtcBox");
+
+const guardianRelationshipEtc =
+  document.getElementById("guardianRelationshipEtc");
+
+
+subjectRelationship?.addEventListener("change", () => {
+
+  const isOther =
+    subjectRelationship.value === "other";
+
+  subjectRelationshipEtcBox?.classList.toggle(
+    "hidden",
+    !isOther
+  );
+
+  if (!isOther && subjectRelationshipEtc) {
+    subjectRelationshipEtc.value = "";
+  }
+});
+
+
+guardianRelationship?.addEventListener("change", () => {
+
+  const isOther =
+    guardianRelationship.value === "other";
+
+  guardianRelationshipEtcBox?.classList.toggle(
+    "hidden",
+    !isOther
+  );
+
+  if (!isOther && guardianRelationshipEtc) {
+    guardianRelationshipEtc.value = "";
+  }
+});
