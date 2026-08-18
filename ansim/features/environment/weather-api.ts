@@ -5,11 +5,17 @@ type WeatherResponse = {
   humidity?: string | number;
   rainfall_1h?: string | number;
   precipitation_type?: string | number;
+  advisory?: string;
+  weather_advisory?: string;
+  special_alert?: string;
+  warning?: string;
 };
 
 export type WeatherSummary = {
   text: string;
+  headline: string;
   precipitationLabel?: string;
+  advisory?: string;
 };
 
 const precipitationLabels: Record<string, string> = {
@@ -35,9 +41,14 @@ export async function getWeatherSummary(subjectId: number): Promise<WeatherSumma
   const firstLine = precipitationLabel
     ? `${precipitationLabel} · ${temperature}`
     : temperature;
+  const advisory = [weather.advisory, weather.weather_advisory, weather.special_alert, weather.warning]
+    .find((value) => typeof value === 'string' && value.trim())
+    ?.trim();
 
   return {
     precipitationLabel,
+    headline: firstLine,
+    advisory,
     text: `${firstLine}\n${humidity}\n${rainfall}`,
   };
 }

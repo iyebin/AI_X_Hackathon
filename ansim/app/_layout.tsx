@@ -21,7 +21,7 @@ export default function RootLayout() {
       if (!alertId || handledAlertIds.current.has(alertId)) return;
 
       const session = await getSavedSession();
-      if (session?.role !== 'guardian') return;
+      if (!session) return;
 
       const alert = await getAlerts()
         .then((alerts) => alerts.find((item) => item.id === alertId))
@@ -39,6 +39,7 @@ export default function RootLayout() {
           subjectId: String(subjectId),
           dangerScore: String(data.risk_score ?? data.riskScore ?? alert?.riskScore ?? ''),
           dangerReasons: String(data.reason ?? alert?.reason ?? alert?.message ?? ''),
+          viewerRole: session.role,
         },
       });
     };

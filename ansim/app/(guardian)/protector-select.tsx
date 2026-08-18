@@ -8,6 +8,9 @@ import NotificationView from '@/components/notifications/alarm';
 import SettingView from '@/components/settings/setting-view';
 import { getAge, getSubjectsForGuardian } from '@/features/relationships/guardian-registration';
 import { getCurrentGuardianId } from '@/features/auth/current-session';
+import { getCurrentRiskStatus, RiskLevel } from '@/features/risk/risk-api';
+import { formatTimeSince, getLatestGps } from '@/features/gps/gps-api';
+import { registerPushNotifications } from '@/features/notifications/push-registration';
 
 export interface TargetUser {
   id: string;
@@ -21,6 +24,12 @@ export interface TargetUser {
   phone?: string;
 }
 
+function toTargetStatus(level: RiskLevel): TargetUser['status'] {
+  if (level === 'danger') return '위험';
+  if (level === 'warning') return '주의';
+  return '안전';
+}
+
 export default function ProtectorSelectScreen() {
   const router = useRouter();
   const { guardianId } = useLocalSearchParams<{ guardianId?: string }>();
@@ -28,6 +37,13 @@ export default function ProtectorSelectScreen() {
   const [activeTab, setActiveTab] = useState<'home' | 'notification' | 'setting'>('home');
   const [targets, setTargets] = useState<TargetUser[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (typeof activeGuardianId !== 'number' || !Number.isInteger(activeGuardianId) || activeGuardianId <= 0) return;
+    void registerPushNotifications({ userId: activeGuardianId, userType: 'guardian' }).catch((error) => {
+      console.warn('보호자 푸시 알림 등록에 실패했습니다.', error);
+    });
+  }, [activeGuardianId]);
 
   useEffect(() => {
     const loadSubjects = async () => {
@@ -42,14 +58,38 @@ export default function ProtectorSelectScreen() {
 
       try {
         const subjects = await getSubjectsForGuardian(id);
-        setTargets(subjects.map((subject) => ({
-          id: String(subject.id),
-          name: subject.name,
-          age: getAge(subject.birth_date),
-          status: '안전',
-          updatedAt: '정보 없음',
-          phone: subject.phone ?? undefined,
-        })));
+        const targetsWithRisk = await Promise.all(subjects.map(async (subject) => {
+          try {
+            const [riskResult, gpsResult] = await Promise.allSettled([
+              getCurrentRiskStatus(subject.id),
+              getLatestGps(subject.id),
+            ]);
+            const risk = riskResult.status === 'fulfilled' ? riskResult.value : null;
+            const latestGps = gpsResult.status === 'fulfilled' ? gpsResult.value : null;
+            return {
+              id: String(subject.id),
+              name: subject.name,
+              age: getAge(subject.birth_date),
+              status: risk ? toTargetStatus(risk.level) : '안전',
+              score: risk?.score,
+              gpsOutCount: risk?.factors.length
+                ? `${Math.round(Math.max(...risk.factors.map((factor) => factor.percent)))}%`
+                : undefined,
+              updatedAt: latestGps ? formatTimeSince(latestGps.measuredAt) : '정보 없음',
+              phone: subject.phone ?? undefined,
+            };
+          } catch {
+            return {
+              id: String(subject.id),
+              name: subject.name,
+              age: getAge(subject.birth_date),
+              status: '안전' as const,
+              updatedAt: '정보 없음',
+              phone: subject.phone ?? undefined,
+            };
+          }
+        }));
+        setTargets(targetsWithRisk);
       } catch (error) {
         Alert.alert('보호대상자 조회 실패', error instanceof Error ? error.message : '연결 정보를 가져오지 못했습니다.');
       } finally {

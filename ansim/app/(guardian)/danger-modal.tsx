@@ -4,7 +4,19 @@ import React, { useEffect, useState } from 'react';
 import { Alert, Linking, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { markAlertAsRead } from '@/features/alerts/alerts-api';
+import { getSavedSession } from '@/features/auth/current-session';
 import { getSubjectProfile } from '@/features/relationships/guardian-registration';
+import { CurrentRiskStatus, getCurrentRiskStatus, RiskFactor } from '@/features/risk/risk-api';
+
+const RISK_FACTOR_COLORS = ['#C62828', '#EF5350', '#FF8585', '#FFD0D0'];
+
+function fallbackFactorReason(factor: RiskFactor): string {
+  if (factor.description) return factor.description;
+  if (factor.title === 'GPS 이상' || factor.title === 'GPS 이탈') return '최근 이동 경로에서 평소와 다른 패턴이 감지되었습니다.';
+  if (factor.title === '대기') return '현재 위치의 대기 환경 정보를 바탕으로 위험도를 분석했습니다.';
+  if (factor.title === '기상') return '현재 위치의 기상 정보를 바탕으로 위험도를 분석했습니다.';
+  return '해당 위험요인을 분석한 결과입니다.';
+}
 
 export default function DangerModalScreen() {
   const router = useRouter();
@@ -16,10 +28,14 @@ export default function DangerModalScreen() {
     targetPhone?: string;
     dangerScore?: string;
     dangerReasons?: string;
+    viewerRole?: 'guardian' | 'protected';
   }>();
 
+  const [viewerRole, setViewerRole] = useState<'guardian' | 'protected'>(params.viewerRole ?? 'guardian');
   const [profileName, setProfileName] = useState(params.targetName || '보호대상자');
   const [profilePhone, setProfilePhone] = useState(params.targetPhone ?? '');
+  const [riskStatus, setRiskStatus] = useState<CurrentRiskStatus | null>(null);
+  const [expandedFactorKey, setExpandedFactorKey] = useState<string | null>(null);
   const targetName = profileName;
   const targetAge = params.targetAge;
   const targetPhone = profilePhone;
@@ -31,20 +47,52 @@ export default function DangerModalScreen() {
   }, [params.alertId]);
 
   useEffect(() => {
+    void getSavedSession().then((session) => {
+      if (!session) return;
+      setViewerRole(session.role);
+      if (session.role === 'protected' && session.protectorPhone) {
+        setProfilePhone(session.protectorPhone);
+      }
+    });
+  }, []);
+
+  useEffect(() => {
     const subjectId = Number(params.subjectId);
     if (!Number.isInteger(subjectId) || subjectId <= 0) return;
 
     void getSubjectProfile(subjectId)
       .then((profile) => {
         if (profile.name) setProfileName(profile.name);
-        if (profile.phone) setProfilePhone(profile.phone);
+        if (viewerRole !== 'protected' && profile.phone) setProfilePhone(profile.phone);
       })
       .catch(() => {
         // 전달받은 이름·전화번호가 있으면 그대로 위험 안내를 보여 줍니다.
       });
+  }, [params.subjectId, viewerRole]);
+
+  useEffect(() => {
+    const subjectId = Number(params.subjectId);
+    if (!Number.isInteger(subjectId) || subjectId <= 0) return;
+
+    void getCurrentRiskStatus(subjectId)
+      .then(setRiskStatus)
+      .catch(() => setRiskStatus(null));
   }, [params.subjectId]);
 
   const handleLocationCheck = () => {
+    if (viewerRole === 'protected') {
+      router.replace({
+        pathname: '/protected-main',
+        params: {
+          subjectId: params.subjectId,
+          userName: targetName,
+          protectorPhone: targetPhone,
+          tab: 'map',
+        },
+      });
+      return;
+    }
+
     router.replace({
       pathname: '/protector-main',
       params: {
@@ -53,7 +101,7 @@ export default function DangerModalScreen() {
         targetAge,
         targetPhone,
         targetStatus: '위험',
-        targetScore: dangerScore,
+        targetScore: displayScore,
         tab: 'map',
       },
     });
@@ -71,6 +119,11 @@ export default function DangerModalScreen() {
       Alert.alert('전화 연결 실패', '이 기기에서 전화를 연결하지 못했습니다.');
     }
   };
+
+  const displayScore = riskStatus ? String(riskStatus.score) : dangerScore;
+  const riskFactors = [...(riskStatus?.factors ?? [])]
+    .sort((left, right) => right.percent - left.percent)
+    .slice(0, 3);
 
   return (
     <View style={styles.container}>
@@ -94,16 +147,46 @@ export default function DangerModalScreen() {
               <Text style={styles.targetName}>{targetName}</Text>
               {targetAge ? <Text style={styles.targetAge}> ({targetAge}세)</Text> : null}
             </View>
-            <Text style={styles.scoreText}>위험도 {dangerScore}점</Text>
+            <Text style={styles.scoreText}>위험도 {displayScore}점</Text>
           </View>
         </View>
 
-        <View style={styles.reasonContainer}>
-          <Text style={styles.reasonTitle}>위험 감지 이유</Text>
-          <View style={styles.reasonRow}>
-            <Ionicons name="warning" size={21} color="#FF2525" style={styles.reasonIcon} />
-            <Text style={styles.reasonText}>{reason}</Text>
-          </View>
+        <View style={styles.analysisContainer}>
+          <Text style={styles.analysisTitle}>위험요인 상세 분석</Text>
+          {riskFactors.length ? riskFactors.map((factor, index) => {
+            const isExpanded = expandedFactorKey === factor.key;
+            const color = RISK_FACTOR_COLORS[index];
+            return (
+              <TouchableOpacity
+                key={factor.key}
+                style={styles.factorCard}
+                activeOpacity={0.8}
+                onPress={() => setExpandedFactorKey((current) => current === factor.key ? null : factor.key)}
+              >
+                <View style={styles.factorHeader}>
+                  <Text style={styles.factorTitle}>{factor.title}</Text>
+                  <View style={styles.factorPercentArea}>
+                    <View style={styles.factorTrack}>
+                      <View style={[styles.factorFill, { width: `${factor.percent}%`, backgroundColor: color }]} />
+                    </View>
+                    <Text style={styles.factorPercent}>{factor.percent}%</Text>
+                    <Ionicons name={isExpanded ? 'chevron-up' : 'chevron-down'} size={19} color="#777777" />
+                  </View>
+                </View>
+                {isExpanded ? (
+                  <View style={styles.factorReasonCard}>
+                    <Ionicons name="warning" size={18} color={color} style={styles.factorReasonIcon} />
+                    <Text style={styles.factorReasonText}>{fallbackFactorReason(factor)}</Text>
+                  </View>
+                ) : null}
+              </TouchableOpacity>
+            );
+          }) : (
+            <View style={styles.fallbackReasonCard}>
+              <Ionicons name="warning" size={18} color="#FF2525" style={styles.factorReasonIcon} />
+              <Text style={styles.factorReasonText}>{reason}</Text>
+            </View>
+          )}
         </View>
 
         <View style={styles.buttonGroup}>
@@ -140,11 +223,19 @@ const styles = StyleSheet.create({
   targetName: { fontSize: 23, fontWeight: 'bold', color: '#555555' },
   targetAge: { fontSize: 16, fontWeight: '500', color: '#555555' },
   scoreText: { fontSize: 26, fontWeight: '900', color: '#000000', marginTop: 16 },
-  reasonContainer: { marginHorizontal: 12, marginBottom: 38 },
-  reasonTitle: { fontSize: 21, fontWeight: 'bold', color: '#111111', marginBottom: 16 },
-  reasonRow: { flexDirection: 'row', alignItems: 'flex-start' },
-  reasonIcon: { marginRight: 13, marginTop: 2 },
-  reasonText: { flex: 1, fontSize: 20, fontWeight: 'bold', color: '#666666', lineHeight: 28 },
+  analysisContainer: { marginHorizontal: 12, marginBottom: 34 },
+  analysisTitle: { fontSize: 21, fontWeight: 'bold', color: '#111111', marginBottom: 13 },
+  factorCard: { borderWidth: 1, borderColor: '#E1E1E1', borderRadius: 12, paddingHorizontal: 14, paddingVertical: 13, marginBottom: 10 },
+  factorHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 },
+  factorTitle: { flex: 1, fontSize: 17, fontWeight: 'bold', color: '#222222' },
+  factorPercentArea: { flexDirection: 'row', alignItems: 'center' },
+  factorTrack: { width: 72, height: 9, borderRadius: 5, overflow: 'hidden', backgroundColor: '#E5E5E5' },
+  factorFill: { height: '100%', borderRadius: 5 },
+  factorPercent: { width: 39, marginLeft: 8, fontSize: 15, fontWeight: 'bold', color: '#555555' },
+  factorReasonCard: { flexDirection: 'row', alignItems: 'flex-start', marginTop: 13, paddingTop: 12, borderTopWidth: 1, borderTopColor: '#EEEEEE' },
+  fallbackReasonCard: { flexDirection: 'row', alignItems: 'flex-start', borderWidth: 1, borderColor: '#E1E1E1', borderRadius: 12, padding: 14 },
+  factorReasonIcon: { marginRight: 8, marginTop: 2 },
+  factorReasonText: { flex: 1, fontSize: 15, fontWeight: '600', color: '#666666', lineHeight: 22 },
   buttonGroup: { gap: 18 },
   actionButton: { height: 54, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
   locationButton: { backgroundColor: '#59A03D' },

@@ -12,11 +12,12 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import ProtectedMapView from '@/components/map/protected-map';
-import ProtectedNotificationScreen from '@/components/notifications/protected-notification-screen';
+import NotificationView from '@/components/notifications/alarm';
 import SettingView from '@/components/settings/setting-view';
 import { getProtectorPhone } from '@/features/contacts/protector-contact-store';
 import { startGpsTracking, stopGpsTracking } from '@/features/gps/tracking';
 import { registerPushNotifications } from '@/features/notifications/push-registration';
+import { getWeatherSummary } from '@/features/environment/weather-api';
 
 export default function ProtectedMainScreen() {
   const router = useRouter();
@@ -33,6 +34,8 @@ export default function ProtectedMainScreen() {
   const numericSubjectId = Number(subjectId);
 
   const [activeTab, setActiveTab] = useState<string>(tab ?? 'home');
+  const [weatherNotice, setWeatherNotice] = useState('날씨 정보를 불러오는 중입니다.');
+  const [weatherAdvisory, setWeatherAdvisory] = useState('기상 특보 정보를 불러오는 중입니다.');
 
   useEffect(() => {
     if (tab) setActiveTab(tab);
@@ -49,10 +52,23 @@ export default function ProtectedMainScreen() {
     if (protectorPhone) setTargetPhone(protectorPhone);
   }, [protectorPhone]);
 
-  const [notice] = useState({
-    title: '공지사항',
-    content: '폭우주의보 발령 중입니다.\n외출 시 안전에 유의하세요.',
-  });
+  useEffect(() => {
+    if (!Number.isInteger(numericSubjectId) || numericSubjectId <= 0) {
+      setWeatherNotice('날씨 정보를 확인할 수 없습니다.');
+      setWeatherAdvisory('기상 특보 정보를 확인할 수 없습니다.');
+      return;
+    }
+
+    void getWeatherSummary(numericSubjectId)
+      .then((weather) => {
+        setWeatherNotice(weather.headline);
+        setWeatherAdvisory(weather.advisory ?? '현재 발효 중인 기상 특보가 없습니다.');
+      })
+      .catch(() => {
+        setWeatherNotice('날씨 정보를 불러오지 못했습니다.');
+        setWeatherAdvisory('기상 특보 정보를 불러오지 못했습니다.');
+      });
+  }, [numericSubjectId]);
 
   const handleCallProtector = () => {
     if (!targetPhone) {
@@ -154,9 +170,17 @@ export default function ProtectedMainScreen() {
               <Text style={styles.cardText}>긴급신고</Text>
             </TouchableOpacity>
 
-            <View style={styles.noticeBox}>
-              <Text style={styles.noticeTitle}>{notice.title}</Text>
-              <Text style={styles.noticeContent}>{notice.content}</Text>
+            <View style={styles.noticeRow}>
+              <View style={[styles.noticeBox, styles.weatherNoticeBox]}>
+                <Ionicons name="thermometer-outline" size={25} color="#E05A2A" />
+                <Text style={styles.noticeTitle}>현재 날씨</Text>
+                <Text style={styles.noticeContent}>{weatherNotice}</Text>
+              </View>
+              <View style={[styles.noticeBox, styles.advisoryNoticeBox]}>
+                <Ionicons name="warning-outline" size={25} color="#D97706" />
+                <Text style={styles.noticeTitle}>기상 특보</Text>
+                <Text style={styles.noticeContent}>{weatherAdvisory}</Text>
+              </View>
             </View>
           </ScrollView>
         );
@@ -171,7 +195,15 @@ export default function ProtectedMainScreen() {
         );
 
       case 'notification':
-        return <ProtectedNotificationScreen subjectId={Number(subjectId)} />;
+        return (
+          <NotificationView
+            filterTargetName={displayName}
+            subjectId={numericSubjectId}
+            targetPhone={targetPhone}
+            themeColor="#59A03D"
+            viewerRole="protected"
+          />
+        );
 
       case 'setting':
         return <SettingView isProtected={true} notificationUser={Number.isInteger(numericSubjectId) && numericSubjectId > 0 ? { userId: numericSubjectId, userType: 'subject' } : undefined} onLocationTrackingChange={handleLocationTrackingChange} onEmergencyContactSaved={() => setTargetPhone(getProtectorPhone())} />;
@@ -256,16 +288,22 @@ const styles = StyleSheet.create({
   facilityCard: { borderColor: '#BEE3F8' },
   emergencyCard: { borderColor: '#FEB2B2' },
   cardText: { fontSize: 20, fontWeight: 'bold', color: '#333333', marginLeft: 16 },
-  noticeBox: {
-    backgroundColor: '#FFF5E6',
-    borderRadius: 16,
-    borderWidth: 1.5,
-    borderColor: '#FEEBC8',
-    padding: 20,
+  noticeRow: {
+    flexDirection: 'row',
+    gap: 12,
     marginTop: 8,
   },
-  noticeTitle: { fontSize: 20, fontWeight: 'bold', color: '#000000', marginBottom: 10 },
-  noticeContent: { fontSize: 16, fontWeight: '500', color: '#4A5568', lineHeight: 24 },
+  noticeBox: {
+    flex: 1,
+    borderRadius: 16,
+    borderWidth: 1.5,
+    padding: 14,
+    minHeight: 142,
+  },
+  weatherNoticeBox: { backgroundColor: '#EFF8FF', borderColor: '#BEE3F8' },
+  advisoryNoticeBox: { backgroundColor: '#FFF7E8', borderColor: '#FEE0A5' },
+  noticeTitle: { fontSize: 16, fontWeight: 'bold', color: '#1F2937', marginTop: 8, marginBottom: 8 },
+  noticeContent: { fontSize: 15, fontWeight: '600', color: '#4A5568', lineHeight: 21 },
   bottomTabBar: {
     flexDirection: 'row',
     height: 65,
