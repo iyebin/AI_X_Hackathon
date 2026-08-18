@@ -479,6 +479,7 @@ class Inference(Base):
     gps_id = Column(
             BigInteger,
             ForeignKey("gps_records.gps_id", ondelete="CASCADE"),
+            primary_key=True,
             nullable=False,
             index=True,
         )
