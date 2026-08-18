@@ -458,6 +458,14 @@ class GPSRecord(Base):
     latitude = Column(Float, nullable=False)
     longitude = Column(Float, nullable=False)
 
+    # EPSG:5179 변환 좌표
+    x = Column(Float, nullable=True)
+    y = Column(Float, nullable=True)
+
+    x_d = Column(Integer, nullable=True)
+    y_d = Column(Integer, nullable=True)
+    token = Column(BigInteger, nullable=True)
+
     measured_at = Column(
         DateTime(timezone=True),
         server_default=func.now(),
@@ -468,6 +476,14 @@ class GPSRecord(Base):
     subject = relationship(
         "Subject",
         back_populates="gps_records",
+    )
+
+    token_probability = Column(Float, nullable=True)
+    anomaly_score = Column(Float, nullable=True)
+
+    scored_at = Column(
+        DateTime(timezone=True),
+        nullable=True,
     )
 
 class Alert(Base):
