@@ -498,3 +498,8 @@ class RiskAnalysisResponse(KSTBaseModel):
     risk_level: str
     measured_at: datetime
     factors: list[RiskFactorResponse]
+
+# schemas.py
+class InstitutionManagerPasswordChange(BaseModel):
+    current_password: str = Field(min_length=8, max_length=128)
+    new_password: str = Field(min_length=8, max_length=128)

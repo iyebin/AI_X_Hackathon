@@ -1602,6 +1602,55 @@ def login_institution_manager(
 
     return manager
 
+@app.patch(
+    "/institution-managers/{manager_id}/change-password",
+    tags=["기관 관리자 인증"],
+)
+def change_institution_manager_password(
+    manager_id: int,
+    data: schemas.InstitutionManagerPasswordChange,
+    db: Session = Depends(get_db),
+):
+    manager = db.get(
+        models.InstitutionManager,
+        manager_id,
+    )
+
+    if not manager:
+        raise HTTPException(
+            status_code=404,
+            detail="기관 관리자를 찾을 수 없습니다.",
+        )
+
+    if not verify_password(
+        data.current_password,
+        manager.password_hash,
+    ):
+        raise HTTPException(
+            status_code=401,
+            detail="현재 비밀번호가 올바르지 않습니다.",
+        )
+
+    if verify_password(
+        data.new_password,
+        manager.password_hash,
+    ):
+        raise HTTPException(
+            status_code=400,
+            detail="새 비밀번호는 현재 비밀번호와 달라야 합니다.",
+        )
+
+    manager.password_hash = hash_password(
+        data.new_password
+    )
+
+    db.commit()
+
+    return {
+        "message": "비밀번호가 변경되었습니다.",
+        "manager_id": manager_id,
+    }
+
 # =========================================================
 # 기관 관리자 ↔ 보호대상자 연결
 # =========================================================
