@@ -506,3 +506,22 @@ class GPSInferenceResponse(BaseModel):
     anomaly_score: float
     threshold: float
     risk_level: str
+
+
+# =========================================================
+# 위험도 상세 분석 화면
+# =========================================================
+class RiskFactorResponse(BaseModel):
+    type: str
+    name: str
+    score: float
+    percentage: int
+    description: str
+
+
+class RiskAnalysisResponse(KSTBaseModel):
+    subject_id: int
+    total_score: float
+    risk_level: str
+    measured_at: datetime
+    factors: list[RiskFactorResponse]
