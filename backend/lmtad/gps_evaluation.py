@@ -5,8 +5,8 @@ from zoneinfo import ZoneInfo
 import torch
 from torch.nn import functional as F
 
-from database import SessionLocal
-from models import GPSRecord
+from backend.database import SessionLocal
+from backend.models import GPSRecord
 
 
 KST = ZoneInfo("Asia/Seoul")

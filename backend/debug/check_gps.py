@@ -1,8 +1,7 @@
 # backend/check_gps.py
 
-from database import SessionLocal
-from models import GPSRecord
-
+from backend.database import SessionLocal
+from backend.models import GPSRecord
 
 def main():
     db = SessionLocal()
