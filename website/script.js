@@ -2616,6 +2616,8 @@ async function loadBaseData() {
 
     populateInstitutionSelect();
 
+populateRelationUserSelects();
+
     renderUserManagement();
 
     renderAuthManagement();
@@ -3907,6 +3909,45 @@ function populateInstitutionSelect() {
   }
 }
 
+function populateRelationUserSelects() {
+  const subjectExistingGuardian =
+    document.getElementById("subjectExistingGuardian");
+
+  const guardianExistingSubject =
+    document.getElementById("guardianExistingSubject");
+
+  if (subjectExistingGuardian) {
+    subjectExistingGuardian.innerHTML =
+      `<option value="">보호자를 선택하세요.</option>` +
+      guardians
+        .map(
+          (guardian) => `
+            <option value="${guardian.id}">
+              ${escapeHtml(guardian.name)}
+              ·
+              ${escapeHtml(guardian.phone || "-")}
+            </option>
+          `
+        )
+        .join("");
+  }
+
+  if (guardianExistingSubject) {
+    guardianExistingSubject.innerHTML =
+      `<option value="">보호대상자를 선택하세요.</option>` +
+      subjects
+        .map(
+          (subject) => `
+            <option value="${subject.id}">
+              ${escapeHtml(subject.name)}
+              ·
+              ${escapeHtml(subject.phone || "-")}
+            </option>
+          `
+        )
+        .join("");
+  }
+}
 
 async function createSubject(event) {
 
@@ -8893,3 +8934,102 @@ window.location.href =
   );
 
 })();
+
+/* =========================================================
+   USER RELATION FORM TOGGLE
+========================================================= */
+
+const subjectGuardianMode =
+  document.getElementById("subjectGuardianMode");
+
+const subjectExistingGuardianBox =
+  document.getElementById("subjectExistingGuardianBox");
+
+const subjectNewGuardianBox =
+  document.getElementById("subjectNewGuardianBox");
+
+
+const guardianSubjectMode =
+  document.getElementById("guardianSubjectMode");
+
+const guardianExistingSubjectBox =
+  document.getElementById("guardianExistingSubjectBox");
+
+const guardianNewSubjectBox =
+  document.getElementById("guardianNewSubjectBox");
+
+
+subjectGuardianMode?.addEventListener("change", () => {
+
+  const isNew =
+    subjectGuardianMode.value === "new";
+
+  subjectExistingGuardianBox?.classList.toggle(
+    "hidden",
+    isNew
+  );
+
+  subjectNewGuardianBox?.classList.toggle(
+    "hidden",
+    !isNew
+  );
+
+});
+
+
+guardianSubjectMode?.addEventListener("change", () => {
+
+  const isNew =
+    guardianSubjectMode.value === "new";
+
+  guardianExistingSubjectBox?.classList.toggle(
+    "hidden",
+    isNew
+  );
+
+  guardianNewSubjectBox?.classList.toggle(
+    "hidden",
+    !isNew
+  );
+
+});
+const subjectNewGuardianAddress =
+  document.getElementById("subjectNewGuardianAddress");
+
+const subjectNewGuardianAddressDetail =
+  document.getElementById("subjectNewGuardianAddressDetail");
+
+const subjectNewGuardianAddressSearchButton =
+  document.getElementById("subjectNewGuardianAddressSearchButton");
+
+
+const guardianNewSubjectAddress =
+  document.getElementById("guardianNewSubjectAddress");
+
+const guardianNewSubjectAddressDetail =
+  document.getElementById("guardianNewSubjectAddressDetail");
+
+const guardianNewSubjectAddressSearchButton =
+  document.getElementById("guardianNewSubjectAddressSearchButton");
+
+
+subjectNewGuardianAddressSearchButton?.addEventListener(
+  "click",
+  () => {
+    openPostcodeSearch(
+      subjectNewGuardianAddress,
+      subjectNewGuardianAddressDetail
+    );
+  }
+);
+
+
+guardianNewSubjectAddressSearchButton?.addEventListener(
+  "click",
+  () => {
+    openPostcodeSearch(
+      guardianNewSubjectAddress,
+      guardianNewSubjectAddressDetail
+    );
+  }
+);
