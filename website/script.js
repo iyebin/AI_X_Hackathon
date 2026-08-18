@@ -4083,7 +4083,12 @@ async function createSubject(event) {
 
     const subjectId =
       createdSubject.id;
-
+console.log(
+  "새 보호대상자 생성 결과:",
+  createdSubject,
+  "subjectId:",
+  subjectId
+);
 
     let guardianId;
 
@@ -4214,7 +4219,14 @@ async function createSubject(event) {
     /* ======================================
        3. 보호대상자 ↔ 보호자 관계 생성
     ====================================== */
-
+console.log(
+  "관계 생성 요청:",
+  {
+    subjectId,
+    guardianId,
+    relationshipCode
+  }
+);
     await createGuardianRegistration(
       subjectId,
       guardianId,
@@ -4544,6 +4556,37 @@ async function createGuardianRegistration(
   relationshipCode
 ) {
 
+  let relationshipNote = null;
+
+
+  if (relationshipCode === "other") {
+
+    const subjectEtcInput =
+      document.getElementById(
+        "subjectRelationshipEtc"
+      );
+
+    const guardianEtcInput =
+      document.getElementById(
+        "guardianRelationshipEtc"
+      );
+
+
+    relationshipNote =
+      subjectEtcInput?.value?.trim() ||
+      guardianEtcInput?.value?.trim() ||
+      "";
+
+
+    if (!relationshipNote) {
+
+      throw new Error(
+        "기타 관계에 대한 메모를 입력해주세요."
+      );
+    }
+  }
+
+
   return apiRequest(
     "/guardian-registrations",
     {
@@ -4557,6 +4600,7 @@ async function createGuardianRegistration(
         subject_id: Number(subjectId),
         guardian_id: Number(guardianId),
         relationship_code: relationshipCode,
+        relationship_note: relationshipNote,
         is_primary: false
       })
     }
@@ -4825,12 +4869,13 @@ async function openUserDetail(
                 </strong>
 
                 <p>
-                  관계 ·
-                  ${escapeHtml(
-                    relation.relationship_code ||
-                    "-"
-                  )}
-                </p>
+  관계 ·
+  ${escapeHtml(
+    relation.relationship_code === "other"
+      ? `기타 (${relation.relationship_note || "-"})`
+      : relation.relationship_code || "-"
+  )}
+</p>
 
                 <p>
                   전화번호 ·
