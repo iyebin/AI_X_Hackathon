@@ -12,11 +12,13 @@ type PushRegistration = {
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
+    // 앱이 화면에 열려 있을 때는 시스템 푸시를 띄우지 않습니다.
+    // 사용자가 알림 탭에서 직접 선택할 수 있고, 백그라운드에서는 OS가 푸시를 표시합니다.
+    shouldShowAlert: false,
+    shouldPlaySound: false,
     shouldSetBadge: false,
-    shouldShowBanner: true,
-    shouldShowList: true,
+    shouldShowBanner: false,
+    shouldShowList: false,
   }),
 });
 
