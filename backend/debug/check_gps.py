@@ -14,7 +14,6 @@ def main():
                 GPSRecord.measured_at.desc(),
                 GPSRecord.gps_id.desc(),
             )
-            .limit(10)
             .all()
         )
 

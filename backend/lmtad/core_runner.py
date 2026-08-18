@@ -10,6 +10,7 @@ from database import SessionLocal
 from models import GPSRecord
 from gps_evaluation import score_gps_record
 from load_checkpoint import load_inference_model
+from convert_checkpoint import *
 
 
 def check_server():
@@ -188,7 +189,6 @@ def transfer_epsg(
         print("좌표 변환 및 토큰 저장 완료")
         print(
             {   
-
                 "gps_id": managed_record.gps_id,
                 "x": managed_record.x,
                 "y": managed_record.y,
@@ -227,8 +227,11 @@ Korea 2000 / Unified CS
 '''
 
 def main():
-    checkpoint_path = "artifacts/ckptepoch_7_batch_387.pt"
+    origin_checkpoint_path = "artifacts/ckptepoch_7_batch_387.pt"
+    checkpoint_path = "artifacts/converted_ckptepoch_7_batch_387.pt"
     vocab_path = "artifacts/vocab_gps.json"
+
+    # convert_checkpoint(checkpoint_path, output_checkpoint_path)
 
     inference = load_inference_model(checkpoint_path, vocab_path)
     check_server()

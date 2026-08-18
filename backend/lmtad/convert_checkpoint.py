@@ -27,8 +27,8 @@ if not LMTAD_CODE_DIR.exists():
 sys.path.insert(0, str(LMTAD_CODE_DIR))
 
 # 원본 체크포인트 역직렬화에 필요
-from .model import LMTADConfig  # noqa: E402
-from backend.lmtad.datasets import POLConfig  # noqa: E402
+from model import LMTADConfig  # noqa: E402
+from datasets import POLConfig  # noqa: E402
 
 
 def convert_value(value):
@@ -62,41 +62,7 @@ def convert_value(value):
     return value
 
 
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--input",
-        required=True,
-        default="artifacts/ckptepoch_13_batch_389.pt",
-        help="원본 체크포인트 경로",
-    )
-    parser.add_argument(
-        "--output",
-        required=True,
-        default="artifacts/fine_ckptepoch_49_batch_389.pt",
-        help="배포용 체크포인트 경로",
-    )
-    args = parser.parse_args()
-
-    input_path = Path(args.input)
-
-    if not input_path.is_absolute():
-        input_path = (
-            BACKEND_DIR / input_path
-        ).resolve()
-
-    output_path = Path(args.output)
-
-    if not output_path.is_absolute():
-        output_path = (
-            BACKEND_DIR / output_path
-        ).resolve()
-
-    if not input_path.exists():
-        raise FileNotFoundError(
-            f"원본 체크포인트가 없습니다: "
-            f"{input_path}"
-        )
+def main(input_path, output_path):
 
     print("원본 체크포인트:", input_path)
     print("배포용 체크포인트:", output_path)
@@ -199,6 +165,8 @@ def main():
         f"{output_path.stat().st_size / 1024 / 1024:.1f} MB",
     )
 
-
 if __name__ == "__main__":
-    main()
+    input_path = "artifacts/ckptepoch_7_batch_387.pt"
+    output_checkpoint_path = "artifacts/converted_ckptepoch_7_batch_387.pt"
+
+    main(Path(input_path), Path(output_checkpoint_path))
