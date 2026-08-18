@@ -1760,15 +1760,6 @@ function openSettingsModal() {
               계정 설정
             </button>
 
-            <button
-              class="settings-menu"
-              type="button"
-              data-settings-tab="notification"
-            >
-              <i data-lucide="bell"></i>
-              알림 설정
-            </button>
-
           </aside>
 
 
@@ -1872,97 +1863,6 @@ function renderSettingsTab(tab) {
     return;
   }
 
-
-  if (
-    tab === "notification"
-  ) {
-
-    content.innerHTML =
-      `
-
-        <h3>알림 설정</h3>
-
-
-        <div class="notification-setting-row">
-
-          <div>
-            <strong>위험 알림</strong>
-
-            <span>
-              보호대상자가 위험 단계일 때
-              알림을 표시합니다.
-            </span>
-          </div>
-
-          <button
-            class="setting-toggle on"
-            type="button"
-          ></button>
-
-        </div>
-
-
-        <div class="notification-setting-row">
-
-          <div>
-            <strong>인증 요청 알림</strong>
-
-            <span>
-              앱에서 인증코드 발급을 요청하면
-              알림을 표시합니다.
-            </span>
-          </div>
-
-          <button
-            class="setting-toggle on"
-            type="button"
-          ></button>
-
-        </div>
-
-
-        <div class="notification-setting-row">
-
-          <div>
-            <strong>브라우저 알림</strong>
-
-            <span>
-              브라우저 알림 기능은
-              추후 연동 예정입니다.
-            </span>
-          </div>
-
-          <button
-            class="setting-toggle"
-            type="button"
-          ></button>
-
-        </div>
-      `;
-
-
-    content
-      .querySelectorAll(
-        ".setting-toggle"
-      )
-      .forEach(
-        button => {
-
-          button.addEventListener(
-            "click",
-            () => {
-
-              button.classList.toggle(
-                "on"
-              );
-            }
-          );
-        }
-      );
-
-
-    return;
-  }
 
 
   content.innerHTML =
@@ -3184,21 +3084,36 @@ async function markAlertAsRead(
     );
 
 
-  if (
-    !alertItem
-  ) {
+  if (!alertItem) {
     return;
   }
 
 
-  /*
-    이미 읽은 알림이면
-    API 다시 호출하지 않음
-  */
+  if (alertItem.read) {
+    return;
+  }
+
+
+  const guardianId =
+    Number(
+      alertItem.guardianId
+    );
+
 
   if (
-    alertItem.read
+    !Number.isFinite(guardianId) ||
+    guardianId <= 0
   ) {
+
+    console.error(
+      "알림에 guardian_id가 없습니다:",
+      alertItem
+    );
+
+    alert(
+      "이 알림의 보호자 정보를 찾을 수 없습니다."
+    );
+
     return;
   }
 
@@ -3206,17 +3121,12 @@ async function markAlertAsRead(
   try {
 
     await apiRequest(
-      `/alerts/${alertId}/read`,
+      `/alerts/${alertId}/read?guardian_id=${guardianId}`,
       {
         method: "PATCH"
       }
     );
 
-
-    /*
-      서버 성공 후
-      프론트 상태도 즉시 변경
-    */
 
     alertItem.read =
       true;
@@ -5221,30 +5131,37 @@ function renderAlerts() {
     getFilteredAlerts();
 
 
-  const dangerCount =
-    alerts.filter(
-      item =>
-        item.alertType === "danger"
-    ).length;
+ const unreadAlerts =
+  alerts.filter(
+    item =>
+      !item.read
+  );
 
 
-  const authCount =
-    alerts.filter(
-      item =>
-        item.alertType === "auth"
-    ).length;
+const unreadDangerCount =
+  unreadAlerts.filter(
+    item =>
+      item.alertType === "danger"
+  ).length;
 
 
-  allAlertCount.textContent =
-    alerts.length;
+const unreadAuthCount =
+  unreadAlerts.filter(
+    item =>
+      item.alertType === "auth"
+  ).length;
 
 
-  dangerAlertCount.textContent =
-    dangerCount;
+allAlertCount.textContent =
+  unreadAlerts.length;
 
 
-  authAlertCount.textContent =
-    authCount;
+dangerAlertCount.textContent =
+  unreadDangerCount;
+
+
+authAlertCount.textContent =
+  unreadAuthCount;
 
 
   const totalPages =
@@ -8048,8 +7965,6 @@ async function startApp() {
 
 startApp();
 
-
-
 /* ==================================================
    LOGIN MANAGER PROFILE PATCH
    - 로그인한 실제 관리자 정보 사용
@@ -8272,7 +8187,6 @@ startApp();
 
 
       if (window.lucide) {
-
         lucide.createIcons();
       }
     };
@@ -8356,53 +8270,41 @@ startApp();
             <div class="account-profile-area">
 
               <div class="account-big-avatar">
-
                 <i data-lucide="user-round"></i>
-
               </div>
 
 
               <div class="account-info-grid">
 
-                <span>
-                  이름
-                </span>
+                <span>이름</span>
 
                 <strong>
                   ${escapeHtml(name)}
                 </strong>
 
 
-                <span>
-                  역할
-                </span>
+                <span>역할</span>
 
                 <strong>
                   관리자
                 </strong>
 
 
-                <span>
-                  이메일
-                </span>
+                <span>이메일</span>
 
                 <strong>
                   ${escapeHtml(email)}
                 </strong>
 
 
-                <span>
-                  연락처
-                </span>
+                <span>연락처</span>
 
                 <strong>
                   ${escapeHtml(phone)}
                 </strong>
 
 
-                <span>
-                  소속 기관
-                </span>
+                <span>소속 기관</span>
 
                 <strong>
                   ${escapeHtml(
@@ -8430,8 +8332,7 @@ startApp();
         event => {
 
           if (
-            event.target ===
-            overlay
+            event.target === overlay
           ) {
 
             closeAccountOverlay();
@@ -8451,40 +8352,19 @@ startApp();
 
 
       if (window.lucide) {
-
         lucide.createIcons();
       }
     };
 
 
   /* ================================================
-     설정 화면도 실제 관리자 정보 사용
+     설정 화면
+     - 알림 설정 제거
+     - 계정 설정만 표시
   ================================================= */
 
-  const originalRenderSettingsTab =
-    renderSettingsTab;
-
-
   renderSettingsTab =
-    function (
-      tab
-    ) {
-
-      /*
-        알림 설정은 기존 코드 그대로 사용
-      */
-
-      if (
-        tab === "notification"
-      ) {
-
-        originalRenderSettingsTab(
-          tab
-        );
-
-        return;
-      }
-
+    function () {
 
       const content =
         document.getElementById(
@@ -8651,7 +8531,7 @@ startApp();
 
 
   /* ================================================
-     현재 상단 이름도 세션 기준으로 한번 더 맞춤
+     현재 상단 이름도 세션 기준으로 맞춤
   ================================================= */
 
   const manager =
