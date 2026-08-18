@@ -14,7 +14,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AuthRole, verifyAuthCode } from '@/features/auth/verify-code';
 import { saveSession, setCurrentGuardian } from '@/features/auth/current-session';
-import { setProtectorPhone } from '@/features/contacts/protector-contact-store';
+import { clearProtectorPhone, setProtectorPhone } from '@/features/contacts/protector-contact-store';
 import { startGpsTracking } from '@/features/gps/tracking';
 import { getGuardiansForSubject } from '@/features/relationships/guardian-registration';
 
@@ -70,17 +70,24 @@ export default function CodeScreen() {
           return;
         }
 
-        const guardians = await getGuardiansForSubject(subjectId);
-        const emergencyGuardian = guardians.find((guardian) => guardian.phone);
-        if (!emergencyGuardian?.phone) {
-          throw new Error('연결된 보호자의 전화번호를 찾을 수 없습니다.');
+        let emergencyPhone: string | undefined;
+        try {
+          const guardians = await getGuardiansForSubject(subjectId);
+          emergencyPhone = guardians.find((guardian) => guardian.phone)?.phone ?? undefined;
+        } catch (error) {
+          console.warn('보호자 연락처를 불러오지 못했습니다. 보호자 없이 로그인합니다.', error);
         }
-        setProtectorPhone(emergencyGuardian.phone);
+
+        if (emergencyPhone) {
+          setProtectorPhone(emergencyPhone);
+        } else {
+          clearProtectorPhone();
+        }
         await saveSession({
           role: 'protected',
           userId: subjectId,
           userName: authenticatedUser.name,
-          protectorPhone: emergencyGuardian.phone,
+          protectorPhone: emergencyPhone,
         });
       }
 

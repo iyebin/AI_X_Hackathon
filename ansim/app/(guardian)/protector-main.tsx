@@ -3,6 +3,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import {
   Alert,
+  AppState,
   DimensionValue,
   Linking,
   ScrollView,
@@ -23,7 +24,7 @@ import { getAlerts } from '@/features/alerts/alerts-api';
 import { formatTimeSince, getLatestGps, GpsLocation } from '@/features/gps/gps-api';
 import { getWeatherSummary } from '@/features/environment/weather-api';
 import { registerPushNotifications } from '@/features/notifications/push-registration';
-import { CurrentRiskStatus, getCurrentRiskStatus } from '@/features/risk/risk-api';
+import { CurrentRiskStatus, getRiskAnalysis } from '@/features/risk/risk-api';
 
 export default function ProtectorMainScreen() {
   const router = useRouter();
@@ -55,8 +56,9 @@ export default function ProtectorMainScreen() {
   const [gpsError, setGpsError] = useState<string | null>(null);
   const [weatherText, setWeatherText] = useState<string | null>('날씨 정보를 불러오는 중입니다.');
   const [currentRisk, setCurrentRisk] = useState<CurrentRiskStatus | null>(null);
-  const shownDangerAlertId = useRef<string | null>(null);
-  const hasShownAutomaticDangerModal = useRef(false);
+  const lastVisibleDangerAlertId = useRef<string | null>(null);
+  const isAlertBaselineReady = useRef(false);
+  const isAppForeground = useRef(AppState.currentState === 'active');
 
   useEffect(() => {
     if (params.tab) setActiveTab(params.tab);
@@ -92,10 +94,73 @@ export default function ProtectorMainScreen() {
     const subjectId = Number(params.subjectId);
     if (!Number.isInteger(subjectId) || subjectId <= 0) return;
 
+    let isDisposed = false;
+    const establishBaseline = async () => {
+      try {
+        const latestDanger = (await getAlerts(subjectId)).find((alert) => alert.kind === 'danger' && !alert.isRead);
+        if (!isDisposed) {
+          lastVisibleDangerAlertId.current = latestDanger?.id ?? null;
+          isAlertBaselineReady.current = true;
+        }
+      } catch {
+        if (!isDisposed) isAlertBaselineReady.current = true;
+      }
+    };
+
+    const checkNewForegroundDangerAlert = async () => {
+      if (isDisposed || !isAppForeground.current || !isAlertBaselineReady.current) return;
+      try {
+        const latestDanger = (await getAlerts(subjectId)).find((alert) => alert.kind === 'danger' && !alert.isRead);
+        if (!latestDanger || latestDanger.id === lastVisibleDangerAlertId.current) return;
+
+        lastVisibleDangerAlertId.current = latestDanger.id;
+        router.push({
+          pathname: '/danger-modal',
+          params: {
+            alertId: latestDanger.id,
+            subjectId: String(subjectId),
+            targetName,
+            targetPhone,
+            dangerScore: String(latestDanger.riskScore ?? targetScore),
+            dangerReasons: latestDanger.reason ?? latestDanger.message ?? '위험 요인 정보 없음',
+            alertCreatedAt: latestDanger.createdAt ?? '',
+            riskSnapshot: latestDanger.riskSnapshot ? JSON.stringify(latestDanger.riskSnapshot) : '',
+          },
+        });
+      } catch {
+        // 다음 주기에서 다시 확인합니다.
+      }
+    };
+
+    const appStateSubscription = AppState.addEventListener('change', (nextState) => {
+      const becomingActive = nextState === 'active' && !isAppForeground.current;
+      isAppForeground.current = nextState === 'active';
+      // 백그라운드에서 쌓인 알림은 앱을 다시 열었다고 자동으로 띄우지 않습니다.
+      if (becomingActive) {
+        isAlertBaselineReady.current = false;
+        void establishBaseline();
+      }
+    });
+
+    isAlertBaselineReady.current = false;
+    void establishBaseline();
+    const intervalId = setInterval(() => void checkNewForegroundDangerAlert(), 10_000);
+
+    return () => {
+      isDisposed = true;
+      appStateSubscription.remove();
+      clearInterval(intervalId);
+    };
+  }, [params.subjectId, router, targetName, targetPhone, targetScore]);
+
+  useEffect(() => {
+    const subjectId = Number(params.subjectId);
+    if (!Number.isInteger(subjectId) || subjectId <= 0) return;
+
     let isActive = true;
     const loadRiskStatus = async () => {
       try {
-        const risk = await getCurrentRiskStatus(subjectId);
+        const risk = await getRiskAnalysis(subjectId);
         if (isActive) setCurrentRisk(risk);
       } catch {
         if (isActive) setCurrentRisk(null);
@@ -121,41 +186,6 @@ export default function ProtectorMainScreen() {
       .then((weather) => setWeatherText(weather.text))
       .catch(() => setWeatherText('날씨 정보를 불러오지 못했습니다.'));
   }, [params.subjectId, mapRefreshKey]);
-
-  useEffect(() => {
-    const subjectId = Number(params.subjectId);
-    if (!Number.isInteger(subjectId) || subjectId <= 0) return;
-
-    const checkDangerAlerts = async () => {
-      try {
-        if (hasShownAutomaticDangerModal.current) return;
-        const dangerAlert = (await getAlerts(subjectId)).find(
-          (alert) => alert.kind === 'danger' && !alert.isRead && alert.id !== shownDangerAlertId.current,
-        );
-        if (!dangerAlert) return;
-
-        shownDangerAlertId.current = dangerAlert.id;
-        hasShownAutomaticDangerModal.current = true;
-        router.push({
-          pathname: '/danger-modal',
-          params: {
-            alertId: dangerAlert.id,
-            subjectId: String(subjectId),
-            targetName,
-            targetPhone,
-            dangerScore: String(dangerAlert.riskScore ?? targetScore),
-            dangerReasons: dangerAlert.reason ?? dangerAlert.message ?? '위험 요인 정보 없음',
-          },
-        });
-      } catch {
-        // 네트워크 오류가 나도 메인 화면 사용은 계속할 수 있어야 합니다.
-      }
-    };
-
-    void checkDangerAlerts();
-    const intervalId = setInterval(() => void checkDangerAlerts(), 30_000);
-    return () => clearInterval(intervalId);
-  }, [params.subjectId, router, targetName, targetPhone, targetScore]);
 
   const getStatusColor = (status: string) => {
     switch (status) {

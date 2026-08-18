@@ -69,6 +69,8 @@ export default function LoadingScreen() {
                       subjectId: String(subjectId),
                       dangerScore: String(data.risk_score ?? data.riskScore ?? alert?.riskScore ?? ''),
                       dangerReasons: String(data.reason ?? alert?.reason ?? alert?.message ?? ''),
+                      alertCreatedAt: alert?.createdAt ?? '',
+                      riskSnapshot: alert?.riskSnapshot ? JSON.stringify(alert.riskSnapshot) : '',
                     },
                   });
                 }, 700);
@@ -109,6 +111,8 @@ export default function LoadingScreen() {
                     subjectId: String(receivedSubjectId),
                     dangerScore: String(data.risk_score ?? data.riskScore ?? alert?.riskScore ?? ''),
                     dangerReasons: String(data.reason ?? alert?.reason ?? alert?.message ?? ''),
+                    alertCreatedAt: alert?.createdAt ?? '',
+                    riskSnapshot: alert?.riskSnapshot ? JSON.stringify(alert.riskSnapshot) : '',
                     viewerRole: 'protected',
                   },
                 });

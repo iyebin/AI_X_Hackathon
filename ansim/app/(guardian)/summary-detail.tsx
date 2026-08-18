@@ -5,7 +5,7 @@ import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-nati
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { WebView } from 'react-native-webview';
 
-import { CurrentRiskStatus, getCurrentRiskStatus } from '@/features/risk/risk-api';
+import { CurrentRiskStatus, getRiskAnalysis } from '@/features/risk/risk-api';
 
 type RiskStatus = '위험' | '주의' | '안전';
 
@@ -45,7 +45,7 @@ export default function SummaryDetailScreen() {
     const numericSubjectId = Number(subjectId);
     if (!Number.isInteger(numericSubjectId) || numericSubjectId <= 0) return;
 
-    void getCurrentRiskStatus(numericSubjectId)
+    void getRiskAnalysis(numericSubjectId)
       .then(setServerRisk)
       .catch(() => setServerRisk(null));
   }, [subjectId]);

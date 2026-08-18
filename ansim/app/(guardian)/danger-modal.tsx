@@ -1,21 +1,51 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { Alert, Linking, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, Linking, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { markAlertAsRead } from '@/features/alerts/alerts-api';
 import { getSavedSession } from '@/features/auth/current-session';
 import { getSubjectProfile } from '@/features/relationships/guardian-registration';
-import { CurrentRiskStatus, getCurrentRiskStatus, RiskFactor } from '@/features/risk/risk-api';
+import { CurrentRiskStatus, getRiskHistory, parseRiskStatus, RiskFactor } from '@/features/risk/risk-api';
 
 const RISK_FACTOR_COLORS = ['#C62828', '#EF5350', '#FF8585', '#FFD0D0'];
 
-function fallbackFactorReason(factor: RiskFactor): string {
-  if (factor.description) return factor.description;
-  if (factor.title === 'GPS 이상' || factor.title === 'GPS 이탈') return '최근 이동 경로에서 평소와 다른 패턴이 감지되었습니다.';
-  if (factor.title === '대기') return '현재 위치의 대기 환경 정보를 바탕으로 위험도를 분석했습니다.';
-  if (factor.title === '기상') return '현재 위치의 기상 정보를 바탕으로 위험도를 분석했습니다.';
-  return '해당 위험요인을 분석한 결과입니다.';
+function factorReason(factor: RiskFactor): string {
+  const description = factor.description?.trim();
+  if (description && !['string', 'null', 'undefined'].includes(description.toLowerCase())) return description;
+  return '알림 발생 당시의 항목별 상세 이유가 없습니다.';
+}
+
+function findSnapshotAtAlertTime(history: CurrentRiskStatus[], alertCreatedAt?: string): CurrentRiskStatus | null {
+  if (!history.length) return null;
+  const alertTime = Date.parse(alertCreatedAt ?? '');
+  if (!Number.isFinite(alertTime)) return history[0];
+
+  return history.reduce((nearest, item) => {
+    const nearestTime = Date.parse(nearest.measuredAt ?? '');
+    const itemTime = Date.parse(item.measuredAt ?? '');
+    if (!Number.isFinite(itemTime)) return nearest;
+    if (!Number.isFinite(nearestTime) || Math.abs(itemTime - alertTime) < Math.abs(nearestTime - alertTime)) return item;
+    return nearest;
+  });
+}
+
+function parseAlertSnapshot(value?: string): CurrentRiskStatus | null {
+  if (!value) return null;
+  try {
+    const snapshot = parseRiskStatus(JSON.parse(value));
+    return snapshot.score !== 0 || snapshot.factors.length > 0 ? snapshot : null;
+  } catch {
+    return null;
+  }
+}
+function getAlertReason(value?: string): string {
+  const reason = value?.trim();
+  // Swagger의 예시값 또는 값이 없는 상태를 실제 분석 결과처럼 노출하지 않습니다.
+  if (!reason || ['string', 'null', 'undefined'].includes(reason.toLowerCase())) {
+    return '알림 발생 당시의 상세 분석 정보가 없습니다.';
+  }
+  return reason;
 }
 
 export default function DangerModalScreen() {
@@ -28,19 +58,22 @@ export default function DangerModalScreen() {
     targetPhone?: string;
     dangerScore?: string;
     dangerReasons?: string;
+    alertCreatedAt?: string;
+    riskSnapshot?: string;
     viewerRole?: 'guardian' | 'protected';
   }>();
 
   const [viewerRole, setViewerRole] = useState<'guardian' | 'protected'>(params.viewerRole ?? 'guardian');
   const [profileName, setProfileName] = useState(params.targetName || '보호대상자');
   const [profilePhone, setProfilePhone] = useState(params.targetPhone ?? '');
-  const [riskStatus, setRiskStatus] = useState<CurrentRiskStatus | null>(null);
+  const [riskSnapshot, setRiskSnapshot] = useState<CurrentRiskStatus | null>(null);
+  const [isRiskSnapshotLoading, setIsRiskSnapshotLoading] = useState(true);
   const [expandedFactorKey, setExpandedFactorKey] = useState<string | null>(null);
   const targetName = profileName;
   const targetAge = params.targetAge;
   const targetPhone = profilePhone;
   const dangerScore = params.dangerScore || '-';
-  const reason = params.dangerReasons?.trim() || '위험 요인 정보 없음';
+  const reason = getAlertReason(params.dangerReasons);
 
   useEffect(() => {
     if (params.alertId) void markAlertAsRead(params.alertId).catch(() => {});
@@ -72,12 +105,27 @@ export default function DangerModalScreen() {
 
   useEffect(() => {
     const subjectId = Number(params.subjectId);
-    if (!Number.isInteger(subjectId) || subjectId <= 0) return;
+    const alertSnapshot = parseAlertSnapshot(params.riskSnapshot);
+    if (alertSnapshot) {
+      setRiskSnapshot(alertSnapshot);
+      setIsRiskSnapshotLoading(false);
+      return;
+    }
 
-    void getCurrentRiskStatus(subjectId)
-      .then(setRiskStatus)
-      .catch(() => setRiskStatus(null));
-  }, [params.subjectId]);
+    setRiskSnapshot(null);
+    if (!Number.isInteger(subjectId) || subjectId <= 0) {
+      setIsRiskSnapshotLoading(false);
+      return;
+    }
+
+    setIsRiskSnapshotLoading(true);
+    // 새 알림은 risk_snapshot을 바로 사용합니다.
+    // 스냅샷이 없는 과거 알림만 알림 생성 시각과 가장 가까운 이력으로 보완합니다.
+    void getRiskHistory(subjectId)
+      .then((history) => setRiskSnapshot(findSnapshotAtAlertTime(history, params.alertCreatedAt)))
+      .catch(() => setRiskSnapshot(null))
+      .finally(() => setIsRiskSnapshotLoading(false));
+  }, [params.alertCreatedAt, params.riskSnapshot, params.subjectId]);
 
   const handleLocationCheck = () => {
     if (viewerRole === 'protected') {
@@ -120,8 +168,10 @@ export default function DangerModalScreen() {
     }
   };
 
-  const displayScore = riskStatus ? String(riskStatus.score) : dangerScore;
-  const riskFactors = [...(riskStatus?.factors ?? [])]
+  // 이 화면은 '선택한 알림이 발생한 당시'의 정보를 표시합니다.
+  // 현재 위험도 API를 다시 호출하면 과거 알림 점수가 현재 점수로 바뀌므로 사용하지 않습니다.
+  const displayScore = dangerScore;
+  const riskFactors = [...(riskSnapshot?.factors ?? [])]
     .sort((left, right) => right.percent - left.percent)
     .slice(0, 3);
 
@@ -153,7 +203,12 @@ export default function DangerModalScreen() {
 
         <View style={styles.analysisContainer}>
           <Text style={styles.analysisTitle}>위험요인 상세 분석</Text>
-          {riskFactors.length ? riskFactors.map((factor, index) => {
+          {isRiskSnapshotLoading ? (
+            <View style={styles.snapshotLoading}>
+              <ActivityIndicator color="#FF2525" />
+              <Text style={styles.snapshotLoadingText}>알림 당시의 분석 정보를 불러오는 중입니다.</Text>
+            </View>
+          ) : riskFactors.length ? riskFactors.map((factor, index) => {
             const isExpanded = expandedFactorKey === factor.key;
             const color = RISK_FACTOR_COLORS[index];
             return (
@@ -176,7 +231,7 @@ export default function DangerModalScreen() {
                 {isExpanded ? (
                   <View style={styles.factorReasonCard}>
                     <Ionicons name="warning" size={18} color={color} style={styles.factorReasonIcon} />
-                    <Text style={styles.factorReasonText}>{fallbackFactorReason(factor)}</Text>
+                    <Text style={styles.factorReasonText}>{factorReason(factor)}</Text>
                   </View>
                 ) : null}
               </TouchableOpacity>
@@ -225,6 +280,8 @@ const styles = StyleSheet.create({
   scoreText: { fontSize: 26, fontWeight: '900', color: '#000000', marginTop: 16 },
   analysisContainer: { marginHorizontal: 12, marginBottom: 34 },
   analysisTitle: { fontSize: 21, fontWeight: 'bold', color: '#111111', marginBottom: 13 },
+  snapshotLoading: { minHeight: 72, borderWidth: 1, borderColor: '#E1E1E1', borderRadius: 12, alignItems: 'center', justifyContent: 'center', gap: 8, padding: 14 },
+  snapshotLoadingText: { fontSize: 14, fontWeight: '600', color: '#777777' },
   factorCard: { borderWidth: 1, borderColor: '#E1E1E1', borderRadius: 12, paddingHorizontal: 14, paddingVertical: 13, marginBottom: 10 },
   factorHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 },
   factorTitle: { flex: 1, fontSize: 17, fontWeight: 'bold', color: '#222222' },

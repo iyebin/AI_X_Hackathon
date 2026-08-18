@@ -1,4 +1,5 @@
 const API_BASE_URL = 'https://ai-x-hackathon-backend.onrender.com';
+import { CurrentRiskStatus, parseRiskStatus } from '@/features/risk/risk-api';
 
 export type AlertKind = 'danger' | 'warning' | 'info';
 
@@ -11,6 +12,7 @@ export interface AppAlert {
   message?: string;
   createdAt?: string;
   riskScore?: number;
+  riskSnapshot?: CurrentRiskStatus;
   isRead: boolean;
   kind: AlertKind;
 }
@@ -27,6 +29,16 @@ function asNumber(value: unknown): number | undefined {
 }
 
 function getKind(payload: AlertPayload, title: string, message?: string): AlertKind {
+  // 위험 알림은 type이 모두 risk로 저장될 수 있으므로, 실제 분석 단계가 있으면 그것을 우선합니다.
+  const snapshot = payload.risk_snapshot ?? payload.riskSnapshot;
+  const snapshotLevel = snapshot && typeof snapshot === 'object' && !Array.isArray(snapshot)
+    ? (snapshot as Record<string, unknown>).risk_level ?? (snapshot as Record<string, unknown>).riskLevel
+    : undefined;
+  const riskLevel = asText(payload.risk_level ?? payload.riskLevel ?? snapshotLevel)?.toLowerCase();
+  if (['danger', 'risk', 'high', '위험'].includes(riskLevel ?? '')) return 'danger';
+  if (['warning', 'caution', 'medium', '주의'].includes(riskLevel ?? '')) return 'warning';
+  if (['safe', 'normal', 'low', '안전'].includes(riskLevel ?? '')) return 'info';
+
   const value = [payload.alert_type, payload.type, payload.level, payload.severity, title, message]
     .filter(Boolean)
     .join(' ')
@@ -46,6 +58,12 @@ function extractReason(explicitReason: string | undefined, message?: string): st
   const afterLabel = message.includes(':') ? message.slice(message.indexOf(':') + 1) : message;
   const withoutScore = afterLabel.replace(/\s*\(\s*위험\s*점수\s*:\s*[^)]*\)\s*$/u, '');
   return withoutScore.trim() || undefined;
+}
+
+function extractRiskSnapshot(value: unknown): CurrentRiskStatus | undefined {
+  if (!value || typeof value !== 'object') return undefined;
+  const snapshot = parseRiskStatus(value);
+  return snapshot.score !== 0 || snapshot.factors.length > 0 || snapshot.measuredAt ? snapshot : undefined;
 }
 
 function toAppAlert(payload: AlertPayload): AppAlert | null {
@@ -75,6 +93,7 @@ function toAppAlert(payload: AlertPayload): AppAlert | null {
       asText(payload.timestamp) ??
       asText(payload.createdAt),
     riskScore: asNumber(payload.risk_score ?? payload.riskScore),
+    riskSnapshot: extractRiskSnapshot(payload.risk_snapshot ?? payload.riskSnapshot),
     isRead: Boolean(payload.is_read ?? payload.read ?? false),
     kind: getKind(payload, title, message),
   };

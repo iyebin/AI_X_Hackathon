@@ -194,7 +194,7 @@ export default function SettingView({ isProtected = false, notificationUser, onE
   };
 
   const handleEmergencyContact = () => {
-    setProtectorPhoneInput(getProtectorPhone());
+    setProtectorPhoneInput(getProtectorPhone() ?? '');
     setIsContactModalVisible(true);
   };
 
