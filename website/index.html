@@ -1313,22 +1313,174 @@
     </div>
 
 
-    <form
-      id="subjectForm"
-      class="user-form"
+<form
+  id="subjectForm"
+  class="user-form"
+>
+
+  <div class="form-grid">
+
+    <label class="form-field">
+      <span>이름 *</span>
+      <input id="subjectName" required placeholder="이름" />
+    </label>
+
+    <label class="form-field">
+      <span>성별 *</span>
+
+      <select id="subjectGender" required>
+        <option value="">선택</option>
+        <option value="male">남성</option>
+        <option value="female">여성</option>
+        <option value="unknown">미상</option>
+      </select>
+    </label>
+
+    <label class="form-field">
+      <span>전화번호 *</span>
+      <input
+        id="subjectPhone"
+        required
+        placeholder="010-0000-0000"
+      />
+    </label>
+
+    <label class="form-field">
+      <span>생년월일 *</span>
+      <input
+        id="subjectBirthDate"
+        type="date"
+        required
+      />
+    </label>
+
+    <!-- 보호대상자 주소 -->
+
+    <div class="form-field full">
+      <span>주소 *</span>
+
+      <div class="address-search-row">
+
+        <input
+          id="subjectAddress"
+          type="text"
+          required
+          readonly
+          placeholder="주소 검색을 눌러주세요."
+          class="address-result-input"
+        />
+
+        <button
+          id="subjectAddressSearchButton"
+          type="button"
+          class="address-search-button"
+        >
+          <i data-lucide="search"></i>
+          주소 검색
+        </button>
+
+      </div>
+    </div>
+
+    <label class="form-field full">
+      <span>상세주소</span>
+
+      <input
+        id="subjectAddressDetail"
+        type="text"
+        placeholder="동, 호수 등 상세주소를 입력하세요."
+      />
+    </label>
+
+    <label class="form-field">
+      <span>유형 *</span>
+
+      <select id="subjectType" required>
+        <option value="">선택</option>
+        <option value="child">아동</option>
+        <option value="dementia">치매환자</option>
+        <option value="elderly">노인</option>
+        <option value="disability">장애인</option>
+        <option value="general">일반</option>
+        <option value="other">기타</option>
+      </select>
+    </label>
+
+    <label class="form-field">
+      <span>소속 기관</span>
+
+      <select id="subjectInstitution">
+        <option value="">소속 기관 없음</option>
+      </select>
+    </label>
+
+    <label class="form-field full">
+      <span>특이사항</span>
+
+      <textarea
+        id="subjectSpecialNotes"
+        rows="3"
+        placeholder="필요한 특이사항을 입력하세요."
+      ></textarea>
+    </label>
+
+
+    <!-- ===============================
+         보호자 연결
+    ================================ -->
+
+    <div
+      class="form-field full"
+      style="margin-top:10px;"
+    >
+      <span>보호자 연결 *</span>
+
+      <select id="subjectGuardianMode">
+        <option value="existing">기존 보호자 선택</option>
+        <option value="new">새 보호자 등록</option>
+      </select>
+    </div>
+
+
+    <!-- 기존 보호자 -->
+
+    <div
+      id="subjectExistingGuardianBox"
+      class="form-field full"
+    >
+      <span>보호자 *</span>
+
+      <select id="subjectExistingGuardian">
+        <option value="">
+          보호자를 선택하세요.
+        </option>
+      </select>
+    </div>
+
+
+    <!-- 새 보호자 -->
+
+    <div
+      id="subjectNewGuardianBox"
+      class="hidden"
+      style="grid-column:1 / -1;"
     >
 
       <div class="form-grid">
 
         <label class="form-field">
-          <span>이름 *</span>
-          <input id="subjectName" required placeholder="이름" />
+          <span>보호자 이름 *</span>
+
+          <input
+            id="subjectNewGuardianName"
+            placeholder="보호자 이름"
+          />
         </label>
 
         <label class="form-field">
-          <span>성별 *</span>
+          <span>보호자 성별 *</span>
 
-          <select id="subjectGender" required>
+          <select id="subjectNewGuardianGender">
             <option value="">선택</option>
             <option value="male">남성</option>
             <option value="female">여성</option>
@@ -1337,40 +1489,41 @@
         </label>
 
         <label class="form-field">
-          <span>전화번호 *</span>
+          <span>보호자 전화번호 *</span>
+
           <input
-            id="subjectPhone"
-            required
+            id="subjectNewGuardianPhone"
             placeholder="010-0000-0000"
           />
         </label>
 
         <label class="form-field">
-          <span>생년월일 *</span>
+          <span>보호자 생년월일 *</span>
+
           <input
-            id="subjectBirthDate"
+            id="subjectNewGuardianBirthDate"
             type="date"
-            required
           />
         </label>
 
+        <!-- 새 보호자 주소 -->
+
         <div class="form-field full">
 
-          <span>주소 *</span>
+          <span>보호자 주소 *</span>
 
           <div class="address-search-row">
 
             <input
-              id="subjectAddress"
+              id="subjectNewGuardianAddress"
               type="text"
-              required
               readonly
               placeholder="주소 검색을 눌러주세요."
               class="address-result-input"
             />
 
             <button
-              id="subjectAddressSearchButton"
+              id="subjectNewGuardianAddressSearchButton"
               type="button"
               class="address-search-button"
             >
@@ -1383,20 +1536,289 @@
         </div>
 
         <label class="form-field full">
-          <span>상세주소</span>
+          <span>보호자 상세주소</span>
 
           <input
-            id="subjectAddressDetail"
+            id="subjectNewGuardianAddressDetail"
             type="text"
             placeholder="동, 호수 등 상세주소를 입력하세요."
           />
         </label>
 
+      </div>
+
+    </div>
+
+
+    <!-- 관계 -->
+
+    <label class="form-field full">
+      <span>보호자와의 관계 *</span>
+
+      <select id="subjectRelationship">
+        <option value="">선택</option>
+        <option value="mother">어머니</option>
+        <option value="father">아버지</option>
+        <option value="spouse">배우자</option>
+        <option value="child">자녀</option>
+        <option value="sibling">형제·자매</option>
+        <option value="relative">친족</option>
+        <option value="caregiver">돌봄 제공자</option>
+        <option value="other">기타</option>
+      </select>
+    </label>
+<label
+  id="subjectRelationshipEtcBox"
+  class="form-field full hidden"
+>
+  <span>관계 메모</span>
+
+  <input
+    id="subjectRelationshipEtc"
+    type="text"
+    maxlength="50"
+    placeholder="예: 이웃, 지인, 사회복지사"
+  />
+</label>
+  </div>
+
+
+  <div class="form-actions">
+
+    <button
+      type="button"
+      class="form-cancel-button"
+      data-close-user-modal
+    >
+      취소
+    </button>
+
+    <button
+      id="submitSubjectButton"
+      type="submit"
+      class="form-submit-button"
+    >
+      보호대상자 추가
+    </button>
+
+  </div>
+
+</form>
+
+
+
+<form
+  id="guardianForm"
+  class="user-form hidden"
+>
+
+  <div class="form-grid">
+
+    <label class="form-field">
+      <span>이름 *</span>
+      <input id="guardianName" required placeholder="이름" />
+    </label>
+
+    <label class="form-field">
+      <span>성별 *</span>
+
+      <select id="guardianGender" required>
+        <option value="">선택</option>
+        <option value="male">남성</option>
+        <option value="female">여성</option>
+        <option value="unknown">미상</option>
+      </select>
+    </label>
+
+    <label class="form-field">
+      <span>전화번호 *</span>
+
+      <input
+        id="guardianPhone"
+        required
+        placeholder="010-0000-0000"
+      />
+    </label>
+
+    <label class="form-field">
+      <span>생년월일 *</span>
+
+      <input
+        id="guardianBirthDate"
+        type="date"
+        required
+      />
+    </label>
+
+    <!-- 보호자 주소 -->
+
+    <div class="form-field full">
+
+      <span>주소 *</span>
+
+      <div class="address-search-row">
+
+        <input
+          id="guardianAddress"
+          type="text"
+          required
+          readonly
+          placeholder="주소 검색을 눌러주세요."
+          class="address-result-input"
+        />
+
+        <button
+          id="guardianAddressSearchButton"
+          type="button"
+          class="address-search-button"
+        >
+          <i data-lucide="search"></i>
+          주소 검색
+        </button>
+
+      </div>
+
+    </div>
+
+    <label class="form-field full">
+      <span>상세주소</span>
+
+      <input
+        id="guardianAddressDetail"
+        type="text"
+        placeholder="동, 호수 등 상세주소를 입력하세요."
+      />
+    </label>
+
+
+    <!-- ===============================
+         보호대상자 연결
+    ================================ -->
+
+    <div
+      class="form-field full"
+      style="margin-top:10px;"
+    >
+      <span>보호대상자 연결 *</span>
+
+      <select id="guardianSubjectMode">
+        <option value="existing">기존 보호대상자 선택</option>
+        <option value="new">새 보호대상자 등록</option>
+      </select>
+    </div>
+
+
+    <!-- 기존 보호대상자 -->
+
+    <div
+      id="guardianExistingSubjectBox"
+      class="form-field full"
+    >
+      <span>보호대상자 *</span>
+
+      <select id="guardianExistingSubject">
+        <option value="">
+          보호대상자를 선택하세요.
+        </option>
+      </select>
+    </div>
+
+
+    <!-- 새 보호대상자 -->
+
+    <div
+      id="guardianNewSubjectBox"
+      class="hidden"
+      style="grid-column:1 / -1;"
+    >
+
+      <div class="form-grid">
+
+        <label class="form-field">
+          <span>보호대상자 이름 *</span>
+
+          <input
+            id="guardianNewSubjectName"
+            placeholder="보호대상자 이름"
+          />
+        </label>
+
+        <label class="form-field">
+          <span>보호대상자 성별 *</span>
+
+          <select id="guardianNewSubjectGender">
+            <option value="">선택</option>
+            <option value="male">남성</option>
+            <option value="female">여성</option>
+            <option value="unknown">미상</option>
+          </select>
+        </label>
+
+        <label class="form-field">
+          <span>보호대상자 전화번호 *</span>
+
+          <input
+            id="guardianNewSubjectPhone"
+            placeholder="010-0000-0000"
+          />
+        </label>
+
+        <label class="form-field">
+          <span>보호대상자 생년월일 *</span>
+
+          <input
+            id="guardianNewSubjectBirthDate"
+            type="date"
+          />
+        </label>
+
+
+        <!-- 새 보호대상자 주소 -->
+
+        <div class="form-field full">
+
+          <span>보호대상자 주소 *</span>
+
+          <div class="address-search-row">
+
+            <input
+              id="guardianNewSubjectAddress"
+              type="text"
+              readonly
+              placeholder="주소 검색을 눌러주세요."
+              class="address-result-input"
+            />
+
+            <button
+              id="guardianNewSubjectAddressSearchButton"
+              type="button"
+              class="address-search-button"
+            >
+              <i data-lucide="search"></i>
+              주소 검색
+            </button>
+
+          </div>
+
+        </div>
+
+
+        <label class="form-field full">
+          <span>보호대상자 상세주소</span>
+
+          <input
+            id="guardianNewSubjectAddressDetail"
+            type="text"
+            placeholder="동, 호수 등 상세주소를 입력하세요."
+          />
+        </label>
+
+
         <label class="form-field">
 
           <span>유형 *</span>
 
-          <select id="subjectType" required>
+          <select id="guardianNewSubjectType">
             <option value="">선택</option>
             <option value="child">아동</option>
             <option value="dementia">치매환자</option>
@@ -1408,22 +1830,24 @@
 
         </label>
 
+
         <label class="form-field">
 
           <span>소속 기관</span>
 
-          <select id="subjectInstitution">
+          <select id="guardianNewSubjectInstitution">
             <option value="">소속 기관 없음</option>
           </select>
 
         </label>
+
 
         <label class="form-field full">
 
           <span>특이사항</span>
 
           <textarea
-            id="subjectSpecialNotes"
+            id="guardianNewSubjectSpecialNotes"
             rows="3"
             placeholder="필요한 특이사항을 입력하세요."
           ></textarea>
@@ -1432,29 +1856,63 @@
 
       </div>
 
+    </div>
 
-      <div class="form-actions">
 
-        <button
-          type="button"
-          class="form-cancel-button"
-          data-close-user-modal
-        >
-          취소
-        </button>
+    <!-- 관계 -->
 
-        <button
-          id="submitSubjectButton"
-          type="submit"
-          class="form-submit-button"
-        >
-          보호대상자 추가
-        </button>
+    <label class="form-field full">
+      <span>보호대상자와의 관계 *</span>
 
-      </div>
+      <select id="guardianRelationship">
+        <option value="">선택</option>
+        <option value="mother">어머니</option>
+        <option value="father">아버지</option>
+        <option value="spouse">배우자</option>
+        <option value="child">자녀</option>
+        <option value="sibling">형제·자매</option>
+        <option value="relative">친족</option>
+        <option value="caregiver">돌봄 제공자</option>
+        <option value="other">기타</option>
+      </select>
+    </label>
+<label
+  id="guardianRelationshipEtcBox"
+  class="form-field full hidden"
+>
+  <span>관계 메모</span>
 
-    </form>
+  <input
+    id="guardianRelationshipEtc"
+    type="text"
+    maxlength="50"
+    placeholder="예: 이웃, 지인, 사회복지사"
+  />
+</label>
+  </div>
 
+
+  <div class="form-actions">
+
+    <button
+      type="button"
+      class="form-cancel-button"
+      data-close-user-modal
+    >
+      취소
+    </button>
+
+    <button
+      id="submitGuardianButton"
+      type="submit"
+      class="form-submit-button"
+    >
+      보호자 추가
+    </button>
+
+  </div>
+
+</form>
 
     <form
       id="guardianForm"
