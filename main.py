@@ -3155,7 +3155,11 @@ def get_risk_analysis(
     weather_score = float(risk_status.weather_score or 0)
     air_score = float(risk_status.air_score or 0)
 
-    factor_total = gps_score + weather_score + air_score
+    factor_total = (
+        gps_score
+        + weather_score
+        + air_score
+    )
 
     total_score = float(
         risk_status.risk_score
@@ -3166,41 +3170,320 @@ def get_risk_analysis(
     def percentage(score: float) -> int:
         if factor_total <= 0:
             return 0
-        return round(score / factor_total * 100)
+
+        return round(
+            score / factor_total * 100
+        )
+
+    # -----------------------------------------------------
+    # GPS 설명
+    # -----------------------------------------------------
+    if gps_score >= 80:
+        gps_description = (
+            "평소 이동 패턴과 크게 다른 경로가 감지되었습니다. "
+            f"GPS 이동 이상 점수가 {gps_score:g}점으로 매우 높습니다."
+        )
+    elif gps_score >= 50:
+        gps_description = (
+            "평소 이동 패턴과 다른 이동이 감지되었습니다. "
+            f"GPS 이동 이상 점수가 {gps_score:g}점으로 주의가 필요합니다."
+        )
+    elif gps_score > 0:
+        gps_description = (
+            "평소 경로와 일부 다른 이동이 감지되었습니다. "
+            f"GPS 이동 이상 점수는 {gps_score:g}점입니다."
+        )
+    else:
+        gps_description = (
+            "현재 GPS 이동 패턴에서 특이사항이 감지되지 않았습니다."
+        )
+
+    # -----------------------------------------------------
+    # 최신 GPS 위치 기준 실제 환경정보 조회
+    # -----------------------------------------------------
+    weather_data = None
+    air_data = None
+
+    latest_gps = (
+        db.query(models.GPSRecord)
+        .filter(
+            models.GPSRecord.subject_id == subject_id
+        )
+        .order_by(
+            models.GPSRecord.measured_at.desc(),
+            models.GPSRecord.gps_id.desc(),
+        )
+        .first()
+    )
+
+    if latest_gps:
+        try:
+            weather_data = get_weather_by_gps(
+                latest_gps.latitude,
+                latest_gps.longitude,
+            )
+        except Exception as exc:
+            print(
+                "[RISK ANALYSIS] weather lookup failed:",
+                exc,
+            )
+
+        try:
+            air_data = get_air_quality_by_gps(
+                latest_gps.latitude,
+                latest_gps.longitude,
+            )
+        except Exception as exc:
+            print(
+                "[RISK ANALYSIS] air lookup failed:",
+                exc,
+            )
+
+    # -----------------------------------------------------
+    # 기상 설명
+    # -----------------------------------------------------
+    weather_reasons = []
+
+    if weather_data:
+        temperature = weather_data.get("temperature")
+        apparent_temperature = weather_data.get(
+            "apparent_temperature"
+        )
+        rainfall = weather_data.get("rainfall_1h")
+        wind_speed = weather_data.get("wind_speed")
+        precipitation_type = weather_data.get(
+            "precipitation_type"
+        )
+
+        warning = weather_data.get(
+            "weather_warning"
+        ) or {}
+
+        warning_level = warning.get(
+            "highest_level"
+        )
+
+        if warning_level:
+            weather_reasons.append(
+                f"현재 지역에 {warning_level} 단계의 "
+                "기상특보가 적용되어 있습니다."
+            )
+
+        try:
+            apparent = float(apparent_temperature)
+        except (TypeError, ValueError):
+            apparent = None
+
+        try:
+            temp = float(temperature)
+        except (TypeError, ValueError):
+            temp = None
+
+        try:
+            rain = float(rainfall)
+        except (TypeError, ValueError):
+            rain = 0.0
+
+        try:
+            wind = float(wind_speed)
+        except (TypeError, ValueError):
+            wind = 0.0
+
+        if apparent is not None:
+            if apparent >= 35:
+                weather_reasons.append(
+                    f"체감온도가 {apparent:g}℃로 매우 높아 "
+                    "폭염 위험이 있습니다."
+                )
+            elif apparent >= 30:
+                weather_reasons.append(
+                    f"체감온도가 {apparent:g}℃로 높아 "
+                    "장시간 야외 활동에 주의가 필요합니다."
+                )
+            elif apparent <= -5:
+                weather_reasons.append(
+                    f"체감온도가 {apparent:g}℃로 낮아 "
+                    "한랭 위험이 있습니다."
+                )
+        elif temp is not None:
+            weather_reasons.append(
+                f"현재 기온은 {temp:g}℃입니다."
+            )
+
+        if rain >= 30:
+            weather_reasons.append(
+                f"최근 1시간 강수량이 {rain:g}mm로 "
+                "매우 강한 비가 내리고 있습니다."
+            )
+        elif rain >= 15:
+            weather_reasons.append(
+                f"최근 1시간 강수량이 {rain:g}mm로 "
+                "강한 비가 내리고 있습니다."
+            )
+        elif rain >= 5:
+            weather_reasons.append(
+                f"최근 1시간 강수량이 {rain:g}mm로 "
+                "보행 시 미끄럼에 주의가 필요합니다."
+            )
+
+        precipitation_names = {
+            "1": "비",
+            "2": "비 또는 눈",
+            "3": "눈",
+            "5": "빗방울",
+            "6": "빗방울 또는 눈날림",
+            "7": "눈날림",
+        }
+
+        pty_name = precipitation_names.get(
+            str(precipitation_type)
+        )
+
+        if pty_name and rain <= 0:
+            weather_reasons.append(
+                f"현재 {pty_name}가 관측되고 있어 "
+                "이동 시 주의가 필요합니다."
+            )
+
+        if wind >= 15:
+            weather_reasons.append(
+                f"풍속이 {wind:g}m/s로 매우 강해 "
+                "보행 안전에 주의가 필요합니다."
+            )
+        elif wind >= 10:
+            weather_reasons.append(
+                f"풍속이 {wind:g}m/s로 강한 편입니다."
+            )
+
+    if weather_score <= 0 and not weather_reasons:
+        weather_description = (
+            "현재 위치에서는 기상으로 인한 "
+            "추가 위험이 감지되지 않았습니다."
+        )
+    elif weather_reasons:
+        weather_description = " ".join(
+            weather_reasons[:3]
+        )
+    else:
+        weather_description = (
+            f"기상 위험 점수가 {weather_score:g}점으로 "
+            "현재 기상 상황에 주의가 필요합니다."
+        )
+
+    # -----------------------------------------------------
+    # 대기질 설명
+    # -----------------------------------------------------
+    air_reasons = []
+
+    if air_data:
+        quality = air_data.get(
+            "air_quality"
+        ) or {}
+
+        pm10 = quality.get("pm10")
+        pm25 = quality.get("pm25")
+        o3 = quality.get("o3")
+        khai = quality.get("khai")
+        station = quality.get("station_name")
+
+        def to_float(value):
+            try:
+                return float(value)
+            except (TypeError, ValueError):
+                return None
+
+        pm10_value = to_float(pm10)
+        pm25_value = to_float(pm25)
+        o3_value = to_float(o3)
+
+        if pm10_value is not None:
+            if pm10_value > 150:
+                air_reasons.append(
+                    f"미세먼지(PM10)가 {pm10_value:g}㎍/㎥로 "
+                    "매우 나쁨 수준입니다."
+                )
+            elif pm10_value > 80:
+                air_reasons.append(
+                    f"미세먼지(PM10)가 {pm10_value:g}㎍/㎥로 "
+                    "나쁨 수준입니다."
+                )
+
+        if pm25_value is not None:
+            if pm25_value > 75:
+                air_reasons.append(
+                    f"초미세먼지(PM2.5)가 {pm25_value:g}㎍/㎥로 "
+                    "매우 나쁨 수준입니다."
+                )
+            elif pm25_value > 35:
+                air_reasons.append(
+                    f"초미세먼지(PM2.5)가 {pm25_value:g}㎍/㎥로 "
+                    "나쁨 수준입니다."
+                )
+
+        if o3_value is not None:
+            if o3_value > 0.15:
+                air_reasons.append(
+                    f"오존 농도가 {o3_value:g}ppm으로 높아 "
+                    "야외 활동에 주의가 필요합니다."
+                )
+            elif o3_value > 0.09:
+                air_reasons.append(
+                    f"오존 농도가 {o3_value:g}ppm으로 "
+                    "주의가 필요한 수준입니다."
+                )
+
+        if not air_reasons and khai is not None:
+            air_reasons.append(
+                f"통합대기환경지수(KHAI)는 {khai}입니다."
+            )
+
+        if station and air_reasons:
+            air_reasons.append(
+                f"{station} 측정소의 최신 관측값을 기준으로 분석했습니다."
+            )
+
+    if air_score <= 0 and not air_reasons:
+        air_description = (
+            "현재 위치에서는 대기질로 인한 "
+            "추가 위험이 감지되지 않았습니다."
+        )
+    elif air_reasons:
+        air_description = " ".join(
+            air_reasons[:3]
+        )
+    else:
+        air_description = (
+            f"대기 위험 점수가 {air_score:g}점으로 "
+            "외부 활동 시 주의가 필요합니다."
+        )
 
     factors = [
         {
             "type": "gps_deviation",
             "name": "GPS 이탈",
             "score": gps_score,
-            "percentage": percentage(gps_score),
-            "description": (
-                "평소 이동 패턴과 다른 위치 이동이 감지되었습니다."
-                if gps_score > 0
-                else "현재 GPS 이동 패턴에서 특이사항이 없습니다."
+            "percentage": percentage(
+                gps_score
             ),
+            "description": gps_description,
         },
         {
             "type": "weather",
             "name": "기상",
             "score": weather_score,
-            "percentage": percentage(weather_score),
-            "description": (
-                "현재 위치의 기상 상황이 위험도에 영향을 주고 있습니다."
-                if weather_score > 0
-                else "현재 기상으로 인한 추가 위험이 없습니다."
+            "percentage": percentage(
+                weather_score
             ),
+            "description": weather_description,
         },
         {
             "type": "air",
             "name": "대기",
             "score": air_score,
-            "percentage": percentage(air_score),
-            "description": (
-                "현재 위치의 대기질이 위험도에 영향을 주고 있습니다."
-                if air_score > 0
-                else "현재 대기질로 인한 추가 위험이 없습니다."
+            "percentage": percentage(
+                air_score
             ),
+            "description": air_description,
         },
     ]
 
