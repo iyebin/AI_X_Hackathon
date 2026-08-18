@@ -409,6 +409,14 @@ class GPSRecord(Base):
         nullable=False,
         index=True,
     )
+    x = Column(Float, nullable=True)
+    y = Column(Float, nullable=True)
+
+    x_d = Column(Integer, nullable=True)
+    y_d = Column(Integer, nullable=True)
+    token = Column(BigInteger, nullable=True)
+
+    dayofweek = Column(String(10), nullable=True)
 
     latitude = Column(Float, nullable=False)
     longitude = Column(Float, nullable=False)
