@@ -8514,21 +8514,345 @@ startApp();
         );
 
 
-      document
-        .getElementById(
-          "passwordChangeButton"
-        )
-        ?.addEventListener(
-          "click",
-          () => {
-
-            alert(
-              "비밀번호 변경 API는 아직 연결되지 않았습니다."
-            );
-          }
-        );
+    document
+  .getElementById(
+    "passwordChangeButton"
+  )
+  ?.addEventListener(
+    "click",
+    openPasswordChangeModal
+  );
     };
 
+    function openPasswordChangeModal() {
+
+  const manager =
+    getLoggedInManager();
+
+
+  if (!manager?.id) {
+
+    alert(
+      "로그인한 관리자 정보를 확인할 수 없습니다."
+    );
+
+    return;
+  }
+
+
+  const overlay =
+    document.createElement(
+      "div"
+    );
+
+
+  overlay.id =
+    "passwordChangeOverlay";
+
+
+  overlay.className =
+    "account-overlay";
+
+
+  overlay.innerHTML = `
+
+    <div class="account-dialog">
+
+      <div class="account-dialog-header">
+
+        <h2>
+          비밀번호 변경
+        </h2>
+
+        <button
+          class="account-dialog-close"
+          type="button"
+          id="closePasswordChangeDialog"
+        >
+          <i data-lucide="x"></i>
+        </button>
+
+      </div>
+
+
+      <div class="account-dialog-body">
+
+        <div class="settings-field">
+
+          <label>
+            현재 비밀번호
+          </label>
+
+          <input
+            id="currentPasswordInput"
+            type="password"
+            placeholder="현재 비밀번호를 입력하세요"
+          />
+
+        </div>
+
+
+        <div class="settings-field">
+
+          <label>
+            새 비밀번호
+          </label>
+
+          <input
+            id="newPasswordInput"
+            type="password"
+            placeholder="새 비밀번호를 입력하세요"
+          />
+
+        </div>
+
+
+        <div class="settings-field">
+
+          <label>
+            비밀번호 확인
+          </label>
+
+          <input
+            id="newPasswordConfirmInput"
+            type="password"
+            placeholder="새 비밀번호를 다시 입력하세요"
+          />
+
+        </div>
+
+
+        <div class="settings-action-row">
+
+          <button
+            class="settings-button cancel"
+            type="button"
+            id="passwordChangeCancelButton"
+          >
+            취소
+          </button>
+
+
+          <button
+            class="settings-button save"
+            type="button"
+            id="passwordChangeSaveButton"
+          >
+            변경
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+  `;
+
+
+  document.body.appendChild(
+    overlay
+  );
+
+
+  function closePasswordModal() {
+
+    overlay.remove();
+  }
+
+
+  document
+    .getElementById(
+      "closePasswordChangeDialog"
+    )
+    ?.addEventListener(
+      "click",
+      closePasswordModal
+    );
+
+
+  document
+    .getElementById(
+      "passwordChangeCancelButton"
+    )
+    ?.addEventListener(
+      "click",
+      closePasswordModal
+    );
+
+
+  overlay.addEventListener(
+    "click",
+    event => {
+
+      if (
+        event.target === overlay
+      ) {
+
+        closePasswordModal();
+      }
+    }
+  );
+
+
+  document
+    .getElementById(
+      "passwordChangeSaveButton"
+    )
+    ?.addEventListener(
+      "click",
+      async () => {
+
+        const currentPassword =
+          document
+            .getElementById(
+              "currentPasswordInput"
+            )
+            ?.value;
+
+
+        const newPassword =
+          document
+            .getElementById(
+              "newPasswordInput"
+            )
+            ?.value;
+
+
+        const confirmPassword =
+          document
+            .getElementById(
+              "newPasswordConfirmInput"
+            )
+            ?.value;
+
+
+        if (
+          !currentPassword ||
+          !newPassword ||
+          !confirmPassword
+        ) {
+
+          alert(
+            "모든 항목을 입력해주세요."
+          );
+
+          return;
+        }
+
+
+        if (
+          newPassword !==
+          confirmPassword
+        ) {
+
+          alert(
+            "새 비밀번호가 일치하지 않습니다."
+          );
+
+          return;
+        }
+
+
+        if (
+          currentPassword ===
+          newPassword
+        ) {
+
+          alert(
+            "새 비밀번호는 현재 비밀번호와 다르게 설정해주세요."
+          );
+
+          return;
+        }
+
+
+        const saveButton =
+          document.getElementById(
+            "passwordChangeSaveButton"
+          );
+
+
+        try {
+
+          saveButton.disabled =
+            true;
+
+
+          saveButton.textContent =
+            "변경 중...";
+
+
+          await apiRequest(
+            `/institution-managers/${manager.id}/change-password`,
+            {
+              method: "PATCH",
+
+              headers: {
+                "Content-Type":
+                  "application/json"
+              },
+
+              body:
+                JSON.stringify({
+                  current_password:
+                    currentPassword,
+
+                  new_password:
+                    newPassword
+                })
+            }
+          );
+
+
+        alert(
+  "비밀번호가 변경되었습니다.\n새 비밀번호로 다시 로그인해주세요."
+);
+
+sessionStorage.removeItem(
+  "ansim_manager_session"
+);
+
+window.location.href =
+  "index.html";
+
+        } catch (error) {
+
+          console.error(
+            "비밀번호 변경 실패:",
+            error
+          );
+
+
+          alert(
+            `비밀번호 변경 실패\n${error.message}`
+          );
+
+
+        } finally {
+
+          if (
+            document.body.contains(
+              saveButton
+            )
+          ) {
+
+            saveButton.disabled =
+              false;
+
+
+            saveButton.textContent =
+              "변경";
+          }
+        }
+      }
+    );
+
+
+  if (window.lucide) {
+
+    lucide.createIcons();
+  }
+}
 
   /* ================================================
      현재 상단 이름도 세션 기준으로 맞춤
