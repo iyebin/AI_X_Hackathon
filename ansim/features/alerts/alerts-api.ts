@@ -29,6 +29,16 @@ function asNumber(value: unknown): number | undefined {
 }
 
 function getKind(payload: AlertPayload, title: string, message?: string): AlertKind {
+  // 위험 알림은 type이 모두 risk로 저장될 수 있으므로, 실제 분석 단계가 있으면 그것을 우선합니다.
+  const snapshot = payload.risk_snapshot ?? payload.riskSnapshot;
+  const snapshotLevel = snapshot && typeof snapshot === 'object' && !Array.isArray(snapshot)
+    ? (snapshot as Record<string, unknown>).risk_level ?? (snapshot as Record<string, unknown>).riskLevel
+    : undefined;
+  const riskLevel = asText(payload.risk_level ?? payload.riskLevel ?? snapshotLevel)?.toLowerCase();
+  if (['danger', 'risk', 'high', '위험'].includes(riskLevel ?? '')) return 'danger';
+  if (['warning', 'caution', 'medium', '주의'].includes(riskLevel ?? '')) return 'warning';
+  if (['safe', 'normal', 'low', '안전'].includes(riskLevel ?? '')) return 'info';
+
   const value = [payload.alert_type, payload.type, payload.level, payload.severity, title, message]
     .filter(Boolean)
     .join(' ')

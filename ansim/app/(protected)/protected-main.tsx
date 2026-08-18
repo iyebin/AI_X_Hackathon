@@ -1,8 +1,9 @@
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Alert,
+  AppState,
   Linking,
   ScrollView,
   StyleSheet,
@@ -14,6 +15,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import ProtectedMapView from '@/components/map/protected-map';
 import NotificationView from '@/components/notifications/alarm';
 import SettingView from '@/components/settings/setting-view';
+import { getAlerts } from '@/features/alerts/alerts-api';
 import { getProtectorPhone } from '@/features/contacts/protector-contact-store';
 import { startGpsTracking, stopGpsTracking } from '@/features/gps/tracking';
 import { registerPushNotifications } from '@/features/notifications/push-registration';
@@ -36,6 +38,9 @@ export default function ProtectedMainScreen() {
   const [activeTab, setActiveTab] = useState<string>(tab ?? 'home');
   const [weatherNotice, setWeatherNotice] = useState('날씨 정보를 불러오는 중입니다.');
   const [weatherAdvisory, setWeatherAdvisory] = useState('기상 특보 정보를 불러오는 중입니다.');
+  const lastVisibleDangerAlertId = useRef<string | null>(null);
+  const isAlertBaselineReady = useRef(false);
+  const isAppForeground = useRef(AppState.currentState === 'active');
 
   useEffect(() => {
     if (tab) setActiveTab(tab);
@@ -69,6 +74,68 @@ export default function ProtectedMainScreen() {
         setWeatherAdvisory('기상 특보 정보를 불러오지 못했습니다.');
       });
   }, [numericSubjectId]);
+
+  useEffect(() => {
+    if (!Number.isInteger(numericSubjectId) || numericSubjectId <= 0) return;
+
+    let isDisposed = false;
+    const establishBaseline = async () => {
+      try {
+        const latestDanger = (await getAlerts(numericSubjectId)).find((alert) => alert.kind === 'danger' && !alert.isRead);
+        if (!isDisposed) {
+          lastVisibleDangerAlertId.current = latestDanger?.id ?? null;
+          isAlertBaselineReady.current = true;
+        }
+      } catch {
+        if (!isDisposed) isAlertBaselineReady.current = true;
+      }
+    };
+
+    const checkNewForegroundDangerAlert = async () => {
+      if (isDisposed || !isAppForeground.current || !isAlertBaselineReady.current) return;
+      try {
+        const latestDanger = (await getAlerts(numericSubjectId)).find((alert) => alert.kind === 'danger' && !alert.isRead);
+        if (!latestDanger || latestDanger.id === lastVisibleDangerAlertId.current) return;
+
+        lastVisibleDangerAlertId.current = latestDanger.id;
+        router.push({
+          pathname: '/danger-modal',
+          params: {
+            alertId: latestDanger.id,
+            subjectId: String(numericSubjectId),
+            targetName: displayName,
+            targetPhone,
+            dangerScore: String(latestDanger.riskScore ?? ''),
+            dangerReasons: latestDanger.reason ?? latestDanger.message ?? '위험 요인 정보 없음',
+            alertCreatedAt: latestDanger.createdAt ?? '',
+            riskSnapshot: latestDanger.riskSnapshot ? JSON.stringify(latestDanger.riskSnapshot) : '',
+            viewerRole: 'protected',
+          },
+        });
+      } catch {
+        // 다음 주기에서 다시 확인합니다.
+      }
+    };
+
+    const appStateSubscription = AppState.addEventListener('change', (nextState) => {
+      const becomingActive = nextState === 'active' && !isAppForeground.current;
+      isAppForeground.current = nextState === 'active';
+      if (becomingActive) {
+        isAlertBaselineReady.current = false;
+        void establishBaseline();
+      }
+    });
+
+    isAlertBaselineReady.current = false;
+    void establishBaseline();
+    const intervalId = setInterval(() => void checkNewForegroundDangerAlert(), 10_000);
+
+    return () => {
+      isDisposed = true;
+      appStateSubscription.remove();
+      clearInterval(intervalId);
+    };
+  }, [displayName, numericSubjectId, router, targetPhone]);
 
   const handleCallProtector = () => {
     if (!targetPhone) {
