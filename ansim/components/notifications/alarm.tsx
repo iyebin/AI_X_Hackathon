@@ -125,6 +125,8 @@ export default function NotificationView({
           targetPhone: targetPhone ?? target?.phone,
           dangerScore: String(alert.riskScore ?? ''),
           dangerReasons: alert.reason ?? alert.message ?? '위험 요인 정보 없음',
+          alertCreatedAt: alert.createdAt ?? '',
+          riskSnapshot: alert.riskSnapshot ? JSON.stringify(alert.riskSnapshot) : '',
           viewerRole,
         },
       });

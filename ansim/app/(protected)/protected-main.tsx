@@ -30,7 +30,7 @@ export default function ProtectedMainScreen() {
   }>();
 
   const displayName = userName || '슝슝슝';
-  const [targetPhone, setTargetPhone] = useState(getProtectorPhone() || protectorPhone || '01012345678');
+  const [targetPhone, setTargetPhone] = useState(getProtectorPhone() || protectorPhone || '');
   const numericSubjectId = Number(subjectId);
 
   const [activeTab, setActiveTab] = useState<string>(tab ?? 'home');
@@ -206,7 +206,7 @@ export default function ProtectedMainScreen() {
         );
 
       case 'setting':
-        return <SettingView isProtected={true} notificationUser={Number.isInteger(numericSubjectId) && numericSubjectId > 0 ? { userId: numericSubjectId, userType: 'subject' } : undefined} onLocationTrackingChange={handleLocationTrackingChange} onEmergencyContactSaved={() => setTargetPhone(getProtectorPhone())} />;
+        return <SettingView isProtected={true} notificationUser={Number.isInteger(numericSubjectId) && numericSubjectId > 0 ? { userId: numericSubjectId, userType: 'subject' } : undefined} onLocationTrackingChange={handleLocationTrackingChange} onEmergencyContactSaved={() => setTargetPhone(getProtectorPhone() ?? '')} />;
 
       default:
         return null;

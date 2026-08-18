@@ -1,4 +1,5 @@
 const API_BASE_URL = 'https://ai-x-hackathon-backend.onrender.com';
+import { CurrentRiskStatus, parseRiskStatus } from '@/features/risk/risk-api';
 
 export type AlertKind = 'danger' | 'warning' | 'info';
 
@@ -11,6 +12,7 @@ export interface AppAlert {
   message?: string;
   createdAt?: string;
   riskScore?: number;
+  riskSnapshot?: CurrentRiskStatus;
   isRead: boolean;
   kind: AlertKind;
 }
@@ -48,6 +50,12 @@ function extractReason(explicitReason: string | undefined, message?: string): st
   return withoutScore.trim() || undefined;
 }
 
+function extractRiskSnapshot(value: unknown): CurrentRiskStatus | undefined {
+  if (!value || typeof value !== 'object') return undefined;
+  const snapshot = parseRiskStatus(value);
+  return snapshot.score !== 0 || snapshot.factors.length > 0 || snapshot.measuredAt ? snapshot : undefined;
+}
+
 function toAppAlert(payload: AlertPayload): AppAlert | null {
   const id = payload.id ?? payload.alert_id;
   if (id === undefined || id === null) return null;
@@ -75,6 +83,7 @@ function toAppAlert(payload: AlertPayload): AppAlert | null {
       asText(payload.timestamp) ??
       asText(payload.createdAt),
     riskScore: asNumber(payload.risk_score ?? payload.riskScore),
+    riskSnapshot: extractRiskSnapshot(payload.risk_snapshot ?? payload.riskSnapshot),
     isRead: Boolean(payload.is_read ?? payload.read ?? false),
     kind: getKind(payload, title, message),
   };

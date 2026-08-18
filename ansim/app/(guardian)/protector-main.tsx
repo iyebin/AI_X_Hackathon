@@ -23,7 +23,7 @@ import { getAlerts } from '@/features/alerts/alerts-api';
 import { formatTimeSince, getLatestGps, GpsLocation } from '@/features/gps/gps-api';
 import { getWeatherSummary } from '@/features/environment/weather-api';
 import { registerPushNotifications } from '@/features/notifications/push-registration';
-import { CurrentRiskStatus, getCurrentRiskStatus } from '@/features/risk/risk-api';
+import { CurrentRiskStatus, getRiskAnalysis } from '@/features/risk/risk-api';
 
 export default function ProtectorMainScreen() {
   const router = useRouter();
@@ -95,7 +95,7 @@ export default function ProtectorMainScreen() {
     let isActive = true;
     const loadRiskStatus = async () => {
       try {
-        const risk = await getCurrentRiskStatus(subjectId);
+        const risk = await getRiskAnalysis(subjectId);
         if (isActive) setCurrentRisk(risk);
       } catch {
         if (isActive) setCurrentRisk(null);

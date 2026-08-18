@@ -39,6 +39,8 @@ export default function RootLayout() {
           subjectId: String(subjectId),
           dangerScore: String(data.risk_score ?? data.riskScore ?? alert?.riskScore ?? ''),
           dangerReasons: String(data.reason ?? alert?.reason ?? alert?.message ?? ''),
+          alertCreatedAt: alert?.createdAt ?? '',
+          riskSnapshot: alert?.riskSnapshot ? JSON.stringify(alert.riskSnapshot) : '',
           viewerRole: session.role,
         },
       });
