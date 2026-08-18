@@ -1769,10 +1769,62 @@ def save_gps(
     if not subject:
         raise HTTPException(status_code=404, detail="보호대상자를 찾을 수 없습니다.")
 
-    gps_record = models.GPSRecord(**gps_data.model_dump())
+    from pyproj import Transformer
+
+    # 위경도 -> EPSG:5179
+    transformer = Transformer.from_crs(
+        "EPSG:4326",
+        "EPSG:5179",
+        always_xy=True,
+    )
+
+    x, y = transformer.transform(
+        gps_data.longitude,
+        gps_data.latitude,
+    )
+
+    # 팀 전처리와 동일한 50m 격자
+    grid_size_m = 50
+    x_d = int(x // grid_size_m)
+    y_d = int(y // grid_size_m)
+
+    # LMTAD에서 사용하는 GPS 토큰 문자열
+    gps_token = f"gps_{x_d}_{y_d}"
+
+    # vocab에 등록된 경우 숫자 token id 저장
+    token_id = None
+    if lmtad_runtime is not None:
+        token_id = lmtad_runtime.vocab.get(
+            gps_token
+        )
+
+    measured_at = (
+        gps_data.measured_at
+        or datetime.now(timezone.utc)
+    )
+
+    # 요일 저장
+    dayofweek = measured_at.astimezone(
+        ZoneInfo("Asia/Seoul")
+    ).strftime("%A").lower()
+
+    gps_record = models.GPSRecord(
+        subject_id=gps_data.subject_id,
+        latitude=gps_data.latitude,
+        longitude=gps_data.longitude,
+        measured_at=measured_at,
+        x=x,
+        y=y,
+        x_d=x_d,
+        y_d=y_d,
+        token=token_id,
+        dayofweek=dayofweek,
+    )
+
     db.add(gps_record)
     db.commit()
     db.refresh(gps_record)
+
     return gps_record
 
 
