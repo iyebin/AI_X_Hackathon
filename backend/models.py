@@ -458,14 +458,6 @@ class GPSRecord(Base):
     latitude = Column(Float, nullable=False)
     longitude = Column(Float, nullable=False)
 
-    # EPSG:5179 변환 좌표
-    x = Column(Float, nullable=True)
-    y = Column(Float, nullable=True)
-
-    x_d = Column(Integer, nullable=True)
-    y_d = Column(Integer, nullable=True)
-    token = Column(BigInteger, nullable=True)
-
     dayofweek = Column(String(10), nullable=True)
     
     measured_at = Column(
@@ -480,6 +472,32 @@ class GPSRecord(Base):
         back_populates="gps_records",
     )
 
+    
+class Inference(Base):
+    __tablename__ = "inference"
+
+    gps_id = Column(
+            BigInteger,
+            ForeignKey("gps_records.gps_id", ondelete="CASCADE"),
+            nullable=False,
+            index=True,
+        )
+
+    subject_id = Column(
+            BigInteger,
+            ForeignKey("subjects.id", ondelete="CASCADE"),
+            nullable=False,
+            index=True,
+        )
+
+    # EPSG:5179 변환 좌표
+    # x = Column(Float, nullable=True)
+    # y = Column(Float, nullable=True)
+
+    # x_d = Column(Integer, nullable=True)
+    # y_d = Column(Integer, nullable=True)
+    token = Column(BigInteger, nullable=True)
+
     token_probability = Column(Float, nullable=True)
     anomaly_score = Column(Float, nullable=True)
 
@@ -487,6 +505,8 @@ class GPSRecord(Base):
         DateTime(timezone=True),
         nullable=True,
     )
+    
+
 
 class Alert(Base):
     __tablename__ = "alerts"
