@@ -421,6 +421,8 @@ class GPSRecord(Base):
     y_d = Column(Integer, nullable=True)
     token = Column(BigInteger, nullable=True)
 
+    dayofweek = Column(String(10), nullable=True)
+    
     measured_at = Column(
         DateTime(timezone=True),
         server_default=func.now(),
