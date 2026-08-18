@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useFocusEffect, useRouter } from 'expo-router';
+import React, { useCallback, useMemo, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AppAlert, getAlerts, markAlertAsRead } from '@/features/alerts/alerts-api';
 
@@ -9,6 +9,8 @@ interface NotificationViewProps {
   subjectId?: number;
   targetPhone?: string;
   targets?: NotificationTarget[];
+  themeColor?: string;
+  viewerRole?: 'guardian' | 'protected';
 }
 
 export type NotificationTarget = {
@@ -53,7 +55,14 @@ function isAuthCodeAlert(alert: AppAlert): boolean {
     || /\uC778\uC99D\s*\uCF54\uB4DC|\uC778\uC99D\s*\uBC88\uD638|auth\s*code/ui.test(content);
 }
 
-export default function NotificationView({ filterTargetName, subjectId, targetPhone, targets }: NotificationViewProps) {
+export default function NotificationView({
+  filterTargetName,
+  subjectId,
+  targetPhone,
+  targets,
+  themeColor = '#F7931E',
+  viewerRole = 'guardian',
+}: NotificationViewProps) {
   const router = useRouter();
   const [selectedCategory, setSelectedCategory] = useState<Filter>('전체');
   const [alarms, setAlarms] = useState<AppAlert[]>([]);
@@ -72,9 +81,9 @@ export default function NotificationView({ filterTargetName, subjectId, targetPh
     }
   }, [subjectId]);
 
-  useEffect(() => {
+  useFocusEffect(useCallback(() => {
     void loadAlerts();
-  }, [loadAlerts]);
+  }, [loadAlerts]));
 
   const targetById = useMemo(
     () => new Map(targets?.map((target) => [target.id, target]) ?? []),
@@ -95,8 +104,9 @@ export default function NotificationView({ filterTargetName, subjectId, targetPh
 
   const handleAlarmPress = async (alert: AppAlert) => {
     const target = alert.subjectId ? targetById.get(String(alert.subjectId)) : undefined;
-    // 위험 알림은 모달이 실제로 열린 뒤 danger-modal에서 읽음 처리합니다.
-    if (!alert.isRead && alert.kind !== 'danger') {
+    // 알림을 누르는 즉시 목록에도 읽음 상태를 반영합니다.
+    // danger-modal에서도 한 번 더 서버 읽음 처리를 수행하므로 안전합니다.
+    if (!alert.isRead) {
       setAlarms((current) => current.map((item) => item.id === alert.id ? { ...item, isRead: true } : item));
       try {
         await markAlertAsRead(alert.id);
@@ -115,6 +125,7 @@ export default function NotificationView({ filterTargetName, subjectId, targetPh
           targetPhone: targetPhone ?? target?.phone,
           dangerScore: String(alert.riskScore ?? ''),
           dangerReasons: alert.reason ?? alert.message ?? '위험 요인 정보 없음',
+          viewerRole,
         },
       });
     }
@@ -123,14 +134,18 @@ export default function NotificationView({ filterTargetName, subjectId, targetPh
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
       <View style={styles.headerBadgeContainer}>
-        <View style={styles.headerBadge}><Text style={styles.headerBadgeText}>알림</Text></View>
+        <View style={[styles.headerBadge, { backgroundColor: themeColor }]}><Text style={styles.headerBadgeText}>알림</Text></View>
       </View>
       <View style={styles.topDivider} />
       <View style={styles.filterRow}>
         {(['전체', '위험', '주의', '안전'] as const).map((category) => {
           const isSelected = selectedCategory === category;
           return (
-            <TouchableOpacity key={category} style={[styles.chip, isSelected && styles.chipActive]} onPress={() => setSelectedCategory(category)}>
+            <TouchableOpacity
+              key={category}
+              style={[styles.chip, isSelected && { backgroundColor: themeColor, borderColor: themeColor }]}
+              onPress={() => setSelectedCategory(category)}
+            >
               <Text style={[styles.chipText, isSelected && styles.chipTextActive]}>{category}</Text>
             </TouchableOpacity>
           );
@@ -138,8 +153,8 @@ export default function NotificationView({ filterTargetName, subjectId, targetPh
       </View>
       <View style={styles.sectionDivider} />
 
-      {loading ? <View style={styles.state}><ActivityIndicator color="#F7931E" /><Text style={styles.stateText}>알림을 불러오는 중입니다.</Text></View> : null}
-      {error ? <View style={styles.state}><Text style={styles.stateText}>{error}</Text><TouchableOpacity onPress={() => void loadAlerts()}><Text style={styles.retryText}>다시 시도</Text></TouchableOpacity></View> : null}
+      {loading ? <View style={styles.state}><ActivityIndicator color={themeColor} /><Text style={styles.stateText}>알림을 불러오는 중입니다.</Text></View> : null}
+      {error ? <View style={styles.state}><Text style={styles.stateText}>{error}</Text><TouchableOpacity onPress={() => void loadAlerts()}><Text style={[styles.retryText, { color: themeColor }]}>다시 시도</Text></TouchableOpacity></View> : null}
       {!loading && !error && Object.keys(groupedAlarms).length === 0 ? <Text style={styles.emptyText}>해당하는 알림이 없습니다.</Text> : null}
 
       {!loading && !error && Object.entries(groupedAlarms).map(([group, items]) => (

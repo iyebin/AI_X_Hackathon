@@ -23,6 +23,7 @@ import { getAlerts } from '@/features/alerts/alerts-api';
 import { formatTimeSince, getLatestGps, GpsLocation } from '@/features/gps/gps-api';
 import { getWeatherSummary } from '@/features/environment/weather-api';
 import { registerPushNotifications } from '@/features/notifications/push-registration';
+import { CurrentRiskStatus, getCurrentRiskStatus } from '@/features/risk/risk-api';
 
 export default function ProtectorMainScreen() {
   const router = useRouter();
@@ -53,6 +54,7 @@ export default function ProtectorMainScreen() {
   const [gpsLocation, setGpsLocation] = useState<GpsLocation | null>(null);
   const [gpsError, setGpsError] = useState<string | null>(null);
   const [weatherText, setWeatherText] = useState<string | null>('날씨 정보를 불러오는 중입니다.');
+  const [currentRisk, setCurrentRisk] = useState<CurrentRiskStatus | null>(null);
   const shownDangerAlertId = useRef<string | null>(null);
   const hasShownAutomaticDangerModal = useRef(false);
 
@@ -85,6 +87,28 @@ export default function ProtectorMainScreen() {
         setGpsError(error instanceof Error ? error.message : 'GPS 위치를 가져오지 못했습니다.');
       });
   }, [params.subjectId, mapRefreshKey]);
+
+  useEffect(() => {
+    const subjectId = Number(params.subjectId);
+    if (!Number.isInteger(subjectId) || subjectId <= 0) return;
+
+    let isActive = true;
+    const loadRiskStatus = async () => {
+      try {
+        const risk = await getCurrentRiskStatus(subjectId);
+        if (isActive) setCurrentRisk(risk);
+      } catch {
+        if (isActive) setCurrentRisk(null);
+      }
+    };
+
+    void loadRiskStatus();
+    const intervalId = setInterval(() => void loadRiskStatus(), 30_000);
+    return () => {
+      isActive = false;
+      clearInterval(intervalId);
+    };
+  }, [params.subjectId]);
 
   useEffect(() => {
     const subjectId = Number(params.subjectId);
@@ -146,7 +170,18 @@ export default function ProtectorMainScreen() {
     }
   };
 
-  const currentStatusColor = getStatusColor(targetStatus);
+  const displayStatus = currentRisk?.level === 'danger'
+    ? '위험'
+    : currentRisk?.level === 'safe'
+      ? '안전'
+      : currentRisk?.level === 'warning'
+        ? '주의'
+        : targetStatus;
+  const displayScore = currentRisk ? String(currentRisk.score) : targetScore;
+  const displayGps = currentRisk?.factors.length
+    ? `${Math.round(Math.max(...currentRisk.factors.map((factor) => factor.percent)))}%`
+    : targetGps;
+  const currentStatusColor = getStatusColor(displayStatus);
 
   const handleCall = () => {
     Linking.openURL(`tel:${targetPhone}`).catch(() =>
@@ -160,9 +195,9 @@ export default function ProtectorMainScreen() {
       params: { 
         targetName,
         subjectId: params.subjectId,
-        targetStatus,
-        targetScore,
-        targetGps,
+        targetStatus: displayStatus,
+        targetScore: displayScore,
+        targetGps: displayGps,
         targetPhone,
         updatedTime: params.updatedTime,
         isProtected: 'false'
@@ -238,7 +273,13 @@ export default function ProtectorMainScreen() {
                 <TouchableOpacity
                   onPress={() => router.push({
                     pathname: '/summary-detail',
-                    params: { targetName, targetStatus, targetScore, targetGps },
+                    params: {
+                      subjectId: params.subjectId,
+                      targetName,
+                      targetStatus: displayStatus,
+                      targetScore: displayScore,
+                      targetGps: displayGps,
+                    },
                   })}
                   hitSlop={8}>
                   <Text style={styles.summaryMore}>더보기 &gt;</Text>
@@ -248,10 +289,10 @@ export default function ProtectorMainScreen() {
               <View style={styles.summaryBody}>
                 <View>
                   <Text style={[styles.statusBigText, { color: currentStatusColor }]}>
-                    {targetStatus}
+                    {displayStatus}
                   </Text>
                   <Text style={styles.scoreText}>
-                    <Text style={styles.scoreBold}>{targetScore}점</Text> / 100점
+                    <Text style={styles.scoreBold}>{displayScore}점</Text> / 100점
                   </Text>
                 </View>
 
@@ -262,13 +303,13 @@ export default function ProtectorMainScreen() {
                       style={[
                         styles.progressBarFill,
                         {
-                          width: targetGps as DimensionValue,
+                          width: displayGps as DimensionValue,
                           backgroundColor: currentStatusColor,
                         },
                       ]}
                     />
                   </View>
-                  <Text style={styles.gpsPercent}>{targetGps}</Text>
+                  <Text style={styles.gpsPercent}>{displayGps}</Text>
                 </View>
               </View>
             </View>
@@ -352,7 +393,7 @@ export default function ProtectorMainScreen() {
               <View style={styles.statusRow}>
                 <Ionicons name="warning" size={26} color="#E53E3E" style={styles.statusIcon} />
                 <Text style={styles.statusText}>
-                  위험도 {targetScore}점 ({targetStatus})
+                  위험도 {displayScore}점 ({displayStatus})
                 </Text>
               </View>
 

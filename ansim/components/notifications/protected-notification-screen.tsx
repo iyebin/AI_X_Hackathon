@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
@@ -63,6 +64,7 @@ function alertColor(kind: AppAlert['kind']): string {
 }
 
 export default function ProtectedNotificationScreen({ subjectId }: ProtectedNotificationScreenProps) {
+  const router = useRouter();
   const [alerts, setAlerts] = useState<AppAlert[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -76,11 +78,9 @@ export default function ProtectedNotificationScreen({ subjectId }: ProtectedNoti
         alerts.filter((alert) => {
           const type = alert.type.toLowerCase();
           const message = `${alert.title} ${alert.message ?? ''}`;
-          const isRiskAlert = ['danger', 'warning', 'safe', 'risk'].includes(type)
-            || /위험\s*감지|위험\s*점수/u.test(message);
           const isAuthCodeAlert = ['auth', 'auth-code', 'auth_code', 'verification', 'verification-code'].includes(type)
             || /\uC778\uC99D\s*\uCF54\uB4DC|\uC778\uC99D\s*\uBC88\uD638|auth\s*code/ui.test(message);
-          return !isRiskAlert && !isAuthCodeAlert;
+          return !isAuthCodeAlert;
         }),
       );
     } catch (loadError) {
@@ -95,6 +95,20 @@ export default function ProtectedNotificationScreen({ subjectId }: ProtectedNoti
   }, [loadAlerts]);
 
   const handlePressAlert = async (alert: AppAlert) => {
+    if (alert.kind === 'danger' && alert.subjectId) {
+      router.push({
+        pathname: '/danger-modal',
+        params: {
+          alertId: alert.id,
+          subjectId: String(alert.subjectId),
+          dangerScore: String(alert.riskScore ?? ''),
+          dangerReasons: alert.reason ?? alert.message ?? '',
+          viewerRole: 'protected',
+        },
+      });
+      return;
+    }
+
     if (alert.isRead) return;
 
     setAlerts((current) => current.map((item) => (item.id === alert.id ? { ...item, isRead: true } : item)));
