@@ -24,6 +24,22 @@ export type VerifiedUser = {
   phone?: string;
 };
 
+// 백엔드 인증코드 발급/검증 연결 전 데모용 보호대상자 계정입니다.
+// 서버 인증이 정상화되면 이 상수와 아래 임시 분기를 제거합니다.
+const TEMPORARY_PROTECTED_USER = {
+  authCode: '%6rD$1',
+  id: 3,
+  name: '김유빈',
+  phone: '01011119999',
+} as const;
+
+const TEMPORARY_GUARDIAN_USER = {
+  authCode: '7*4P@x',
+  id: 3,
+  name: '김다온',
+  phone: '01029384756',
+} as const;
+
 function getErrorMessage(data: unknown, fallback: string) {
   if (typeof data === 'object' && data !== null && 'detail' in data) {
     return String(data.detail);
@@ -78,6 +94,26 @@ export async function verifyAuthCode(code: string, expectedRole: AuthRole): Prom
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ auth_code: code }),
   });
+
+  if (!verification.valid && expectedRole === 'protected' && code.trim() === TEMPORARY_PROTECTED_USER.authCode) {
+    return {
+      role: 'protected',
+      userId: TEMPORARY_PROTECTED_USER.id,
+      subjectId: TEMPORARY_PROTECTED_USER.id,
+      name: TEMPORARY_PROTECTED_USER.name,
+      phone: TEMPORARY_PROTECTED_USER.phone,
+    };
+  }
+
+  if (!verification.valid && expectedRole === 'guardian' && code.trim() === TEMPORARY_GUARDIAN_USER.authCode) {
+    return {
+      role: 'guardian',
+      userId: TEMPORARY_GUARDIAN_USER.id,
+      guardianId: TEMPORARY_GUARDIAN_USER.id,
+      name: TEMPORARY_GUARDIAN_USER.name,
+      phone: TEMPORARY_GUARDIAN_USER.phone,
+    };
+  }
 
   if (!verification.valid) {
     throw new Error(verification.message || '인증코드가 올바르지 않거나 만료되었습니다.');

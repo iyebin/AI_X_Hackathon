@@ -50,6 +50,13 @@ async function getFcmDeviceToken(): Promise<string> {
 }
 
 async function sendTokenToServer(registration: PushRegistration, token: string) {
+  if (__DEV__) {
+    console.info('[FCM] registering device token on server', {
+      userId: registration.userId,
+      userType: registration.userType,
+    });
+  }
+
   const response = await fetch(`${API_BASE_URL}/push-tokens`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -61,7 +68,8 @@ async function sendTokenToServer(registration: PushRegistration, token: string) 
   });
 
   if (!response.ok) {
-    throw new Error(`푸시 토큰 전송 실패 (${response.status})`);
+    const responseBody = await response.text().catch(() => '');
+    throw new Error(`푸시 토큰 전송 실패 (${response.status}): ${responseBody || '응답 본문 없음'}`);
   }
 }
 
@@ -75,6 +83,24 @@ export async function registerPushNotifications(registration: PushRegistration):
   }
 
   const token = await getFcmDeviceToken();
-  await sendTokenToServer(registration, token);
+  if (__DEV__) {
+    console.info('[FCM] device token issued', {
+      userId: registration.userId,
+      userType: registration.userType,
+      token,
+    });
+  }
+  try {
+    await sendTokenToServer(registration, token);
+  } catch (error) {
+    console.error('[FCM] device token registration failed', error);
+    throw error;
+  }
+  if (__DEV__) {
+    console.info('[FCM] device token registered on server', {
+      userId: registration.userId,
+      userType: registration.userType,
+    });
+  }
   return token;
 }

@@ -87,6 +87,35 @@ export default function LoadingScreen() {
               protectorPhone: session.protectorPhone,
             },
           });
+          void (async () => {
+            const response = await Notifications.getLastNotificationResponseAsync();
+            if (!response) return;
+
+            const data = response.notification.request.content.data;
+            const alertId = String(data.alert_id ?? data.alertId ?? '');
+            const alert = alertId
+              ? await getAlerts()
+                .then((alerts) => alerts.find((item) => item.id === alertId))
+                .catch(() => undefined)
+              : undefined;
+            const receivedSubjectId = asPositiveInteger(data.subject_id ?? data.subjectId) ?? alert?.subjectId ?? session.userId;
+            const severity = String(data.risk_level ?? data.riskLevel ?? data.type ?? '').toLowerCase();
+            if (alertId && receivedSubjectId && (severity === 'danger' || severity === 'risk' || alert?.kind === 'danger')) {
+              setTimeout(() => {
+                router.push({
+                  pathname: '/danger-modal',
+                  params: {
+                    alertId,
+                    subjectId: String(receivedSubjectId),
+                    dangerScore: String(data.risk_score ?? data.riskScore ?? alert?.riskScore ?? ''),
+                    dangerReasons: String(data.reason ?? alert?.reason ?? alert?.message ?? ''),
+                    viewerRole: 'protected',
+                  },
+                });
+              }, 700);
+            }
+            await Notifications.clearLastNotificationResponseAsync();
+          })().catch(() => {});
         } catch {
           router.replace('/select-type');
         }
