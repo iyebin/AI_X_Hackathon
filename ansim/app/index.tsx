@@ -3,7 +3,7 @@ import { useRouter } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import { Animated, Easing, ImageBackground, StyleSheet, View } from 'react-native';
 import { getSavedSession, setCurrentGuardian } from '@/features/auth/current-session';
-import { getAlerts } from '@/features/alerts/alerts-api';
+import { getAlert } from '@/features/alerts/alerts-api';
 import { setProtectorPhone } from '@/features/contacts/protector-contact-store';
 
 function asPositiveInteger(value: unknown): number | undefined {
@@ -58,11 +58,7 @@ export default function LoadingScreen() {
 
               const data = response.notification.request.content.data;
               const alertId = String(data.alert_id ?? data.alertId ?? '');
-              const alert = alertId
-                ? await getAlerts()
-                  .then((alerts) => alerts.find((item) => item.id === alertId))
-                  .catch(() => undefined)
-                : undefined;
+              const alert = alertId ? await getAlert(alertId).catch(() => undefined) : undefined;
               const subjectId = asPositiveInteger(data.subject_id ?? data.subjectId) ?? alert?.subjectId;
               if (subjectId && isDangerPush(data, alert?.kind)) {
                 setTimeout(() => {
@@ -99,11 +95,7 @@ export default function LoadingScreen() {
 
             const data = response.notification.request.content.data;
             const alertId = String(data.alert_id ?? data.alertId ?? '');
-            const alert = alertId
-              ? await getAlerts()
-                .then((alerts) => alerts.find((item) => item.id === alertId))
-                .catch(() => undefined)
-              : undefined;
+            const alert = alertId ? await getAlert(alertId).catch(() => undefined) : undefined;
             const receivedSubjectId = asPositiveInteger(data.subject_id ?? data.subjectId) ?? alert?.subjectId ?? session.userId;
             if (receivedSubjectId && isDangerPush(data, alert?.kind)) {
               setTimeout(() => {

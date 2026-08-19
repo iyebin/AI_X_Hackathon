@@ -81,7 +81,7 @@ export default function ProtectedMainScreen() {
     let isDisposed = false;
     const establishBaseline = async () => {
       try {
-        const latestDanger = (await getAlerts(numericSubjectId)).find((alert) => alert.kind === 'danger' && !alert.isRead);
+        const latestDanger = (await getAlerts({ subjectId: numericSubjectId, recipientType: 'subject', recipientId: numericSubjectId })).find((alert) => alert.kind === 'danger' && !alert.isRead);
         if (!isDisposed) {
           lastVisibleDangerAlertId.current = latestDanger?.id ?? null;
           isAlertBaselineReady.current = true;
@@ -94,7 +94,7 @@ export default function ProtectedMainScreen() {
     const checkNewForegroundDangerAlert = async () => {
       if (isDisposed || !isAppForeground.current || !isAlertBaselineReady.current) return;
       try {
-        const latestDanger = (await getAlerts(numericSubjectId)).find((alert) => alert.kind === 'danger' && !alert.isRead);
+        const latestDanger = (await getAlerts({ subjectId: numericSubjectId, recipientType: 'subject', recipientId: numericSubjectId })).find((alert) => alert.kind === 'danger' && !alert.isRead);
         if (!latestDanger || latestDanger.id === lastVisibleDangerAlertId.current) return;
 
         lastVisibleDangerAlertId.current = latestDanger.id;
@@ -269,6 +269,8 @@ export default function ProtectedMainScreen() {
             targetPhone={targetPhone}
             themeColor="#59A03D"
             viewerRole="protected"
+            recipientType="subject"
+            recipientId={numericSubjectId}
           />
         );
 
