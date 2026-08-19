@@ -26,6 +26,7 @@ def main():
                     "latitude": record.latitude,
                     "longitude": record.longitude,
                     "measured_at": record.measured_at,
+                    "dayofeek": record.dayofweek
                 }
             )
     finally:

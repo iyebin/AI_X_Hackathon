@@ -532,7 +532,7 @@ def main():
 
     check_server()
 
-    # gps_id = transfer_epsg(580)
+    # gps_id = transfer_epsg()
     # # gps_id = 580
     # if gps_id is not None:
     #     score_gps_record(
@@ -542,20 +542,20 @@ def main():
     #         device=inference_runtime["device"],
     #         block_size=inference_runtime["block_size"],
     #     )
-    # gps_ids = search_gps_ids_in_bbox(bounding_box=BOUNDING_BOX)
+    gps_ids = search_gps_ids_in_bbox(bounding_box=BOUNDING_BOX)
 
-    RETRY_GPS_IDS = [
-            *range(173, 408),
-            *range(409, 415),
-            416,
-            417,
-            420,
-            422,
-            *range(426, 583),
-            *range(585, 644),
-        ]
+    # RETRY_GPS_IDS = [
+    #         *range(173, 408),
+    #         *range(409, 415),
+    #         416,
+    #         417,
+    #         420,
+    #         422,
+    #         *range(426, 583),
+    #         *range(585, 644),
+    #     ]
     
-    gps_ids = RETRY_GPS_IDS
+    # gps_ids = RETRY_GPS_IDS
     succeeded_ids = []
     failed_ids = []
 

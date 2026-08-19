@@ -492,11 +492,11 @@ class Inference(Base):
         )
 
     # EPSG:5179 변환 좌표
-    # x = Column(Float, nullable=True)
-    # y = Column(Float, nullable=True)
+    x = Column(Float, nullable=True)
+    y = Column(Float, nullable=True)
 
-    # x_d = Column(Integer, nullable=True)
-    # y_d = Column(Integer, nullable=True)
+    x_d = Column(Integer, nullable=True)
+    y_d = Column(Integer, nullable=True)
     token = Column(BigInteger, nullable=True) #643 652
 
     token_probability = Column(Float, nullable=True)
