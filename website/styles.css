@@ -550,11 +550,12 @@ body.drawer-open .page-container:not(.hidden) {
   height: 15px;
 }
 
-
 .dashboard-table-wrap {
   width: 100%;
+  max-height: 392px;
 
   overflow-x: auto;
+  overflow-y: auto;
 }
 
 
@@ -718,23 +719,24 @@ body.drawer-open .page-container:not(.hidden) {
 
 
 .dashboard-monitor-button {
-  min-width: 83px;
-  height: 31px;
+  min-width: 85px;
+  height: 32px;
 
-  border: 1px solid #d3dde3;
+  border: 1px solid #cfdae1;
   border-radius: 7px;
 
   background: white;
 
-  color: #45525a;
+  color: var(--blue);
 
-  font-size: 11px;
-  font-weight: 750;
+  font-size: 12px;
+  font-weight: 800;
 }
 
 
 .dashboard-monitor-button:hover {
   border-color: #92c8e9;
+  background: #f7fbfe;
   color: var(--blue);
 }
 
@@ -1308,31 +1310,28 @@ td {
   margin-bottom: 16px;
 }
 
-
 .alert-table-card {
-  flex: 1;
-
-  min-height: 0;
-
   display: flex;
   flex-direction: column;
+
+  min-height: 0;
 
   overflow: hidden;
 
   border: 1px solid #d9e1e6;
-
   border-radius: 13px;
 
   background: white;
 }
 
 
-.alert-table-scroll {
-  flex: 1;
 
-  min-height: 0;
+.alert-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 3;
 
-  overflow-y: auto;
+  background: #f7f9fa;
 }
 
 
@@ -1522,20 +1521,6 @@ td {
   color: #414c55;
 }
 
-
-.alert-table-footer {
-  min-height: 58px;
-
-  display: grid;
-
-  grid-template-columns: 1fr auto 1fr;
-
-  align-items: center;
-
-  padding: 0 18px;
-
-  border-top: 1px solid #e6ebee;
-}
 
 
 .alert-table-footer .total-count {
@@ -3045,12 +3030,62 @@ td {
   color: var(--blue);
 }
 
-/* 전체보기로 표가 길어졌을 때
-   대시보드 자체에서 스크롤되도록 */
-.dashboard-page.dashboard-expanded {
-  overflow-y: auto;
+/* =========================================
+   알림 내역 - 화면 높이 꽉 채우기
+========================================= */
+
+#alertPage {
+  height: 100%;
+  min-height: 0;
+
+  display: flex;
+  flex-direction: column;
 }
 
-.dashboard-page.dashboard-expanded .dashboard-risk-card {
-  margin-bottom: 30px;
+
+/* 제목 */
+#alertPage .page-heading {
+  flex: 0 0 auto;
+}
+
+
+/* 검색창 */
+#alertPage .alert-filter-row {
+  flex: 0 0 auto;
+}
+
+
+/* 테이블 카드가 남은 공간 전부 차지 */
+#alertPage .table-card {
+  flex: 1 1 auto;
+  min-height: 0;
+
+  display: flex;
+  flex-direction: column;
+}
+
+
+/* 카드 내부 */
+#alertPage .table-area {
+  flex: 1 1 auto;
+  min-height: 0;
+
+  display: flex;
+  flex-direction: column;
+}
+
+
+/* 실제 데이터 영역만 스크롤 */
+#alertPage .table-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+
+  overflow-y: auto;
+  overflow-x: auto;
+}
+
+
+/* 전체 n건 영역은 바닥에 고정 */
+#alertPage .table-footer {
+  flex: 0 0 auto;
 }

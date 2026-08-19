@@ -59,16 +59,12 @@ let alertTab = "all";
 let alertStatusValue = "all";
 let alertSearchKeyword = "";
 
-let alertCurrentPage = 1;
 
-const ALERTS_PER_PAGE = 8;
 
 
 /* ==================================================
    DASHBOARD
 ================================================== */
-
-let dashboardExpanded = false;
 
 
 /*
@@ -442,9 +438,6 @@ const alertTableBody =
 const alertTotalCount =
   document.getElementById("alertTotalCount");
 
-const alertPagination =
-  document.getElementById("alertPagination");
-
 const allAlertCount =
   document.getElementById("allAlertCount");
 
@@ -730,6 +723,68 @@ function toNumber(value) {
     : null;
 }
 
+function loadExternalScript(
+  src,
+  isLoaded
+) {
+
+  return new Promise(
+    (resolve, reject) => {
+
+      if (isLoaded()) {
+        resolve();
+        return;
+      }
+
+
+      const existing =
+        document.querySelector(
+          `script[src="${src}"]`
+        );
+
+
+      if (existing) {
+
+        existing.addEventListener(
+          "load",
+          resolve,
+          { once: true }
+        );
+
+        existing.addEventListener(
+          "error",
+          reject,
+          { once: true }
+        );
+
+        return;
+      }
+
+
+      const script =
+        document.createElement(
+          "script"
+        );
+
+
+      script.src =
+        src;
+
+
+      script.onload =
+        resolve;
+
+
+      script.onerror =
+        reject;
+
+
+      document.head.appendChild(
+        script
+      );
+    }
+  );
+}
 
 /* ==================================================
    UI STYLE PATCH
@@ -913,21 +968,17 @@ function installUiPatch() {
       flex: 0 0 auto;
     }
 
-    .dashboard-table-wrap {
-      flex: 1 1 auto;
-      min-height: 0;
-      overflow-y: hidden !important;
-      overflow-x: auto !important;
-    }
+  .dashboard-table-wrap {
+  flex: 1 1 auto;
+  min-height: 0;
 
-    .dashboard-page.dashboard-expanded
-    .dashboard-table-wrap {
-      overflow-y: auto !important;
-    }
+  overflow-y: auto !important;
+  overflow-x: auto !important;
+}
 
-    .dashboard-page.dashboard-expanded {
-      overflow: hidden !important;
-    }
+.dashboard-view-all {
+  display: none !important;
+}
 
     .dashboard-risk-table thead {
       position: sticky;
@@ -2363,13 +2414,8 @@ function renderDashboard() {
       );
 
 
-  const visibleRiskData =
-    dashboardExpanded
-      ? sortedRiskData
-      : sortedRiskData.slice(
-          0,
-          7
-        );
+ const visibleRiskData =
+  sortedRiskData;
 
 
   if (
@@ -2483,27 +2529,7 @@ function renderDashboard() {
       .join("");
 
 
-  if (
-    dashboardViewAllButton
-  ) {
-
-    dashboardViewAllButton.innerHTML =
-      dashboardExpanded
-        ? `
-          접기
-          <i data-lucide="chevron-up"></i>
-        `
-        : `
-          전체 보기
-          <i data-lucide="chevron-down"></i>
-        `;
-  }
-
-
-  dashboardPage.classList.toggle(
-    "dashboard-expanded",
-    dashboardExpanded
-  );
+  
 
 
   if (window.lucide) {
@@ -2896,12 +2922,16 @@ async function loadAlerts() {
         : [];
 
 
-    alerts =
-      rawAlerts
-        .map(
-          convertApiAlert
-        )
-        .sort(
+   alerts =
+  rawAlerts
+    .map(
+      convertApiAlert
+    )
+    .filter(
+      item =>
+        item.alertType === "danger"
+    )
+    .sort(
           (a, b) => {
 
             return (
@@ -3677,7 +3707,7 @@ function renderUserManagement() {
                     )
                   "
                 >
-                  상세보기⌄
+                  상세보기
                 </button>
 
               </td>
@@ -3759,7 +3789,7 @@ function renderUserManagement() {
                     )
                   "
                 >
-                  상세보기⌄
+                  상세보기
                 </button>
 
               </td>
@@ -6164,7 +6194,7 @@ function renderAuthManagement() {
                     )
                   "
                 >
-                  상세보기⌄
+                  상세보기
                 </button>
 
               </td>
@@ -6278,8 +6308,488 @@ function openAuthDetail(
   }
 }
 
+function ensureAuthPdfButton() {
+
+  if (
+    document.getElementById(
+      "downloadAuthPdfButton"
+    )
+  ) {
+    return;
+  }
+
+
+  if (!copyAuthCodeButton) {
+    return;
+  }
+
+
+  const button =
+    document.createElement(
+      "button"
+    );
+
+
+  button.id =
+    "downloadAuthPdfButton";
+
+
+  button.type =
+    "button";
+
+
+  /*
+    기존 복사 버튼과 같은 디자인 사용
+  */
+
+  button.className =
+    copyAuthCodeButton.className;
+
+
+  button.classList.add(
+    "hidden"
+  );
+
+
+  button.title =
+    "인증 안내 PDF 다운로드";
+
+
+  button.innerHTML =
+    `
+      <i data-lucide="download"></i>
+    `;
+
+
+  copyAuthCodeButton
+    .insertAdjacentElement(
+      "afterend",
+      button
+    );
+
+
+  button.addEventListener(
+    "click",
+    downloadAuthPdf
+  );
+
+
+  if (window.lucide) {
+    lucide.createIcons();
+  }
+}
+
+
+async function downloadAuthPdf() {
+
+  if (
+    !selectedAuthUser ||
+    !selectedAuthCode
+  ) {
+
+    alert(
+      "먼저 인증코드를 발급해주세요."
+    );
+
+    return;
+  }
+
+
+  const pdfButton =
+    document.getElementById(
+      "downloadAuthPdfButton"
+    );
+
+
+  let guide = null;
+
+
+  try {
+
+    if (pdfButton) {
+
+      pdfButton.disabled =
+        true;
+    }
+
+
+    /*
+      PDF 생성에 필요한 라이브러리 불러오기
+    */
+
+    await Promise.all([
+
+      loadExternalScript(
+        "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js",
+        () =>
+          typeof window.html2canvas ===
+          "function"
+      ),
+
+      loadExternalScript(
+        "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js",
+        () =>
+          Boolean(
+            window.jspdf?.jsPDF
+          )
+      )
+
+    ]);
+
+
+    const userType =
+      selectedAuthUser.type ===
+        "subjects"
+        ? `보호대상자 · ${getSubjectTypeLabel(
+            selectedAuthUser.subject_type
+          )}`
+        : "보호자";
+
+
+    /*
+      PDF에 들어갈 안내서 화면 생성
+    */
+
+    guide =
+      document.createElement(
+        "div"
+      );
+
+
+    guide.style.cssText =
+      `
+        position:fixed;
+        left:-10000px;
+        top:0;
+
+        width:794px;
+        min-height:1123px;
+
+        box-sizing:border-box;
+
+        padding:80px 70px;
+
+        background:#ffffff;
+        color:#172027;
+
+        font-family:
+          Arial,
+          "Noto Sans KR",
+          sans-serif;
+      `;
+
+
+    guide.innerHTML = `
+
+      <div
+        style="
+          margin-bottom:55px;
+        "
+      >
+
+        <div
+          style="
+            margin-bottom:12px;
+            color:#1688cf;
+            font-size:21px;
+            font-weight:800;
+          "
+        >
+          안심하랑께
+        </div>
+
+
+        <h1
+          style="
+            margin:0;
+            color:#172027;
+            font-size:35px;
+            font-weight:800;
+          "
+        >
+          서비스 등록 안내
+        </h1>
+
+
+        <p
+          style="
+            margin:13px 0 0;
+            color:#7b878e;
+            font-size:15px;
+          "
+        >
+          아래 인증코드를 앱 첫 화면에 입력해주세요.
+        </p>
+
+      </div>
+
+
+      <div
+        style="
+          padding:30px;
+
+          border:1px solid #dde5e9;
+          border-radius:16px;
+
+          background:#f8fbfd;
+        "
+      >
+
+        <div
+          style="
+            display:grid;
+            grid-template-columns:120px 1fr;
+            row-gap:22px;
+            font-size:16px;
+          "
+        >
+
+          <span
+            style="color:#7a858c;"
+          >
+            이름
+          </span>
+
+          <strong>
+            ${escapeHtml(
+              selectedAuthUser.name ||
+              "-"
+            )}
+          </strong>
+
+
+          <span
+            style="color:#7a858c;"
+          >
+            구분
+          </span>
+
+          <strong>
+            ${escapeHtml(
+              userType
+            )}
+          </strong>
+
+
+          <span
+            style="color:#7a858c;"
+          >
+            전화번호
+          </span>
+
+          <strong>
+            ${escapeHtml(
+              selectedAuthUser.phone ||
+              "-"
+            )}
+          </strong>
+
+        </div>
+
+      </div>
+
+
+      <div
+        style="
+          margin-top:42px;
+          padding:36px;
+
+          border:2px solid #1688cf;
+          border-radius:18px;
+
+          text-align:center;
+        "
+      >
+
+        <div
+          style="
+            margin-bottom:14px;
+            color:#68747b;
+            font-size:15px;
+            font-weight:700;
+          "
+        >
+          인증코드
+        </div>
+
+
+        <div
+          style="
+            color:#1688cf;
+            font-size:43px;
+            font-weight:900;
+            letter-spacing:7px;
+          "
+        >
+          ${escapeHtml(
+            selectedAuthCode
+          )}
+        </div>
+
+      </div>
+
+
+      <div
+        style="
+          margin-top:45px;
+
+          padding:26px 28px;
+
+          border-radius:14px;
+
+          background:#eef7fc;
+
+          color:#42515a;
+
+          font-size:15px;
+          line-height:1.9;
+        "
+      >
+
+        <strong
+          style="
+            display:block;
+            margin-bottom:8px;
+            color:#1688cf;
+          "
+        >
+          등록 방법
+        </strong>
+
+        1. 안심하랑께 앱을 실행합니다.<br>
+        2. 첫 화면의 인증코드 입력란에 위 코드를 입력합니다.<br>
+        3. 인증이 완료되면 사용자 정보와 앱이 연결됩니다.
+
+      </div>
+
+
+      <div
+        style="
+          margin-top:50px;
+          color:#919ba1;
+          font-size:12px;
+          line-height:1.7;
+        "
+      >
+
+        본 인증코드는 사용자 등록을 위한 코드입니다.<br>
+        타인에게 인증코드를 공개하지 않도록 주의해주세요.
+
+      </div>
+    `;
+
+
+    document.body.appendChild(
+      guide
+    );
+
+
+    /*
+      HTML 안내서를 이미지로 변환
+    */
+
+    const canvas =
+      await window.html2canvas(
+        guide,
+        {
+          scale: 2,
+          backgroundColor:
+            "#ffffff"
+        }
+      );
+
+
+    const imageData =
+      canvas.toDataURL(
+        "image/png"
+      );
+
+
+    const {
+      jsPDF
+    } =
+      window.jspdf;
+
+
+    const pdf =
+      new jsPDF({
+        orientation:
+          "portrait",
+
+        unit:
+          "mm",
+
+        format:
+          "a4"
+      });
+
+
+    pdf.addImage(
+      imageData,
+      "PNG",
+      0,
+      0,
+      210,
+      297
+    );
+
+
+    /*
+      파일명에 사용할 수 없는 문자 제거
+    */
+
+    const safeName =
+      String(
+        selectedAuthUser.name ||
+        "사용자"
+      )
+        .replace(
+          /[\\/:*?"<>|]/g,
+          "_"
+        );
+
+
+    pdf.save(
+      `${safeName}_인증안내.pdf`
+    );
+
+
+  } catch (error) {
+
+    console.error(
+      "인증 안내 PDF 생성 실패:",
+      error
+    );
+
+
+    alert(
+      "PDF 생성에 실패했습니다."
+    );
+
+
+  } finally {
+
+    guide?.remove();
+
+
+    if (pdfButton) {
+
+      pdfButton.disabled =
+        false;
+    }
+  }
+}
 
 function updateAuthDetail() {
+
+  ensureAuthPdfButton();
+
+
+  const downloadAuthPdfButton =
+    document.getElementById(
+      "downloadAuthPdfButton"
+    );
+
 
   if (selectedAuthCode) {
 
@@ -6299,6 +6809,10 @@ function updateAuthDetail() {
       "hidden"
     );
 
+downloadAuthPdfButton
+  ?.classList.remove(
+    "hidden"
+  );
 
     issueAuthDetailButton.textContent =
       "인증코드 확인";
@@ -6322,6 +6836,10 @@ function updateAuthDetail() {
       "hidden"
     );
 
+downloadAuthPdfButton
+  ?.classList.add(
+    "hidden"
+  );
 
     issueAuthDetailButton.textContent =
       "인증코드 발급";
@@ -6466,11 +6984,6 @@ function getFilteredAlerts() {
   return alerts.filter(
     item => {
 
-      const matchesType =
-        alertTab === "all" ||
-        item.alertType ===
-          alertTab;
-
 
       const matchesStatus =
         alertStatusValue ===
@@ -6502,10 +7015,9 @@ function getFilteredAlerts() {
 
 
       return (
-        matchesType &&
-        matchesStatus &&
-        matchesKeyword
-      );
+  matchesStatus &&
+  matchesKeyword
+);
     }
   );
 }
@@ -6608,75 +7120,7 @@ function renderAlerts() {
   const filtered =
     getFilteredAlerts();
 
-
- const unreadAlerts =
-  alerts.filter(
-    item =>
-      !item.read
-  );
-
-
-const unreadDangerCount =
-  unreadAlerts.filter(
-    item =>
-      item.alertType === "danger"
-  ).length;
-
-
-const unreadAuthCount =
-  unreadAlerts.filter(
-    item =>
-      item.alertType === "auth"
-  ).length;
-
-
-allAlertCount.textContent =
-  unreadAlerts.length;
-
-
-dangerAlertCount.textContent =
-  unreadDangerCount;
-
-
-authAlertCount.textContent =
-  unreadAuthCount;
-
-
-  const totalPages =
-    Math.max(
-      1,
-      Math.ceil(
-        filtered.length /
-        ALERTS_PER_PAGE
-      )
-    );
-
-
-  if (
-    alertCurrentPage >
-    totalPages
-  ) {
-
-    alertCurrentPage =
-      totalPages;
-  }
-
-
-  const startIndex =
-    (
-      alertCurrentPage -
-      1
-    ) *
-    ALERTS_PER_PAGE;
-
-
-  const pageItems =
-    filtered.slice(
-      startIndex,
-      startIndex +
-      ALERTS_PER_PAGE
-    );
-
+const pageItems = filtered;
 
   alertTableBody.innerHTML =
     pageItems
@@ -6833,10 +7277,6 @@ authAlertCount.textContent =
   }
 
 
-  renderAlertPagination(
-    totalPages
-  );
-
 
   alertTotalCount.textContent =
     `전체 ${filtered.length}건`;
@@ -6845,20 +7285,6 @@ authAlertCount.textContent =
   renderAlertSidebarBadge();
 
 
-  document
-    .querySelectorAll(
-      ".alert-tab"
-    )
-    .forEach(
-      button => {
-
-        button.classList.toggle(
-          "active",
-          button.dataset.alertTab ===
-            alertTab
-        );
-      }
-    );
 
 
   if (window.lucide) {
@@ -6866,121 +7292,6 @@ authAlertCount.textContent =
   }
 }
 
-
-function renderAlertPagination(
-  totalPages
-) {
-
-  if (!alertPagination) {
-    return;
-  }
-
-
-  let html =
-    `
-      <button
-        class="page-arrow-button"
-        onclick="
-          changeAlertPage(
-            ${alertCurrentPage - 1}
-          )
-        "
-        ${
-          alertCurrentPage === 1
-            ? "disabled"
-            : ""
-        }
-      >
-        <i data-lucide="chevron-left"></i>
-      </button>
-    `;
-
-
-  for (
-    let page = 1;
-    page <= totalPages;
-    page++
-  ) {
-
-    html +=
-      `
-        <button
-          class="
-            page-number-button
-            ${
-              page === alertCurrentPage
-                ? "active"
-                : ""
-            }
-          "
-          onclick="
-            changeAlertPage(
-              ${page}
-            )
-          "
-        >
-          ${page}
-        </button>
-      `;
-  }
-
-
-  html +=
-    `
-      <button
-        class="page-arrow-button"
-        onclick="
-          changeAlertPage(
-            ${alertCurrentPage + 1}
-          )
-        "
-        ${
-          alertCurrentPage ===
-            totalPages
-            ? "disabled"
-            : ""
-        }
-      >
-        <i data-lucide="chevron-right"></i>
-      </button>
-    `;
-
-
-  alertPagination.innerHTML =
-    html;
-}
-
-
-function changeAlertPage(page) {
-
-  const filtered =
-    getFilteredAlerts();
-
-
-  const totalPages =
-    Math.max(
-      1,
-      Math.ceil(
-        filtered.length /
-        ALERTS_PER_PAGE
-      )
-    );
-
-
-  if (
-    page < 1 ||
-    page > totalPages
-  ) {
-    return;
-  }
-
-
-  alertCurrentPage =
-    page;
-
-
-  renderAlerts();
-}
 
 
 /* ==================================================
@@ -8792,21 +9103,7 @@ alertNav?.addEventListener(
 );
 
 
-/* ==================================================
-   DASHBOARD EVENT
-================================================== */
 
-dashboardViewAllButton?.addEventListener(
-  "click",
-  () => {
-
-    dashboardExpanded =
-      !dashboardExpanded;
-
-
-    renderDashboard();
-  }
-);
 
 
 /* ==================================================
@@ -9071,46 +9368,12 @@ issueAuthDetailButton?.addEventListener(
 );
 
 
-/* ==================================================
-   ALERT EVENTS
-================================================== */
-
-document
-  .querySelectorAll(
-    ".alert-tab"
-  )
-  .forEach(
-    button => {
-
-      button.addEventListener(
-        "click",
-        () => {
-
-          alertTab =
-            button.dataset.alertTab;
-
-
-          alertCurrentPage =
-            1;
-
-
-          renderAlerts();
-        }
-      );
-    }
-  );
-
-
 alertSearchInput?.addEventListener(
   "input",
   event => {
 
     alertSearchKeyword =
       event.target.value;
-
-
-    alertCurrentPage =
-      1;
 
 
     renderAlerts();
@@ -9124,10 +9387,6 @@ alertStatusFilter?.addEventListener(
 
     alertStatusValue =
       event.target.value;
-
-
-    alertCurrentPage =
-      1;
 
 
     renderAlerts();
@@ -9368,10 +9627,6 @@ window.selectMonitorSubject =
 
 window.routeFromAlert =
   routeFromAlert;
-
-
-window.changeAlertPage =
-  changeAlertPage;
 
 
 window.openDashboardSubject =
