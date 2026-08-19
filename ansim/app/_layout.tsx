@@ -2,7 +2,7 @@ import * as Notifications from 'expo-notifications';
 import { Stack, useRouter } from 'expo-router';
 import { useEffect, useRef } from 'react';
 
-import { getAlerts } from '@/features/alerts/alerts-api';
+import { getAlert } from '@/features/alerts/alerts-api';
 import { getSavedSession } from '@/features/auth/current-session';
 
 function asPositiveInteger(value: unknown): number | undefined {
@@ -35,9 +35,7 @@ export default function RootLayout() {
       const session = await getSavedSession();
       if (!session) return;
 
-      const alert = await getAlerts()
-        .then((alerts) => alerts.find((item) => item.id === alertId))
-        .catch(() => undefined);
+      const alert = alertId ? await getAlert(alertId).catch(() => undefined) : undefined;
       const subjectId = asPositiveInteger(data.subject_id ?? data.subjectId) ?? alert?.subjectId;
       const isDanger = isDangerPush(data, alert?.kind);
       if (!subjectId || !isDanger) return;

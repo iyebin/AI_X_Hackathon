@@ -158,7 +158,7 @@ export default function ProtectorSelectScreen() {
   const content = activeTab === 'home'
     ? renderHome()
     : activeTab === 'notification'
-      ? <NotificationView targets={targets} />
+      ? <NotificationView targets={targets} recipientType="guardian" recipientId={activeGuardianId} />
       : <SettingView isProtected={false} notificationUser={activeGuardianId ? { userId: activeGuardianId, userType: 'guardian' } : undefined} />;
 
   return (

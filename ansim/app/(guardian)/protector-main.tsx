@@ -97,7 +97,7 @@ export default function ProtectorMainScreen() {
     let isDisposed = false;
     const establishBaseline = async () => {
       try {
-        const latestDanger = (await getAlerts(subjectId)).find((alert) => alert.kind === 'danger' && !alert.isRead);
+        const latestDanger = (await getAlerts({ subjectId, recipientType: 'guardian', recipientId: guardianId })).find((alert) => alert.kind === 'danger' && !alert.isRead);
         if (!isDisposed) {
           lastVisibleDangerAlertId.current = latestDanger?.id ?? null;
           isAlertBaselineReady.current = true;
@@ -110,7 +110,7 @@ export default function ProtectorMainScreen() {
     const checkNewForegroundDangerAlert = async () => {
       if (isDisposed || !isAppForeground.current || !isAlertBaselineReady.current) return;
       try {
-        const latestDanger = (await getAlerts(subjectId)).find((alert) => alert.kind === 'danger' && !alert.isRead);
+        const latestDanger = (await getAlerts({ subjectId, recipientType: 'guardian', recipientId: guardianId })).find((alert) => alert.kind === 'danger' && !alert.isRead);
         if (!latestDanger || latestDanger.id === lastVisibleDangerAlertId.current) return;
 
         lastVisibleDangerAlertId.current = latestDanger.id;
@@ -446,7 +446,7 @@ export default function ProtectorMainScreen() {
         );
 
       case 'notification':
-        return <NotificationView filterTargetName={targetName} subjectId={Number(params.subjectId)} targetPhone={targetPhone} />;
+        return <NotificationView filterTargetName={targetName} subjectId={Number(params.subjectId)} targetPhone={targetPhone} recipientType="guardian" recipientId={guardianId} />;
 
       case 'setting':
         return <SettingView isProtected={false} notificationUser={guardianId ? { userId: guardianId, userType: 'guardian' } : undefined} />;
