@@ -4014,6 +4014,27 @@ def get_risk_analysis(
     if stored_air_reason and stored_air_reason not in generic_air_reasons:
         air_description = stored_air_reason
 
+    # LoRA LLM으로 종합 위험 설명 생성
+    # LLM 서버가 꺼져 있어도 기존 위험 분석 API는 정상 동작하도록 합니다.
+    ai_explanation = None
+    llm_api_url = os.getenv("LLM_API_URL")
+
+    if llm_api_url:
+        try:
+            llm_response = requests.post(
+                f"{llm_api_url.rstrip('/')}/risk-explanation",
+                json={
+                    "gps_score": gps_score,
+                    "weather_score": weather_score,
+                    "air_score": air_score,
+                },
+                timeout=30,
+            )
+            llm_response.raise_for_status()
+            ai_explanation = llm_response.json().get("explanation")
+        except Exception as e:
+            print(f"[LLM] risk explanation failed: {e}")
+
     factors = [
         {
             "type": "gps_deviation",
@@ -4050,6 +4071,7 @@ def get_risk_analysis(
         "risk_level": risk_status.risk_level,
         "measured_at": risk_status.created_at,
         "factors": factors,
+        "ai_explanation": ai_explanation,
     }
 
 

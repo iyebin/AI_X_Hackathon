@@ -537,6 +537,7 @@ class RiskAnalysisResponse(KSTBaseModel):
     risk_level: str
     measured_at: datetime
     factors: list[RiskFactorResponse]
+    ai_explanation: str | None = None
 
 
 class InstitutionManagerPasswordChange(BaseModel):
