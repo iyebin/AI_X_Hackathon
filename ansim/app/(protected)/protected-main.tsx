@@ -21,6 +21,8 @@ import { startGpsTracking, stopGpsTracking } from '@/features/gps/tracking';
 import { registerPushNotifications } from '@/features/notifications/push-registration';
 import { getWeatherSummary } from '@/features/environment/weather-api';
 import { useTextSize } from '@/features/accessibility/text-size';
+import ProtectedAppTutorial, { type ProtectedTutorialTab } from '@/components/tutorial/protected-app-tutorial';
+import { completeProtectedTutorial, shouldShowProtectedTutorial } from '@/features/tutorial/protected-tutorial-state';
 
 export default function ProtectedMainScreen() {
   const router = useRouter();
@@ -39,6 +41,7 @@ export default function ProtectedMainScreen() {
   const numericSubjectId = Number(subjectId);
 
   const [activeTab, setActiveTab] = useState<string>(tab ?? 'home');
+  const [isTutorialVisible, setIsTutorialVisible] = useState(false);
   const [weatherNotice, setWeatherNotice] = useState('날씨 정보를 불러오는 중입니다.');
   const [weatherAdvisory, setWeatherAdvisory] = useState('기상 특보 정보를 불러오는 중입니다.');
   const lastVisibleDangerAlertId = useRef<string | null>(null);
@@ -48,6 +51,34 @@ export default function ProtectedMainScreen() {
   useEffect(() => {
     if (tab) setActiveTab(tab);
   }, [tab]);
+
+  useEffect(() => {
+    if (!Number.isInteger(numericSubjectId) || numericSubjectId <= 0) return;
+
+    let isMounted = true;
+    void shouldShowProtectedTutorial(numericSubjectId).then((shouldShow) => {
+      if (isMounted && shouldShow) setIsTutorialVisible(true);
+    });
+    return () => {
+      isMounted = false;
+    };
+  }, [numericSubjectId]);
+
+  const finishTutorial = () => {
+    setIsTutorialVisible(false);
+    if (Number.isInteger(numericSubjectId) && numericSubjectId > 0) {
+      void completeProtectedTutorial(numericSubjectId);
+    }
+  };
+
+  const startTutorialFromHelp = () => {
+    setActiveTab('home');
+    setIsTutorialVisible(true);
+  };
+
+  const handleTutorialTab = (nextTab: ProtectedTutorialTab) => {
+    setActiveTab(nextTab);
+  };
 
   useEffect(() => {
     if (!Number.isInteger(numericSubjectId) || numericSubjectId <= 0) return;
@@ -279,7 +310,7 @@ export default function ProtectedMainScreen() {
         );
 
       case 'setting':
-        return <SettingView isProtected={true} notificationUser={Number.isInteger(numericSubjectId) && numericSubjectId > 0 ? { userId: numericSubjectId, userType: 'subject' } : undefined} onLocationTrackingChange={handleLocationTrackingChange} onEmergencyContactSaved={() => setTargetPhone(getProtectorPhone() ?? '')} />;
+        return <SettingView isProtected={true} notificationUser={Number.isInteger(numericSubjectId) && numericSubjectId > 0 ? { userId: numericSubjectId, userType: 'subject' } : undefined} onLocationTrackingChange={handleLocationTrackingChange} onEmergencyContactSaved={() => setTargetPhone(getProtectorPhone() ?? '')} onStartTutorial={startTutorialFromHelp} />;
 
       default:
         return null;
@@ -335,6 +366,11 @@ export default function ProtectedMainScreen() {
           </Text>
         </TouchableOpacity>
       </View>
+      <ProtectedAppTutorial
+        visible={isTutorialVisible}
+        onComplete={finishTutorial}
+        onSelectTab={handleTutorialTab}
+      />
     </SafeAreaView>
   );
 }

@@ -29,9 +29,10 @@ interface SettingViewProps {
   notificationUser?: { userId: number; userType: PushUserType };
   onEmergencyContactSaved?: () => void;
   onLocationTrackingChange?: (enabled: boolean) => Promise<boolean>;
+  onStartTutorial?: () => void;
 }
 
-export default function SettingView({ isProtected = false, notificationUser, onEmergencyContactSaved, onLocationTrackingChange }: SettingViewProps) {
+export default function SettingView({ isProtected = false, notificationUser, onEmergencyContactSaved, onLocationTrackingChange, onStartTutorial }: SettingViewProps) {
   const router = useRouter();
   const { mode: textSizeMode, setMode: setTextSizeMode } = useTextSize();
 
@@ -346,6 +347,20 @@ export default function SettingView({ isProtected = false, notificationUser, onE
           <Ionicons name="information-circle-outline" size={24} color="#333333" style={styles.menuIcon} />
           <Text style={styles.menuText}>계정 정보</Text>
         </TouchableOpacity>
+
+        {isProtected && onStartTutorial && (
+          <>
+            <View style={styles.itemDivider} />
+            <TouchableOpacity
+              style={styles.menuItem}
+              onPress={onStartTutorial}
+              activeOpacity={0.7}
+            >
+              <Ionicons name="help-circle-outline" size={24} color="#333333" style={styles.menuIcon} />
+              <Text style={styles.menuText}>도움말</Text>
+            </TouchableOpacity>
+          </>
+        )}
       </View>
 
       <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout} activeOpacity={0.8}>
