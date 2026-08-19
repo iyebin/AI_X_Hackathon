@@ -7,16 +7,16 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.encoders import ENCODERS_BY_TYPE
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
-from facility_api import fetch_facilities
-from air import get_air_quality_by_gps
-from weather import get_weather_by_gps
-from weather_alert import get_warning_for_gps
-from firebase_service import send_push_notification
-from gemini_descriptions import generate_environment_description
+from backend.facility_api import fetch_facilities
+from backend.air import get_air_quality_by_gps
+from backend.weather import get_weather_by_gps
+from backend.weather_alert import get_warning_for_gps
+from backend.firebase_service import send_push_notification
+from backend.gemini_descriptions import generate_environment_description
 
-import models
-import schemas
-from database import Base, engine, get_db
+from backend import models
+from backend import schemas
+from backend.database import Base, engine, get_db
 
 from contextlib import asynccontextmanager
 import secrets
@@ -24,12 +24,12 @@ from datetime import date, datetime, timedelta, timezone
 import random
 import string
 
-from lmtad_runtime import LMTADRuntime
+from backend.lmtad_runtime import LMTADRuntime
 import os
 import random
 from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
-from inference_service import run_gps_inference
+from backend.inference_service import run_gps_inference
 import requests
 import bcrypt
 
