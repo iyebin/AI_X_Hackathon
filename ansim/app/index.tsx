@@ -11,6 +11,11 @@ function asPositiveInteger(value: unknown): number | undefined {
   return Number.isInteger(numberValue) && numberValue > 0 ? numberValue : undefined;
 }
 
+function isDangerPush(data: Notifications.Notification['request']['content']['data'], alertKind?: string): boolean {
+  const value = String(data.risk_level ?? data.riskLevel ?? data.type ?? '').toLowerCase();
+  return ['danger', 'risk', 'risk_danger', 'risk_danger_repeat'].includes(value) || alertKind === 'danger';
+}
+
 export default function LoadingScreen() {
   const router = useRouter();
   const spinValue = useRef(new Animated.Value(0)).current;
@@ -59,8 +64,7 @@ export default function LoadingScreen() {
                   .catch(() => undefined)
                 : undefined;
               const subjectId = asPositiveInteger(data.subject_id ?? data.subjectId) ?? alert?.subjectId;
-              const severity = String(data.risk_level ?? data.riskLevel ?? data.type ?? '').toLowerCase();
-              if (alertId && subjectId && (severity === 'danger' || severity === 'risk' || alert?.kind === 'danger')) {
+              if (subjectId && isDangerPush(data, alert?.kind)) {
                 setTimeout(() => {
                   router.push({
                     pathname: '/danger-modal',
@@ -101,8 +105,7 @@ export default function LoadingScreen() {
                 .catch(() => undefined)
               : undefined;
             const receivedSubjectId = asPositiveInteger(data.subject_id ?? data.subjectId) ?? alert?.subjectId ?? session.userId;
-            const severity = String(data.risk_level ?? data.riskLevel ?? data.type ?? '').toLowerCase();
-            if (alertId && receivedSubjectId && (severity === 'danger' || severity === 'risk' || alert?.kind === 'danger')) {
+            if (receivedSubjectId && isDangerPush(data, alert?.kind)) {
               setTimeout(() => {
                 router.push({
                   pathname: '/danger-modal',
