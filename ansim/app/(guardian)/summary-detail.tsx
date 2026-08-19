@@ -1,11 +1,13 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Text } from '@/components/common/scaled-text';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { WebView } from 'react-native-webview';
 
 import { CurrentRiskStatus, getRiskAnalysis } from '@/features/risk/risk-api';
+import { useTextSize } from '@/features/accessibility/text-size';
 
 type RiskStatus = '위험' | '주의' | '안전';
 
@@ -34,6 +36,8 @@ const THEME: Record<RiskStatus, { main: string; soft: string; pale: string }> = 
 
 export default function SummaryDetailScreen() {
   const router = useRouter();
+  const { mode: textSizeMode } = useTextSize();
+  const isLargeText = textSizeMode === 'large';
   const { targetStatus, targetScore, subjectId } = useLocalSearchParams<{
     targetStatus?: RiskStatus;
     targetScore?: string;
@@ -61,7 +65,7 @@ export default function SummaryDetailScreen() {
   const theme = THEME[status];
   const riskItems = serverRisk?.factors.length
     ? serverRisk.factors.map((factor) => ({
-        title: factor.title,
+        title: factor.title.startsWith('GPS') ? 'GPS 이상' : factor.title,
         points: factor.points === undefined ? `${factor.percent}%` : `${factor.points}점 (${factor.percent}%)`,
         percent: factor.percent,
         description: factor.description ?? '위험 요인을 분석하고 있습니다.',
@@ -106,24 +110,28 @@ export default function SummaryDetailScreen() {
           </View>
         </View>
 
-        <View style={styles.scoreRow}>
-          <Text style={[styles.score, { color: theme.main }]}>{score}점</Text>
-          <Text style={styles.scoreTotal}> / 100점</Text>
-          <View style={[styles.statusBadge, { backgroundColor: theme.main }]}><Text style={styles.statusText}>{status}</Text></View>
+        <View style={[styles.scoreRow, isLargeText && styles.scoreRowLarge]}>
+          <View style={styles.scoreValueRow}>
+            <Text style={[styles.score, { color: theme.main }]}>{score}점</Text>
+            <Text style={styles.scoreTotal}> / 100점</Text>
+          </View>
+          <View style={[styles.statusBadge, isLargeText && styles.statusBadgeLarge, { backgroundColor: theme.main }]}><Text style={styles.statusText}>{status}</Text></View>
         </View>
 
         <Text style={styles.analysisTitle}>위험요인 상세 분석</Text>
         <View style={styles.analysisCard}>
           {sortedRiskItems.map((item, index) => (
-            <View key={item.title} style={[styles.riskRow, index < sortedRiskItems.length - 1 && styles.riskDivider]}>
-              <View style={styles.riskTextArea}>
+            <View key={item.title} style={[styles.riskRow, isLargeText && styles.riskRowLarge, index < sortedRiskItems.length - 1 && styles.riskDivider]}>
+              <View style={[styles.riskTextArea, isLargeText && styles.riskTextAreaLarge]}>
                 <View style={styles.riskTitleRow}>
-                  <Text style={styles.riskTitle}>{item.title}</Text>
+                  <Text style={[styles.riskTitle, isLargeText && styles.riskTitleLarge]}>
+                    {isLargeText && item.title.startsWith('GPS') ? <>GPS{'\n'}이상</> : item.title}
+                  </Text>
                   <View style={[styles.pointBadge, { backgroundColor: riskColors[index] }]}><Text style={styles.pointText}>{item.points}</Text></View>
                 </View>
                 <Text style={styles.description}>{item.description}</Text>
               </View>
-              <View style={styles.percentArea}>
+              <View style={[styles.percentArea, isLargeText && styles.percentAreaLarge]}>
                 <View style={styles.progressTrack}>
                   <View style={[styles.progressFill, { width: `${item.percent}%`, backgroundColor: riskColors[index] }]} />
                 </View>
@@ -154,21 +162,28 @@ const styles = StyleSheet.create({
   legendRow: { flexDirection: 'row', alignItems: 'center' },
   legendDot: { width: 18, height: 18, borderRadius: 9, marginRight: 12 },
   scoreRow: { flexDirection: 'row', alignItems: 'baseline', marginTop: 26 },
+  scoreRowLarge: { flexDirection: 'column', alignItems: 'flex-start' },
+  scoreValueRow: { flexDirection: 'row', alignItems: 'baseline' },
   score: { fontSize: 54, fontWeight: 'bold' },
   scoreTotal: { color: '#555555', fontSize: 20, fontWeight: 'bold' },
   statusBadge: { borderRadius: 9, paddingHorizontal: 12, paddingVertical: 5, marginLeft: 'auto' },
+  statusBadgeLarge: { marginLeft: 0, marginTop: 10 },
   statusText: { color: '#FFFFFF', fontSize: 19, fontWeight: 'bold' },
   analysisTitle: { marginTop: 42, marginBottom: 14, color: '#111111', fontSize: 22, fontWeight: 'bold' },
   analysisCard: { borderWidth: 1, borderColor: '#DDDDDD', borderRadius: 8, paddingHorizontal: 10 },
   riskRow: { minHeight: 86, flexDirection: 'row', alignItems: 'center', paddingVertical: 12 },
+  riskRowLarge: { flexDirection: 'column', alignItems: 'stretch' },
   riskDivider: { borderBottomWidth: 1, borderBottomColor: '#DDDDDD' },
   riskTextArea: { flex: 1, paddingRight: 8 },
+  riskTextAreaLarge: { paddingRight: 0 },
   riskTitleRow: { flexDirection: 'row', alignItems: 'center', gap: 7 },
   riskTitle: { color: '#111111', fontSize: 19, fontWeight: 'bold' },
+  riskTitleLarge: { flexShrink: 0 },
   pointBadge: { borderRadius: 8, paddingHorizontal: 6, paddingVertical: 2 },
   pointText: { color: '#FFFFFF', fontSize: 10, fontWeight: 'bold' },
   description: { marginTop: 7, color: '#666666', fontSize: 13, fontWeight: '600' },
   percentArea: { width: 125, flexDirection: 'row', alignItems: 'center' },
+  percentAreaLarge: { alignSelf: 'flex-end', marginTop: 12 },
   progressTrack: { width: 70, height: 10, overflow: 'hidden', borderRadius: 5, backgroundColor: '#E1E1E1' },
   progressFill: { height: '100%', borderRadius: 5 },
   percentText: { width: 42, marginLeft: 8, color: '#666666', fontSize: 16, fontWeight: 'bold' },

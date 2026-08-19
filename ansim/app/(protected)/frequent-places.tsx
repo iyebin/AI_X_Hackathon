@@ -1,12 +1,15 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useState } from 'react';
-import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Text } from '@/components/common/scaled-text';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { FrequentPlace, getFrequentPlaces } from '@/features/places/frequent-place-store';
+import { useTextSize } from '@/features/accessibility/text-size';
 
 export default function FrequentPlacesScreen() {
   const router = useRouter();
+  const { mode: textSizeMode } = useTextSize();
   const [places, setPlaces] = useState<FrequentPlace[]>(getFrequentPlaces());
 
   // 장소 추가/수정 화면에서 돌아올 때 최신 목록을 다시 읽습니다.
@@ -55,7 +58,7 @@ export default function FrequentPlacesScreen() {
       </View>
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <View style={styles.titleRow}>
+        <View style={[styles.titleRow, textSizeMode === 'large' && styles.titleRowLarge]}>
           <Text style={styles.title}>등록된 장소</Text>
           <Text style={styles.count}><Text style={styles.countBold}>{places.length}/10</Text> 최대 10개까지 등록할 수 있습니다.</Text>
         </View>
@@ -75,7 +78,9 @@ export default function FrequentPlacesScreen() {
         {places.length === 0 && (
           <View style={styles.emptyBox}>
             <Text style={styles.emptyTitle}>등록한 장소가 없습니다.</Text>
-            <Text style={styles.emptyText}>아래의 장소 추가하기를 눌러 등록해 주세요.</Text>
+            <Text style={[styles.emptyText, textSizeMode === 'large' && styles.emptyTextLarge]}>
+              {textSizeMode === 'large' ? <>아래의 장소 추가하기를{'\n'}눌러 등록해 주세요.</> : '아래의 장소 추가하기를 눌러 등록해 주세요.'}
+            </Text>
           </View>
         )}
 
@@ -102,6 +107,7 @@ const styles = StyleSheet.create({
   badgeText: { color: '#FFFFFF', fontSize: 20, fontWeight: 'bold', includeFontPadding: false },
   content: { paddingHorizontal: 16, paddingTop: 22, paddingBottom: 118 },
   titleRow: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 18 },
+  titleRowLarge: { flexDirection: 'column', alignItems: 'flex-start', gap: 6 },
   title: { fontSize: 21, fontWeight: 'bold', color: '#111111' },
   count: { fontSize: 14, fontWeight: '600', color: '#666666' },
   countBold: { fontWeight: '800', color: '#444444' },
@@ -114,6 +120,7 @@ const styles = StyleSheet.create({
   emptyBox: { alignItems: 'center', paddingVertical: 48 },
   emptyTitle: { fontSize: 17, fontWeight: 'bold', color: '#777777' },
   emptyText: { marginTop: 7, fontSize: 14, color: '#999999' },
+  emptyTextLarge: { textAlign: 'center' },
   addCard: { height: 96, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', borderWidth: 1.5, borderColor: '#DFDFDF', borderRadius: 18, marginTop: 2 },
   addText: { marginLeft: 10, fontSize: 21, fontWeight: 'bold', color: '#111111' },
   bottomArea: { position: 'absolute', bottom: 0, left: 0, right: 0, paddingHorizontal: 32, paddingTop: 12, paddingBottom: 24, backgroundColor: '#FFFFFF' },

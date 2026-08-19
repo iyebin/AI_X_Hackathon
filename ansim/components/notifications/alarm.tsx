@@ -1,7 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useMemo, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Text } from '@/components/common/scaled-text';
 import { AlertRecipientType, AppAlert, getAlerts, markAlertAsRead } from '@/features/alerts/alerts-api';
 
 interface NotificationViewProps {
@@ -123,7 +124,7 @@ export default function NotificationView({
       }
     }
 
-    if (alert.kind === 'danger') {
+    if (alert.kind === 'danger' || alert.kind === 'warning') {
       router.push({
         pathname: '/danger-modal',
         params: {
@@ -135,6 +136,7 @@ export default function NotificationView({
           dangerReasons: alert.reason ?? alert.message ?? '위험 요인 정보 없음',
           alertCreatedAt: alert.createdAt ?? '',
           riskSnapshot: alert.riskSnapshot ? JSON.stringify(alert.riskSnapshot) : '',
+          riskLevel: alert.kind,
           viewerRole,
         },
       });
