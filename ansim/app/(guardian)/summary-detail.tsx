@@ -1,18 +1,23 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { WebView } from 'react-native-webview';
 
+import { CurrentRiskStatus, getRiskAnalysis } from '@/features/risk/risk-api';
+
 type RiskStatus = '위험' | '주의' | '안전';
 
 const RISK_ITEMS = [
-  { title: 'GPS 이탈', points: '29점 (52%)', percent: 52, description: '등록된 이동 경로에서 벗어났습니다.' },
-  { title: '장시간 정지', points: '15점 (26%)', percent: 26, description: '같은 위치에 일정 시간 이상 머물렀습니다.' },
-  { title: '기상', points: '8점 (14%)', percent: 14, description: '현재 지역에 폭염주의보가 발효 중입니다.' },
-  { title: '대기', points: '4점 (8%)', percent: 8, description: '미세먼지 농도가 높아 주의가 필요합니다.' },
+  { title: 'GPS 이상', points: '29점 (52%)', percent: 52, description: '이동 경로의 이상 여부를 분석했습니다.' },
+  { title: '대기', points: '15점 (27%)', percent: 27, description: '대기 환경 정보를 분석했습니다.' },
+  { title: '기상', points: '12점 (21%)', percent: 21, description: '기상 환경 정보를 분석했습니다.' },
+  // 네 번째 위험요인 추가 시 visible을 true로 바꾸거나 제거하면 됩니다.
+  { title: '추가 위험요인', points: '', percent: 0, description: '', visible: false },
 ];
+
+const VISIBLE_RISK_ITEM_COUNT = 3;
 
 // 위험요인 색상은 상태별로, 퍼센트가 높은 순서대로 배정됩니다.
 const RISK_COLORS: Record<RiskStatus, string[]> = {
@@ -29,16 +34,49 @@ const THEME: Record<RiskStatus, { main: string; soft: string; pale: string }> = 
 
 export default function SummaryDetailScreen() {
   const router = useRouter();
-  const { targetStatus, targetScore } = useLocalSearchParams<{ targetStatus?: RiskStatus; targetScore?: string }>();
-  const status: RiskStatus = targetStatus === '위험' || targetStatus === '안전' ? targetStatus : '주의';
-  const score = targetScore ?? '56';
+  const { targetStatus, targetScore, subjectId } = useLocalSearchParams<{
+    targetStatus?: RiskStatus;
+    targetScore?: string;
+    subjectId?: string;
+  }>();
+  const [serverRisk, setServerRisk] = useState<CurrentRiskStatus | null>(null);
+
+  useEffect(() => {
+    const numericSubjectId = Number(subjectId);
+    if (!Number.isInteger(numericSubjectId) || numericSubjectId <= 0) return;
+
+    void getRiskAnalysis(numericSubjectId)
+      .then(setServerRisk)
+      .catch(() => setServerRisk(null));
+  }, [subjectId]);
+
+  const status: RiskStatus = serverRisk?.level === 'danger'
+    ? '위험'
+    : serverRisk?.level === 'safe'
+      ? '안전'
+      : targetStatus === '위험' || targetStatus === '안전'
+        ? targetStatus
+        : '주의';
+  const score = serverRisk ? String(serverRisk.score) : (targetScore ?? '56');
   const theme = THEME[status];
-  const sortedRiskItems = [...RISK_ITEMS].sort((a, b) => b.percent - a.percent);
+  const riskItems = serverRisk?.factors.length
+    ? serverRisk.factors.map((factor) => ({
+        title: factor.title,
+        points: factor.points === undefined ? `${factor.percent}%` : `${factor.points}점 (${factor.percent}%)`,
+        percent: factor.percent,
+        description: factor.description ?? '위험 요인을 분석하고 있습니다.',
+      }))
+    : RISK_ITEMS;
+  // 현재 화면은 상위 세 항목만 보이며, 네 번째 색상은 RISK_COLORS에 유지합니다.
+  const sortedRiskItems = [...riskItems]
+    .filter((item) => !('visible' in item) || item.visible !== false)
+    .sort((a, b) => b.percent - a.percent)
+    .slice(0, VISIBLE_RISK_ITEM_COUNT);
   const riskColors = RISK_COLORS[status];
-  const chartHtml = `<!doctype html><html><body style="margin:0;background:transparent;overflow:hidden"><canvas id="chart" width="220" height="220"></canvas><script>
+  const chartHtml = `<!doctype html><html><head><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"></head><body style="margin:0;background:transparent;overflow:hidden"><canvas id="chart" width="180" height="180"></canvas><script>
     const items=${JSON.stringify(sortedRiskItems.map((item, index) => ({ percent: item.percent, color: riskColors[index] })))};
     const ctx=document.getElementById('chart').getContext('2d');let start=-Math.PI/2;
-    items.forEach((item)=>{const angle=item.percent/100*Math.PI*2;ctx.beginPath();ctx.moveTo(110,110);ctx.arc(110,110,106,start,start+angle);ctx.closePath();ctx.fillStyle=item.color;ctx.fill();start+=angle;});
+    items.forEach((item)=>{const angle=item.percent/100*Math.PI*2;ctx.beginPath();ctx.moveTo(90,90);ctx.arc(90,90,88,start,start+angle);ctx.closePath();ctx.fillStyle=item.color;ctx.fill();start+=angle;});
   </script></body></html>`;
 
   return (
@@ -109,8 +147,8 @@ const styles = StyleSheet.create({
   content: { paddingHorizontal: 26, paddingTop: 24, paddingBottom: 40 },
   sectionLabel: { color: '#666666', fontSize: 19, fontWeight: 'bold' },
   chartArea: { flexDirection: 'row', alignItems: 'center', marginTop: 28 },
-  chart: { width: 220, height: 220, overflow: 'hidden' },
-  chartWebView: { width: 220, height: 220, backgroundColor: 'transparent' },
+  chart: { width: 180, height: 180, overflow: 'hidden', flexShrink: 0 },
+  chartWebView: { width: 180, height: 180, backgroundColor: 'transparent' },
   legend: { marginLeft: 12, gap: 10 },
   legendText: { color: '#666666', fontSize: 17, fontWeight: 'bold' },
   legendRow: { flexDirection: 'row', alignItems: 'center' },

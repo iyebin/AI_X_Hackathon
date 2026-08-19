@@ -7,8 +7,9 @@ psycopg2-binary
 httpx
 torch
 numpy
+tqdm
+pandas
 requests
 pyproj
-bcrypt
-resend
 firebase-admin
+bcrypt

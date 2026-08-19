@@ -3,6 +3,10 @@ import io
 import os
 import requests
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 
 KMA_APIHUB_KEY = os.getenv("KMA_APIHUB_KEY")
 
@@ -225,8 +229,23 @@ def get_warning_for_gps(
             highest_priority = priority
             highest_level = level
 
-    return {
+    result = {
         "region": region,
         "warnings": matched,
         "highest_level": highest_level,
     }
+
+    message = warning_data.get("message")
+
+    if message:
+        result["status"] = "error"
+        result["message"] = message
+    else:
+        result["status"] = "ok"
+
+        if not matched:
+            result["message"] = (
+                "현재 해당 지역에 발효된 기상특보가 없습니다."
+            )
+
+    return result

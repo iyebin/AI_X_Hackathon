@@ -1,6 +1,7 @@
 from enum import Enum
 
 from sqlalchemy import (
+    JSON,
     Boolean,
     Column,
     Date,
@@ -293,6 +294,7 @@ class GuardianRegistration(Base):
     )
 
     relationship_code = Column(String(50), nullable=False)
+    relationship_note = Column(String(100), nullable=True)
     guardian_role_code = Column(String(50), nullable=True)
     is_primary = Column(Boolean, nullable=False, default=False)
     contact_priority = Column(Integer, nullable=False, default=1)
@@ -339,30 +341,31 @@ class InstitutionManager(Base):
             "institutions.id",
             ondelete="CASCADE",
         ),
-        nullable=False,
+        nullable=True,
         index=True,
     )
 
-    name = Column(String(100), nullable=False)
-    phone = Column(String(30), nullable=False)
+    name = Column(String(100), nullable=True)
+    phone = Column(String(30), nullable=True)
     email = Column(
         String(255),
-        nullable=False,
+        nullable=True,
         unique=True,
         index=True,
     )
 
     login_id = Column(
         String(100),
-        nullable=False,
+        nullable=True,
         unique=True,
         index=True,
     )
 
     password_hash = Column(
         String(255),
-        nullable=False,
+        nullable=True,
     )
+
     position = Column(String(100), nullable=True)
 
     created_at = Column(
@@ -452,6 +455,8 @@ class GPSRecord(Base):
     latitude = Column(Float, nullable=False)
     longitude = Column(Float, nullable=False)
 
+    dayofweek = Column(String(10), nullable=True)
+
     measured_at = Column(
         DateTime(timezone=True),
         server_default=func.now(),
@@ -462,6 +467,34 @@ class GPSRecord(Base):
     subject = relationship(
         "Subject",
         back_populates="gps_records",
+    )
+
+
+class Inference(Base):
+    __tablename__ = "inference"
+
+    gps_id = Column(
+        BigInteger,
+        ForeignKey("gps_records.gps_id", ondelete="CASCADE"),
+        primary_key=True,
+        index=True,
+    )
+
+    subject_id = Column(
+        BigInteger,
+        ForeignKey("subjects.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+
+    token = Column(BigInteger, nullable=True)
+
+    token_probability = Column(Float, nullable=True)
+    anomaly_score = Column(Float, nullable=True)
+
+    scored_at = Column(
+        DateTime(timezone=True),
+        nullable=True,
     )
 
 class Alert(Base):
@@ -499,6 +532,11 @@ class Alert(Base):
 
     risk_score = Column(
         Float,
+        nullable=True,
+    )
+
+    risk_snapshot = Column(
+        JSON,
         nullable=True,
     )
 
@@ -570,6 +608,21 @@ class RiskStatusHistory(Base):
         nullable=True,
     )
 
+    lmtad_reason = Column(
+        Text,
+        nullable=True,
+    )
+
+    weather_reason = Column(
+        Text,
+        nullable=True,
+    )
+
+    air_reason = Column(
+        Text,
+        nullable=True,
+    )
+
     created_at = Column(
         DateTime(timezone=True),
         server_default=func.now(),
@@ -591,12 +644,6 @@ class SubjectAuthCode(Base):
 
     code = Column(String(6), nullable=False, index=True)
 
-    expires_at = Column(
-        DateTime(timezone=True),
-        nullable=False,
-        index=True,
-    )
-
     used_at = Column(
         DateTime(timezone=True),
         nullable=True,
@@ -612,47 +659,4 @@ class SubjectAuthCode(Base):
     subject = relationship(
         "Subject",
         back_populates="auth_codes",
-    )
-
-class EmailVerification(Base):
-    __tablename__ = "email_verifications"
-
-    id = Column(
-        Integer,
-        primary_key=True,
-        index=True,
-    )
-
-    email = Column(
-        String(255),
-        nullable=False,
-        index=True,
-    )
-
-    code = Column(
-        String(6),
-        nullable=False,
-    )
-
-    expires_at = Column(
-        DateTime(timezone=True),
-        nullable=False,
-        index=True,
-    )
-
-    verified_at = Column(
-        DateTime(timezone=True),
-        nullable=True,
-    )
-
-    attempts = Column(
-        Integer,
-        nullable=False,
-        default=0,
-    )
-
-    created_at = Column(
-        DateTime(timezone=True),
-        server_default=func.now(),
-        nullable=False,
     )

@@ -1,7 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
+import { useFocusEffect } from '@react-navigation/native';
 import * as Location from 'expo-location';
+import * as Notifications from 'expo-notifications';
 import { useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   Alert,
   Linking,
@@ -16,13 +18,19 @@ import {
   View,
 } from 'react-native';
 import { getProtectorPhone, setProtectorPhone } from '@/features/contacts/protector-contact-store';
+import { clearSavedSession } from '@/features/auth/current-session';
+import { isGpsTrackingEnabled, stopGpsTracking } from '@/features/gps/tracking';
+import { registerPushNotifications, PushUserType } from '@/features/notifications/push-registration';
+import { isPushNotificationEnabled, setPushNotificationEnabled } from '@/features/notifications/push-preference';
 
 interface SettingViewProps {
   isProtected?: boolean;
+  notificationUser?: { userId: number; userType: PushUserType };
   onEmergencyContactSaved?: () => void;
+  onLocationTrackingChange?: (enabled: boolean) => Promise<boolean>;
 }
 
-export default function SettingView({ isProtected = false, onEmergencyContactSaved }: SettingViewProps) {
+export default function SettingView({ isProtected = false, notificationUser, onEmergencyContactSaved, onLocationTrackingChange }: SettingViewProps) {
   const router = useRouter();
 
   const [isNotificationEnabled, setIsNotificationEnabled] = useState(true);
@@ -30,20 +38,45 @@ export default function SettingView({ isProtected = false, onEmergencyContactSav
   const [isContactModalVisible, setIsContactModalVisible] = useState(false);
   const [protectorPhone, setProtectorPhoneInput] = useState('');
 
-  useEffect(() => {
-    checkLocationPermission();
-  }, []);
-
-  const checkLocationPermission = async () => {
+  const checkLocationPermission = useCallback(async () => {
     try {
       const locationSettings = await Location.getForegroundPermissionsAsync();
-      setIsLocationEnabled(locationSettings.granted);
+      const backgroundSettings = isProtected ? await Location.getBackgroundPermissionsAsync() : null;
+      const hasRequiredPermission = locationSettings.granted && (!isProtected || backgroundSettings?.granted);
+
+      if (isProtected && !hasRequiredPermission) {
+        if (isGpsTrackingEnabled()) stopGpsTracking();
+        setIsLocationEnabled(false);
+        return;
+      }
+
+      setIsLocationEnabled(isProtected ? isGpsTrackingEnabled() : locationSettings.granted);
     } catch (e) {
       console.log('위치 권한 확인 중 오류:', e);
     }
-  };
+  }, [isProtected]);
 
-  const handleToggleNotification = (value: boolean) => {
+  const checkNotificationPreference = useCallback(async () => {
+    if (!notificationUser) return;
+
+    const isEnabledInApp = await isPushNotificationEnabled(notificationUser);
+    if (!isEnabledInApp) {
+      setIsNotificationEnabled(false);
+      return;
+    }
+
+    const permission = await Notifications.getPermissionsAsync();
+    setIsNotificationEnabled(permission.status !== 'denied');
+  }, [notificationUser]);
+
+  useFocusEffect(
+    useCallback(() => {
+      void checkLocationPermission();
+      void checkNotificationPreference();
+    }, [checkLocationPermission, checkNotificationPreference]),
+  );
+
+  const handleToggleNotificationLegacy = (value: boolean) => {
     setIsNotificationEnabled(value);
     if (value) {
       Alert.alert('알림', '알림 수신 설정이 활성화되었습니다.');
@@ -52,7 +85,52 @@ export default function SettingView({ isProtected = false, onEmergencyContactSav
     }
   };
 
+  const handleToggleNotification = async (value: boolean) => {
+    if (!notificationUser) {
+      setIsNotificationEnabled(value);
+      return;
+    }
+
+    await setPushNotificationEnabled(notificationUser, value);
+    if (!value) {
+      setIsNotificationEnabled(false);
+      Alert.alert('알림', '이 기기에서 알림 수신이 비활성화되었습니다.');
+      return;
+    }
+
+    const permission = await Notifications.getPermissionsAsync();
+    if (permission.status === 'denied') {
+      await setPushNotificationEnabled(notificationUser, false);
+      setIsNotificationEnabled(false);
+      Alert.alert(
+        '알림 권한 필요',
+        '알림 권한이 휴대폰 설정에서 꺼져 있습니다. 설정에서 알림을 허용해 주세요.',
+        [
+          { text: '취소', style: 'cancel' },
+          { text: '설정으로 이동', onPress: () => void Linking.openSettings() },
+        ],
+      );
+      return;
+    }
+
+    try {
+      await registerPushNotifications(notificationUser);
+      setIsNotificationEnabled(true);
+      Alert.alert('알림', '알림 수신 설정이 활성화되었습니다.');
+    } catch (error) {
+      await setPushNotificationEnabled(notificationUser, false);
+      setIsNotificationEnabled(false);
+      Alert.alert('알림', error instanceof Error ? error.message : '알림 권한을 확인해 주세요.');
+    }
+  };
+
   const handleToggleLocation = async (value: boolean) => {
+    if (onLocationTrackingChange) {
+      const changed = await onLocationTrackingChange(value);
+      if (changed) setIsLocationEnabled(value);
+      return;
+    }
+
     if (value) {
       try {
         const { status } = await Location.requestForegroundPermissionsAsync();
@@ -98,7 +176,8 @@ export default function SettingView({ isProtected = false, onEmergencyContactSav
       {
         text: '로그아웃',
         style: 'destructive',
-        onPress: () => {
+        onPress: async () => {
+          await clearSavedSession();
           router.replace('/select-type');
         },
       },
@@ -115,7 +194,7 @@ export default function SettingView({ isProtected = false, onEmergencyContactSav
   };
 
   const handleEmergencyContact = () => {
-    setProtectorPhoneInput(getProtectorPhone());
+    setProtectorPhoneInput(getProtectorPhone() ?? '');
     setIsContactModalVisible(true);
   };
 

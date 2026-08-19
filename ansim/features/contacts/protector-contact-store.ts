@@ -1,4 +1,4 @@
-let protectorPhone = '01012345678';
+let protectorPhone: string | undefined;
 
 export function getProtectorPhone() {
   return protectorPhone;
@@ -6,4 +6,8 @@ export function getProtectorPhone() {
 
 export function setProtectorPhone(phone: string) {
   protectorPhone = phone;
+}
+
+export function clearProtectorPhone() {
+  protectorPhone = undefined;
 }
