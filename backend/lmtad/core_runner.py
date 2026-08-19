@@ -225,12 +225,27 @@ def transfer_epsg(
                 gps_id=target_record.gps_id,
                 subject_id=target_record.subject_id,
                 token=token,
+                x=x,
+                y=y,
+                x_d=x_d,
+                y_d=y_d
             )
             db.add(inference_record)
+        # else:
+        #     inference_record.subject_id = (
+        #         target_record.subject_id
+        #     )
+        #     inference_record.token = token
         else:
             inference_record.subject_id = (
                 target_record.subject_id
             )
+
+            inference_record.x = x
+            inference_record.y = y
+            inference_record.x_d = x_d
+            inference_record.y_d = y_d
+
             inference_record.token = token
 
         db.commit()
