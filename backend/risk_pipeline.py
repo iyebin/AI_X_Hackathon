@@ -77,8 +77,9 @@ def _build_snapshot_factors(
             "score": gps,
             "percentage": percentage(gps),
             "description": "평소 이동 패턴과 다른 움직임이 감지되었습니다."
-            if gps > 0
-            else "현재 GPS 이동 패턴에서 특이사항이 감지되지 않았습니다.",
+            # 원본 anomaly_score가 모델 임계값 이상일 때 서비스 점수는 70점 이상입니다.
+            if gps >= 70
+            else "현재 GPS 이동 패턴에서 이상 기준에는 도달하지 않았습니다.",
         },
         {
             "type": "weather",
@@ -86,7 +87,11 @@ def _build_snapshot_factors(
             "score": weather,
             "percentage": percentage(weather),
             "description": weather_description
-            or ("기상 위험 요소가 감지되었습니다." if weather > 0 else "기상 위험 요소가 없습니다."),
+            or (
+                "기상 위험 점수가 높아 관찰이 필요합니다."
+                if weather >= 40
+                else "현재 관측값에서 추가 기상 위험 요인이 확인되지 않았습니다."
+            ),
         },
         {
             "type": "air",
@@ -94,7 +99,11 @@ def _build_snapshot_factors(
             "score": air,
             "percentage": percentage(air),
             "description": air_description
-            or ("대기질 위험 요소가 감지되었습니다." if air > 0 else "대기질 위험 요소가 없습니다."),
+            or (
+                "대기질 위험 점수가 높아 관찰이 필요합니다."
+                if air >= 40
+                else "현재 관측값에서 추가 대기질 위험 요인이 확인되지 않았습니다."
+            ),
         },
     ]
 
@@ -261,7 +270,7 @@ def process_ai_risk_result(
                 "warnings": weather_warning.get("warnings", []),
             },
         },
-    ) if weather_score and weather_score > 0 else None
+    ) if weather_score and weather_score >= 40 else None
 
     air_quality = (air_data or {}).get("air_quality") or {}
     air_description = generate_environment_description(
@@ -270,10 +279,13 @@ def process_ai_risk_result(
             "pm10_ug_m3": air_quality.get("pm10"),
             "pm25_ug_m3": air_quality.get("pm25"),
             "ozone_ppm": air_quality.get("o3"),
+            "nitrogen_dioxide_ppm": air_quality.get("no2"),
+            "carbon_monoxide_ppm": air_quality.get("co"),
+            "sulfur_dioxide_ppm": air_quality.get("so2"),
             "khai": air_quality.get("khai"),
             "station_name": air_quality.get("station_name"),
         },
-    ) if air_score and air_score > 0 else None
+    ) if air_score and air_score >= 40 else None
     factors = _build_snapshot_factors(
         lmtad_score=lmtad_score,
         weather_score=weather_score,
