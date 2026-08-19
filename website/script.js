@@ -1,5 +1,4 @@
-const API_BASE_URL =
-  "https://ai-x-hackathon-backend.onrender.com";
+const API_BASE_URL = window.ANSIM_API_BASE_URL;
 
 
 const SUBJECT_TYPE_LABELS = {
