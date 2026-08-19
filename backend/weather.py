@@ -4,8 +4,11 @@ import requests
 
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
+from dotenv import load_dotenv
 
-from weather_alert import get_warning_for_gps
+from backend.weather_alert import get_warning_for_gps
+
+load_dotenv()
 
 
 WEATHER_URL = (

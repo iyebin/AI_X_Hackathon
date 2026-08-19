@@ -253,9 +253,19 @@ def send_push_to_user(
         .all()
     )
 
+    if not tokens:
+        return {
+            "token_count": 0,
+            "sent_count": 0,
+            "failed_count": 0,
+            "results": [],
+        }
+
+    results = []
+
     for device in tokens:
         try:
-            send_push_notification(
+            result = send_push_notification(
                 token=device.token,
                 title=title,
                 body=body,
@@ -264,12 +274,38 @@ def send_push_to_user(
                     for key, value in data.items()
                 },
             )
+
+            results.append({
+                "token_id": device.id,
+                "success": result != "mock_not_sent",
+                "result": result,
+            })
+
         except Exception as error:
             print(
                 "[FCM] Push failed "
                 f"user_type={user_type}, "
                 f"user_id={user_id}: {error}"
             )
+
+            results.append({
+                "token_id": device.id,
+                "success": False,
+                "error": str(error),
+            })
+
+    return {
+        "token_count": len(tokens),
+        "sent_count": sum(
+            1 for item in results
+            if item.get("success")
+        ),
+        "failed_count": sum(
+            1 for item in results
+            if not item.get("success")
+        ),
+        "results": results,
+    }
 
 
 def get_guardian_ids_for_subject(
