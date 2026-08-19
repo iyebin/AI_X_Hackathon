@@ -1,0 +1,5 @@
+userid	staypoint_count	total_dwell_minutes	mean_dwell_minutes	venue_count	staypoint_context_CATEGORY	staypoint_context_HOME	staypoint_context_POI
+1	7	5972.0419	853.1488428571429	4	2	4	1
+2	10	2565.766666666667	256.5766666666667	4	2	2	6
+3	8	1028.5518	128.568975	6	4	2	2
+4	23	7889.421433333333	343.01832318840576	10	13	6	4

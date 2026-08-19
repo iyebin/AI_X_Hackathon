@@ -1,0 +1,15 @@
+column_name,data_type
+gps_id,integer
+subject_id,integer
+latitude,double precision
+longitude,double precision
+measured_at,timestamp without time zone
+x,double precision
+y,double precision
+x_d,integer
+y_d,integer
+token,bigint
+dayofweek,character varying
+token_probability,double precision
+anomaly_score,double precision
+scored_at,timestamp with time zone

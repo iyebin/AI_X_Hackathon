@@ -1,0 +1,55 @@
+{
+  "expo": {
+    "name": "안심하랑께",
+    "slug": "ansim",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/logo.png",
+    "scheme": "ansim",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "edgeToEdgeEnabled": true,
+      "predictiveBackGestureEnabled": false,
+      "package": "com.anonymous.ansim",
+      "googleServicesFile": "./google-services.json"
+    },
+    "web": {
+      "output": "static",
+      "favicon": "./assets/images/logo.png"
+    },
+    // "plugins": [
+    //   "expo-router",
+    //   "expo-splash-screen"
+    // ],
+    "plugins": [
+      "expo-router",
+      "expo-splash-screen",
+
+      [
+        "expo-location",
+        {
+          "isAndroidBackgroundLocationEnabled": true, //백그라운드일때 위치권한 설정
+          "isAndroidForegroundServiceEnabled": true //android 14이상
+        }
+      ],
+
+      "expo-notifications"
+
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "394b9b60-8e49-42a4-8ebc-2265267b8fc3"
+      }
+    },
+    "owner": "ai_x_hackathon-2026"
+  }
+}

@@ -5,4 +5,11 @@ pydantic>=2
 python-dotenv
 psycopg2-binary
 httpx
+torch
+numpy
+tqdm
+pandas
+requests
+pyproj
+firebase-admin
 bcrypt
