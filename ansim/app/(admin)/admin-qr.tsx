@@ -7,10 +7,10 @@ import {
   Alert,
   Image,
   StyleSheet,
-  Text,
   TouchableOpacity,
   View,
 } from 'react-native';
+import { Text } from '@/components/common/scaled-text';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function AdminQrScreen() {

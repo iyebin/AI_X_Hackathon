@@ -8,10 +8,10 @@ import {
   Linking,
   ScrollView,
   StyleSheet,
-  Text,
   TouchableOpacity,
   View,
 } from 'react-native';
+import { Text } from '@/components/common/scaled-text';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { WebView } from 'react-native-webview';
 
@@ -25,9 +25,12 @@ import { formatTimeSince, getLatestGps, GpsLocation } from '@/features/gps/gps-a
 import { getWeatherSummary } from '@/features/environment/weather-api';
 import { registerPushNotifications } from '@/features/notifications/push-registration';
 import { CurrentRiskStatus, getRiskAnalysis } from '@/features/risk/risk-api';
+import { useTextSize } from '@/features/accessibility/text-size';
 
 export default function ProtectorMainScreen() {
   const router = useRouter();
+  const { mode: textSizeMode } = useTextSize();
+  const isLargeText = textSizeMode === 'large';
   const guardianId = getCurrentGuardianId();
   const guardianName = getCurrentGuardianName() || '보호자';
 
@@ -97,7 +100,7 @@ export default function ProtectorMainScreen() {
     let isDisposed = false;
     const establishBaseline = async () => {
       try {
-        const latestDanger = (await getAlerts({ subjectId, recipientType: 'guardian', recipientId: guardianId })).find((alert) => alert.kind === 'danger' && !alert.isRead);
+        const latestDanger = (await getAlerts({ subjectId, recipientType: 'guardian', recipientId: guardianId })).find((alert) => ['danger', 'warning'].includes(alert.kind) && !alert.isRead);
         if (!isDisposed) {
           lastVisibleDangerAlertId.current = latestDanger?.id ?? null;
           isAlertBaselineReady.current = true;
@@ -110,7 +113,7 @@ export default function ProtectorMainScreen() {
     const checkNewForegroundDangerAlert = async () => {
       if (isDisposed || !isAppForeground.current || !isAlertBaselineReady.current) return;
       try {
-        const latestDanger = (await getAlerts({ subjectId, recipientType: 'guardian', recipientId: guardianId })).find((alert) => alert.kind === 'danger' && !alert.isRead);
+        const latestDanger = (await getAlerts({ subjectId, recipientType: 'guardian', recipientId: guardianId })).find((alert) => ['danger', 'warning'].includes(alert.kind) && !alert.isRead);
         if (!latestDanger || latestDanger.id === lastVisibleDangerAlertId.current) return;
 
         lastVisibleDangerAlertId.current = latestDanger.id;
@@ -125,6 +128,7 @@ export default function ProtectorMainScreen() {
             dangerReasons: latestDanger.reason ?? latestDanger.message ?? '위험 요인 정보 없음',
             alertCreatedAt: latestDanger.createdAt ?? '',
             riskSnapshot: latestDanger.riskSnapshot ? JSON.stringify(latestDanger.riskSnapshot) : '',
+            riskLevel: latestDanger.kind,
           },
         });
       } catch {
@@ -275,21 +279,24 @@ export default function ProtectorMainScreen() {
         return (
           <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
             <View style={styles.headerRow}>
-              <View>
+              <View style={[styles.headerGreeting, isLargeText && styles.headerGreetingLarge]}>
                 <Text style={styles.greetingText}>안녕하세요.</Text>
-                <View style={styles.subGreetingRow}>
-                  <Text style={styles.greetingSubText}>오늘도 </Text>
+                <View style={[styles.subGreetingRow, isLargeText && styles.subGreetingRowLarge]}>
+                  <View style={[styles.greetingNameRow, isLargeText && styles.greetingNameRowLarge]}>
+                    <Text style={[styles.greetingSubText, !isLargeText && styles.greetingSubTextCompact]}>오늘도 </Text>
                   {/* 💡 router.back() 대신 router.push('/protector-select')로 명확하게 변경 */}
-              <TouchableOpacity onPress={() => router.push('/protector-select')} activeOpacity={0.7}>
-                    <View style={styles.nameBadge}>
-                      <Text style={styles.nameBadgeText}>{targetName}님</Text>
+                    <TouchableOpacity onPress={() => router.push('/protector-select')} activeOpacity={0.7}>
+                    <View style={[styles.nameBadge, !isLargeText && styles.nameBadgeCompact]}>
+                      <Text style={[styles.nameBadgeText, !isLargeText && styles.nameBadgeTextCompact]}>{targetName}님</Text>
                     </View>
-                  </TouchableOpacity>
-                  <Text style={styles.greetingSubText}>의 안전을 함께 지켜요.</Text>
+                    </TouchableOpacity>
+                  </View>
+                  <Text style={[styles.greetingSubText, !isLargeText && styles.greetingSubTextCompact]}>의 안전을 함께 지켜요.</Text>
                 </View>
               </View>
 
               <TouchableOpacity
+                style={styles.menuButton}
                 onPress={() => setIsSidebarOpen(true)}
                 hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
               >
@@ -316,7 +323,7 @@ export default function ProtectorMainScreen() {
                 </TouchableOpacity>
               </View>
 
-              <View style={styles.summaryBody}>
+              <View style={[styles.summaryBody, isLargeText && styles.summaryBodyLarge]}>
                 <View>
                   <Text style={[styles.statusBigText, { color: currentStatusColor }]}>
                     {displayStatus}
@@ -326,7 +333,7 @@ export default function ProtectorMainScreen() {
                   </Text>
                 </View>
 
-                <View style={styles.gpsProgressBox}>
+                <View style={[styles.gpsProgressBox, isLargeText && styles.gpsProgressBoxLarge]}>
                   <Text style={styles.gpsText}>GPS 이탈</Text>
                   <View style={styles.progressBarBg}>
                     <View
@@ -544,6 +551,9 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     marginBottom: 20,
   },
+  headerGreeting: { flex: 1, minWidth: 0 },
+  headerGreetingLarge: { paddingRight: 12 },
+  menuButton: { minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' },
   greetingText: {
     fontSize: 22,
     fontWeight: 'bold',
@@ -555,15 +565,20 @@ const styles = StyleSheet.create({
     marginTop: 4,
     flexWrap: 'wrap',
   },
+  subGreetingRowLarge: { alignItems: 'flex-start' },
+  greetingNameRow: { flexDirection: 'row', alignItems: 'center', flexShrink: 0 },
+  greetingNameRowLarge: { width: '100%' },
   greetingSubText: {
     fontSize: 18,
     fontWeight: 'bold',
     color: '#000000',
   },
+  greetingSubTextCompact: { fontSize: 15 },
   nameBadge: {
     backgroundColor: '#F7931E',
     paddingHorizontal: 16,
-    height: 36,
+    minHeight: 36,
+    paddingVertical: 4,
     borderRadius: 18,
     justifyContent: 'center',
     alignItems: 'center',
@@ -575,6 +590,8 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     includeFontPadding: false,
   },
+  nameBadgeCompact: { minHeight: 30, paddingHorizontal: 10, paddingVertical: 3 },
+  nameBadgeTextCompact: { fontSize: 13 },
   summaryCard: {
     borderWidth: 1.5,
     borderColor: '#E0E0E0',
@@ -603,6 +620,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
+  summaryBodyLarge: { flexDirection: 'column', alignItems: 'flex-start' },
   statusBigText: {
     fontSize: 38,
     fontWeight: 'bold',
@@ -621,6 +639,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
+  gpsProgressBoxLarge: { marginTop: 16 },
   gpsText: {
     fontSize: 14,
     fontWeight: 'bold',
@@ -771,10 +790,10 @@ const styles = StyleSheet.create({
   sidebarName: { fontSize: 23, fontWeight: 'bold', color: '#111111' },
   sidebarRole: { marginTop: 10, fontSize: 15, fontWeight: '600', color: '#666666' },
   sidebarDivider: { height: 1, marginTop: 31, backgroundColor: '#E0E0E0' },
-  sidebarItem: { height: 48, flexDirection: 'row', alignItems: 'center', paddingLeft: 12 },
+  sidebarItem: { minHeight: 48, flexDirection: 'row', alignItems: 'center', paddingVertical: 7, paddingLeft: 12 },
   sidebarItemText: { marginLeft: 20, fontSize: 18, fontWeight: '600', color: '#666666' },
   sidebarBottom: { marginTop: 'auto', marginBottom: 80 },
-  sidebarLogout: { height: 67, flexDirection: 'row', alignItems: 'center', paddingLeft: 17 },
+  sidebarLogout: { minHeight: 67, flexDirection: 'row', alignItems: 'center', paddingVertical: 8, paddingLeft: 17 },
   sidebarLogoutText: { marginLeft: 17, fontSize: 18, fontWeight: 'bold', color: '#FF2525' },
   tabItem: {
     flex: 1,

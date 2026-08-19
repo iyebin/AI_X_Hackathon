@@ -6,11 +6,12 @@ import {
   Keyboard,
   Pressable,
   StyleSheet,
-  Text,
-  TextInput,
+  TextInput as NativeTextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
+import { Text } from '@/components/common/scaled-text';
+import { TextInput } from '@/components/common/scaled-text-input';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AuthRole, verifyAuthCode } from '@/features/auth/verify-code';
 import { saveSession, setCurrentGuardian } from '@/features/auth/current-session';
@@ -26,7 +27,7 @@ export default function CodeScreen() {
   const primaryColor = isProtected ? '#59A03D' : '#F7931E';
 
   const [code, setCode] = useState<string[]>(['', '', '', '', '', '']);
-  const inputsRef = useRef<(TextInput | null)[]>([]);
+  const inputsRef = useRef<(NativeTextInput | null)[]>([]);
 
   const handleChangeText = (value: string, index: number) => {
     const nextCode = [...code];

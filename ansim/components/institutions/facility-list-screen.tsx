@@ -8,10 +8,10 @@ import {
   Modal,
   ScrollView,
   StyleSheet,
-  Text,
   TouchableOpacity,
   View,
 } from 'react-native';
+import { Text } from '@/components/common/scaled-text';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { WebView } from 'react-native-webview';
 import { FACILITY_SEARCH_LOCATION, getNearestInstitutions } from '@/features/institutions/nearest-institutions';
@@ -330,9 +330,9 @@ const styles = StyleSheet.create({
   titleBadge: { height: 40, borderRadius: 16, paddingHorizontal: 20, justifyContent: 'center', alignItems: 'center' },
   title: { color: '#FFFFFF', fontSize: 20, fontWeight: 'bold', includeFontPadding: false },
   mapPlaceholder: { height: 168, backgroundColor: '#FFFFFF', marginBottom: 20 },
-  filterArea: { height: 72, justifyContent: 'flex-start' },
-  filterRow: { height: 42, alignItems: 'center', gap: 6, paddingHorizontal: 10 },
-  filterChip: { width: 'auto', height: 42, minHeight: 42, maxHeight: 42, alignSelf: 'center', borderWidth: 1, borderColor: '#D8D8D8', borderRadius: 15, paddingHorizontal: 13, paddingVertical: 0, justifyContent: 'center', alignItems: 'center', overflow: 'hidden' },
+  filterArea: { minHeight: 80, justifyContent: 'flex-start' },
+  filterRow: { minHeight: 50, alignItems: 'center', gap: 6, paddingHorizontal: 10 },
+  filterChip: { width: 'auto', minHeight: 50, alignSelf: 'center', borderWidth: 1, borderColor: '#D8D8D8', borderRadius: 15, paddingHorizontal: 13, paddingVertical: 5, justifyContent: 'center', alignItems: 'center' },
   filterText: { color: '#5B5B5B', fontSize: 19, fontWeight: '700', lineHeight: 24, includeFontPadding: false },
   activeFilterText: { color: '#FFFFFF' },
   facilityList: { flex: 1, borderTopWidth: 1, borderTopColor: '#E7E7E7' },

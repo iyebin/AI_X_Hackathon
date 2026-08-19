@@ -11,9 +11,11 @@ function asPositiveInteger(value: unknown): number | undefined {
   return Number.isInteger(numberValue) && numberValue > 0 ? numberValue : undefined;
 }
 
-function isDangerPush(data: Notifications.Notification['request']['content']['data'], alertKind?: string): boolean {
+function isRiskModalPush(data: Notifications.Notification['request']['content']['data'], alertKind?: string): boolean {
   const value = String(data.risk_level ?? data.riskLevel ?? data.type ?? '').toLowerCase();
-  return ['danger', 'risk', 'risk_danger', 'risk_danger_repeat'].includes(value) || alertKind === 'danger';
+  return ['danger', 'risk', 'risk_danger', 'risk_danger_repeat', 'caution', 'warning', 'risk_caution'].includes(value)
+    || alertKind === 'danger'
+    || alertKind === 'warning';
 }
 
 export default function LoadingScreen() {
@@ -60,7 +62,7 @@ export default function LoadingScreen() {
               const alertId = String(data.alert_id ?? data.alertId ?? '');
               const alert = alertId ? await getAlert(alertId).catch(() => undefined) : undefined;
               const subjectId = asPositiveInteger(data.subject_id ?? data.subjectId) ?? alert?.subjectId;
-              if (subjectId && isDangerPush(data, alert?.kind)) {
+              if (subjectId && isRiskModalPush(data, alert?.kind)) {
                 setTimeout(() => {
                   router.push({
                     pathname: '/danger-modal',
@@ -71,6 +73,7 @@ export default function LoadingScreen() {
                       dangerReasons: String(data.reason ?? alert?.reason ?? alert?.message ?? ''),
                       alertCreatedAt: alert?.createdAt ?? '',
                       riskSnapshot: alert?.riskSnapshot ? JSON.stringify(alert.riskSnapshot) : '',
+                      riskLevel: String(data.risk_level ?? data.riskLevel ?? alert?.kind ?? ''),
                     },
                   });
                 }, 700);
@@ -97,7 +100,7 @@ export default function LoadingScreen() {
             const alertId = String(data.alert_id ?? data.alertId ?? '');
             const alert = alertId ? await getAlert(alertId).catch(() => undefined) : undefined;
             const receivedSubjectId = asPositiveInteger(data.subject_id ?? data.subjectId) ?? alert?.subjectId ?? session.userId;
-            if (receivedSubjectId && isDangerPush(data, alert?.kind)) {
+            if (receivedSubjectId && isRiskModalPush(data, alert?.kind)) {
               setTimeout(() => {
                 router.push({
                   pathname: '/danger-modal',
@@ -108,6 +111,7 @@ export default function LoadingScreen() {
                     dangerReasons: String(data.reason ?? alert?.reason ?? alert?.message ?? ''),
                     alertCreatedAt: alert?.createdAt ?? '',
                     riskSnapshot: alert?.riskSnapshot ? JSON.stringify(alert.riskSnapshot) : '',
+                    riskLevel: String(data.risk_level ?? data.riskLevel ?? alert?.kind ?? ''),
                     viewerRole: 'protected',
                   },
                 });

@@ -1,14 +1,16 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Linking, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, Linking, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Text } from '@/components/common/scaled-text';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { markAlertAsRead } from '@/features/alerts/alerts-api';
 import { getSavedSession } from '@/features/auth/current-session';
 import { getSubjectProfile } from '@/features/relationships/guardian-registration';
 import { CurrentRiskStatus, getRiskHistory, parseRiskStatus, RiskFactor } from '@/features/risk/risk-api';
 
-const RISK_FACTOR_COLORS = ['#C62828', '#EF5350', '#FF8585', '#FFD0D0'];
+const DANGER_FACTOR_COLORS = ['#C62828', '#EF5350', '#FF8585', '#FFD0D0'];
+const CAUTION_FACTOR_COLORS = ['#F68E32', '#FFA453', '#FEBF0B', '#FFDC76'];
 
 function factorReason(factor: RiskFactor): string {
   const description = factor.description?.trim();
@@ -60,6 +62,7 @@ export default function DangerModalScreen() {
     dangerReasons?: string;
     alertCreatedAt?: string;
     riskSnapshot?: string;
+    riskLevel?: string;
     viewerRole?: 'guardian' | 'protected';
   }>();
 
@@ -74,6 +77,9 @@ export default function DangerModalScreen() {
   const targetPhone = profilePhone;
   const dangerScore = params.dangerScore || '-';
   const reason = getAlertReason(params.dangerReasons);
+  const isCaution = ['caution', 'warning'].includes((params.riskLevel ?? '').toLowerCase());
+  const modalColor = isCaution ? '#F7931E' : '#FF3030';
+  const factorColors = isCaution ? CAUTION_FACTOR_COLORS : DANGER_FACTOR_COLORS;
 
   useEffect(() => {
     if (params.alertId) void markAlertAsRead(params.alertId).catch(() => {});
@@ -177,14 +183,14 @@ export default function DangerModalScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.dangerHeader}>
+      <View style={[styles.dangerHeader, { backgroundColor: modalColor }]}>
         <SafeAreaView edges={['top']} style={styles.headerSafeArea}>
           <TouchableOpacity style={styles.closeButton} onPress={() => router.back()} hitSlop={12}>
             <Ionicons name="close" size={38} color="#FFFFFF" />
           </TouchableOpacity>
           <View style={styles.headerContent}>
             <Ionicons name="warning" size={60} color="#FFFFFF" />
-            <Text style={styles.headerTitle}>위험이 감지되었습니다!</Text>
+            <Text style={styles.headerTitle}>{isCaution ? '주의가 감지되었습니다!' : '위험이 감지되었습니다!'}</Text>
           </View>
         </SafeAreaView>
       </View>
@@ -197,7 +203,7 @@ export default function DangerModalScreen() {
               <Text style={styles.targetName}>{targetName}</Text>
               {targetAge ? <Text style={styles.targetAge}> ({targetAge}세)</Text> : null}
             </View>
-            <Text style={styles.scoreText}>위험도 {displayScore}점</Text>
+            <Text style={styles.scoreText}>{isCaution ? '주의도' : '위험도'} {displayScore}점</Text>
           </View>
         </View>
 
@@ -205,12 +211,12 @@ export default function DangerModalScreen() {
           <Text style={styles.analysisTitle}>위험요인 상세 분석</Text>
           {isRiskSnapshotLoading ? (
             <View style={styles.snapshotLoading}>
-              <ActivityIndicator color="#FF2525" />
+              <ActivityIndicator color={modalColor} />
               <Text style={styles.snapshotLoadingText}>알림 당시의 분석 정보를 불러오는 중입니다.</Text>
             </View>
           ) : riskFactors.length ? riskFactors.map((factor, index) => {
             const isExpanded = expandedFactorKey === factor.key;
-            const color = RISK_FACTOR_COLORS[index];
+            const color = factorColors[index];
             return (
               <TouchableOpacity
                 key={factor.key}
@@ -238,7 +244,7 @@ export default function DangerModalScreen() {
             );
           }) : (
             <View style={styles.fallbackReasonCard}>
-              <Ionicons name="warning" size={18} color="#FF2525" style={styles.factorReasonIcon} />
+              <Ionicons name="warning" size={18} color={modalColor} style={styles.factorReasonIcon} />
               <Text style={styles.factorReasonText}>{reason}</Text>
             </View>
           )}

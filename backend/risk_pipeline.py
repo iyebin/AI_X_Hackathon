@@ -304,8 +304,9 @@ def process_ai_risk_result(
         weather_score=weather_score,
         air_score=air_score,
         lmtad_reason=f"LM-TAD anomaly_score={anomaly_score:.4f}, threshold={threshold:.4f}",
-        weather_reason="기상 위험점수 자동 조회" if weather_score is not None else "기상 위험점수 조회 실패",
-        air_reason="대기 위험점수 자동 조회" if air_score is not None else "대기 위험점수 조회 실패",
+        # 점수와 동일한 관측 시점의 설명을 보존해 위험도 상세 화면과 알림 모달에 사용합니다.
+        weather_reason=weather_description or ("기상 위험점수 자동 조회" if weather_score is not None else "기상 위험점수 조회 실패"),
+        air_reason=air_description or ("대기 위험점수 자동 조회" if air_score is not None else "대기 위험점수 조회 실패"),
     )
     db.add(status)
     db.commit()

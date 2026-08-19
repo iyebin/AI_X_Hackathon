@@ -4,15 +4,18 @@ import { useEffect, useRef } from 'react';
 
 import { getAlert } from '@/features/alerts/alerts-api';
 import { getSavedSession } from '@/features/auth/current-session';
+import { TextSizeProvider } from '@/features/accessibility/text-size';
 
 function asPositiveInteger(value: unknown): number | undefined {
   const numberValue = typeof value === 'number' ? value : Number(value);
   return Number.isInteger(numberValue) && numberValue > 0 ? numberValue : undefined;
 }
 
-function isDangerPush(data: Notifications.Notification['request']['content']['data'], alertKind?: string): boolean {
+function isRiskModalPush(data: Notifications.Notification['request']['content']['data'], alertKind?: string): boolean {
   const value = String(data.risk_level ?? data.riskLevel ?? data.type ?? '').toLowerCase();
-  return ['danger', 'risk', 'risk_danger', 'risk_danger_repeat'].includes(value) || alertKind === 'danger';
+  return ['danger', 'risk', 'risk_danger', 'risk_danger_repeat', 'caution', 'warning', 'risk_caution'].includes(value)
+    || alertKind === 'danger'
+    || alertKind === 'warning';
 }
 
 export default function RootLayout() {
@@ -37,8 +40,8 @@ export default function RootLayout() {
 
       const alert = alertId ? await getAlert(alertId).catch(() => undefined) : undefined;
       const subjectId = asPositiveInteger(data.subject_id ?? data.subjectId) ?? alert?.subjectId;
-      const isDanger = isDangerPush(data, alert?.kind);
-      if (!subjectId || !isDanger) return;
+      const isRiskAlert = isRiskModalPush(data, alert?.kind);
+      if (!subjectId || !isRiskAlert) return;
 
       handledAlertIds.current.add(notificationKey);
       router.push({
@@ -50,6 +53,7 @@ export default function RootLayout() {
           dangerReasons: String(data.reason ?? alert?.reason ?? alert?.message ?? ''),
           alertCreatedAt: alert?.createdAt ?? '',
           riskSnapshot: alert?.riskSnapshot ? JSON.stringify(alert.riskSnapshot) : '',
+          riskLevel: String(data.risk_level ?? data.riskLevel ?? alert?.kind ?? ''),
           viewerRole: session.role,
         },
       });
@@ -74,5 +78,9 @@ export default function RootLayout() {
     };
   }, [router]);
 
-  return <Stack screenOptions={{ headerShown: false }} />;
+  return (
+    <TextSizeProvider>
+      <Stack screenOptions={{ headerShown: false }} />
+    </TextSizeProvider>
+  );
 }

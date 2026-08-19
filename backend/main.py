@@ -3347,8 +3347,10 @@ def calculate_subject_integrated_risk(
         weather_score=weather_score,
         air_score=air_score,
         lmtad_reason=lmtad_reason,
-        weather_reason=weather_reason,
-        air_reason=air_reason,
+        # 계산 당시의 관측값으로 만든 상세 설명을 이력에도 같이 보관합니다.
+        # 이후 화면이 현재 환경을 다시 조회해 원인을 바꿔 보여주지 않게 합니다.
+        weather_reason=alert_weather_description or weather_reason,
+        air_reason=alert_air_description or air_reason,
     )
 
     db.add(risk_status)
@@ -3820,7 +3822,9 @@ def get_risk_analysis(
                 },
             },
         )
-        if gemini_weather_description:
+        # 수치·특보 근거를 우선 노출합니다. LLM 문장이 이를 덮어쓰면
+        # 사용자가 어떤 기상 항목 때문에 점수가 올랐는지 알 수 없기 때문입니다.
+        if gemini_weather_description and not weather_reasons:
             weather_description = gemini_weather_description
 
     # -----------------------------------------------------
@@ -3949,8 +3953,30 @@ def get_risk_analysis(
                 "station_name": station,
             },
         )
-        if gemini_air_description:
+        # PM10·PM2.5·오존·NO₂·CO·SO₂의 기준 초과 사실을 먼저 보여줍니다.
+        if gemini_air_description and not air_reasons:
             air_description = gemini_air_description
+
+    # 위험 상태를 만들 때 함께 저장한 상세 사유가 있으면 우선 사용합니다.
+    # 같은 점수라도 이후의 날씨·대기 상태가 바뀌어 원인이 달라 보이는 문제를 막습니다.
+    generic_weather_reasons = {
+        "기상 위험 요소 감지",
+        "기상 위험 요소 없음",
+        "기상 위험점수 자동 조회",
+        "기상 위험점수 조회 실패",
+    }
+    generic_air_reasons = {
+        "대기질 위험 요소 감지",
+        "대기질 위험 요소 없음",
+        "대기 위험점수 자동 조회",
+        "대기 위험점수 조회 실패",
+    }
+    stored_weather_reason = (risk_status.weather_reason or "").strip()
+    stored_air_reason = (risk_status.air_reason or "").strip()
+    if stored_weather_reason and stored_weather_reason not in generic_weather_reasons:
+        weather_description = stored_weather_reason
+    if stored_air_reason and stored_air_reason not in generic_air_reasons:
+        air_description = stored_air_reason
 
     factors = [
         {
