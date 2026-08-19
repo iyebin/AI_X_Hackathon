@@ -109,8 +109,8 @@ def search_latest_gps():
 TRAIN_X_MIN = 922715.6460828016
 TRAIN_Y_MIN = 1930202.4520962609
 
-GPS_TOKEN_MIN = 2
-GPS_TOKEN_MAX = 2708
+# GPS_TOKEN_MIN = 2
+# GPS_TOKEN_MAX = 2708
 def create_token(
     target_x: float,
     target_y: float,
@@ -135,19 +135,19 @@ def create_token(
     x_d = int((target_x - TRAIN_X_MIN) // grid_length) + 1
     y_d = int((target_y - TRAIN_Y_MIN) // grid_length) + 1
 
-    raw_token = x_d + y_d
+    token = x_d + y_d
 
     # 학습 vocabulary 범위로 제한
-    token = max(
-        GPS_TOKEN_MIN,
-        min(raw_token, GPS_TOKEN_MAX),
-    )
+    # token = max(
+    #     GPS_TOKEN_MIN,
+    #     min(raw_token, GPS_TOKEN_MAX),
+    # )
 
-    if token != raw_token:
-        print(
-            "경고: GPS 토큰이 학습 범위를 벗어났습니다.",
-            f"원본={raw_token}, 적용={token}",
-        )
+    # if token != raw_token:
+    #     print(
+    #         "경고: GPS 토큰이 학습 범위를 벗어났습니다.",
+    #         f"원본={raw_token}, 적용={token}",
+    #     )
 
     return x_d, y_d, token
 
