@@ -8,8 +8,7 @@
    - 전화번호 인증: SMS API 연결 전 시연용
 ========================================================= */
 
-const LOGIN_API_BASE =
-  "https://ai-x-hackathon-backend.onrender.com";
+const LOGIN_API_BASE = window.ANSIM_API_BASE_URL;
 
 const LOGIN_SESSION_KEY =
   "ansim_manager_session";

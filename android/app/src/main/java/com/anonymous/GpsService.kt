@@ -90,7 +90,7 @@ class GpsService : Service() {
 
         thread {
             try {
-                val url = URL("https://ai-x-hackathon-backend.onrender.com/gps")
+                val url = URL("$API_BASE_URL/gps")
                 val conn = url.openConnection() as HttpURLConnection
                 conn.requestMethod = "POST"
                 conn.setRequestProperty("Content-Type", "application/json; utf-8")
@@ -122,7 +122,7 @@ class GpsService : Service() {
     private fun fetchNearestInstitutions(subjectId: Int) {
         thread {
             try {
-                val url = URL("https://ai-x-hackathon-backend.onrender.com/subjects/$subjectId/institutions/nearest")
+                val url = URL("$API_BASE_URL/subjects/$subjectId/institutions/nearest")
                 val conn = url.openConnection() as HttpURLConnection
                 conn.requestMethod = "GET"
 
@@ -159,6 +159,7 @@ class GpsService : Service() {
     }
 
     companion object {
+        private const val API_BASE_URL = "https://advised-blocked-applied-normally.trycloudflare.com"
         private const val CHANNEL_ID = "GpsServiceChannel"
         private const val NOTIFICATION_ID = 1001
     }
