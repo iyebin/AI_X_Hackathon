@@ -106,7 +106,11 @@ def search_latest_gps():
 #     token = x_d + y_d
 
 #     return x_d, y_d, token
+TRAIN_X_MIN = 922715.6460828016
+TRAIN_Y_MIN = 1930202.4520962609
 
+GPS_TOKEN_MIN = 2
+GPS_TOKEN_MAX = 2708
 def create_token(
     target_x: float,
     target_y: float,
@@ -125,13 +129,25 @@ def create_token(
     if not coordinates:
         raise ValueError("GPS 데이터가 없습니다.")
 
-    x_min = min(x for x, _ in coordinates)
-    y_min = min(y for _, y in coordinates)
+    # x_min = min(x for x, _ in coordinates)
+    # y_min = min(y for _, y in coordinates)
 
-    x_d = int((target_x - x_min) // grid_length) + 1
-    y_d = int((target_y - y_min) // grid_length) + 1
+    x_d = int((target_x - TRAIN_X_MIN) // grid_length) + 1
+    y_d = int((target_y - TRAIN_Y_MIN) // grid_length) + 1
 
-    token = x_d + y_d
+    raw_token = x_d + y_d
+
+    # 학습 vocabulary 범위로 제한
+    token = max(
+        GPS_TOKEN_MIN,
+        min(raw_token, GPS_TOKEN_MAX),
+    )
+
+    if token != raw_token:
+        print(
+            "경고: GPS 토큰이 학습 범위를 벗어났습니다.",
+            f"원본={raw_token}, 적용={token}",
+        )
 
     return x_d, y_d, token
 
@@ -145,6 +161,7 @@ def create_dayofweek(measured_at):
 
     return f"day_{korea_time.weekday()}"
 def transfer_epsg(
+    gps_id: int,
     target_epsg: str = "EPSG:5179",
     source_epsg: str = "EPSG:4326",
     grid_length: int = 25,
@@ -152,18 +169,24 @@ def transfer_epsg(
     db = SessionLocal()
 
     try:
-        target_record = (
-            db.query(GPSRecord)
-            .order_by(
-                GPSRecord.measured_at.desc(),
-                GPSRecord.gps_id.desc(),
-            )
-            .first()
+        # target_record = (
+        #     db.query(GPSRecord)
+        #     .order_by(
+        #         GPSRecord.measured_at.desc(),
+        #         GPSRecord.gps_id.desc(),
+        #     )
+        #     .first()
+        # )
+        # 전달받은 gps_id로 GPS 조회
+        target_record = db.get(
+            GPSRecord,
+            gps_id,
         )
 
         if target_record is None:
-            print("조회된 GPS가 없습니다.")
-            return None
+            raise ValueError(
+                f"GPS 데이터를 찾지 못했습니다: {gps_id}"
+            )
 
         transformer = Transformer.from_crs(
             source_epsg,
@@ -202,12 +225,27 @@ def transfer_epsg(
                 gps_id=target_record.gps_id,
                 subject_id=target_record.subject_id,
                 token=token,
+                x=x,
+                y=y,
+                x_d=x_d,
+                y_d=y_d
             )
             db.add(inference_record)
+        # else:
+        #     inference_record.subject_id = (
+        #         target_record.subject_id
+        #     )
+        #     inference_record.token = token
         else:
             inference_record.subject_id = (
                 target_record.subject_id
             )
+
+            inference_record.x = x
+            inference_record.y = y
+            inference_record.x_d = x_d
+            inference_record.y_d = y_d
+
             inference_record.token = token
 
         db.commit()
@@ -413,6 +451,31 @@ def transfer_epsg(
 #     finally:
 #         db.close()
 
+def search_gps_ids_in_bbox(
+    bounding_box: tuple[float, float, float, float],
+) -> list[int]:
+    """경계값을 포함하여 bounding box 내부의 GPS ID를 조회한다."""
+    min_lon, min_lat, max_lon, max_lat = bounding_box
+    db = SessionLocal()
+
+    try:
+        gps_ids = (
+            db.query(GPSRecord.gps_id)
+            .filter(
+                GPSRecord.longitude >= min_lon,
+                GPSRecord.longitude <= max_lon,
+                GPSRecord.latitude >= min_lat,
+                GPSRecord.latitude <= max_lat,
+            )
+            .order_by(GPSRecord.gps_id.asc())
+            .all()
+        )
+
+        result = [gps_id for (gps_id,) in gps_ids]
+        print(f"Bounding box 내부 GPS 수: {len(result)}")
+        return result
+    finally:
+        db.close()
 
 
 '''
@@ -450,6 +513,14 @@ Korea 2000 / Unified CS
 #         )
 
 def main():
+    # [최소 경도, 최소 위도, 최대 경도, 최대 위도]
+    BOUNDING_BOX = (
+        126.6233889470779,
+        37.36953124923263,
+        127.0869083706714,
+        37.62778383803697,
+    )
+
     artifacts_dir = (
         Path(__file__).resolve().parent
         / "artifacts"
@@ -457,7 +528,7 @@ def main():
 
     checkpoint_path = (
         artifacts_dir
-        / "converted_ckptepoch_7_batch_387.pt"
+        / "converted_ckptepoch_22_batch_388.pt"
     )
     vocab_path = (
         artifacts_dir
@@ -476,16 +547,70 @@ def main():
 
     check_server()
 
-    gps_id = transfer_epsg()
+    # gps_id = transfer_epsg()
+    # # gps_id = 580
+    # if gps_id is not None:
+    #     score_gps_record(
+    #         gps_id=gps_id,
+    #         model=inference_runtime["model"],
+    #         dictionary=inference_runtime["dictionary"],
+    #         device=inference_runtime["device"],
+    #         block_size=inference_runtime["block_size"],
+    #     )
+    gps_ids = search_gps_ids_in_bbox(bounding_box=BOUNDING_BOX)
 
-    if gps_id is not None:
-        score_gps_record(
-            gps_id=gps_id,
-            model=inference_runtime["model"],
-            dictionary=inference_runtime["dictionary"],
-            device=inference_runtime["device"],
-            block_size=inference_runtime["block_size"],
+    # RETRY_GPS_IDS = [
+    #         *range(173, 408),
+    #         *range(409, 415),
+    #         416,
+    #         417,
+    #         420,
+    #         422,
+    #         *range(426, 583),
+    #         *range(585, 644),
+    #     ]
+    
+    # gps_ids = RETRY_GPS_IDS
+    succeeded_ids = []
+    failed_ids = []
+
+    for index, target_gps_id in enumerate(gps_ids, start=1):
+        print(
+            f"[{index}/{len(gps_ids)}] "
+            f"gps_id={target_gps_id} 처리 시작"
         )
+
+        try:
+            processed_gps_id = transfer_epsg(target_gps_id)
+
+            if processed_gps_id is None:
+                failed_ids.append(target_gps_id)
+                continue
+
+            score_gps_record(
+                gps_id=processed_gps_id,
+                model=inference_runtime["model"],
+                dictionary=inference_runtime["dictionary"],
+                device=inference_runtime["device"],
+                block_size=inference_runtime["block_size"],
+            )
+
+            succeeded_ids.append(processed_gps_id)
+
+        except Exception as error:
+            failed_ids.append(target_gps_id)
+            print(
+                f"gps_id={target_gps_id} 처리 실패: "
+                f"{error!r}"
+            )
+
+    print("Inference DB 적재 완료")
+    print(f"성공: {len(succeeded_ids)}개")
+    print(f"실패: {len(failed_ids)}개")
+
+    if failed_ids:
+        print("실패한 gps_id:", failed_ids)
+    
 
 
 if __name__ == "__main__":

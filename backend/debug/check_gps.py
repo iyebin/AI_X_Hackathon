@@ -28,7 +28,8 @@ def main():
                     "measured_at": record.measured_at,
                     "x": record.x,
                     "y": record.y,
-                    "x_d": record.x_d
+                    "x_d": record.x_d,
+                    "y_d": record.y_d,
                 }
             )
     finally:
