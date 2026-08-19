@@ -5,6 +5,7 @@ try:
     from air import get_air_quality_by_gps
     from weather import get_weather_by_gps
     from firebase_service import send_push_notification
+    from gemini_descriptions import generate_environment_description
     from risk_policy import (
         calculate_integrated_risk,
         lmtad_score_from_anomaly,
@@ -14,6 +15,7 @@ except ImportError:
     from backend.air import get_air_quality_by_gps
     from backend.weather import get_weather_by_gps
     from backend.firebase_service import send_push_notification
+    from backend.gemini_descriptions import generate_environment_description
     from backend.risk_policy import (
         calculate_integrated_risk,
         lmtad_score_from_anomaly,
@@ -52,6 +54,51 @@ def _send_push(db, user_type: str, user_id: int, title: str, body: str, data: di
             print(f"[RISK PIPELINE] push failed {user_type}={user_id}: {exc}")
 
 
+def _build_snapshot_factors(
+    *,
+    lmtad_score: float,
+    weather_score: float | None,
+    air_score: float | None,
+    weather_description: str | None,
+    air_description: str | None,
+) -> list[dict]:
+    gps = float(lmtad_score or 0)
+    weather = float(weather_score or 0)
+    air = float(air_score or 0)
+    total = gps + weather + air
+
+    def percentage(score: float) -> int:
+        return round(score / total * 100) if total > 0 else 0
+
+    return [
+        {
+            "type": "gps_deviation",
+            "name": "GPS 이상",
+            "score": gps,
+            "percentage": percentage(gps),
+            "description": "평소 이동 패턴과 다른 움직임이 감지되었습니다."
+            if gps > 0
+            else "현재 GPS 이동 패턴에서 특이사항이 감지되지 않았습니다.",
+        },
+        {
+            "type": "weather",
+            "name": "기상",
+            "score": weather,
+            "percentage": percentage(weather),
+            "description": weather_description
+            or ("기상 위험 요소가 감지되었습니다." if weather > 0 else "기상 위험 요소가 없습니다."),
+        },
+        {
+            "type": "air",
+            "name": "대기",
+            "score": air,
+            "percentage": percentage(air),
+            "description": air_description
+            or ("대기질 위험 요소가 감지되었습니다." if air > 0 else "대기질 위험 요소가 없습니다."),
+        },
+    ]
+
+
 def _notify_transition(
     db,
     subject,
@@ -61,6 +108,7 @@ def _notify_transition(
     lmtad_score: float,
     weather_score: float | None,
     air_score: float | None,
+    factors: list[dict],
 ):
     if previous_level == level:
         return
@@ -96,6 +144,7 @@ def _notify_transition(
         "lmtad_score": lmtad_score,
         "weather_score": weather_score,
         "air_score": air_score,
+        "factors": factors,
     }
 
     for guardian_id in guardian_ids:
@@ -178,6 +227,8 @@ def process_ai_risk_result(
 
     lmtad_score = lmtad_score_from_anomaly(anomaly_score, threshold)
 
+    weather_data = None
+    air_data = None
     weather_score = None
     air_score = None
     try:
@@ -194,6 +245,41 @@ def process_ai_risk_result(
 
     final_score, level = calculate_integrated_risk(
         lmtad_score, weather_score, air_score
+    )
+
+    weather_warning = (weather_data or {}).get("weather_warning") or {}
+    weather_description = generate_environment_description(
+        factor_name="기상",
+        observations={
+            "temperature_c": (weather_data or {}).get("temperature"),
+            "apparent_temperature_c": (weather_data or {}).get("apparent_temperature"),
+            "rainfall_1h_mm": (weather_data or {}).get("rainfall_1h"),
+            "precipitation_type": (weather_data or {}).get("precipitation_type"),
+            "wind_speed_mps": (weather_data or {}).get("wind_speed"),
+            "weather_warning": {
+                "highest_level": weather_warning.get("highest_level"),
+                "warnings": weather_warning.get("warnings", []),
+            },
+        },
+    ) if weather_score and weather_score > 0 else None
+
+    air_quality = (air_data or {}).get("air_quality") or {}
+    air_description = generate_environment_description(
+        factor_name="대기질",
+        observations={
+            "pm10_ug_m3": air_quality.get("pm10"),
+            "pm25_ug_m3": air_quality.get("pm25"),
+            "ozone_ppm": air_quality.get("o3"),
+            "khai": air_quality.get("khai"),
+            "station_name": air_quality.get("station_name"),
+        },
+    ) if air_score and air_score > 0 else None
+    factors = _build_snapshot_factors(
+        lmtad_score=lmtad_score,
+        weather_score=weather_score,
+        air_score=air_score,
+        weather_description=weather_description,
+        air_description=air_description,
     )
 
     previous_level = previous.risk_level if previous else None
@@ -222,6 +308,7 @@ def process_ai_risk_result(
         lmtad_score,
         weather_score,
         air_score,
+        factors,
     )
 
     return {

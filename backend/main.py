@@ -12,6 +12,7 @@ from air import get_air_quality_by_gps
 from weather import get_weather_by_gps
 from weather_alert import get_warning_for_gps
 from firebase_service import send_push_notification
+from gemini_descriptions import generate_environment_description
 
 import models
 import schemas
@@ -360,6 +361,55 @@ def format_nearby_facilities(
     )
 
 
+def build_alert_risk_factors(
+    *,
+    lmtad_score: float | None,
+    weather_score: float | None,
+    air_score: float | None,
+    weather_description: str | None = None,
+    air_description: str | None = None,
+) -> list[dict]:
+    """알림 생성 시점의 위험요인을 스냅샷 형태로 고정합니다."""
+
+    gps = float(lmtad_score or 0)
+    weather = float(weather_score or 0)
+    air = float(air_score or 0)
+    factor_total = gps + weather + air
+
+    def percentage(score: float) -> int:
+        return round(score / factor_total * 100) if factor_total > 0 else 0
+
+    return [
+        {
+            "type": "gps_deviation",
+            "name": "GPS 이상",
+            "score": gps,
+            "percentage": percentage(gps),
+            "description": (
+                "평소 이동 패턴과 다른 움직임이 감지되었습니다."
+                if gps > 0
+                else "현재 GPS 이동 패턴에서 특이사항이 감지되지 않았습니다."
+            ),
+        },
+        {
+            "type": "weather",
+            "name": "기상",
+            "score": weather,
+            "percentage": percentage(weather),
+            "description": weather_description
+            or ("기상 위험 요소가 감지되었습니다." if weather > 0 else "기상 위험 요소가 없습니다."),
+        },
+        {
+            "type": "air",
+            "name": "대기",
+            "score": air,
+            "percentage": percentage(air),
+            "description": air_description
+            or ("대기질 위험 요소가 감지되었습니다." if air > 0 else "대기질 위험 요소가 없습니다."),
+        },
+    ]
+
+
 def notify_risk_transition(
     db: Session,
     *,
@@ -378,6 +428,7 @@ def notify_risk_transition(
     lmtad_reason: str | None = None,
     weather_reason: str | None = None,
     air_reason: str | None = None,
+    factors: list[dict] | None = None,
 ):
     risk_snapshot = {
         "risk_level": risk_level,
@@ -388,6 +439,14 @@ def notify_risk_transition(
         "lmtad_reason": lmtad_reason,
         "weather_reason": weather_reason,
         "air_reason": air_reason,
+        # 모달은 이 배열을 사용해 '현재'가 아닌 알림 발생 당시 분석을 표시합니다.
+        "factors": factors or build_alert_risk_factors(
+            lmtad_score=lmtad_score,
+            weather_score=weather_score,
+            air_score=air_score,
+            weather_description=weather_reason,
+            air_description=air_reason,
+        ),
     }
 
     guardian_ids = (
@@ -3231,6 +3290,41 @@ def calculate_subject_integrated_risk(
         else "대기질 위험 요소 없음"
     )
 
+    # 알림 스냅샷에는 현재 화면을 다시 조회한 값이 아닌, 이 계산 시점의
+    # 관측값으로 만든 설명을 함께 저장합니다.
+    weather_warning = weather_data.get("weather_warning") or {}
+    alert_weather_description = generate_environment_description(
+        factor_name="기상",
+        observations={
+            "temperature_c": weather_data.get("temperature"),
+            "apparent_temperature_c": weather_data.get("apparent_temperature"),
+            "rainfall_1h_mm": weather_data.get("rainfall_1h"),
+            "precipitation_type": weather_data.get("precipitation_type"),
+            "wind_speed_mps": weather_data.get("wind_speed"),
+            "weather_warning": {
+                "highest_level": weather_warning.get("highest_level"),
+                "warnings": weather_warning.get("warnings", []),
+            },
+        },
+    ) if weather_score > 0 else None
+    alert_air_description = generate_environment_description(
+        factor_name="대기질",
+        observations={
+            "pm10_ug_m3": air_quality.get("pm10"),
+            "pm25_ug_m3": air_quality.get("pm25"),
+            "ozone_ppm": air_quality.get("o3"),
+            "khai": air_quality.get("khai"),
+            "station_name": air_quality.get("station_name"),
+        },
+    ) if air_score > 0 else None
+    alert_factors = build_alert_risk_factors(
+        lmtad_score=lmtad_score,
+        weather_score=weather_score,
+        air_score=air_score,
+        weather_description=alert_weather_description or weather_reason,
+        air_description=alert_air_description or air_reason,
+    )
+
     # DB 이력 저장
     risk_status = models.RiskStatusHistory(
         subject_id=subject_id,
@@ -3264,6 +3358,7 @@ def calculate_subject_integrated_risk(
                 lmtad_reason=lmtad_reason,
                 weather_reason=weather_reason,
                 air_reason=air_reason,
+                factors=alert_factors,
                 message=(
                     f"{subject.name}님의 위험 단계가 "
                     "안전으로 변경되었습니다."
@@ -3287,6 +3382,7 @@ def calculate_subject_integrated_risk(
                 lmtad_reason=lmtad_reason,
                 weather_reason=weather_reason,
                 air_reason=air_reason,
+                factors=alert_factors,
                 message=(
                     f"{subject.name}님이 주의 단계에 "
                     f"진입했습니다. (위험 점수: {final_score:g})"
@@ -3346,6 +3442,7 @@ def calculate_subject_integrated_risk(
                         lmtad_reason=lmtad_reason,
                         weather_reason=weather_reason,
                         air_reason=air_reason,
+                        factors=alert_factors,
                         message=(
                             f"{subject.name}님의 위험 단계가 "
                             f"{RISK_DANGER_TO_CAUTION_MINUTES}분 동안 "
@@ -3394,6 +3491,7 @@ def calculate_subject_integrated_risk(
                 lmtad_reason=lmtad_reason,
                 weather_reason=weather_reason,
                 air_reason=air_reason,
+                factors=alert_factors,
                 message=(
                     f"{subject.name}님이 위험 단계에 "
                     f"진입했습니다. (위험 점수: {final_score:g}) "
@@ -3512,21 +3610,10 @@ def get_risk_analysis(
     # -----------------------------------------------------
     # GPS 설명
     # -----------------------------------------------------
-    if gps_score >= 80:
-        gps_description = (
-            "평소 이동 패턴과 크게 다른 경로가 감지되었습니다. "
-            f"GPS 이동 이상 점수가 {gps_score:g}점으로 매우 높습니다."
-        )
-    elif gps_score >= 50:
-        gps_description = (
-            "평소 이동 패턴과 다른 이동이 감지되었습니다. "
-            f"GPS 이동 이상 점수가 {gps_score:g}점으로 주의가 필요합니다."
-        )
-    elif gps_score > 0:
-        gps_description = (
-            "평소 경로와 일부 다른 이동이 감지되었습니다. "
-            f"GPS 이동 이상 점수는 {gps_score:g}점입니다."
-        )
+    if gps_score > 0:
+        # LMTAD는 이상 정도를 점수화합니다. 모델이 제공하지 않은 구체적인
+        # 이탈 거리나 정지 원인을 추측하지 않고 패턴 차이만 설명합니다.
+        gps_description = "평소 이동 패턴과 다른 움직임이 감지되었습니다."
     else:
         gps_description = (
             "현재 GPS 이동 패턴에서 특이사항이 감지되지 않았습니다."
@@ -3704,6 +3791,26 @@ def get_risk_analysis(
             "현재 기상 상황에 주의가 필요합니다."
         )
 
+    # 기상 위험 판단과 점수는 기존 로직을 그대로 사용합니다. Gemini는 실제
+    # 관측값을 보호자가 이해하기 쉬운 문장으로 바꾸는 역할만 합니다.
+    if weather_data and (weather_score > 0 or weather_reasons):
+        gemini_weather_description = generate_environment_description(
+            factor_name="기상",
+            observations={
+                "temperature_c": weather_data.get("temperature"),
+                "apparent_temperature_c": weather_data.get("apparent_temperature"),
+                "rainfall_1h_mm": weather_data.get("rainfall_1h"),
+                "precipitation_type": weather_data.get("precipitation_type"),
+                "wind_speed_mps": weather_data.get("wind_speed"),
+                "weather_warning": {
+                    "highest_level": warning_level,
+                    "warnings": (weather_data.get("weather_warning") or {}).get("warnings", []),
+                },
+            },
+        )
+        if gemini_weather_description:
+            weather_description = gemini_weather_description
+
     # -----------------------------------------------------
     # 대기질 설명
     # -----------------------------------------------------
@@ -3790,6 +3897,21 @@ def get_risk_analysis(
             f"대기 위험 점수가 {air_score:g}점으로 "
             "외부 활동 시 주의가 필요합니다."
         )
+
+    # 대기질도 관측값으로 이미 산출한 점수는 건드리지 않고 설명문만 생성합니다.
+    if air_data and (air_score > 0 or air_reasons):
+        gemini_air_description = generate_environment_description(
+            factor_name="대기질",
+            observations={
+                "pm10_ug_m3": pm10,
+                "pm25_ug_m3": pm25,
+                "ozone_ppm": o3,
+                "khai": khai,
+                "station_name": station,
+            },
+        )
+        if gemini_air_description:
+            air_description = gemini_air_description
 
     factors = [
         {
