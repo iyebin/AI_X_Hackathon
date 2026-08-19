@@ -7,10 +7,10 @@ import {
   Linking,
   ScrollView,
   StyleSheet,
-  Text,
   TouchableOpacity,
   View,
 } from 'react-native';
+import { Text } from '@/components/common/scaled-text';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import ProtectedMapView from '@/components/map/protected-map';
 import NotificationView from '@/components/notifications/alarm';
@@ -20,9 +20,14 @@ import { getProtectorPhone } from '@/features/contacts/protector-contact-store';
 import { startGpsTracking, stopGpsTracking } from '@/features/gps/tracking';
 import { registerPushNotifications } from '@/features/notifications/push-registration';
 import { getWeatherSummary } from '@/features/environment/weather-api';
+import { useTextSize } from '@/features/accessibility/text-size';
+import ProtectedAppTutorial, { type ProtectedTutorialTab } from '@/components/tutorial/protected-app-tutorial';
+import { completeProtectedTutorial, shouldShowProtectedTutorial } from '@/features/tutorial/protected-tutorial-state';
 
 export default function ProtectedMainScreen() {
   const router = useRouter();
+  const { mode: textSizeMode } = useTextSize();
+  const isLargeText = textSizeMode === 'large';
 
   const { userName, protectorPhone, subjectId, tab } = useLocalSearchParams<{
     userName?: string;
@@ -36,6 +41,7 @@ export default function ProtectedMainScreen() {
   const numericSubjectId = Number(subjectId);
 
   const [activeTab, setActiveTab] = useState<string>(tab ?? 'home');
+  const [isTutorialVisible, setIsTutorialVisible] = useState(false);
   const [weatherNotice, setWeatherNotice] = useState('날씨 정보를 불러오는 중입니다.');
   const [weatherAdvisory, setWeatherAdvisory] = useState('기상 특보 정보를 불러오는 중입니다.');
   const lastVisibleDangerAlertId = useRef<string | null>(null);
@@ -45,6 +51,34 @@ export default function ProtectedMainScreen() {
   useEffect(() => {
     if (tab) setActiveTab(tab);
   }, [tab]);
+
+  useEffect(() => {
+    if (!Number.isInteger(numericSubjectId) || numericSubjectId <= 0) return;
+
+    let isMounted = true;
+    void shouldShowProtectedTutorial(numericSubjectId).then((shouldShow) => {
+      if (isMounted && shouldShow) setIsTutorialVisible(true);
+    });
+    return () => {
+      isMounted = false;
+    };
+  }, [numericSubjectId]);
+
+  const finishTutorial = () => {
+    setIsTutorialVisible(false);
+    if (Number.isInteger(numericSubjectId) && numericSubjectId > 0) {
+      void completeProtectedTutorial(numericSubjectId);
+    }
+  };
+
+  const startTutorialFromHelp = () => {
+    setActiveTab('home');
+    setIsTutorialVisible(true);
+  };
+
+  const handleTutorialTab = (nextTab: ProtectedTutorialTab) => {
+    setActiveTab(nextTab);
+  };
 
   useEffect(() => {
     if (!Number.isInteger(numericSubjectId) || numericSubjectId <= 0) return;
@@ -81,7 +115,7 @@ export default function ProtectedMainScreen() {
     let isDisposed = false;
     const establishBaseline = async () => {
       try {
-        const latestDanger = (await getAlerts({ subjectId: numericSubjectId, recipientType: 'subject', recipientId: numericSubjectId })).find((alert) => alert.kind === 'danger' && !alert.isRead);
+        const latestDanger = (await getAlerts({ subjectId: numericSubjectId, recipientType: 'subject', recipientId: numericSubjectId })).find((alert) => ['danger', 'warning'].includes(alert.kind) && !alert.isRead);
         if (!isDisposed) {
           lastVisibleDangerAlertId.current = latestDanger?.id ?? null;
           isAlertBaselineReady.current = true;
@@ -94,7 +128,7 @@ export default function ProtectedMainScreen() {
     const checkNewForegroundDangerAlert = async () => {
       if (isDisposed || !isAppForeground.current || !isAlertBaselineReady.current) return;
       try {
-        const latestDanger = (await getAlerts({ subjectId: numericSubjectId, recipientType: 'subject', recipientId: numericSubjectId })).find((alert) => alert.kind === 'danger' && !alert.isRead);
+        const latestDanger = (await getAlerts({ subjectId: numericSubjectId, recipientType: 'subject', recipientId: numericSubjectId })).find((alert) => ['danger', 'warning'].includes(alert.kind) && !alert.isRead);
         if (!latestDanger || latestDanger.id === lastVisibleDangerAlertId.current) return;
 
         lastVisibleDangerAlertId.current = latestDanger.id;
@@ -109,6 +143,7 @@ export default function ProtectedMainScreen() {
             dangerReasons: latestDanger.reason ?? latestDanger.message ?? '위험 요인 정보 없음',
             alertCreatedAt: latestDanger.createdAt ?? '',
             riskSnapshot: latestDanger.riskSnapshot ? JSON.stringify(latestDanger.riskSnapshot) : '',
+            riskLevel: latestDanger.kind,
             viewerRole: 'protected',
           },
         });
@@ -211,7 +246,7 @@ export default function ProtectedMainScreen() {
             <Text style={styles.subGreeting}>오늘도 안전한 하루 되세요😊</Text>
 
             <TouchableOpacity
-              style={[styles.cardButton, styles.callCard]}
+              style={[styles.cardButton, isLargeText && styles.cardButtonLarge, styles.callCard]}
               onPress={handleCallProtector}
               activeOpacity={0.7}
             >
@@ -220,7 +255,7 @@ export default function ProtectedMainScreen() {
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={[styles.cardButton, styles.facilityCard]}
+              style={[styles.cardButton, isLargeText && styles.cardButtonLarge, styles.facilityCard]}
               onPress={handleFindFacility}
               activeOpacity={0.7}
             >
@@ -229,7 +264,7 @@ export default function ProtectedMainScreen() {
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={[styles.cardButton, styles.emergencyCard]}
+              style={[styles.cardButton, isLargeText && styles.cardButtonLarge, styles.emergencyCard]}
               onPress={handleEmergencyCall}
               activeOpacity={0.7}
             >
@@ -275,7 +310,7 @@ export default function ProtectedMainScreen() {
         );
 
       case 'setting':
-        return <SettingView isProtected={true} notificationUser={Number.isInteger(numericSubjectId) && numericSubjectId > 0 ? { userId: numericSubjectId, userType: 'subject' } : undefined} onLocationTrackingChange={handleLocationTrackingChange} onEmergencyContactSaved={() => setTargetPhone(getProtectorPhone() ?? '')} />;
+        return <SettingView isProtected={true} notificationUser={Number.isInteger(numericSubjectId) && numericSubjectId > 0 ? { userId: numericSubjectId, userType: 'subject' } : undefined} onLocationTrackingChange={handleLocationTrackingChange} onEmergencyContactSaved={() => setTargetPhone(getProtectorPhone() ?? '')} onStartTutorial={startTutorialFromHelp} />;
 
       default:
         return null;
@@ -331,6 +366,11 @@ export default function ProtectedMainScreen() {
           </Text>
         </TouchableOpacity>
       </View>
+      <ProtectedAppTutorial
+        visible={isTutorialVisible}
+        onComplete={finishTutorial}
+        onSelectTab={handleTutorialTab}
+      />
     </SafeAreaView>
   );
 }
@@ -353,10 +393,11 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     backgroundColor: '#FFFFFF',
   },
+  cardButtonLarge: { height: 108, paddingVertical: 12 },
   callCard: { borderColor: '#C6E8B3' },
   facilityCard: { borderColor: '#BEE3F8' },
   emergencyCard: { borderColor: '#FEB2B2' },
-  cardText: { fontSize: 20, fontWeight: 'bold', color: '#333333', marginLeft: 16 },
+  cardText: { flex: 1, flexShrink: 1, fontSize: 20, fontWeight: 'bold', color: '#333333', marginLeft: 16 },
   noticeRow: {
     flexDirection: 'row',
     gap: 12,

@@ -12,26 +12,29 @@ import {
   ScrollView,
   StyleSheet,
   Switch,
-  Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
+import { Text } from '@/components/common/scaled-text';
+import { TextInput } from '@/components/common/scaled-text-input';
 import { getProtectorPhone, setProtectorPhone } from '@/features/contacts/protector-contact-store';
 import { clearSavedSession } from '@/features/auth/current-session';
 import { isGpsTrackingEnabled, stopGpsTracking } from '@/features/gps/tracking';
 import { registerPushNotifications, PushUserType } from '@/features/notifications/push-registration';
 import { isPushNotificationEnabled, setPushNotificationEnabled } from '@/features/notifications/push-preference';
+import { useTextSize, type TextSizeMode } from '@/features/accessibility/text-size';
 
 interface SettingViewProps {
   isProtected?: boolean;
   notificationUser?: { userId: number; userType: PushUserType };
   onEmergencyContactSaved?: () => void;
   onLocationTrackingChange?: (enabled: boolean) => Promise<boolean>;
+  onStartTutorial?: () => void;
 }
 
-export default function SettingView({ isProtected = false, notificationUser, onEmergencyContactSaved, onLocationTrackingChange }: SettingViewProps) {
+export default function SettingView({ isProtected = false, notificationUser, onEmergencyContactSaved, onLocationTrackingChange, onStartTutorial }: SettingViewProps) {
   const router = useRouter();
+  const { mode: textSizeMode, setMode: setTextSizeMode } = useTextSize();
 
   const [isNotificationEnabled, setIsNotificationEnabled] = useState(true);
   const [isLocationEnabled, setIsLocationEnabled] = useState(false);
@@ -213,6 +216,12 @@ export default function SettingView({ isProtected = false, notificationUser, onE
     Alert.alert('알림', `${menuName} 기능 준비 중입니다.`);
   };
 
+  const handleTextSizeMode = (mode: TextSizeMode) => {
+    void setTextSizeMode(mode).catch(() => {
+      Alert.alert('글씨 크기', '글씨 크기 설정을 저장하지 못했습니다.');
+    });
+  };
+
   const activeColor = isProtected ? '#59A03D' : '#F7931E';
 
   return (
@@ -225,6 +234,35 @@ export default function SettingView({ isProtected = false, notificationUser, onE
       </View>
 
       <View style={styles.topDivider} />
+
+      <Text style={styles.sectionTitle}>화면 설정</Text>
+      <View style={styles.menuCard}>
+        <View style={styles.fontSizeHeader}>
+          <View style={styles.menuLeft}>
+            <Ionicons name="text-outline" size={24} color="#333333" style={styles.menuIcon} />
+            <Text style={styles.menuText}>글씨 크기</Text>
+          </View>
+          <Text style={styles.fontSizeHint}>읽기 편한 크기 선택</Text>
+        </View>
+        <View style={styles.fontSizeOptions}>
+          <TouchableOpacity
+            style={[styles.fontSizeOption, textSizeMode === 'default' && { borderColor: activeColor, backgroundColor: `${activeColor}14` }]}
+            onPress={() => handleTextSizeMode('default')}
+            activeOpacity={0.75}
+          >
+            <Text style={styles.fontSizeOptionLabel}>기본 글씨</Text>
+            <Text style={styles.fontSizePreview}>가</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.fontSizeOption, textSizeMode === 'large' && { borderColor: activeColor, backgroundColor: `${activeColor}14` }]}
+            onPress={() => handleTextSizeMode('large')}
+            activeOpacity={0.75}
+          >
+            <Text style={styles.fontSizeOptionLabel}>큰 글씨</Text>
+            <Text style={styles.fontSizePreviewLarge}>가</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
 
       <Text style={styles.sectionTitle}>알림 설정</Text>
       <View style={styles.menuCard}>
@@ -309,6 +347,20 @@ export default function SettingView({ isProtected = false, notificationUser, onE
           <Ionicons name="information-circle-outline" size={24} color="#333333" style={styles.menuIcon} />
           <Text style={styles.menuText}>계정 정보</Text>
         </TouchableOpacity>
+
+        {isProtected && onStartTutorial && (
+          <>
+            <View style={styles.itemDivider} />
+            <TouchableOpacity
+              style={styles.menuItem}
+              onPress={onStartTutorial}
+              activeOpacity={0.7}
+            >
+              <Ionicons name="help-circle-outline" size={24} color="#333333" style={styles.menuIcon} />
+              <Text style={styles.menuText}>도움말</Text>
+            </TouchableOpacity>
+          </>
+        )}
       </View>
 
       <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout} activeOpacity={0.8}>
@@ -365,6 +417,13 @@ const styles = StyleSheet.create({
   menuLeft: { flexDirection: 'row', alignItems: 'center' },
   menuIcon: { marginRight: 14 },
   menuText: { fontSize: 18, fontWeight: 'bold', color: '#333333' },
+  fontSizeHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingTop: 12, paddingBottom: 10 },
+  fontSizeHint: { color: '#777777', fontSize: 13 },
+  fontSizeOptions: { flexDirection: 'row', gap: 10, paddingBottom: 12 },
+  fontSizeOption: { flex: 1, minHeight: 76, alignItems: 'center', justifyContent: 'center', borderWidth: 1.5, borderColor: '#DADADA', borderRadius: 14 },
+  fontSizeOptionLabel: { color: '#333333', fontSize: 15, fontWeight: '700' },
+  fontSizePreview: { color: '#333333', fontSize: 18, fontWeight: '700', marginTop: 2 },
+  fontSizePreviewLarge: { color: '#333333', fontSize: 24, fontWeight: '700', marginTop: 1 },
   itemDivider: { height: 1, backgroundColor: '#EAEAEA' },
   logoutBtn: {
     height: 58,

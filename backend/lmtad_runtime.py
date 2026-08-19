@@ -5,7 +5,7 @@ from pathlib import Path
 import torch
 from torch.nn import functional as F
 
-from lmtad.model import LMTAD, LMTADConfig
+from backend.lmtad.model import LMTAD, LMTADConfig
 
 
 BACKEND_DIR = Path(__file__).resolve().parent

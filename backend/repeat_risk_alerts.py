@@ -2,9 +2,9 @@ from datetime import datetime, timedelta, timezone
 
 from sqlalchemy import func
 
-import models
-from database import SessionLocal
-from firebase_service import send_push_notification
+from backend import models
+from backend.database import SessionLocal
+from backend.firebase_service import send_push_notification
 
 
 DANGEROUS_RISK_LEVELS = {

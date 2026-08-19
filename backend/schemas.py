@@ -10,8 +10,8 @@ from pydantic import (
     model_validator,
 )
 
-from models import GenderType, InstitutionType, SubjectType
-from risk_policy import (
+from backend.models import GenderType, InstitutionType, SubjectType
+from backend.risk_policy import (
     calculate_integrated_risk,
     clamp_risk_score,
     risk_level_from_score,
