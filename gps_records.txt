@@ -1,0 +1,721 @@
+{"gps_id": 729, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 728, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 727, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 726, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 725, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 724, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 723, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 722, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 721, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 720, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 719, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 718, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 717, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 716, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 715, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 714, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 713, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 712, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 711, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 710, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 709, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 708, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 707, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 706, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 705, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 704, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 703, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 702, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 701, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 700, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 699, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 698, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 697, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 696, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 695, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 694, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 693, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 692, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 691, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 690, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 689, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 688, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 687, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 686, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 685, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 684, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 683, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 682, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 681, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 680, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 679, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 678, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 677, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 676, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 675, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 674, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 673, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 672, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 671, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 670, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 669, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 668, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 667, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 666, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 665, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 664, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 663, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 662, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 661, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 660, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 659, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 658, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 657, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 656, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 655, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 654, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 653, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 652, "subject_id": 3, "token": 7440, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 651, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 650, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 649, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 648, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 647, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 646, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 645, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 644, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 643, "subject_id": 3, "token": 699, "token_probability": 7.10689862515324e-09, "anomaly_score": 27.0681327335573, "scored_at": "2026-08-19 10:19:02.453120+00:00"}
+{"gps_id": 642, "subject_id": 3, "token": 699, "token_probability": 3.74201292174803e-09, "anomaly_score": 27.9935383135504, "scored_at": "2026-08-19 10:19:00.407013+00:00"}
+{"gps_id": 641, "subject_id": 3, "token": 699, "token_probability": 9.78860992262298e-10, "anomaly_score": 29.928176951162, "scored_at": "2026-08-19 10:18:58.304614+00:00"}
+{"gps_id": 640, "subject_id": 3, "token": 699, "token_probability": 5.04984098981254e-09, "anomaly_score": 27.561114893215, "scored_at": "2026-08-19 10:18:56.157153+00:00"}
+{"gps_id": 639, "subject_id": 3, "token": 699, "token_probability": 3.66867847212404e-09, "anomaly_score": 28.0220923835776, "scored_at": "2026-08-19 10:18:54.043144+00:00"}
+{"gps_id": 638, "subject_id": 3, "token": 699, "token_probability": 2.81791345813076e-09, "anomaly_score": 28.4027255487414, "scored_at": "2026-08-19 10:18:51.943686+00:00"}
+{"gps_id": 637, "subject_id": 3, "token": 699, "token_probability": 3.64349772574712e-09, "anomaly_score": 28.032028763814, "scored_at": "2026-08-19 10:18:49.825318+00:00"}
+{"gps_id": 636, "subject_id": 3, "token": 699, "token_probability": 5.45317080380414e-09, "anomaly_score": 27.4502575098362, "scored_at": "2026-08-19 10:18:47.734100+00:00"}
+{"gps_id": 635, "subject_id": 20, "token": 699, "token_probability": 9.80553693796793e-11, "anomaly_score": 33.2476124111473, "scored_at": "2026-08-19 10:18:45.608912+00:00"}
+{"gps_id": 634, "subject_id": 20, "token": 699, "token_probability": 1.0883957735075e-08, "anomaly_score": 26.4532214997063, "scored_at": "2026-08-19 10:18:43.567156+00:00"}
+{"gps_id": 633, "subject_id": 20, "token": 699, "token_probability": 8.58421111971097e-11, "anomaly_score": 33.4395234856518, "scored_at": "2026-08-19 10:18:41.521217+00:00"}
+{"gps_id": 632, "subject_id": 20, "token": 699, "token_probability": 2.43522801923746e-09, "anomaly_score": 28.6132959905815, "scored_at": "2026-08-19 10:18:39.136593+00:00"}
+{"gps_id": 631, "subject_id": 20, "token": 699, "token_probability": 1.00679378028934e-11, "anomaly_score": 36.5314408347174, "scored_at": "2026-08-19 10:18:36.526442+00:00"}
+{"gps_id": 630, "subject_id": 3, "token": 699, "token_probability": 6.30908048027123e-10, "anomaly_score": 30.5618511945723, "scored_at": "2026-08-19 10:18:33.972695+00:00"}
+{"gps_id": 629, "subject_id": 3, "token": 699, "token_probability": 1.97996063988626e-09, "anomaly_score": 28.911881103078, "scored_at": "2026-08-19 10:18:31.568727+00:00"}
+{"gps_id": 628, "subject_id": 3, "token": 700, "token_probability": 9.70785118958872e-10, "anomaly_score": 29.9401289551031, "scored_at": "2026-08-19 10:18:29.336374+00:00"}
+{"gps_id": 627, "subject_id": 3, "token": 699, "token_probability": 1.74675385267165e-09, "anomaly_score": 29.0926765316787, "scored_at": "2026-08-19 10:18:27.109889+00:00"}
+{"gps_id": 626, "subject_id": 3, "token": 699, "token_probability": 1.22509269395721e-09, "anomaly_score": 29.6044619422661, "scored_at": "2026-08-19 10:18:24.964687+00:00"}
+{"gps_id": 625, "subject_id": 3, "token": 699, "token_probability": 8.54123549665076e-10, "anomaly_score": 30.1248361769238, "scored_at": "2026-08-19 10:18:22.864107+00:00"}
+{"gps_id": 624, "subject_id": 3, "token": 699, "token_probability": 5.47808909345804e-10, "anomaly_score": 30.7656082192223, "scored_at": "2026-08-19 10:18:20.648499+00:00"}
+{"gps_id": 623, "subject_id": 3, "token": 699, "token_probability": 7.03763713971739e-10, "anomaly_score": 30.4041898181657, "scored_at": "2026-08-19 10:18:18.534694+00:00"}
+{"gps_id": 622, "subject_id": 3, "token": 699, "token_probability": 4.83305562237746e-10, "anomaly_score": 30.9463453504112, "scored_at": "2026-08-19 10:18:16.009872+00:00"}
+{"gps_id": 621, "subject_id": 3, "token": 699, "token_probability": 6.42044695187138e-10, "anomaly_score": 30.5366072165099, "scored_at": "2026-08-19 10:18:13.445662+00:00"}
+{"gps_id": 620, "subject_id": 3, "token": 700, "token_probability": 8.21346490820218e-10, "anomaly_score": 30.1812899873649, "scored_at": "2026-08-19 10:18:10.505515+00:00"}
+{"gps_id": 619, "subject_id": 3, "token": 748, "token_probability": 3.73216652027608e-10, "anomaly_score": 31.3192675916719, "scored_at": "2026-08-19 10:18:08.452813+00:00"}
+{"gps_id": 618, "subject_id": 3, "token": 748, "token_probability": 4.27864105256859e-10, "anomaly_score": 31.1221282966476, "scored_at": "2026-08-19 10:18:06.352476+00:00"}
+{"gps_id": 617, "subject_id": 3, "token": 748, "token_probability": 5.10927411490059e-10, "anomaly_score": 30.8661626098087, "scored_at": "2026-08-19 10:18:04.205584+00:00"}
+{"gps_id": 616, "subject_id": 3, "token": 748, "token_probability": 3.75502018368223e-10, "anomaly_score": 31.310460286455, "scored_at": "2026-08-19 10:18:02.112360+00:00"}
+{"gps_id": 615, "subject_id": 3, "token": 748, "token_probability": 4.29725338646492e-10, "anomaly_score": 31.1158661011035, "scored_at": "2026-08-19 10:17:59.896863+00:00"}
+{"gps_id": 614, "subject_id": 3, "token": 748, "token_probability": 6.02098149116159e-10, "anomaly_score": 30.6292822663715, "scored_at": "2026-08-19 10:17:57.792062+00:00"}
+{"gps_id": 613, "subject_id": 3, "token": 748, "token_probability": 1.66723013172998e-09, "anomaly_score": 29.1598995972981, "scored_at": "2026-08-19 10:17:55.660116+00:00"}
+{"gps_id": 612, "subject_id": 3, "token": 748, "token_probability": 2.30402719125777e-09, "anomaly_score": 28.6931951109642, "scored_at": "2026-08-19 10:17:53.450219+00:00"}
+{"gps_id": 611, "subject_id": 3, "token": 749, "token_probability": 2.93138596729747e-10, "anomaly_score": 31.6676980127649, "scored_at": "2026-08-19 10:17:51.270340+00:00"}
+{"gps_id": 610, "subject_id": 3, "token": 748, "token_probability": 1.7545369324079e-10, "anomaly_score": 32.4081906325722, "scored_at": "2026-08-19 10:17:48.981725+00:00"}
+{"gps_id": 609, "subject_id": 3, "token": 748, "token_probability": 1.62084193289225e-10, "anomaly_score": 32.5225375450951, "scored_at": "2026-08-19 10:17:46.726247+00:00"}
+{"gps_id": 608, "subject_id": 3, "token": 749, "token_probability": 3.01382419021223e-10, "anomaly_score": 31.6276856883104, "scored_at": "2026-08-19 10:17:44.569034+00:00"}
+{"gps_id": 607, "subject_id": 3, "token": 748, "token_probability": 1.05087105684021e-10, "anomaly_score": 33.1476952891544, "scored_at": "2026-08-19 10:17:42.169278+00:00"}
+{"gps_id": 606, "subject_id": 3, "token": 748, "token_probability": 1.47016149254497e-10, "anomaly_score": 32.6633063096644, "scored_at": "2026-08-19 10:17:40.025786+00:00"}
+{"gps_id": 605, "subject_id": 3, "token": 748, "token_probability": 1.76201608859117e-10, "anomaly_score": 32.402053851616, "scored_at": "2026-08-19 10:17:37.864767+00:00"}
+{"gps_id": 604, "subject_id": 3, "token": 748, "token_probability": 3.66358332559713e-10, "anomaly_score": 31.3460255197505, "scored_at": "2026-08-19 10:17:35.723529+00:00"}
+{"gps_id": 603, "subject_id": 3, "token": 748, "token_probability": 6.83266887513412e-10, "anomaly_score": 30.4468317362682, "scored_at": "2026-08-19 10:17:33.621507+00:00"}
+{"gps_id": 602, "subject_id": 3, "token": 748, "token_probability": 5.15771036990742e-10, "anomaly_score": 30.8525501876949, "scored_at": "2026-08-19 10:17:31.575813+00:00"}
+{"gps_id": 601, "subject_id": 3, "token": 748, "token_probability": 2.70107297639655e-10, "anomaly_score": 31.7857483304028, "scored_at": "2026-08-19 10:17:29.474772+00:00"}
+{"gps_id": 600, "subject_id": 3, "token": 748, "token_probability": 1.78422762675545e-10, "anomaly_score": 32.3839812668876, "scored_at": "2026-08-19 10:17:27.309975+00:00"}
+{"gps_id": 599, "subject_id": 3, "token": 700, "token_probability": 1.74228374782981e-11, "anomaly_score": 35.7402294437904, "scored_at": "2026-08-19 10:17:25.119670+00:00"}
+{"gps_id": 598, "subject_id": 3, "token": 700, "token_probability": 3.50015606775944e-11, "anomaly_score": 34.7337897922283, "scored_at": "2026-08-19 10:17:23.063821+00:00"}
+{"gps_id": 597, "subject_id": 3, "token": 2708, "token_probability": 2.31797112064669e-05, "anomaly_score": 15.3967778823631, "scored_at": "2026-08-19 10:17:20.933691+00:00"}
+{"gps_id": 596, "subject_id": 3, "token": 2708, "token_probability": 9.94923357211519e-06, "anomaly_score": 16.616983175758, "scored_at": "2026-08-19 10:17:18.687928+00:00"}
+{"gps_id": 595, "subject_id": 3, "token": 2708, "token_probability": 1.3184173440095e-05, "anomaly_score": 16.210833347774, "scored_at": "2026-08-19 10:17:16.638758+00:00"}
+{"gps_id": 594, "subject_id": 3, "token": 2708, "token_probability": 4.08600908485823e-06, "anomaly_score": 17.9008761575523, "scored_at": "2026-08-19 10:17:14.590465+00:00"}
+{"gps_id": 593, "subject_id": 3, "token": 2708, "token_probability": 9.18027762963902e-06, "anomaly_score": 16.7330307850917, "scored_at": "2026-08-19 10:17:12.469047+00:00"}
+{"gps_id": 592, "subject_id": 3, "token": 2708, "token_probability": 3.70659199688816e-06, "anomaly_score": 18.0414752500833, "scored_at": "2026-08-19 10:17:10.385485+00:00"}
+{"gps_id": 591, "subject_id": 3, "token": 2708, "token_probability": 6.14380260230973e-05, "anomaly_score": 13.9905086107937, "scored_at": "2026-08-19 10:17:08.358618+00:00"}
+{"gps_id": 590, "subject_id": 3, "token": 2708, "token_probability": 9.94949186861049e-06, "anomaly_score": 16.616945721794, "scored_at": "2026-08-19 10:17:05.857472+00:00"}
+{"gps_id": 589, "subject_id": 3, "token": 2708, "token_probability": 2.42429950958467e-06, "anomaly_score": 18.6540006220399, "scored_at": "2026-08-19 10:17:03.509608+00:00"}
+{"gps_id": 588, "subject_id": 3, "token": 2708, "token_probability": 5.37299627012544e-07, "anomaly_score": 20.8277698276691, "scored_at": "2026-08-19 10:17:01.346350+00:00"}
+{"gps_id": 587, "subject_id": 3, "token": 2708, "token_probability": 0.00019992126908619, "anomaly_score": 12.2882804148562, "scored_at": "2026-08-19 10:16:59.290785+00:00"}
+{"gps_id": 586, "subject_id": 3, "token": 2708, "token_probability": 1.66803647516645e-06, "anomaly_score": 19.1934177326001, "scored_at": "2026-08-19 10:16:57.201141+00:00"}
+{"gps_id": 585, "subject_id": 3, "token": 2708, "token_probability": 1.55072719110194e-08, "anomaly_score": 25.9424798539385, "scored_at": "2026-08-19 10:16:55.003155+00:00"}
+{"gps_id": 584, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 583, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 582, "subject_id": 3, "token": 2708, "token_probability": 3.24882239510771e-05, "anomaly_score": 14.9097235970978, "scored_at": "2026-08-19 10:16:52.918762+00:00"}
+{"gps_id": 581, "subject_id": 3, "token": 2708, "token_probability": 4.82588257000316e-05, "anomaly_score": 14.3388476640915, "scored_at": "2026-08-19 10:16:50.909768+00:00"}
+{"gps_id": 580, "subject_id": 3, "token": 2708, "token_probability": 8.82921085576527e-05, "anomaly_score": 13.4673559771464, "scored_at": "2026-08-19 10:16:48.730158+00:00"}
+{"gps_id": 579, "subject_id": 3, "token": 2708, "token_probability": 0.00014224776532501, "anomaly_score": 12.7793063911993, "scored_at": "2026-08-19 10:16:46.833426+00:00"}
+{"gps_id": 578, "subject_id": 3, "token": 2708, "token_probability": 0.00060743885114789, "anomaly_score": 10.6849731948408, "scored_at": "2026-08-19 10:16:44.707644+00:00"}
+{"gps_id": 577, "subject_id": 3, "token": 2708, "token_probability": 0.000359408702934161, "anomaly_score": 11.4420870360106, "scored_at": "2026-08-19 10:16:42.553989+00:00"}
+{"gps_id": 576, "subject_id": 3, "token": 2708, "token_probability": 6.93475230946206e-05, "anomaly_score": 13.8157961201204, "scored_at": "2026-08-19 10:16:40.452798+00:00"}
+{"gps_id": 575, "subject_id": 3, "token": 2708, "token_probability": 0.000307383568724617, "anomaly_score": 11.66767233213, "scored_at": "2026-08-19 10:16:38.361922+00:00"}
+{"gps_id": 574, "subject_id": 3, "token": 2708, "token_probability": 0.000128909276099876, "anomaly_score": 12.9213562981479, "scored_at": "2026-08-19 10:16:36.274306+00:00"}
+{"gps_id": 573, "subject_id": 3, "token": 2708, "token_probability": 0.000157379399752244, "anomaly_score": 12.6334656685661, "scored_at": "2026-08-19 10:16:34.070216+00:00"}
+{"gps_id": 572, "subject_id": 3, "token": 2708, "token_probability": 7.43224809411913e-05, "anomaly_score": 13.7158418136499, "scored_at": "2026-08-19 10:16:32.007837+00:00"}
+{"gps_id": 571, "subject_id": 3, "token": 2708, "token_probability": 3.36532357323449e-05, "anomaly_score": 14.8588952489302, "scored_at": "2026-08-19 10:16:29.866466+00:00"}
+{"gps_id": 570, "subject_id": 3, "token": 2708, "token_probability": 2.06215227080975e-05, "anomaly_score": 15.565489608156, "scored_at": "2026-08-19 10:16:27.819929+00:00"}
+{"gps_id": 569, "subject_id": 3, "token": 2708, "token_probability": 1.0683006621548e-05, "anomaly_score": 16.5143227386896, "scored_at": "2026-08-19 10:16:25.750095+00:00"}
+{"gps_id": 568, "subject_id": 3, "token": 2708, "token_probability": 3.81259656023758e-06, "anomaly_score": 18.0007946926893, "scored_at": "2026-08-19 10:16:23.705650+00:00"}
+{"gps_id": 567, "subject_id": 3, "token": 2708, "token_probability": 1.03986110389087e-06, "anomaly_score": 19.8751777314483, "scored_at": "2026-08-19 10:16:21.631497+00:00"}
+{"gps_id": 566, "subject_id": 3, "token": 2708, "token_probability": 3.63292656402336e-06, "anomaly_score": 18.0704363659132, "scored_at": "2026-08-19 10:16:19.522482+00:00"}
+{"gps_id": 565, "subject_id": 3, "token": 2708, "token_probability": 3.54045894823685e-08, "anomaly_score": 24.7514883707036, "scored_at": "2026-08-19 10:16:17.465031+00:00"}
+{"gps_id": 564, "subject_id": 3, "token": 2708, "token_probability": 0.000682300422340631, "anomaly_score": 10.5173052702291, "scored_at": "2026-08-19 10:16:15.417372+00:00"}
+{"gps_id": 563, "subject_id": 3, "token": 2708, "token_probability": 1.23029794849572e-05, "anomaly_score": 16.3106327306093, "scored_at": "2026-08-19 10:16:13.379432+00:00"}
+{"gps_id": 562, "subject_id": 3, "token": 2708, "token_probability": 1.87580724286818e-06, "anomaly_score": 19.0240569845657, "scored_at": "2026-08-19 10:16:11.255915+00:00"}
+{"gps_id": 561, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 560, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 559, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 558, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 557, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 556, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 555, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 554, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 553, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 552, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 551, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 550, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 549, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 548, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 547, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 546, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 545, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 544, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 543, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 542, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 541, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 540, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 539, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 538, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 537, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 536, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 535, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 534, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 533, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 532, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 531, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 530, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 529, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 528, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 527, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 526, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 525, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 524, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 523, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 522, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 521, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 520, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 519, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 518, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 517, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 516, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 515, "subject_id": 3, "token": 2708, "token_probability": 0.0109122022986412, "anomaly_score": 6.51791389428267, "scored_at": "2026-08-19 10:14:59.711509+00:00"}
+{"gps_id": 514, "subject_id": 3, "token": 2708, "token_probability": 0.0102427219972014, "anomaly_score": 6.60925702814608, "scored_at": "2026-08-19 10:14:57.182960+00:00"}
+{"gps_id": 513, "subject_id": 3, "token": 2708, "token_probability": 0.0123758129775524, "anomaly_score": 6.33633288962016, "scored_at": "2026-08-19 10:14:54.709826+00:00"}
+{"gps_id": 512, "subject_id": 3, "token": 2708, "token_probability": 0.0165686346590519, "anomaly_score": 5.91540146782926, "scored_at": "2026-08-19 10:14:52.259832+00:00"}
+{"gps_id": 511, "subject_id": 3, "token": 2708, "token_probability": 0.0125536834821105, "anomaly_score": 6.31574545016726, "scored_at": "2026-08-19 10:14:49.858326+00:00"}
+{"gps_id": 510, "subject_id": 3, "token": 2708, "token_probability": 0.0141570763662457, "anomaly_score": 6.14233283024488, "scored_at": "2026-08-19 10:14:47.508377+00:00"}
+{"gps_id": 509, "subject_id": 3, "token": 2708, "token_probability": 0.0132051017135382, "anomaly_score": 6.24276077573265, "scored_at": "2026-08-19 10:14:45.002383+00:00"}
+{"gps_id": 508, "subject_id": 3, "token": 2708, "token_probability": 0.0130204064771533, "anomaly_score": 6.26308170183803, "scored_at": "2026-08-19 10:14:42.469865+00:00"}
+{"gps_id": 507, "subject_id": 3, "token": 2708, "token_probability": 0.0227051489055157, "anomaly_score": 5.46083669146019, "scored_at": "2026-08-19 10:14:40.029096+00:00"}
+{"gps_id": 506, "subject_id": 3, "token": 2708, "token_probability": 0.0127747552469373, "anomaly_score": 6.29056053911378, "scored_at": "2026-08-19 10:14:37.495126+00:00"}
+{"gps_id": 505, "subject_id": 3, "token": 2708, "token_probability": 0.0174394883215427, "anomaly_score": 5.84149847803157, "scored_at": "2026-08-19 10:14:34.947780+00:00"}
+{"gps_id": 504, "subject_id": 3, "token": 2708, "token_probability": 0.0200249422341585, "anomaly_score": 5.64205810886924, "scored_at": "2026-08-19 10:14:32.378213+00:00"}
+{"gps_id": 503, "subject_id": 3, "token": 2708, "token_probability": 0.0153479166328907, "anomaly_score": 6.02581335615882, "scored_at": "2026-08-19 10:14:29.298538+00:00"}
+{"gps_id": 502, "subject_id": 3, "token": 2708, "token_probability": 0.0204684678465128, "anomaly_score": 5.6104530753453, "scored_at": "2026-08-19 10:14:26.664051+00:00"}
+{"gps_id": 501, "subject_id": 3, "token": 2708, "token_probability": 0.0124847292900085, "anomaly_score": 6.32369165054275, "scored_at": "2026-08-19 10:14:24.308800+00:00"}
+{"gps_id": 500, "subject_id": 3, "token": 2708, "token_probability": 0.0179144591093063, "anomaly_score": 5.80273170481395, "scored_at": "2026-08-19 10:14:21.800208+00:00"}
+{"gps_id": 499, "subject_id": 3, "token": 2708, "token_probability": 0.0180215761065483, "anomaly_score": 5.79413099984042, "scored_at": "2026-08-19 10:14:19.244320+00:00"}
+{"gps_id": 498, "subject_id": 3, "token": 2708, "token_probability": 0.01441290974617, "anomaly_score": 6.11649456678131, "scored_at": "2026-08-19 10:14:16.857101+00:00"}
+{"gps_id": 497, "subject_id": 3, "token": 2708, "token_probability": 0.0173058770596981, "anomaly_score": 5.85259413081322, "scored_at": "2026-08-19 10:14:14.456219+00:00"}
+{"gps_id": 496, "subject_id": 3, "token": 2708, "token_probability": 0.00628278264775872, "anomaly_score": 7.31438061360633, "scored_at": "2026-08-19 10:14:12.071799+00:00"}
+{"gps_id": 495, "subject_id": 3, "token": 2708, "token_probability": 0.0183614231646061, "anomaly_score": 5.76717830569906, "scored_at": "2026-08-19 10:14:09.630505+00:00"}
+{"gps_id": 494, "subject_id": 3, "token": 2708, "token_probability": 0.0168564915657043, "anomaly_score": 5.8905518983033, "scored_at": "2026-08-19 10:14:07.230798+00:00"}
+{"gps_id": 493, "subject_id": 3, "token": 2708, "token_probability": 0.0067263743840158, "anomaly_score": 7.21595520443997, "scored_at": "2026-08-19 10:14:04.742083+00:00"}
+{"gps_id": 492, "subject_id": 3, "token": 2708, "token_probability": 0.0140336854383349, "anomaly_score": 6.1549622595486, "scored_at": "2026-08-19 10:14:02.200738+00:00"}
+{"gps_id": 491, "subject_id": 3, "token": 2708, "token_probability": 0.0166754107922316, "anomaly_score": 5.90613388769827, "scored_at": "2026-08-19 10:13:59.793011+00:00"}
+{"gps_id": 490, "subject_id": 3, "token": 2708, "token_probability": 0.0150765599682927, "anomaly_score": 6.05154890459242, "scored_at": "2026-08-19 10:13:57.454541+00:00"}
+{"gps_id": 489, "subject_id": 3, "token": 2708, "token_probability": 0.0176241435110569, "anomaly_score": 5.8263030419016, "scored_at": "2026-08-19 10:13:54.821112+00:00"}
+{"gps_id": 488, "subject_id": 3, "token": 2708, "token_probability": 0.0176703613251448, "anomaly_score": 5.82252464922504, "scored_at": "2026-08-19 10:13:52.477938+00:00"}
+{"gps_id": 487, "subject_id": 3, "token": 2708, "token_probability": 0.0215070731937885, "anomaly_score": 5.53904498189447, "scored_at": "2026-08-19 10:13:50.186899+00:00"}
+{"gps_id": 486, "subject_id": 3, "token": 2708, "token_probability": 0.0268382113426924, "anomaly_score": 5.21956766477221, "scored_at": "2026-08-19 10:13:47.779488+00:00"}
+{"gps_id": 485, "subject_id": 3, "token": 2708, "token_probability": 0.0277353581041098, "anomaly_score": 5.17212983688445, "scored_at": "2026-08-19 10:13:45.376361+00:00"}
+{"gps_id": 484, "subject_id": 3, "token": 2708, "token_probability": 0.0208015069365501, "anomaly_score": 5.58716814356519, "scored_at": "2026-08-19 10:13:43.061977+00:00"}
+{"gps_id": 483, "subject_id": 3, "token": 2708, "token_probability": 0.0134175950661302, "anomaly_score": 6.21973007986769, "scored_at": "2026-08-19 10:13:40.677640+00:00"}
+{"gps_id": 482, "subject_id": 3, "token": 2708, "token_probability": 0.0139667680487037, "anomaly_score": 6.16185797429217, "scored_at": "2026-08-19 10:13:38.323606+00:00"}
+{"gps_id": 481, "subject_id": 3, "token": 2708, "token_probability": 0.0241831298917532, "anomaly_score": 5.3698552128845, "scored_at": "2026-08-19 10:13:35.982848+00:00"}
+{"gps_id": 480, "subject_id": 3, "token": 2708, "token_probability": 0.0231972653418779, "anomaly_score": 5.42990144951889, "scored_at": "2026-08-19 10:13:33.618200+00:00"}
+{"gps_id": 479, "subject_id": 3, "token": 2708, "token_probability": 0.0133797330781817, "anomaly_score": 6.22380685485848, "scored_at": "2026-08-19 10:13:31.026128+00:00"}
+{"gps_id": 478, "subject_id": 3, "token": 2708, "token_probability": 0.0327272340655327, "anomaly_score": 4.93336451127101, "scored_at": "2026-08-19 10:13:28.617734+00:00"}
+{"gps_id": 477, "subject_id": 3, "token": 2708, "token_probability": 0.0137023963034153, "anomaly_score": 6.18942797303121, "scored_at": "2026-08-19 10:13:26.234834+00:00"}
+{"gps_id": 476, "subject_id": 3, "token": 2708, "token_probability": 0.0120119191706181, "anomaly_score": 6.37938951777076, "scored_at": "2026-08-19 10:13:23.867915+00:00"}
+{"gps_id": 475, "subject_id": 3, "token": 2708, "token_probability": 0.0144779309630394, "anomaly_score": 6.11000074775722, "scored_at": "2026-08-19 10:13:21.485001+00:00"}
+{"gps_id": 474, "subject_id": 3, "token": 2708, "token_probability": 0.014851912856102, "anomaly_score": 6.07320743448683, "scored_at": "2026-08-19 10:13:18.973679+00:00"}
+{"gps_id": 473, "subject_id": 3, "token": 2708, "token_probability": 0.0304630883038044, "anomaly_score": 5.03679398219999, "scored_at": "2026-08-19 10:13:16.599166+00:00"}
+{"gps_id": 472, "subject_id": 3, "token": 2708, "token_probability": 0.0152831384912133, "anomaly_score": 6.03191534923076, "scored_at": "2026-08-19 10:13:14.296813+00:00"}
+{"gps_id": 471, "subject_id": 3, "token": 2708, "token_probability": 0.0162547677755356, "anomaly_score": 5.94299324472624, "scored_at": "2026-08-19 10:13:11.986100+00:00"}
+{"gps_id": 470, "subject_id": 3, "token": 2708, "token_probability": 0.0220400858670473, "anomaly_score": 5.50372634518861, "scored_at": "2026-08-19 10:13:09.602820+00:00"}
+{"gps_id": 469, "subject_id": 3, "token": 2708, "token_probability": 0.0168516356498003, "anomaly_score": 5.89096756101855, "scored_at": "2026-08-19 10:13:07.296480+00:00"}
+{"gps_id": 468, "subject_id": 3, "token": 2708, "token_probability": 0.0160851404070854, "anomaly_score": 5.95812766045353, "scored_at": "2026-08-19 10:13:05.005291+00:00"}
+{"gps_id": 467, "subject_id": 3, "token": 2708, "token_probability": 0.0323531627655029, "anomaly_score": 4.94994943634921, "scored_at": "2026-08-19 10:13:02.527542+00:00"}
+{"gps_id": 466, "subject_id": 3, "token": 2708, "token_probability": 0.0380779877305031, "anomaly_score": 4.71489894978252, "scored_at": "2026-08-19 10:12:59.244329+00:00"}
+{"gps_id": 465, "subject_id": 3, "token": 2708, "token_probability": 0.0174089055508375, "anomaly_score": 5.84403068213381, "scored_at": "2026-08-19 10:12:56.207009+00:00"}
+{"gps_id": 464, "subject_id": 3, "token": 2708, "token_probability": 0.0360476821660995, "anomaly_score": 4.79394969133435, "scored_at": "2026-08-19 10:12:53.229307+00:00"}
+{"gps_id": 463, "subject_id": 3, "token": 2708, "token_probability": 0.0366083644330502, "anomaly_score": 4.77168287057198, "scored_at": "2026-08-19 10:12:50.450393+00:00"}
+{"gps_id": 462, "subject_id": 3, "token": 2708, "token_probability": 0.0422816276550293, "anomaly_score": 4.56382527462838, "scored_at": "2026-08-19 10:12:47.684396+00:00"}
+{"gps_id": 461, "subject_id": 3, "token": 2708, "token_probability": 0.0335287973284721, "anomaly_score": 4.89845545490928, "scored_at": "2026-08-19 10:12:45.400246+00:00"}
+{"gps_id": 460, "subject_id": 3, "token": 2708, "token_probability": 0.0254388451576233, "anomaly_score": 5.29682301141609, "scored_at": "2026-08-19 10:12:42.966918+00:00"}
+{"gps_id": 459, "subject_id": 3, "token": 2708, "token_probability": 0.0208751913160086, "anomaly_score": 5.58206677018123, "scored_at": "2026-08-19 10:12:40.648704+00:00"}
+{"gps_id": 458, "subject_id": 3, "token": 2708, "token_probability": 0.0311853010207415, "anomaly_score": 5.00299000496231, "scored_at": "2026-08-19 10:12:38.205655+00:00"}
+{"gps_id": 457, "subject_id": 3, "token": 2708, "token_probability": 0.0238915588706732, "anomaly_score": 5.38735520029117, "scored_at": "2026-08-19 10:12:35.409604+00:00"}
+{"gps_id": 456, "subject_id": 3, "token": 2708, "token_probability": 0.0178008191287518, "anomaly_score": 5.8119125594933, "scored_at": "2026-08-19 10:12:33.109207+00:00"}
+{"gps_id": 455, "subject_id": 3, "token": 2708, "token_probability": 0.0290883705019951, "anomaly_score": 5.10341370923668, "scored_at": "2026-08-19 10:12:30.843406+00:00"}
+{"gps_id": 454, "subject_id": 3, "token": 2708, "token_probability": 0.019191924482584, "anomaly_score": 5.70335680381356, "scored_at": "2026-08-19 10:12:28.650191+00:00"}
+{"gps_id": 453, "subject_id": 3, "token": 2708, "token_probability": 0.0341243259608746, "anomaly_score": 4.87305564022597, "scored_at": "2026-08-19 10:12:26.450597+00:00"}
+{"gps_id": 452, "subject_id": 3, "token": 2708, "token_probability": 0.029633516445756, "anomaly_score": 5.07662635666352, "scored_at": "2026-08-19 10:12:24.068728+00:00"}
+{"gps_id": 451, "subject_id": 3, "token": 2708, "token_probability": 0.056042242795229, "anomaly_score": 4.15734149658971, "scored_at": "2026-08-19 10:12:20.732241+00:00"}
+{"gps_id": 450, "subject_id": 3, "token": 2708, "token_probability": 0.023827787488699, "anomaly_score": 5.39121119239139, "scored_at": "2026-08-19 10:12:18.422175+00:00"}
+{"gps_id": 449, "subject_id": 3, "token": 2708, "token_probability": 0.0255142319947481, "anomaly_score": 5.29255397403871, "scored_at": "2026-08-19 10:12:16.132020+00:00"}
+{"gps_id": 448, "subject_id": 3, "token": 2708, "token_probability": 0.0248091034591198, "anomaly_score": 5.33298658910514, "scored_at": "2026-08-19 10:12:13.766267+00:00"}
+{"gps_id": 447, "subject_id": 3, "token": 2708, "token_probability": 0.032063614577055, "anomaly_score": 4.96291911804243, "scored_at": "2026-08-19 10:12:11.409629+00:00"}
+{"gps_id": 446, "subject_id": 3, "token": 2708, "token_probability": 0.030360097065568, "anomaly_score": 5.0416797865118, "scored_at": "2026-08-19 10:12:09.069323+00:00"}
+{"gps_id": 445, "subject_id": 3, "token": 2708, "token_probability": 0.0212729535996914, "anomaly_score": 5.55483583452978, "scored_at": "2026-08-19 10:12:06.613898+00:00"}
+{"gps_id": 444, "subject_id": 3, "token": 2708, "token_probability": 0.0245429426431656, "anomaly_score": 5.34854795453964, "scored_at": "2026-08-19 10:12:04.307947+00:00"}
+{"gps_id": 443, "subject_id": 3, "token": 2708, "token_probability": 0.0337114594876766, "anomaly_score": 4.89061710175686, "scored_at": "2026-08-19 10:12:02.059059+00:00"}
+{"gps_id": 442, "subject_id": 3, "token": 2708, "token_probability": 0.0363409779965878, "anomaly_score": 4.78225894434024, "scored_at": "2026-08-19 10:11:59.898648+00:00"}
+{"gps_id": 441, "subject_id": 3, "token": 2708, "token_probability": 0.02403624355793, "anomaly_score": 5.37864474396698, "scored_at": "2026-08-19 10:11:57.724140+00:00"}
+{"gps_id": 440, "subject_id": 3, "token": 2708, "token_probability": 0.0219680666923523, "anomaly_score": 5.50844827932548, "scored_at": "2026-08-19 10:11:55.517428+00:00"}
+{"gps_id": 439, "subject_id": 3, "token": 2708, "token_probability": 0.0439985059201717, "anomaly_score": 4.50640165552834, "scored_at": "2026-08-19 10:11:53.302269+00:00"}
+{"gps_id": 438, "subject_id": 3, "token": 2708, "token_probability": 0.0473719947040081, "anomaly_score": 4.39982176866832, "scored_at": "2026-08-19 10:11:51.003750+00:00"}
+{"gps_id": 437, "subject_id": 3, "token": 2708, "token_probability": 0.0295704454183578, "anomaly_score": 5.07970021489896, "scored_at": "2026-08-19 10:11:48.786386+00:00"}
+{"gps_id": 436, "subject_id": 3, "token": 2708, "token_probability": 0.0302180759608746, "anomaly_score": 5.04844438532999, "scored_at": "2026-08-19 10:11:46.085095+00:00"}
+{"gps_id": 435, "subject_id": 3, "token": 2708, "token_probability": 0.0272916648536921, "anomaly_score": 5.19539578479609, "scored_at": "2026-08-19 10:11:43.853129+00:00"}
+{"gps_id": 434, "subject_id": 3, "token": 2708, "token_probability": 0.0510406456887722, "anomaly_score": 4.29220960976878, "scored_at": "2026-08-19 10:11:41.622133+00:00"}
+{"gps_id": 433, "subject_id": 3, "token": 2708, "token_probability": 0.0167020931839943, "anomaly_score": 5.9038272704927, "scored_at": "2026-08-19 10:11:39.444304+00:00"}
+{"gps_id": 432, "subject_id": 3, "token": 2708, "token_probability": 0.0422723740339279, "anomaly_score": 4.5641410527834, "scored_at": "2026-08-19 10:11:37.151170+00:00"}
+{"gps_id": 431, "subject_id": 3, "token": 2708, "token_probability": 0.000544218753930181, "anomaly_score": 10.8435257064314, "scored_at": "2026-08-19 10:11:34.944301+00:00"}
+{"gps_id": 430, "subject_id": 3, "token": 2702, "token_probability": 1.25894561442408e-09, "anomaly_score": 29.5651368930067, "scored_at": "2026-08-19 10:11:32.668235+00:00"}
+{"gps_id": 429, "subject_id": 3, "token": 2702, "token_probability": 1.64131386259925e-09, "anomaly_score": 29.1825017073234, "scored_at": "2026-08-19 10:11:30.321264+00:00"}
+{"gps_id": 428, "subject_id": 3, "token": 2702, "token_probability": 9.60209689537805e-10, "anomaly_score": 29.9559314544751, "scored_at": "2026-08-19 10:11:28.169824+00:00"}
+{"gps_id": 427, "subject_id": 3, "token": 2702, "token_probability": 1.13994547135121e-09, "anomaly_score": 29.7083880384495, "scored_at": "2026-08-19 10:11:25.954871+00:00"}
+{"gps_id": 426, "subject_id": 3, "token": 2702, "token_probability": 1.71512237745475e-09, "anomaly_score": 29.1190413347029, "scored_at": "2026-08-19 10:11:23.712495+00:00"}
+{"gps_id": 425, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 424, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 423, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 422, "subject_id": 3, "token": 2702, "token_probability": 9.32268151565552e-10, "anomaly_score": 29.9985359668574, "scored_at": "2026-08-19 10:11:21.547691+00:00"}
+{"gps_id": 421, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 420, "subject_id": 3, "token": 2702, "token_probability": 7.02308156075304e-10, "anomaly_score": 30.4071767592371, "scored_at": "2026-08-19 10:11:19.300157+00:00"}
+{"gps_id": 419, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 418, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 417, "subject_id": 3, "token": 2702, "token_probability": 7.92571397401076e-10, "anomaly_score": 30.2327400451208, "scored_at": "2026-08-19 10:11:17.107524+00:00"}
+{"gps_id": 416, "subject_id": 3, "token": 2702, "token_probability": 2.37578456907528e-10, "anomaly_score": 31.9708769272205, "scored_at": "2026-08-19 10:11:14.853279+00:00"}
+{"gps_id": 415, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 414, "subject_id": 3, "token": 2702, "token_probability": 3.57387286431532e-10, "anomaly_score": 31.3817926355027, "scored_at": "2026-08-19 10:11:12.555323+00:00"}
+{"gps_id": 413, "subject_id": 3, "token": 2702, "token_probability": 1.07792302861398e-10, "anomaly_score": 33.1110267858125, "scored_at": "2026-08-19 10:11:10.178381+00:00"}
+{"gps_id": 412, "subject_id": 3, "token": 2702, "token_probability": 3.29904076279419e-10, "anomaly_score": 31.4972343449878, "scored_at": "2026-08-19 10:11:07.705195+00:00"}
+{"gps_id": 411, "subject_id": 3, "token": 2702, "token_probability": 6.35123287295869e-10, "anomaly_score": 30.5522442802865, "scored_at": "2026-08-19 10:11:04.975053+00:00"}
+{"gps_id": 410, "subject_id": 3, "token": 2702, "token_probability": 1.87505122539733e-10, "anomaly_score": 32.3123509390693, "scored_at": "2026-08-19 10:11:02.570583+00:00"}
+{"gps_id": 409, "subject_id": 3, "token": 2702, "token_probability": 1.53765999932887e-09, "anomaly_score": 29.2766163178573, "scored_at": "2026-08-19 10:11:00.267883+00:00"}
+{"gps_id": 408, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 407, "subject_id": 3, "token": 2702, "token_probability": 9.00845301132769e-11, "anomaly_score": 33.3699296651924, "scored_at": "2026-08-19 10:10:57.615165+00:00"}
+{"gps_id": 406, "subject_id": 3, "token": 2702, "token_probability": 5.87041942834432e-11, "anomaly_score": 33.9877454594078, "scored_at": "2026-08-19 10:10:55.380088+00:00"}
+{"gps_id": 405, "subject_id": 3, "token": 2702, "token_probability": 1.62902011324739e-10, "anomaly_score": 32.5152765321783, "scored_at": "2026-08-19 10:10:52.467787+00:00"}
+{"gps_id": 404, "subject_id": 3, "token": 2702, "token_probability": 9.72646754804352e-11, "anomaly_score": 33.2592931006492, "scored_at": "2026-08-19 10:10:49.152426+00:00"}
+{"gps_id": 403, "subject_id": 3, "token": 2702, "token_probability": 1.75485112552387e-10, "anomaly_score": 32.4079323055681, "scored_at": "2026-08-19 10:10:46.697351+00:00"}
+{"gps_id": 402, "subject_id": 3, "token": 2702, "token_probability": 2.10713418935526e-10, "anomaly_score": 32.1439987561456, "scored_at": "2026-08-19 10:10:44.260994+00:00"}
+{"gps_id": 401, "subject_id": 3, "token": 2702, "token_probability": 1.79947279299597e-10, "anomaly_score": 32.3717066591736, "scored_at": "2026-08-19 10:10:42.093395+00:00"}
+{"gps_id": 400, "subject_id": 3, "token": 2702, "token_probability": 1.07665223958442e-10, "anomaly_score": 33.1127286165822, "scored_at": "2026-08-19 10:10:39.801943+00:00"}
+{"gps_id": 399, "subject_id": 3, "token": 2702, "token_probability": 6.04179414831485e-11, "anomaly_score": 33.9462320133304, "scored_at": "2026-08-19 10:10:37.465477+00:00"}
+{"gps_id": 398, "subject_id": 3, "token": 2702, "token_probability": 1.16398862770595e-10, "anomaly_score": 33.0002039858443, "scored_at": "2026-08-19 10:10:35.278451+00:00"}
+{"gps_id": 397, "subject_id": 3, "token": 2702, "token_probability": 7.42876593573527e-11, "anomaly_score": 33.6480864731404, "scored_at": "2026-08-19 10:10:33.148014+00:00"}
+{"gps_id": 396, "subject_id": 3, "token": 2702, "token_probability": 6.07444580746908e-11, "anomaly_score": 33.9384562510569, "scored_at": "2026-08-19 10:10:30.895824+00:00"}
+{"gps_id": 395, "subject_id": 3, "token": 2702, "token_probability": 9.09922345804226e-11, "anomaly_score": 33.3554656150469, "scored_at": "2026-08-19 10:10:28.703746+00:00"}
+{"gps_id": 394, "subject_id": 3, "token": 2702, "token_probability": 5.40388914171963e-11, "anomaly_score": 34.1072109650137, "scored_at": "2026-08-19 10:10:26.274356+00:00"}
+{"gps_id": 393, "subject_id": 3, "token": 2702, "token_probability": 3.67473204643254e-11, "anomaly_score": 34.6635699882002, "scored_at": "2026-08-19 10:10:24.050525+00:00"}
+{"gps_id": 392, "subject_id": 3, "token": 2702, "token_probability": 3.11524729623702e-11, "anomaly_score": 34.9018623511719, "scored_at": "2026-08-19 10:10:21.739724+00:00"}
+{"gps_id": 391, "subject_id": 3, "token": 2702, "token_probability": 3.15191657496161e-11, "anomaly_score": 34.8849796937643, "scored_at": "2026-08-19 10:10:19.521507+00:00"}
+{"gps_id": 390, "subject_id": 3, "token": 2702, "token_probability": 2.77291158784498e-11, "anomaly_score": 35.069807425873, "scored_at": "2026-08-19 10:10:17.356509+00:00"}
+{"gps_id": 389, "subject_id": 3, "token": 2702, "token_probability": 3.79922829307766e-11, "anomaly_score": 34.6155026385768, "scored_at": "2026-08-19 10:10:15.163923+00:00"}
+{"gps_id": 388, "subject_id": 3, "token": 2702, "token_probability": 2.82522529676532e-11, "anomaly_score": 35.0428431243515, "scored_at": "2026-08-19 10:10:12.925691+00:00"}
+{"gps_id": 387, "subject_id": 3, "token": 2702, "token_probability": 2.4387675906512e-11, "anomaly_score": 35.255056764836, "scored_at": "2026-08-19 10:10:10.812808+00:00"}
+{"gps_id": 386, "subject_id": 3, "token": 2702, "token_probability": 2.6284389595399e-11, "anomaly_score": 35.147002812291, "scored_at": "2026-08-19 10:10:08.679287+00:00"}
+{"gps_id": 385, "subject_id": 3, "token": 2702, "token_probability": 2.36433823908033e-11, "anomaly_score": 35.2997726034496, "scored_at": "2026-08-19 10:10:06.289631+00:00"}
+{"gps_id": 384, "subject_id": 3, "token": 2702, "token_probability": 2.01093326018809e-11, "anomaly_score": 35.5333438421741, "scored_at": "2026-08-19 10:10:03.937475+00:00"}
+{"gps_id": 383, "subject_id": 3, "token": 2702, "token_probability": 1.93108844886991e-11, "anomaly_score": 35.5917947987766, "scored_at": "2026-08-19 10:10:01.845358+00:00"}
+{"gps_id": 382, "subject_id": 3, "token": 2702, "token_probability": 1.64300396204853e-11, "anomaly_score": 35.8248730844585, "scored_at": "2026-08-19 10:09:59.694975+00:00"}
+{"gps_id": 381, "subject_id": 3, "token": 2702, "token_probability": 5.02447736194789e-11, "anomaly_score": 34.2122355064823, "scored_at": "2026-08-19 10:09:57.557124+00:00"}
+{"gps_id": 380, "subject_id": 3, "token": 2708, "token_probability": 8.74615216162056e-05, "anomaly_score": 13.4809920264401, "scored_at": "2026-08-19 10:09:55.329518+00:00"}
+{"gps_id": 379, "subject_id": 3, "token": 2708, "token_probability": 4.50081533927005e-05, "anomaly_score": 14.439454099801, "scored_at": "2026-08-19 10:09:53.129227+00:00"}
+{"gps_id": 378, "subject_id": 3, "token": 2708, "token_probability": 5.80301566515118e-05, "anomaly_score": 14.0728376510073, "scored_at": "2026-08-19 10:09:50.931863+00:00"}
+{"gps_id": 377, "subject_id": 3, "token": 2708, "token_probability": 3.90095701732207e-05, "anomaly_score": 14.6458123723158, "scored_at": "2026-08-19 10:09:48.630293+00:00"}
+{"gps_id": 376, "subject_id": 3, "token": 2708, "token_probability": 7.15159185347147e-05, "anomaly_score": 13.7713760712174, "scored_at": "2026-08-19 10:09:46.442562+00:00"}
+{"gps_id": 375, "subject_id": 3, "token": 2708, "token_probability": 5.20696339663118e-05, "anomaly_score": 14.2291982093803, "scored_at": "2026-08-19 10:09:44.198897+00:00"}
+{"gps_id": 374, "subject_id": 3, "token": 2708, "token_probability": 3.64328225259669e-05, "anomaly_score": 14.7444017064635, "scored_at": "2026-08-19 10:09:41.667959+00:00"}
+{"gps_id": 373, "subject_id": 3, "token": 2708, "token_probability": 5.12342157890089e-05, "anomaly_score": 14.2525328661177, "scored_at": "2026-08-19 10:09:39.474314+00:00"}
+{"gps_id": 372, "subject_id": 3, "token": 2708, "token_probability": 4.69679689558689e-05, "anomaly_score": 14.3779632662073, "scored_at": "2026-08-19 10:09:37.259915+00:00"}
+{"gps_id": 371, "subject_id": 3, "token": 2708, "token_probability": 4.04482925659977e-05, "anomaly_score": 14.5935616706334, "scored_at": "2026-08-19 10:09:35.095733+00:00"}
+{"gps_id": 370, "subject_id": 3, "token": 2708, "token_probability": 2.56369530688971e-05, "anomaly_score": 15.2514156654287, "scored_at": "2026-08-19 10:09:32.862871+00:00"}
+{"gps_id": 369, "subject_id": 3, "token": 2708, "token_probability": 7.99672634457238e-05, "anomaly_score": 13.610230956066, "scored_at": "2026-08-19 10:09:30.410819+00:00"}
+{"gps_id": 368, "subject_id": 3, "token": 2708, "token_probability": 3.07206792058423e-05, "anomaly_score": 14.9904303613703, "scored_at": "2026-08-19 10:09:26.802464+00:00"}
+{"gps_id": 367, "subject_id": 3, "token": 2708, "token_probability": 4.37304879596923e-06, "anomaly_score": 17.8029291227322, "scored_at": "2026-08-19 10:09:23.326764+00:00"}
+{"gps_id": 366, "subject_id": 3, "token": 2708, "token_probability": 0.000191073006135412, "anomaly_score": 12.3535884037739, "scored_at": "2026-08-19 10:09:20.644436+00:00"}
+{"gps_id": 365, "subject_id": 3, "token": 2708, "token_probability": 1.72237832885003e-05, "anomaly_score": 15.8252384018495, "scored_at": "2026-08-19 10:09:18.482983+00:00"}
+{"gps_id": 364, "subject_id": 3, "token": 2708, "token_probability": 4.24661484430544e-05, "anomaly_score": 14.5233272080892, "scored_at": "2026-08-19 10:09:16.334568+00:00"}
+{"gps_id": 363, "subject_id": 3, "token": 2708, "token_probability": 1.61616553668864e-05, "anomaly_score": 15.917065499906, "scored_at": "2026-08-19 10:09:14.197919+00:00"}
+{"gps_id": 362, "subject_id": 3, "token": 2708, "token_probability": 3.26497465721332e-05, "anomaly_score": 14.9025686808441, "scored_at": "2026-08-19 10:09:12.105019+00:00"}
+{"gps_id": 361, "subject_id": 3, "token": 2708, "token_probability": 2.52990594162839e-05, "anomaly_score": 15.270556725908, "scored_at": "2026-08-19 10:09:10.026461+00:00"}
+{"gps_id": 360, "subject_id": 3, "token": 2708, "token_probability": 2.64717054960784e-05, "anomaly_score": 15.2051893279046, "scored_at": "2026-08-19 10:09:07.965871+00:00"}
+{"gps_id": 359, "subject_id": 3, "token": 2708, "token_probability": 3.27939160342794e-05, "anomaly_score": 14.8962122852432, "scored_at": "2026-08-19 10:09:05.849098+00:00"}
+{"gps_id": 358, "subject_id": 3, "token": 2708, "token_probability": 6.17701152805239e-05, "anomaly_score": 13.9827314512656, "scored_at": "2026-08-19 10:09:03.728978+00:00"}
+{"gps_id": 357, "subject_id": 3, "token": 2708, "token_probability": 0.000128032552311197, "anomaly_score": 12.9312017170801, "scored_at": "2026-08-19 10:09:01.687971+00:00"}
+{"gps_id": 356, "subject_id": 3, "token": 2708, "token_probability": 4.6620156354038e-05, "anomaly_score": 14.3886866314712, "scored_at": "2026-08-19 10:08:59.649996+00:00"}
+{"gps_id": 355, "subject_id": 3, "token": 2708, "token_probability": 1.74339747900376e-05, "anomaly_score": 15.8077389459297, "scored_at": "2026-08-19 10:08:57.521648+00:00"}
+{"gps_id": 354, "subject_id": 3, "token": 2708, "token_probability": 1.31407687149476e-05, "anomaly_score": 16.2155908008463, "scored_at": "2026-08-19 10:08:55.290531+00:00"}
+{"gps_id": 353, "subject_id": 3, "token": 2708, "token_probability": 1.91981362149818e-05, "anomaly_score": 15.6686742157778, "scored_at": "2026-08-19 10:08:53.101161+00:00"}
+{"gps_id": 352, "subject_id": 3, "token": 2708, "token_probability": 7.88688521424774e-06, "anomaly_score": 16.9521129234824, "scored_at": "2026-08-19 10:08:50.719760+00:00"}
+{"gps_id": 351, "subject_id": 3, "token": 2708, "token_probability": 1.33400708364206e-05, "anomaly_score": 16.1938741471136, "scored_at": "2026-08-19 10:08:48.476938+00:00"}
+{"gps_id": 350, "subject_id": 3, "token": 2708, "token_probability": 2.60262572737702e-06, "anomaly_score": 18.5516007105518, "scored_at": "2026-08-19 10:08:46.314490+00:00"}
+{"gps_id": 349, "subject_id": 3, "token": 2708, "token_probability": 5.66681728741969e-06, "anomaly_score": 17.4290298822787, "scored_at": "2026-08-19 10:08:44.091195+00:00"}
+{"gps_id": 348, "subject_id": 3, "token": 2708, "token_probability": 2.52428935709759e-06, "anomaly_score": 18.5956912746445, "scored_at": "2026-08-19 10:08:42.002838+00:00"}
+{"gps_id": 347, "subject_id": 3, "token": 2708, "token_probability": 0.000225792202400044, "anomaly_score": 12.1127167151969, "scored_at": "2026-08-19 10:08:39.954105+00:00"}
+{"gps_id": 346, "subject_id": 3, "token": 2708, "token_probability": 3.51767857864616e-06, "anomaly_score": 18.1169449040749, "scored_at": "2026-08-19 10:08:37.817664+00:00"}
+{"gps_id": 345, "subject_id": 3, "token": 2708, "token_probability": 1.61391699293745e-06, "anomaly_score": 19.2410021895666, "scored_at": "2026-08-19 10:08:35.730591+00:00"}
+{"gps_id": 344, "subject_id": 3, "token": 2708, "token_probability": 2.01773289632001e-07, "anomaly_score": 22.2407614583794, "scored_at": "2026-08-19 10:08:33.541747+00:00"}
+{"gps_id": 343, "subject_id": 3, "token": 2708, "token_probability": 0.000126152881421149, "anomaly_score": 12.9525392206825, "scored_at": "2026-08-19 10:08:31.445301+00:00"}
+{"gps_id": 342, "subject_id": 3, "token": 2708, "token_probability": 4.14404121329426e-06, "anomaly_score": 17.8805302183461, "scored_at": "2026-08-19 10:08:29.378919+00:00"}
+{"gps_id": 341, "subject_id": 3, "token": 2708, "token_probability": 1.46350549456997e-08, "anomaly_score": 26.0259965969026, "scored_at": "2026-08-19 10:08:27.286384+00:00"}
+{"gps_id": 340, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 339, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 338, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 337, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 336, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 335, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 334, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 333, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 332, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 331, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 330, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 329, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 328, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 327, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 326, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 325, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 324, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 323, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 322, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 321, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 320, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 319, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 318, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 317, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 316, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 315, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 314, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 313, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 312, "subject_id": 3, "token": 2708, "token_probability": 0.00253131636418402, "anomaly_score": 8.62589645776794, "scored_at": "2026-08-19 10:07:43.506248+00:00"}
+{"gps_id": 311, "subject_id": 3, "token": 2708, "token_probability": 0.00360937579534948, "anomaly_score": 8.11403492533874, "scored_at": "2026-08-19 10:07:41.353087+00:00"}
+{"gps_id": 310, "subject_id": 3, "token": 2708, "token_probability": 0.00156322028487921, "anomaly_score": 9.32126319121912, "scored_at": "2026-08-19 10:07:39.233061+00:00"}
+{"gps_id": 309, "subject_id": 3, "token": 2708, "token_probability": 0.00232025585137308, "anomaly_score": 8.75150038656981, "scored_at": "2026-08-19 10:07:37.017050+00:00"}
+{"gps_id": 308, "subject_id": 3, "token": 2708, "token_probability": 0.00387888075783849, "anomaly_score": 8.01014385855282, "scored_at": "2026-08-19 10:07:34.844917+00:00"}
+{"gps_id": 307, "subject_id": 3, "token": 2708, "token_probability": 0.00190553511492908, "anomaly_score": 9.03558809048878, "scored_at": "2026-08-19 10:07:32.648970+00:00"}
+{"gps_id": 306, "subject_id": 3, "token": 2708, "token_probability": 0.00101674359757453, "anomaly_score": 9.94182837847139, "scored_at": "2026-08-19 10:07:30.491818+00:00"}
+{"gps_id": 305, "subject_id": 3, "token": 2708, "token_probability": 0.0017507477896288, "anomaly_score": 9.15781301862866, "scored_at": "2026-08-19 10:07:28.289760+00:00"}
+{"gps_id": 304, "subject_id": 3, "token": 2708, "token_probability": 0.00486871693283319, "anomaly_score": 7.68224265989591, "scored_at": "2026-08-19 10:07:26.062396+00:00"}
+{"gps_id": 303, "subject_id": 3, "token": 2708, "token_probability": 0.00797226466238499, "anomaly_score": 6.97079467925527, "scored_at": "2026-08-19 10:07:23.709492+00:00"}
+{"gps_id": 302, "subject_id": 3, "token": 2708, "token_probability": 0.00229432736523449, "anomaly_score": 8.76771302822351, "scored_at": "2026-08-19 10:07:21.442744+00:00"}
+{"gps_id": 301, "subject_id": 3, "token": 2708, "token_probability": 0.00370684219524264, "anomaly_score": 8.07559358547124, "scored_at": "2026-08-19 10:07:19.262144+00:00"}
+{"gps_id": 300, "subject_id": 3, "token": 2708, "token_probability": 0.00487366318702698, "anomaly_score": 7.68077773306659, "scored_at": "2026-08-19 10:07:16.960614+00:00"}
+{"gps_id": 299, "subject_id": 3, "token": 2708, "token_probability": 0.00214252970181406, "anomaly_score": 8.86646908015497, "scored_at": "2026-08-19 10:07:14.457567+00:00"}
+{"gps_id": 298, "subject_id": 3, "token": 2708, "token_probability": 0.00196001888252795, "anomaly_score": 8.99491673154701, "scored_at": "2026-08-19 10:07:11.650401+00:00"}
+{"gps_id": 297, "subject_id": 3, "token": 2708, "token_probability": 0.00697756372392178, "anomaly_score": 7.16306088962497, "scored_at": "2026-08-19 10:07:09.299602+00:00"}
+{"gps_id": 296, "subject_id": 3, "token": 2708, "token_probability": 0.00604684557765722, "anomaly_score": 7.36960154827107, "scored_at": "2026-08-19 10:07:06.925248+00:00"}
+{"gps_id": 295, "subject_id": 3, "token": 2708, "token_probability": 0.00298088975250721, "anomaly_score": 8.3900412660765, "scored_at": "2026-08-19 10:07:04.750011+00:00"}
+{"gps_id": 294, "subject_id": 3, "token": 2708, "token_probability": 0.00254573859274387, "anomaly_score": 8.61769999987455, "scored_at": "2026-08-19 10:07:02.635559+00:00"}
+{"gps_id": 293, "subject_id": 3, "token": 2708, "token_probability": 0.0109028732404113, "anomaly_score": 6.51914781041932, "scored_at": "2026-08-19 10:07:00.485708+00:00"}
+{"gps_id": 292, "subject_id": 3, "token": 2708, "token_probability": 0.00219978205859661, "anomaly_score": 8.82842368752894, "scored_at": "2026-08-19 10:06:58.378591+00:00"}
+{"gps_id": 291, "subject_id": 3, "token": 2708, "token_probability": 0.00250144512392581, "anomaly_score": 8.64302248146539, "scored_at": "2026-08-19 10:06:56.260588+00:00"}
+{"gps_id": 290, "subject_id": 3, "token": 2708, "token_probability": 0.0035936797503382, "anomaly_score": 8.12032243540934, "scored_at": "2026-08-19 10:06:54.164829+00:00"}
+{"gps_id": 289, "subject_id": 3, "token": 2708, "token_probability": 0.00287440838292241, "anomaly_score": 8.44251923672852, "scored_at": "2026-08-19 10:06:52.019082+00:00"}
+{"gps_id": 288, "subject_id": 3, "token": 2708, "token_probability": 0.00371687952429056, "anomaly_score": 8.07169235797046, "scored_at": "2026-08-19 10:06:49.823639+00:00"}
+{"gps_id": 287, "subject_id": 3, "token": 2708, "token_probability": 0.0110188461840153, "anomaly_score": 6.50388302682292, "scored_at": "2026-08-19 10:06:47.764224+00:00"}
+{"gps_id": 286, "subject_id": 3, "token": 2708, "token_probability": 0.00699595874175429, "anomaly_score": 7.15926250358462, "scored_at": "2026-08-19 10:06:45.562218+00:00"}
+{"gps_id": 285, "subject_id": 3, "token": 2708, "token_probability": 0.00321390386670828, "anomaly_score": 8.28145750844854, "scored_at": "2026-08-19 10:06:43.419944+00:00"}
+{"gps_id": 284, "subject_id": 3, "token": 2708, "token_probability": 0.00441754795610905, "anomaly_score": 7.82253848816133, "scored_at": "2026-08-19 10:06:41.266563+00:00"}
+{"gps_id": 283, "subject_id": 3, "token": 2708, "token_probability": 0.0099299643188715, "anomaly_score": 6.65399575090437, "scored_at": "2026-08-19 10:06:39.158554+00:00"}
+{"gps_id": 282, "subject_id": 3, "token": 2708, "token_probability": 0.00674493098631501, "anomaly_score": 7.21198060297267, "scored_at": "2026-08-19 10:06:37.020807+00:00"}
+{"gps_id": 281, "subject_id": 3, "token": 2708, "token_probability": 0.010351256467402, "anomaly_score": 6.59405029265206, "scored_at": "2026-08-19 10:06:34.800981+00:00"}
+{"gps_id": 280, "subject_id": 3, "token": 2708, "token_probability": 0.0212247613817453, "anomaly_score": 5.55810785532775, "scored_at": "2026-08-19 10:06:32.633404+00:00"}
+{"gps_id": 279, "subject_id": 3, "token": 2708, "token_probability": 0.00405738083645701, "anomaly_score": 7.94523556060407, "scored_at": "2026-08-19 10:06:30.563469+00:00"}
+{"gps_id": 278, "subject_id": 3, "token": 2708, "token_probability": 0.0131252771243453, "anomaly_score": 6.25150830591422, "scored_at": "2026-08-19 10:06:28.456631+00:00"}
+{"gps_id": 277, "subject_id": 3, "token": 2708, "token_probability": 0.0055467733182013, "anomaly_score": 7.49413551708403, "scored_at": "2026-08-19 10:06:26.317586+00:00"}
+{"gps_id": 276, "subject_id": 3, "token": 2708, "token_probability": 0.00944594666361809, "anomaly_score": 6.72608889530434, "scored_at": "2026-08-19 10:06:24.236566+00:00"}
+{"gps_id": 275, "subject_id": 3, "token": 2708, "token_probability": 0.00383082707412541, "anomaly_score": 8.02812838156603, "scored_at": "2026-08-19 10:06:22.089448+00:00"}
+{"gps_id": 274, "subject_id": 3, "token": 2708, "token_probability": 0.00257587898522615, "anomaly_score": 8.60071946741883, "scored_at": "2026-08-19 10:06:20.040776+00:00"}
+{"gps_id": 273, "subject_id": 3, "token": 2708, "token_probability": 0.00869231205433607, "anomaly_score": 6.8460443164059, "scored_at": "2026-08-19 10:06:17.948702+00:00"}
+{"gps_id": 272, "subject_id": 3, "token": 2708, "token_probability": 0.000778390618506819, "anomaly_score": 10.3272180572969, "scored_at": "2026-08-19 10:06:15.829451+00:00"}
+{"gps_id": 271, "subject_id": 3, "token": 2708, "token_probability": 0.161283314228058, "anomaly_score": 2.63233090453774, "scored_at": "2026-08-19 10:06:13.684636+00:00"}
+{"gps_id": 270, "subject_id": 3, "token": 2708, "token_probability": 0.0136448219418526, "anomaly_score": 6.19550262149337, "scored_at": "2026-08-19 10:06:11.597460+00:00"}
+{"gps_id": 269, "subject_id": 3, "token": 2708, "token_probability": 0.0356208458542824, "anomaly_score": 4.81113441462409, "scored_at": "2026-08-19 10:06:09.488495+00:00"}
+{"gps_id": 268, "subject_id": 3, "token": 2708, "token_probability": 0.0442987941205502, "anomaly_score": 4.49658876277729, "scored_at": "2026-08-19 10:06:07.414602+00:00"}
+{"gps_id": 267, "subject_id": 3, "token": 2708, "token_probability": 0.0187462903559208, "anomaly_score": 5.73725105627903, "scored_at": "2026-08-19 10:06:05.284834+00:00"}
+{"gps_id": 266, "subject_id": 3, "token": 2708, "token_probability": 0.0179377477616072, "anomaly_score": 5.80085743090774, "scored_at": "2026-08-19 10:06:03.158210+00:00"}
+{"gps_id": 265, "subject_id": 3, "token": 2708, "token_probability": 0.0268397685140371, "anomaly_score": 5.21948396104925, "scored_at": "2026-08-19 10:06:01.054964+00:00"}
+{"gps_id": 264, "subject_id": 3, "token": 2708, "token_probability": 0.000343626161338761, "anomaly_score": 11.5068725019877, "scored_at": "2026-08-19 10:05:58.935623+00:00"}
+{"gps_id": 263, "subject_id": 3, "token": 2708, "token_probability": 0.000165460791322403, "anomaly_score": 12.5612229925251, "scored_at": "2026-08-19 10:05:56.822268+00:00"}
+{"gps_id": 262, "subject_id": 3, "token": 2708, "token_probability": 0.0021662435028702, "anomaly_score": 8.85058886228922, "scored_at": "2026-08-19 10:05:54.762115+00:00"}
+{"gps_id": 261, "subject_id": 3, "token": 2708, "token_probability": 0.000168515893165022, "anomaly_score": 12.5348277174653, "scored_at": "2026-08-19 10:05:52.606294+00:00"}
+{"gps_id": 260, "subject_id": 3, "token": 2708, "token_probability": 1.19783326226752e-05, "anomaly_score": 16.3492133746919, "scored_at": "2026-08-19 10:05:50.427758+00:00"}
+{"gps_id": 259, "subject_id": 3, "token": 2708, "token_probability": 0.00103732733987272, "anomaly_score": 9.91291306062555, "scored_at": "2026-08-19 10:05:48.300278+00:00"}
+{"gps_id": 258, "subject_id": 3, "token": 2708, "token_probability": 1.5895944670774e-05, "anomaly_score": 15.9409817183357, "scored_at": "2026-08-19 10:05:46.208674+00:00"}
+{"gps_id": 257, "subject_id": 3, "token": 2708, "token_probability": 0.00142127880826592, "anomaly_score": 9.45859469289115, "scored_at": "2026-08-19 10:05:44.041883+00:00"}
+{"gps_id": 256, "subject_id": 3, "token": 2708, "token_probability": 1.11631243271404e-05, "anomaly_score": 16.4508996103126, "scored_at": "2026-08-19 10:05:41.877798+00:00"}
+{"gps_id": 255, "subject_id": 3, "token": 2708, "token_probability": 0.000751337152905762, "anomaly_score": 10.3782519356262, "scored_at": "2026-08-19 10:05:39.740729+00:00"}
+{"gps_id": 254, "subject_id": 3, "token": 2708, "token_probability": 4.77851983760047e-07, "anomaly_score": 20.9969328563918, "scored_at": "2026-08-19 10:05:37.635240+00:00"}
+{"gps_id": 253, "subject_id": 3, "token": 1777, "token_probability": 5.50257839293522e-10, "anomaly_score": 30.7591731551369, "scored_at": "2026-08-19 10:05:35.585591+00:00"}
+{"gps_id": 252, "subject_id": 3, "token": 1774, "token_probability": 1.08470080140144e-10, "anomaly_score": 33.1019837973203, "scored_at": "2026-08-19 10:05:33.523987+00:00"}
+{"gps_id": 251, "subject_id": 3, "token": 1777, "token_probability": 6.01693084245625e-10, "anomaly_score": 30.6302531740934, "scored_at": "2026-08-19 10:05:31.450190+00:00"}
+{"gps_id": 250, "subject_id": 3, "token": 1734, "token_probability": 6.13795148041163e-09, "anomaly_score": 27.2795956124253, "scored_at": "2026-08-19 10:05:29.311488+00:00"}
+{"gps_id": 249, "subject_id": 3, "token": 1938, "token_probability": 3.36299381160643e-05, "anomaly_score": 14.8598943503368, "scored_at": "2026-08-19 10:05:27.124475+00:00"}
+{"gps_id": 248, "subject_id": 3, "token": 1591, "token_probability": 1.37451735326977e-07, "anomaly_score": 22.7945715432332, "scored_at": "2026-08-19 10:05:24.935687+00:00"}
+{"gps_id": 247, "subject_id": 3, "token": 1302, "token_probability": 2.81102741084283e-09, "anomaly_score": 28.406255332216, "scored_at": "2026-08-19 10:05:22.754603+00:00"}
+{"gps_id": 246, "subject_id": 3, "token": 1301, "token_probability": 4.11772349551143e-09, "anomaly_score": 27.8555058975099, "scored_at": "2026-08-19 10:05:20.556701+00:00"}
+{"gps_id": 245, "subject_id": 3, "token": 1134, "token_probability": 7.44402495911345e-05, "anomaly_score": 13.7135575818113, "scored_at": "2026-08-19 10:05:18.405395+00:00"}
+{"gps_id": 244, "subject_id": 3, "token": 1134, "token_probability": 1.58988598286669e-06, "anomaly_score": 19.2626452615824, "scored_at": "2026-08-19 10:05:16.288129+00:00"}
+{"gps_id": 243, "subject_id": 3, "token": 1129, "token_probability": 2.46840716755514e-08, "anomaly_score": 25.2718443702185, "scored_at": "2026-08-19 10:05:14.176192+00:00"}
+{"gps_id": 242, "subject_id": 3, "token": 1129, "token_probability": 6.91885082559907e-09, "anomaly_score": 27.1068204181308, "scored_at": "2026-08-19 10:05:12.081264+00:00"}
+{"gps_id": 241, "subject_id": 3, "token": 1129, "token_probability": 1.07842410557168e-08, "anomaly_score": 26.4665001091356, "scored_at": "2026-08-19 10:05:09.605073+00:00"}
+{"gps_id": 240, "subject_id": 3, "token": 1129, "token_probability": 2.78581602231043e-08, "anomaly_score": 25.0973247748369, "scored_at": "2026-08-19 10:05:07.050654+00:00"}
+{"gps_id": 239, "subject_id": 3, "token": 1129, "token_probability": 6.61514576449918e-08, "anomaly_score": 23.8496518125113, "scored_at": "2026-08-19 10:05:04.777995+00:00"}
+{"gps_id": 238, "subject_id": 3, "token": 1129, "token_probability": 7.52402196102508e-10, "anomaly_score": 30.3077768890854, "scored_at": "2026-08-19 10:05:02.576231+00:00"}
+{"gps_id": 237, "subject_id": 3, "token": 1129, "token_probability": 4.35450857594333e-08, "anomaly_score": 24.4529148451091, "scored_at": "2026-08-19 10:05:00.493095+00:00"}
+{"gps_id": 236, "subject_id": 3, "token": 1129, "token_probability": 1.363169355173e-09, "anomaly_score": 29.4503880455552, "scored_at": "2026-08-19 10:04:58.405037+00:00"}
+{"gps_id": 235, "subject_id": 3, "token": 1129, "token_probability": 6.58467769198978e-08, "anomaly_score": 23.8563119341901, "scored_at": "2026-08-19 10:04:56.333884+00:00"}
+{"gps_id": 234, "subject_id": 3, "token": 1129, "token_probability": 4.72370857707016e-11, "anomaly_score": 34.3012890814358, "scored_at": "2026-08-19 10:04:54.276147+00:00"}
+{"gps_id": 233, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 232, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 231, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 230, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 229, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 228, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 227, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 226, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 225, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 224, "subject_id": 3, "token": 2708, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 223, "subject_id": 3, "token": 2708, "token_probability": 0.00042305639362894, "anomaly_score": 11.2068623914147, "scored_at": "2026-08-19 10:04:37.658424+00:00"}
+{"gps_id": 222, "subject_id": 3, "token": 2708, "token_probability": 0.000397454045014456, "anomaly_score": 11.2969243188064, "scored_at": "2026-08-19 10:04:35.202745+00:00"}
+{"gps_id": 221, "subject_id": 3, "token": 2708, "token_probability": 0.000415495218476281, "anomaly_score": 11.2328805050093, "scored_at": "2026-08-19 10:04:32.107104+00:00"}
+{"gps_id": 220, "subject_id": 3, "token": 2708, "token_probability": 0.000504249182995409, "anomaly_score": 10.9535755382212, "scored_at": "2026-08-19 10:04:28.969949+00:00"}
+{"gps_id": 219, "subject_id": 3, "token": 2708, "token_probability": 0.00036923264269717, "anomaly_score": 11.4031822767944, "scored_at": "2026-08-19 10:04:25.704560+00:00"}
+{"gps_id": 218, "subject_id": 3, "token": 2708, "token_probability": 0.000331852701492608, "anomaly_score": 11.5571693608133, "scored_at": "2026-08-19 10:04:23.370125+00:00"}
+{"gps_id": 217, "subject_id": 3, "token": 2708, "token_probability": 0.000470569997560233, "anomaly_score": 11.0533030389084, "scored_at": "2026-08-19 10:04:20.871790+00:00"}
+{"gps_id": 216, "subject_id": 3, "token": 2708, "token_probability": 0.00029055550112389, "anomaly_score": 11.7488986099017, "scored_at": "2026-08-19 10:04:18.543131+00:00"}
+{"gps_id": 215, "subject_id": 3, "token": 2708, "token_probability": 0.000320480845402926, "anomaly_score": 11.6074742475666, "scored_at": "2026-08-19 10:04:16.143552+00:00"}
+{"gps_id": 214, "subject_id": 3, "token": 2708, "token_probability": 0.000311645067995414, "anomaly_score": 11.6478084982939, "scored_at": "2026-08-19 10:04:13.705745+00:00"}
+{"gps_id": 213, "subject_id": 3, "token": 2708, "token_probability": 0.000246341136517003, "anomaly_score": 11.987054815888, "scored_at": "2026-08-19 10:04:11.125076+00:00"}
+{"gps_id": 212, "subject_id": 3, "token": 2708, "token_probability": 0.000339216814609244, "anomaly_score": 11.5255046950489, "scored_at": "2026-08-19 10:04:09.026514+00:00"}
+{"gps_id": 211, "subject_id": 3, "token": 2708, "token_probability": 0.000294728204607964, "anomaly_score": 11.7283272508792, "scored_at": "2026-08-19 10:04:06.998512+00:00"}
+{"gps_id": 210, "subject_id": 3, "token": 2708, "token_probability": 0.000264194764895365, "anomaly_score": 11.8861105001499, "scored_at": "2026-08-19 10:04:04.960739+00:00"}
+{"gps_id": 209, "subject_id": 3, "token": 2708, "token_probability": 0.00018768070731312, "anomaly_score": 12.3794320239689, "scored_at": "2026-08-19 10:04:02.946017+00:00"}
+{"gps_id": 208, "subject_id": 3, "token": 2708, "token_probability": 0.000244676746660843, "anomaly_score": 11.9968353809975, "scored_at": "2026-08-19 10:04:00.898195+00:00"}
+{"gps_id": 207, "subject_id": 3, "token": 2708, "token_probability": 0.000315523473545909, "anomaly_score": 11.6299650402417, "scored_at": "2026-08-19 10:03:58.874449+00:00"}
+{"gps_id": 206, "subject_id": 3, "token": 2708, "token_probability": 0.000223690338316374, "anomaly_score": 12.1262094350169, "scored_at": "2026-08-19 10:03:56.857136+00:00"}
+{"gps_id": 205, "subject_id": 3, "token": 2708, "token_probability": 0.000282391323707998, "anomaly_score": 11.7900166161377, "scored_at": "2026-08-19 10:03:54.856980+00:00"}
+{"gps_id": 204, "subject_id": 3, "token": 2708, "token_probability": 0.000220481553697027, "anomaly_score": 12.1470544199255, "scored_at": "2026-08-19 10:03:52.755957+00:00"}
+{"gps_id": 203, "subject_id": 3, "token": 2708, "token_probability": 0.000190477905562147, "anomaly_score": 12.3580887171828, "scored_at": "2026-08-19 10:03:50.654787+00:00"}
+{"gps_id": 202, "subject_id": 3, "token": 2708, "token_probability": 0.000266017334070057, "anomaly_score": 11.8761921226872, "scored_at": "2026-08-19 10:03:48.561537+00:00"}
+{"gps_id": 201, "subject_id": 3, "token": 2708, "token_probability": 0.000168754588230513, "anomaly_score": 12.532785651742, "scored_at": "2026-08-19 10:03:46.506344+00:00"}
+{"gps_id": 200, "subject_id": 3, "token": 2708, "token_probability": 0.000144686680869199, "anomaly_score": 12.7547802588434, "scored_at": "2026-08-19 10:03:44.464725+00:00"}
+{"gps_id": 199, "subject_id": 3, "token": 2708, "token_probability": 0.000154367124196142, "anomaly_score": 12.6613468472118, "scored_at": "2026-08-19 10:03:42.445282+00:00"}
+{"gps_id": 198, "subject_id": 3, "token": 2708, "token_probability": 0.000112850168079603, "anomaly_score": 13.1133038122609, "scored_at": "2026-08-19 10:03:40.327854+00:00"}
+{"gps_id": 197, "subject_id": 3, "token": 2708, "token_probability": 0.000158631490194239, "anomaly_score": 12.6220331883468, "scored_at": "2026-08-19 10:03:38.219778+00:00"}
+{"gps_id": 196, "subject_id": 3, "token": 2708, "token_probability": 8.29879791126586e-05, "anomaly_score": 13.5567380985861, "scored_at": "2026-08-19 10:03:35.484230+00:00"}
+{"gps_id": 195, "subject_id": 3, "token": 2708, "token_probability": 0.000108397522126324, "anomaly_score": 13.1713806012426, "scored_at": "2026-08-19 10:03:33.374859+00:00"}
+{"gps_id": 194, "subject_id": 3, "token": 2708, "token_probability": 7.20525422366336e-05, "anomaly_score": 13.7605911403938, "scored_at": "2026-08-19 10:03:31.295927+00:00"}
+{"gps_id": 193, "subject_id": 3, "token": 2708, "token_probability": 0.000136061222292483, "anomaly_score": 12.8434564249611, "scored_at": "2026-08-19 10:03:29.178352+00:00"}
+{"gps_id": 192, "subject_id": 3, "token": 2708, "token_probability": 9.46007639868185e-05, "anomaly_score": 13.3677886397565, "scored_at": "2026-08-19 10:03:27.073385+00:00"}
+{"gps_id": 191, "subject_id": 3, "token": 2708, "token_probability": 6.69928340357728e-05, "anomaly_score": 13.8656336901195, "scored_at": "2026-08-19 10:03:24.956649+00:00"}
+{"gps_id": 190, "subject_id": 3, "token": 2708, "token_probability": 9.61912446655333e-05, "anomaly_score": 13.343734888679, "scored_at": "2026-08-19 10:03:22.909386+00:00"}
+{"gps_id": 189, "subject_id": 3, "token": 2708, "token_probability": 8.46772963996045e-05, "anomaly_score": 13.5276652671266, "scored_at": "2026-08-19 10:03:20.837009+00:00"}
+{"gps_id": 188, "subject_id": 3, "token": 2708, "token_probability": 7.26626167306677e-05, "anomaly_score": 13.7484271533245, "scored_at": "2026-08-19 10:03:18.751558+00:00"}
+{"gps_id": 187, "subject_id": 3, "token": 2708, "token_probability": 4.68407670268789e-05, "anomaly_score": 14.3818757739859, "scored_at": "2026-08-19 10:03:16.606803+00:00"}
+{"gps_id": 186, "subject_id": 3, "token": 2708, "token_probability": 0.000120889788377099, "anomaly_score": 13.0140199950114, "scored_at": "2026-08-19 10:03:14.455440+00:00"}
+{"gps_id": 185, "subject_id": 3, "token": 2708, "token_probability": 4.88643599965144e-05, "anomaly_score": 14.3208578784387, "scored_at": "2026-08-19 10:03:12.346376+00:00"}
+{"gps_id": 184, "subject_id": 3, "token": 2708, "token_probability": 8.46426246425835e-06, "anomaly_score": 16.8501842053395, "scored_at": "2026-08-19 10:03:10.177642+00:00"}
+{"gps_id": 183, "subject_id": 3, "token": 2708, "token_probability": 0.000263924535829574, "anomaly_score": 11.8875869020409, "scored_at": "2026-08-19 10:03:08.100914+00:00"}
+{"gps_id": 182, "subject_id": 3, "token": 2708, "token_probability": 2.37241729337256e-05, "anomaly_score": 15.363282681193, "scored_at": "2026-08-19 10:03:05.911015+00:00"}
+{"gps_id": 181, "subject_id": 3, "token": 2708, "token_probability": 5.97491780354176e-05, "anomaly_score": 14.0307216082452, "scored_at": "2026-08-19 10:03:03.743182+00:00"}
+{"gps_id": 180, "subject_id": 3, "token": 2708, "token_probability": 1.81844789040042e-05, "anomaly_score": 15.7469328900445, "scored_at": "2026-08-19 10:03:01.610107+00:00"}
+{"gps_id": 179, "subject_id": 3, "token": 2708, "token_probability": 4.09937274525873e-05, "anomaly_score": 14.5742372980072, "scored_at": "2026-08-19 10:02:59.483525+00:00"}
+{"gps_id": 178, "subject_id": 3, "token": 2708, "token_probability": 3.39206453645602e-05, "anomaly_score": 14.8474768559687, "scored_at": "2026-08-19 10:02:57.044873+00:00"}
+{"gps_id": 177, "subject_id": 3, "token": 2708, "token_probability": 4.4961430830881e-05, "anomaly_score": 14.4409525265165, "scored_at": "2026-08-19 10:02:54.704214+00:00"}
+{"gps_id": 176, "subject_id": 8, "token": 2708, "token_probability": 1.06722109194379e-06, "anomaly_score": 19.8377094848123, "scored_at": "2026-08-19 10:02:52.424639+00:00"}
+{"gps_id": 175, "subject_id": 8, "token": 2708, "token_probability": 1.13659844203085e-07, "anomaly_score": 23.0687740212531, "scored_at": "2026-08-19 10:02:50.221592+00:00"}
+{"gps_id": 174, "subject_id": 8, "token": 2708, "token_probability": 0.000335600576363504, "anomaly_score": 11.5409671860719, "scored_at": "2026-08-19 10:02:48.156894+00:00"}
+{"gps_id": 173, "subject_id": 8, "token": 2708, "token_probability": 2.06612526199024e-07, "anomaly_score": 22.2065689417733, "scored_at": "2026-08-19 10:02:46.165579+00:00"}
+{"gps_id": 172, "subject_id": 8, "token": 2708, "token_probability": 8.6882570582425e-11, "anomaly_score": 33.4221422551715, "scored_at": "2026-08-19 08:14:25.023515+00:00"}
+{"gps_id": 171, "subject_id": 3, "token": 2708, "token_probability": 4.6904337068554e-05, "anomaly_score": 14.3799191449157, "scored_at": "2026-08-19 08:14:21.003658+00:00"}
+{"gps_id": 170, "subject_id": 8, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 169, "subject_id": 8, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 168, "subject_id": 8, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 167, "subject_id": 8, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 166, "subject_id": 3, "token": 2708, "token_probability": 8.51364529808052e-05, "anomaly_score": 13.5198634897154, "scored_at": "2026-08-19 08:14:18.193504+00:00"}
+{"gps_id": 165, "subject_id": 3, "token": 2708, "token_probability": 0.000189167665666901, "anomaly_score": 12.3680468689303, "scored_at": "2026-08-19 08:14:16.081678+00:00"}
+{"gps_id": 164, "subject_id": 3, "token": 2708, "token_probability": 7.086119876476e-05, "anomaly_score": 13.7846446025828, "scored_at": "2026-08-19 08:14:13.943158+00:00"}
+{"gps_id": 163, "subject_id": 3, "token": 2708, "token_probability": 2.17121360037709e-05, "anomaly_score": 15.4911388115671, "scored_at": "2026-08-19 08:14:11.875277+00:00"}
+{"gps_id": 162, "subject_id": 3, "token": 2708, "token_probability": 1.8370268662693e-05, "anomaly_score": 15.7322677486135, "scored_at": "2026-08-19 08:14:09.648994+00:00"}
+{"gps_id": 161, "subject_id": 3, "token": 2708, "token_probability": 2.31986941798823e-05, "anomaly_score": 15.3955968739645, "scored_at": "2026-08-19 08:14:07.517878+00:00"}
+{"gps_id": 160, "subject_id": 3, "token": 2708, "token_probability": 1.15682823889074e-05, "anomaly_score": 16.3994657995296, "scored_at": "2026-08-19 08:14:05.480392+00:00"}
+{"gps_id": 159, "subject_id": 3, "token": 2708, "token_probability": 1.61364496307215e-05, "anomaly_score": 15.9193172851394, "scored_at": "2026-08-19 08:14:03.359182+00:00"}
+{"gps_id": 158, "subject_id": 3, "token": 2708, "token_probability": 4.42321334048756e-06, "anomaly_score": 17.7864737413221, "scored_at": "2026-08-19 08:14:00.965000+00:00"}
+{"gps_id": 157, "subject_id": 3, "token": 2708, "token_probability": 7.73533884057542e-06, "anomaly_score": 16.9801040801177, "scored_at": "2026-08-19 08:13:58.850883+00:00"}
+{"gps_id": 156, "subject_id": 3, "token": 2708, "token_probability": 3.8086714084784e-06, "anomaly_score": 18.002280743961, "scored_at": "2026-08-19 08:13:56.832847+00:00"}
+{"gps_id": 155, "subject_id": 3, "token": 2708, "token_probability": 0.00017133733490482, "anomaly_score": 12.5108728264161, "scored_at": "2026-08-19 08:13:54.829528+00:00"}
+{"gps_id": 154, "subject_id": 3, "token": 2708, "token_probability": 3.66462495549058e-06, "anomaly_score": 18.0579030114945, "scored_at": "2026-08-19 08:13:52.824267+00:00"}
+{"gps_id": 153, "subject_id": 3, "token": 2708, "token_probability": 1.39425765155465e-06, "anomaly_score": 19.4520713809494, "scored_at": "2026-08-19 08:13:50.814273+00:00"}
+{"gps_id": 152, "subject_id": 3, "token": 2708, "token_probability": 1.68570721825745e-07, "anomaly_score": 22.5001426803916, "scored_at": "2026-08-19 08:13:48.789151+00:00"}
+{"gps_id": 151, "subject_id": 3, "token": 2708, "token_probability": 0.000377407326595858, "anomaly_score": 11.3715899493485, "scored_at": "2026-08-19 08:13:46.779324+00:00"}
+{"gps_id": 150, "subject_id": 3, "token": 2708, "token_probability": 4.27778968514758e-06, "anomaly_score": 17.8347030142764, "scored_at": "2026-08-19 08:13:44.670306+00:00"}
+{"gps_id": 149, "subject_id": 3, "token": 2708, "token_probability": 1.425016993295e-08, "anomaly_score": 26.0644456356136, "scored_at": "2026-08-19 08:13:42.448190+00:00"}
+{"gps_id": 148, "subject_id": 3, "token": 2708, "token_probability": 0.00139349559322, "anomaly_score": 9.48707584458112, "scored_at": "2026-08-19 08:13:40.419753+00:00"}
+{"gps_id": 147, "subject_id": 3, "token": 2708, "token_probability": 0.000957437325268984, "anomaly_score": 10.0285343295699, "scored_at": "2026-08-19 08:13:38.342498+00:00"}
+{"gps_id": 146, "subject_id": 3, "token": 2708, "token_probability": 0.000996654969640076, "anomaly_score": 9.97061823274041, "scored_at": "2026-08-19 08:13:36.209714+00:00"}
+{"gps_id": 145, "subject_id": 3, "token": 2708, "token_probability": 0.00103977823164314, "anomaly_score": 9.90950842766665, "scored_at": "2026-08-19 08:13:34.133770+00:00"}
+{"gps_id": 144, "subject_id": 3, "token": 2708, "token_probability": 0.000946290849242359, "anomaly_score": 10.0454287052148, "scored_at": "2026-08-19 08:13:31.923298+00:00"}
+{"gps_id": 143, "subject_id": 3, "token": 2708, "token_probability": 0.00129512255080044, "anomaly_score": 9.59269566546316, "scored_at": "2026-08-19 08:13:29.785790+00:00"}
+{"gps_id": 142, "subject_id": 3, "token": 2708, "token_probability": 0.000869064009748399, "anomaly_score": 10.1682499388209, "scored_at": "2026-08-19 08:13:27.647655+00:00"}
+{"gps_id": 141, "subject_id": 3, "token": 2708, "token_probability": 0.00092181412037462, "anomaly_score": 10.0832365124624, "scored_at": "2026-08-19 08:13:25.502156+00:00"}
+{"gps_id": 140, "subject_id": 3, "token": 2708, "token_probability": 0.000870980729814619, "anomaly_score": 10.1650715795639, "scored_at": "2026-08-19 08:13:23.298901+00:00"}
+{"gps_id": 139, "subject_id": 3, "token": 2708, "token_probability": 0.00158985366579145, "anomaly_score": 9.29689030239302, "scored_at": "2026-08-19 08:13:21.205475+00:00"}
+{"gps_id": 138, "subject_id": 3, "token": 2708, "token_probability": 0.000786954478826374, "anomaly_score": 10.3114321937161, "scored_at": "2026-08-19 08:13:19.162819+00:00"}
+{"gps_id": 137, "subject_id": 3, "token": 2708, "token_probability": 0.000783807539846748, "anomaly_score": 10.317212928519, "scored_at": "2026-08-19 08:13:17.043457+00:00"}
+{"gps_id": 136, "subject_id": 3, "token": 2708, "token_probability": 0.000849371193908155, "anomaly_score": 10.2013171984725, "scored_at": "2026-08-19 08:13:14.998702+00:00"}
+{"gps_id": 135, "subject_id": 3, "token": 2708, "token_probability": 0.00091316580073908, "anomaly_score": 10.0968355498029, "scored_at": "2026-08-19 08:13:12.892281+00:00"}
+{"gps_id": 134, "subject_id": 3, "token": 2708, "token_probability": 0.000714895315468311, "anomaly_score": 10.4499803808919, "scored_at": "2026-08-19 08:13:10.762593+00:00"}
+{"gps_id": 133, "subject_id": 3, "token": 2708, "token_probability": 0.00085662625497207, "anomaly_score": 10.1890464840885, "scored_at": "2026-08-19 08:13:08.643970+00:00"}
+{"gps_id": 132, "subject_id": 3, "token": 2708, "token_probability": 0.000861222622916102, "anomaly_score": 10.1813261622967, "scored_at": "2026-08-19 08:13:06.504088+00:00"}
+{"gps_id": 131, "subject_id": 3, "token": 2708, "token_probability": 0.00110773625783622, "anomaly_score": 9.818169855265, "scored_at": "2026-08-19 08:13:04.343755+00:00"}
+{"gps_id": 130, "subject_id": 3, "token": 2708, "token_probability": 0.000730317493434995, "anomaly_score": 10.4191885914119, "scored_at": "2026-08-19 08:13:02.290843+00:00"}
+{"gps_id": 129, "subject_id": 3, "token": 2708, "token_probability": 0.000862428918480873, "anomaly_score": 10.1793068250102, "scored_at": "2026-08-19 08:13:00.221964+00:00"}
+{"gps_id": 128, "subject_id": 3, "token": 2708, "token_probability": 0.000816023093648255, "anomaly_score": 10.2591023981611, "scored_at": "2026-08-19 08:12:58.187480+00:00"}
+{"gps_id": 127, "subject_id": 3, "token": 2708, "token_probability": 0.000717518734745681, "anomaly_score": 10.4446958778352, "scored_at": "2026-08-19 08:12:56.143668+00:00"}
+{"gps_id": 126, "subject_id": 3, "token": 2708, "token_probability": 0.000779917871113867, "anomaly_score": 10.3243901699016, "scored_at": "2026-08-19 08:12:54.032307+00:00"}
+{"gps_id": 125, "subject_id": 3, "token": 2708, "token_probability": 0.00058431044453755, "anomaly_score": 10.7409773018909, "scored_at": "2026-08-19 08:12:51.981485+00:00"}
+{"gps_id": 124, "subject_id": 3, "token": 2708, "token_probability": 0.000576085469219834, "anomaly_score": 10.7614295108121, "scored_at": "2026-08-19 08:12:49.854400+00:00"}
+{"gps_id": 123, "subject_id": 3, "token": 2708, "token_probability": 0.000697286450304091, "anomaly_score": 10.4859609321554, "scored_at": "2026-08-19 08:12:47.758359+00:00"}
+{"gps_id": 122, "subject_id": 3, "token": 2708, "token_probability": 0.000468362530227751, "anomaly_score": 11.0600867170683, "scored_at": "2026-08-19 08:12:45.534089+00:00"}
+{"gps_id": 121, "subject_id": 3, "token": 2708, "token_probability": 0.00053339044097811, "anomaly_score": 10.8725204093232, "scored_at": "2026-08-19 08:12:43.424086+00:00"}
+{"gps_id": 120, "subject_id": 3, "token": 2708, "token_probability": 0.000639374833554029, "anomaly_score": 10.6110504202626, "scored_at": "2026-08-19 08:12:41.331821+00:00"}
+{"gps_id": 119, "subject_id": 3, "token": 2708, "token_probability": 0.00061489298241213, "anomaly_score": 10.6673770376798, "scored_at": "2026-08-19 08:12:39.260485+00:00"}
+{"gps_id": 118, "subject_id": 3, "token": 2708, "token_probability": 0.000429177191108465, "anomaly_score": 11.1861389743523, "scored_at": "2026-08-19 08:12:37.206197+00:00"}
+{"gps_id": 117, "subject_id": 3, "token": 2708, "token_probability": 0.000408398394938558, "anomaly_score": 11.257735183311, "scored_at": "2026-08-19 08:12:35.159875+00:00"}
+{"gps_id": 116, "subject_id": 3, "token": 2708, "token_probability": 0.000583871849812567, "anomaly_score": 10.742060623334, "scored_at": "2026-08-19 08:12:33.087822+00:00"}
+{"gps_id": 115, "subject_id": 3, "token": 2708, "token_probability": 0.000589315313845873, "anomaly_score": 10.7286726232489, "scored_at": "2026-08-19 08:12:31.040615+00:00"}
+{"gps_id": 114, "subject_id": 3, "token": 2708, "token_probability": 0.00045486944145523, "anomaly_score": 11.1022598632357, "scored_at": "2026-08-19 08:12:29.006208+00:00"}
+{"gps_id": 113, "subject_id": 3, "token": 2708, "token_probability": 0.000464446871774271, "anomaly_score": 11.072198803849, "scored_at": "2026-08-19 08:12:26.958605+00:00"}
+{"gps_id": 112, "subject_id": 3, "token": 2708, "token_probability": 0.000490681908559054, "anomaly_score": 10.9929242993259, "scored_at": "2026-08-19 08:12:24.959400+00:00"}
+{"gps_id": 111, "subject_id": 3, "token": 2708, "token_probability": 0.000441686832346022, "anomaly_score": 11.1446885564362, "scored_at": "2026-08-19 08:12:22.926935+00:00"}
+{"gps_id": 110, "subject_id": 3, "token": 2708, "token_probability": 0.000442489923443645, "anomaly_score": 11.1420677776045, "scored_at": "2026-08-19 08:12:20.868585+00:00"}
+{"gps_id": 109, "subject_id": 3, "token": 2708, "token_probability": 0.000479375681607053, "anomaly_score": 11.0265556556162, "scored_at": "2026-08-19 08:12:18.679976+00:00"}
+{"gps_id": 108, "subject_id": 3, "token": 2708, "token_probability": 0.000580980035010725, "anomaly_score": 10.7492237923154, "scored_at": "2026-08-19 08:12:16.622146+00:00"}
+{"gps_id": 107, "subject_id": 3, "token": 2708, "token_probability": 0.000418246170738712, "anomaly_score": 11.223360047849, "scored_at": "2026-08-19 08:12:14.607026+00:00"}
+{"gps_id": 106, "subject_id": 3, "token": 2708, "token_probability": 0.000373069342458621, "anomaly_score": 11.3882685701859, "scored_at": "2026-08-19 08:12:12.572435+00:00"}
+{"gps_id": 105, "subject_id": 3, "token": 2708, "token_probability": 0.000540405744686723, "anomaly_score": 10.8536693684924, "scored_at": "2026-08-19 08:12:10.518364+00:00"}
+{"gps_id": 104, "subject_id": 3, "token": 2708, "token_probability": 0.000310620962409303, "anomaly_score": 11.6525571855504, "scored_at": "2026-08-19 08:12:08.474325+00:00"}
+{"gps_id": 103, "subject_id": 3, "token": 2708, "token_probability": 0.000344670668710023, "anomaly_score": 11.5024938481987, "scored_at": "2026-08-19 08:12:06.437132+00:00"}
+{"gps_id": 102, "subject_id": 3, "token": 2708, "token_probability": 0.000341383827617392, "anomaly_score": 11.5163176643848, "scored_at": "2026-08-19 08:12:04.384491+00:00"}
+{"gps_id": 101, "subject_id": 3, "token": 2708, "token_probability": 0.000284789246506989, "anomaly_score": 11.7778177076269, "scored_at": "2026-08-19 08:12:02.313334+00:00"}
+{"gps_id": 100, "subject_id": 3, "token": 2708, "token_probability": 0.000433483131928369, "anomaly_score": 11.1717365244109, "scored_at": "2026-08-19 08:12:00.267905+00:00"}
+{"gps_id": 99, "subject_id": 3, "token": 2708, "token_probability": 0.000349373614881188, "anomaly_score": 11.4829417212587, "scored_at": "2026-08-19 08:11:58.253069+00:00"}
+{"gps_id": 98, "subject_id": 3, "token": 2708, "token_probability": 0.000287849426968023, "anomaly_score": 11.7623980393159, "scored_at": "2026-08-19 08:11:56.024292+00:00"}
+{"gps_id": 97, "subject_id": 3, "token": 2708, "token_probability": 0.000217213819269091, "anomaly_score": 12.1685964883926, "scored_at": "2026-08-19 08:11:53.480233+00:00"}
+{"gps_id": 96, "subject_id": 3, "token": 2708, "token_probability": 0.000282521883491427, "anomaly_score": 11.7893497598736, "scored_at": "2026-08-19 08:11:51.103676+00:00"}
+{"gps_id": 95, "subject_id": 3, "token": 2708, "token_probability": 0.000383665872504935, "anomaly_score": 11.3478619381886, "scored_at": "2026-08-19 08:11:48.579805+00:00"}
+{"gps_id": 94, "subject_id": 3, "token": 2708, "token_probability": 0.000270181917585433, "anomaly_score": 11.8537812566356, "scored_at": "2026-08-19 08:11:46.346480+00:00"}
+{"gps_id": 93, "subject_id": 3, "token": 2708, "token_probability": 0.000333006784785539, "anomaly_score": 11.5521608080285, "scored_at": "2026-08-19 08:11:43.856802+00:00"}
+{"gps_id": 92, "subject_id": 3, "token": 2708, "token_probability": 0.000254059821600094, "anomaly_score": 11.9425441417478, "scored_at": "2026-08-19 08:11:41.801456+00:00"}
+{"gps_id": 91, "subject_id": 3, "token": 2708, "token_probability": 0.000224967545364052, "anomaly_score": 12.1179954915273, "scored_at": "2026-08-19 08:11:39.625584+00:00"}
+{"gps_id": 90, "subject_id": 3, "token": 2708, "token_probability": 0.000316192250465974, "anomaly_score": 11.626910370333, "scored_at": "2026-08-19 08:11:37.472310+00:00"}
+{"gps_id": 89, "subject_id": 3, "token": 2708, "token_probability": 0.00020351997227408, "anomaly_score": 12.2625420003557, "scored_at": "2026-08-19 08:11:35.399125+00:00"}
+{"gps_id": 88, "subject_id": 3, "token": 2708, "token_probability": 0.000170984683791175, "anomaly_score": 12.513845280217, "scored_at": "2026-08-19 08:11:33.297534+00:00"}
+{"gps_id": 87, "subject_id": 3, "token": 2708, "token_probability": 0.000191516970517114, "anomaly_score": 12.3502401430331, "scored_at": "2026-08-19 08:11:31.180274+00:00"}
+{"gps_id": 86, "subject_id": 3, "token": 2708, "token_probability": 0.000129877851577476, "anomaly_score": 12.9105569544891, "scored_at": "2026-08-19 08:11:28.977217+00:00"}
+{"gps_id": 85, "subject_id": 3, "token": 2708, "token_probability": 0.000194976935745217, "anomaly_score": 12.3244089050822, "scored_at": "2026-08-19 08:11:26.827208+00:00"}
+{"gps_id": 84, "subject_id": 3, "token": 2708, "token_probability": 9.91835477179848e-05, "anomaly_score": 13.2995396440884, "scored_at": "2026-08-19 08:11:24.774337+00:00"}
+{"gps_id": 83, "subject_id": 3, "token": 2708, "token_probability": 0.000135591457365081, "anomaly_score": 12.8484460919695, "scored_at": "2026-08-19 08:11:22.712115+00:00"}
+{"gps_id": 82, "subject_id": 3, "token": 2708, "token_probability": 8.15310486359522e-05, "anomaly_score": 13.5822909036469, "scored_at": "2026-08-19 08:11:20.595467+00:00"}
+{"gps_id": 81, "subject_id": 3, "token": 2708, "token_probability": 0.00014923742855899, "anomaly_score": 12.710102972478, "scored_at": "2026-08-19 08:11:18.457936+00:00"}
+{"gps_id": 80, "subject_id": 3, "token": 2708, "token_probability": 0.000111698085675016, "anomaly_score": 13.1281079189818, "scored_at": "2026-08-19 08:11:16.307676+00:00"}
+{"gps_id": 79, "subject_id": 3, "token": 2708, "token_probability": 7.37108421162702e-05, "anomaly_score": 13.7277636337197, "scored_at": "2026-08-19 08:11:14.081677+00:00"}
+{"gps_id": 78, "subject_id": 3, "token": 2708, "token_probability": 0.00011535804515006, "anomaly_score": 13.0815937574674, "scored_at": "2026-08-19 08:11:12.072564+00:00"}
+{"gps_id": 77, "subject_id": 3, "token": 2708, "token_probability": 0.000101769132015761, "anomaly_score": 13.2624123411305, "scored_at": "2026-08-19 08:11:10.000297+00:00"}
+{"gps_id": 76, "subject_id": 3, "token": 2708, "token_probability": 9.35371135710739e-05, "anomaly_score": 13.3841015646125, "scored_at": "2026-08-19 08:11:07.864768+00:00"}
+{"gps_id": 75, "subject_id": 3, "token": 2708, "token_probability": 4.99214984301943e-05, "anomaly_score": 14.2899792360426, "scored_at": "2026-08-19 08:11:05.264947+00:00"}
+{"gps_id": 74, "subject_id": 3, "token": 2708, "token_probability": 0.000193890809896402, "anomaly_score": 12.3324679558422, "scored_at": "2026-08-19 08:11:03.006099+00:00"}
+{"gps_id": 73, "subject_id": 3, "token": 2708, "token_probability": 6.28576526651159e-05, "anomaly_score": 13.957552076809, "scored_at": "2026-08-19 08:11:00.266694+00:00"}
+{"gps_id": 72, "subject_id": 3, "token": 2708, "token_probability": 9.1957590484526e-06, "anomaly_score": 16.730599904938, "scored_at": "2026-08-19 08:10:57.052119+00:00"}
+{"gps_id": 71, "subject_id": 3, "token": 2708, "token_probability": 0.000417757226387039, "anomaly_score": 11.2250475952305, "scored_at": "2026-08-19 08:10:54.540790+00:00"}
+{"gps_id": 70, "subject_id": 3, "token": 2708, "token_probability": 2.90103416773491e-05, "anomaly_score": 15.0730731870597, "scored_at": "2026-08-19 08:10:52.469981+00:00"}
+{"gps_id": 69, "subject_id": 3, "token": 2708, "token_probability": 8.92048847163096e-05, "anomaly_score": 13.4525177624633, "scored_at": "2026-08-19 08:10:50.456986+00:00"}
+{"gps_id": 68, "subject_id": 3, "token": 2708, "token_probability": 2.3029895601212e-05, "anomaly_score": 15.4061326032954, "scored_at": "2026-08-19 08:10:48.418461+00:00"}
+{"gps_id": 67, "subject_id": 3, "token": 2708, "token_probability": 5.75302474317141e-05, "anomaly_score": 14.0853197993174, "scored_at": "2026-08-19 08:10:46.402368+00:00"}
+{"gps_id": 66, "subject_id": 3, "token": 2708, "token_probability": 4.23177261836827e-05, "anomaly_score": 14.5283783638009, "scored_at": "2026-08-19 08:10:44.411712+00:00"}
+{"gps_id": 65, "subject_id": 3, "token": 2708, "token_probability": 5.33879392605741e-05, "anomaly_score": 14.1931266114417, "scored_at": "2026-08-19 08:10:42.120720+00:00"}
+{"gps_id": 64, "subject_id": 3, "token": 2708, "token_probability": 6.99475131114013e-05, "anomaly_score": 13.803367709193, "scored_at": "2026-08-19 08:10:39.005591+00:00"}
+{"gps_id": 63, "subject_id": 3, "token": 2708, "token_probability": 0.000107268249848858, "anomaly_score": 13.1864892611803, "scored_at": "2026-08-19 08:10:36.995643+00:00"}
+{"gps_id": 62, "subject_id": 3, "token": 2708, "token_probability": 0.00022615393390879, "anomaly_score": 12.1104072879297, "scored_at": "2026-08-19 08:10:34.925654+00:00"}
+{"gps_id": 61, "subject_id": 3, "token": 2708, "token_probability": 7.64618453104049e-05, "anomaly_score": 13.674900456215, "scored_at": "2026-08-19 08:10:32.922004+00:00"}
+{"gps_id": 60, "subject_id": 3, "token": 2708, "token_probability": 2.45656683546258e-05, "anomaly_score": 15.3129969836163, "scored_at": "2026-08-19 08:10:30.925339+00:00"}
+{"gps_id": 59, "subject_id": 3, "token": 2708, "token_probability": 1.77906695171259e-05, "anomaly_score": 15.7785196697979, "scored_at": "2026-08-19 08:10:28.832333+00:00"}
+{"gps_id": 58, "subject_id": 3, "token": 2708, "token_probability": 2.31797112064669e-05, "anomaly_score": 15.3967778823631, "scored_at": "2026-08-19 08:10:26.808846+00:00"}
+{"gps_id": 57, "subject_id": 3, "token": 2708, "token_probability": 9.94923357211519e-06, "anomaly_score": 16.616983175758, "scored_at": "2026-08-19 08:10:24.480870+00:00"}
+{"gps_id": 56, "subject_id": 3, "token": 2708, "token_probability": 1.3184173440095e-05, "anomaly_score": 16.210833347774, "scored_at": "2026-08-19 08:10:22.425955+00:00"}
+{"gps_id": 55, "subject_id": 3, "token": 2708, "token_probability": 4.08600908485823e-06, "anomaly_score": 17.9008761575523, "scored_at": "2026-08-19 08:10:20.339539+00:00"}
+{"gps_id": 54, "subject_id": 3, "token": 2708, "token_probability": 9.18027762963902e-06, "anomaly_score": 16.7330307850917, "scored_at": "2026-08-19 08:10:17.847218+00:00"}
+{"gps_id": 53, "subject_id": 3, "token": 2708, "token_probability": 3.70659199688816e-06, "anomaly_score": 18.0414752500833, "scored_at": "2026-08-19 08:10:15.341155+00:00"}
+{"gps_id": 52, "subject_id": 3, "token": 2708, "token_probability": 6.14380260230973e-05, "anomaly_score": 13.9905086107937, "scored_at": "2026-08-19 08:10:13.341323+00:00"}
+{"gps_id": 51, "subject_id": 3, "token": 2708, "token_probability": 9.94949186861049e-06, "anomaly_score": 16.616945721794, "scored_at": "2026-08-19 08:10:11.326312+00:00"}
+{"gps_id": 50, "subject_id": 3, "token": 2708, "token_probability": 2.42429950958467e-06, "anomaly_score": 18.6540006220399, "scored_at": "2026-08-19 08:10:09.328054+00:00"}
+{"gps_id": 49, "subject_id": 3, "token": 2708, "token_probability": 5.37299627012544e-07, "anomaly_score": 20.8277698276691, "scored_at": "2026-08-19 08:10:07.353304+00:00"}
+{"gps_id": 48, "subject_id": 3, "token": 2708, "token_probability": 0.00019992126908619, "anomaly_score": 12.2882804148562, "scored_at": "2026-08-19 10:00:31.243733+00:00"}
+{"gps_id": 47, "subject_id": 3, "token": 2708, "token_probability": 1.66803647516645e-06, "anomaly_score": 19.1934177326001, "scored_at": "2026-08-19 10:00:29.382345+00:00"}
+{"gps_id": 46, "subject_id": 3, "token": 2708, "token_probability": 1.55072719110194e-08, "anomaly_score": 25.9424798539385, "scored_at": "2026-08-19 10:00:27.535065+00:00"}
+{"gps_id": 45, "subject_id": 18, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 44, "subject_id": 18, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 43, "subject_id": 17, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 42, "subject_id": 17, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 41, "subject_id": 16, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 40, "subject_id": 16, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 39, "subject_id": 15, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 38, "subject_id": 15, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 37, "subject_id": 14, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 36, "subject_id": 14, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 35, "subject_id": 13, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 34, "subject_id": 13, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 33, "subject_id": 12, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 32, "subject_id": 12, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 31, "subject_id": 11, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 30, "subject_id": 11, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 29, "subject_id": 10, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 28, "subject_id": 10, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 27, "subject_id": 9, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 26, "subject_id": 9, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 25, "subject_id": 8, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 24, "subject_id": 8, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 23, "subject_id": 3, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 16, "subject_id": 2, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 15, "subject_id": 2, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 14, "subject_id": 2, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 13, "subject_id": 2, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 12, "subject_id": 2, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 11, "subject_id": 2, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 10, "subject_id": 2, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 9, "subject_id": 2, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 8, "subject_id": 2, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 7, "subject_id": 2, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 6, "subject_id": 2, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 5, "subject_id": 2, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 4, "subject_id": 2, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 3, "subject_id": 2, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}

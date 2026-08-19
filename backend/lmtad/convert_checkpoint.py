@@ -27,8 +27,8 @@ if not LMTAD_CODE_DIR.exists():
 sys.path.insert(0, str(LMTAD_CODE_DIR))
 
 # 원본 체크포인트 역직렬화에 필요
-from model import LMTADConfig  # noqa: E402
-from datasets import POLConfig  # noqa: E402
+from backend.lmtad.model import LMTADConfig  # noqa: E402
+from backend.lmtad.datasets import POLConfig  # noqa: E402
 
 
 def convert_value(value):
@@ -166,7 +166,23 @@ def main(input_path, output_path):
     )
 
 if __name__ == "__main__":
-    input_path = "artifacts/ckptepoch_7_batch_387.pt"
-    output_checkpoint_path = "artifacts/converted_ckptepoch_7_batch_387.pt"
+    # input_path = "artifacts/ckptepoch_22_batch_388.pt"
+    # output_checkpoint_path = "artifacts/converted_ckptepoch_22_batch_388.pt"
+
+    artifacts_dir = (
+        LMTAD_DIR
+        / "artifacts"
+    ).resolve()
+
+    input_path = (
+        artifacts_dir
+        / "ckptepoch_22_batch_388.pt"
+    )
+
+    output_checkpoint_path = (
+        artifacts_dir
+        / "converted_ckptepoch_22_batch_388.pt"
+    )
+
 
     main(Path(input_path), Path(output_checkpoint_path))

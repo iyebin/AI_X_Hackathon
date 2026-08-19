@@ -1,7 +1,0 @@
-# AI/ML model checkpoints
-checkpoints/
-checkpoint/
-*.ckpt
-*.pth
-*.pt
-*.safetensors

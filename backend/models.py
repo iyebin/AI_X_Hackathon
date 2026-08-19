@@ -497,7 +497,7 @@ class Inference(Base):
 
     # x_d = Column(Integer, nullable=True)
     # y_d = Column(Integer, nullable=True)
-    token = Column(BigInteger, nullable=True)
+    token = Column(BigInteger, nullable=True) #643 652
 
     token_probability = Column(Float, nullable=True)
     anomaly_score = Column(Float, nullable=True)
