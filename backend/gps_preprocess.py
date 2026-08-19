@@ -2,7 +2,7 @@ from datetime import datetime
 from pyproj import Transformer
 
 
-GRID_SIZE_M = 50
+GRID_SIZE_M = 25
 
 transformer = Transformer.from_crs(
     "EPSG:4326",

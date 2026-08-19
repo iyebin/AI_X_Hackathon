@@ -25,10 +25,15 @@ def main():
                 data = {
                     "gps_id": record.gps_id,
                     "subject_id": record.subject_id,
+                    "x": record.x,
+                    "y": record.y,
+                    "x_d": record.x_d,
+                    "y_d":record.y_d,
                     "token": record.token,
                     "token_probability": record.token_probability,
                     "anomaly_score": record.anomaly_score,
                     "scored_at": record.scored_at,
+
                 }
 
                 print(data)
