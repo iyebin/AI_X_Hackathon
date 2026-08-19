@@ -523,12 +523,12 @@ def main():
 
     artifacts_dir = (
         Path(__file__).resolve().parent
-        / "artifacts"
+        / "artifacts" / "fintuned"
     )
 
     checkpoint_path = (
         artifacts_dir
-        / "converted_ckptepoch_22_batch_388.pt"
+        / "converted_ckpt_finetuned_iter_200.pt" 
     )
     vocab_path = (
         artifacts_dir
