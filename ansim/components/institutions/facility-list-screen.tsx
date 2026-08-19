@@ -15,6 +15,8 @@ import { Text } from '@/components/common/scaled-text';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { WebView } from 'react-native-webview';
 import { FACILITY_SEARCH_LOCATION, getNearestInstitutions } from '@/features/institutions/nearest-institutions';
+import TutorialTarget from '@/components/tutorial/tutorial-target';
+import { useProtectedHelp } from '@/features/tutorial/protected-help-flow';
 
 type FacilityCategory = '전체' | '복지관' | '노인센터' | '병원' | '기타';
 
@@ -39,7 +41,7 @@ const DUMMY_FACILITIES: Facility[] = [
     facilityId: '1',
     name: '서구종합사회복지관',
     category: '복지관',
-    address: '광주광역시 서구 어쩌고저쩌고',
+    address: '광주광역시 서구 상무대로 123',
     latitude: 35.1512,
     longitude: 126.8903,
     phone: '000-123-4567',
@@ -76,16 +78,20 @@ const DUMMY_FACILITIES: Facility[] = [
   },
 ];
 
+const TUTORIAL_CURRENT_LOCATION = { latitude: 35.1502, longitude: 126.8884 };
+
 const CATEGORIES: FacilityCategory[] = ['전체', '복지관', '노인센터', '병원', '기타'];
 
 type Props = {
   variant: 'protected' | 'guardian';
   returnRoute: Href;
   subjectId?: number;
+  forceMockFacilities?: boolean;
 };
 
-export default function FacilityListScreen({ variant, returnRoute, subjectId }: Props) {
+export default function FacilityListScreen({ variant, returnRoute, subjectId, forceMockFacilities = false }: Props) {
   const router = useRouter();
+  const { step: tutorialStep } = useProtectedHelp();
   const [selectedCategory, setSelectedCategory] = useState<FacilityCategory>('전체');
   const [selectedFacility, setSelectedFacility] = useState<Facility | null>(null);
   const [selectedMapFacility, setSelectedMapFacility] = useState<Facility | null>(null);
@@ -108,21 +114,23 @@ export default function FacilityListScreen({ variant, returnRoute, subjectId }: 
       .finally(() => setIsLoading(false));
   }, [subjectId]);
 
+  const facilitySource = forceMockFacilities ? DUMMY_FACILITIES : serverFacilities;
   const facilities = useMemo(
     () => selectedCategory === '전체'
-      ? serverFacilities
-      : serverFacilities.filter((facility) => facility.category === selectedCategory),
-    [selectedCategory, serverFacilities],
+      ? facilitySource
+      : facilitySource.filter((facility) => facility.category === selectedCategory),
+    [facilitySource, selectedCategory],
   );
 
+  const displayedCurrentLocation = forceMockFacilities ? TUTORIAL_CURRENT_LOCATION : currentLocation;
   const mapCenter = selectedMapFacility
     ? { latitude: selectedMapFacility.latitude, longitude: selectedMapFacility.longitude }
-    : currentLocation;
+    : displayedCurrentLocation;
   // 카테고리 필터에 맞는 시설만 지도에 표시하고, 현재 위치 마커는 항상 유지합니다.
-  const mapMarkers = serverFacilities
+  const mapMarkers = facilitySource
     .filter((facility) => Number.isFinite(facility.latitude) && Number.isFinite(facility.longitude) && facility.latitude !== 0 && facility.longitude !== 0)
     .map((facility) => ({ id: facility.facilityId, name: facility.name, latitude: facility.latitude, longitude: facility.longitude }));
-  const mapHtml = `<!doctype html><html><head><meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no"><link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"><script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script><style>html,body,#map{width:100%;height:100%;margin:0}.current{width:16px;height:16px;border:3px solid #fff;border-radius:50%;background:#1677ff;box-shadow:0 0 5px #1677ff}.facility{width:18px;height:18px;border:3px solid #fff;border-radius:50%;background:#F7931E;box-shadow:0 0 5px #b65b00}.selected{background:#FF2525}</style></head><body><div id="map"></div><script>const facilities=${JSON.stringify(mapMarkers)};const selectedId=${JSON.stringify(selectedMapFacility?.facilityId ?? null)};const current=[${currentLocation.latitude},${currentLocation.longitude}];const map=L.map('map',{zoomControl:false,attributionControl:false}).setView([${mapCenter.latitude},${mapCenter.longitude}],16);L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(map);const currentIcon=L.divIcon({className:'current',iconSize:[22,22],iconAnchor:[11,11]});L.marker(current,{icon:currentIcon}).addTo(map).bindPopup('현재 위치');facilities.forEach((facility)=>{const icon=L.divIcon({className:selectedId===facility.id?'facility selected':'facility',iconSize:[24,24],iconAnchor:[12,12]});L.marker([facility.latitude,facility.longitude],{icon}).addTo(map).bindPopup(facility.name).on('click',()=>window.ReactNativeWebView.postMessage(facility.id));});const points=[current,...facilities.map((facility)=>[facility.latitude,facility.longitude])];if(points.length>1)map.fitBounds(points,{padding:[22,22],maxZoom:selectedId?14:15});</script></body></html>`;
+  const mapHtml = `<!doctype html><html><head><meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no"><link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"><script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script><style>html,body,#map{width:100%;height:100%;margin:0}.current{width:16px;height:16px;border:3px solid #fff;border-radius:50%;background:#1677ff;box-shadow:0 0 5px #1677ff}.facility{width:18px;height:18px;border:3px solid #fff;border-radius:50%;background:#F7931E;box-shadow:0 0 5px #b65b00}.selected{background:#FF2525}</style></head><body><div id="map"></div><script>const facilities=${JSON.stringify(mapMarkers)};const selectedId=${JSON.stringify(selectedMapFacility?.facilityId ?? null)};const current=[${displayedCurrentLocation.latitude},${displayedCurrentLocation.longitude}];const map=L.map('map',{zoomControl:false,attributionControl:false}).setView([${mapCenter.latitude},${mapCenter.longitude}],16);L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(map);const currentIcon=L.divIcon({className:'current',iconSize:[22,22],iconAnchor:[11,11]});L.marker(current,{icon:currentIcon}).addTo(map).bindPopup('현재 위치');facilities.forEach((facility)=>{const icon=L.divIcon({className:selectedId===facility.id?'facility selected':'facility',iconSize:[24,24],iconAnchor:[12,12]});L.marker([facility.latitude,facility.longitude],{icon}).addTo(map).bindPopup(facility.name).on('click',()=>window.ReactNativeWebView.postMessage(facility.id));});const points=[current,...facilities.map((facility)=>[facility.latitude,facility.longitude])];if(points.length>1)map.fitBounds(points,{padding:[22,22],maxZoom:selectedId?14:15});</script></body></html>`;
 
   const mapHtmlWithGlobal = mapHtml.replace('const map=L.map', 'const map=window.leafletMap=L.map');
   const focusedMapHtml = (selectedMapFacility
@@ -158,7 +166,7 @@ export default function FacilityListScreen({ variant, returnRoute, subjectId }: 
 
   const showWalkingRoute = (facility: Facility) => {
     const destination = JSON.stringify({ latitude: facility.latitude, longitude: facility.longitude });
-    mapRef.current?.injectJavaScript(`(function(){const map=window.leafletMap;if(!map)return;if(window.routeLine)map.removeLayer(window.routeLine);const current=[${currentLocation.latitude},${currentLocation.longitude}];const destination=${destination};fetch('https://routing.openstreetmap.de/routed-foot/route/v1/driving/'+current[1]+','+current[0]+';'+destination.longitude+','+destination.latitude+'?overview=full&geometries=geojson').then((response)=>response.json()).then((data)=>{const route=data.routes&&data.routes[0];if(!route)return;const points=route.geometry.coordinates.map((point)=>[point[1],point[0]]);window.routeLine=L.polyline(points,{color:'#2563EB',weight:5,opacity:0.9}).addTo(map);map.fitBounds(window.routeLine.getBounds(),{padding:[26,26],maxZoom:15});}).catch(()=>{});true;})()`);
+    mapRef.current?.injectJavaScript(`(function(){const map=window.leafletMap;if(!map)return;if(window.routeLine)map.removeLayer(window.routeLine);const current=[${displayedCurrentLocation.latitude},${displayedCurrentLocation.longitude}];const destination=${destination};fetch('https://routing.openstreetmap.de/routed-foot/route/v1/driving/'+current[1]+','+current[0]+';'+destination.longitude+','+destination.latitude+'?overview=full&geometries=geojson').then((response)=>response.json()).then((data)=>{const route=data.routes&&data.routes[0];if(!route)return;const points=route.geometry.coordinates.map((point)=>[point[1],point[0]]);window.routeLine=L.polyline(points,{color:'#2563EB',weight:5,opacity:0.9}).addTo(map);map.fitBounds(window.routeLine.getBounds(),{padding:[26,26],maxZoom:15});}).catch(()=>{});true;})()`);
   };
 
   const handleCall = async (phone: string) => {
@@ -190,7 +198,7 @@ export default function FacilityListScreen({ variant, returnRoute, subjectId }: 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
-        <TouchableOpacity accessibilityLabel="뒤로 가기" onPress={() => router.replace(returnRoute)} hitSlop={12}>
+        <TouchableOpacity accessibilityLabel="뒤로 가기" disabled={Boolean(tutorialStep)} onPress={() => router.replace(returnRoute)} hitSlop={12}>
           <Ionicons name="arrow-back" size={31} color="#111111" />
         </TouchableOpacity>
         <View style={[styles.titleBadge, { backgroundColor: themeColor }]}>
@@ -212,7 +220,8 @@ export default function FacilityListScreen({ variant, returnRoute, subjectId }: 
           }}
           onMessage={(event) => {
             const facility = facilities.find((item) => item.facilityId === event.nativeEvent.data);
-            if (facility) selectMapFacility(facility);
+            const canSelectTutorialFacility = !forceMockFacilities || tutorialStep === 'facility-card';
+            if (facility && canSelectTutorialFacility && (!forceMockFacilities || facility.facilityId === facilities[0]?.facilityId)) selectMapFacility(facility);
           }}
         />
       </View>
@@ -228,6 +237,7 @@ export default function FacilityListScreen({ variant, returnRoute, subjectId }: 
               <TouchableOpacity
                 key={category}
                 style={[styles.filterChip, active && { backgroundColor: themeColor, borderColor: themeColor }]}
+                disabled={Boolean(tutorialStep)}
                 onPress={() => handleCategorySelect(category)}>
                 <Text style={[styles.filterText, active && styles.activeFilterText]}>{category}</Text>
               </TouchableOpacity>
@@ -242,6 +252,11 @@ export default function FacilityListScreen({ variant, returnRoute, subjectId }: 
         keyExtractor={(facility) => facility.facilityId}
         showsVerticalScrollIndicator={false}
         renderItem={({ item: facility }) => (
+          <TutorialTarget
+            target={facility.facilityId === facilities[0]?.facilityId ? 'facility-card' : `facility-card-${facility.facilityId}`}
+            disableDimming={facility.facilityId === facilities[0]?.facilityId}
+            preserveChildInteraction={facility.facilityId === facilities[0]?.facilityId}
+            onTutorialPress={facility.facilityId === facilities[0]?.facilityId ? () => selectMapFacility(facility) : undefined}>
           <TouchableOpacity
             style={styles.facilityRow}
             activeOpacity={0.7}
@@ -260,13 +275,18 @@ export default function FacilityListScreen({ variant, returnRoute, subjectId }: 
                 <Ionicons name="call-outline" size={24} color="#111111" />
                 <Text style={styles.phone}>{facility.phone}</Text>
               </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.routeButton, { borderColor: '#D7D7D7' }]}
-                onPress={() => handleRoute(facility)}>
-                <Text style={[styles.routeText, { color: themeColor }]}>길찾기</Text>
-              </TouchableOpacity>
+              <TutorialTarget
+                target={facility.facilityId === facilities[0]?.facilityId ? 'route' : `route-${facility.facilityId}`}
+                onTutorialPress={facility.facilityId === facilities[0]?.facilityId ? () => handleRoute(facility) : undefined}>
+                <TouchableOpacity
+                  style={[styles.routeButton, { borderColor: '#D7D7D7' }]}
+                  onPress={() => handleRoute(facility)}>
+                  <Text style={[styles.routeText, { color: themeColor }]}>길찾기</Text>
+                </TouchableOpacity>
+              </TutorialTarget>
             </View>
           </TouchableOpacity>
+          </TutorialTarget>
         )}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
