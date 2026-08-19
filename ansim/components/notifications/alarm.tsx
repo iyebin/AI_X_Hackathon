@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useMemo, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { AppAlert, getAlerts, markAlertAsRead } from '@/features/alerts/alerts-api';
+import { AlertRecipientType, AppAlert, getAlerts, markAlertAsRead } from '@/features/alerts/alerts-api';
 
 interface NotificationViewProps {
   filterTargetName?: string;
@@ -11,6 +11,8 @@ interface NotificationViewProps {
   targets?: NotificationTarget[];
   themeColor?: string;
   viewerRole?: 'guardian' | 'protected';
+  recipientType?: AlertRecipientType;
+  recipientId?: number;
 }
 
 export type NotificationTarget = {
@@ -62,6 +64,8 @@ export default function NotificationView({
   targets,
   themeColor = '#F7931E',
   viewerRole = 'guardian',
+  recipientType,
+  recipientId,
 }: NotificationViewProps) {
   const router = useRouter();
   const [selectedCategory, setSelectedCategory] = useState<Filter>('전체');
@@ -73,13 +77,17 @@ export default function NotificationView({
     setLoading(true);
     setError(null);
     try {
-      setAlarms(await getAlerts(Number.isInteger(subjectId) && (subjectId ?? 0) > 0 ? subjectId : undefined));
+      setAlarms(await getAlerts({
+        subjectId: Number.isInteger(subjectId) && (subjectId ?? 0) > 0 ? subjectId : undefined,
+        recipientType,
+        recipientId,
+      }));
     } catch (loadError) {
       setError(loadError instanceof Error ? loadError.message : '알림을 불러오지 못했습니다.');
     } finally {
       setLoading(false);
     }
-  }, [subjectId]);
+  }, [recipientId, recipientType, subjectId]);
 
   useFocusEffect(useCallback(() => {
     void loadAlerts();
@@ -125,6 +133,8 @@ export default function NotificationView({
           targetPhone: targetPhone ?? target?.phone,
           dangerScore: String(alert.riskScore ?? ''),
           dangerReasons: alert.reason ?? alert.message ?? '위험 요인 정보 없음',
+          alertCreatedAt: alert.createdAt ?? '',
+          riskSnapshot: alert.riskSnapshot ? JSON.stringify(alert.riskSnapshot) : '',
           viewerRole,
         },
       });

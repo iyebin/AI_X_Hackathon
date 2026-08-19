@@ -1,3 +1,4 @@
+import json
 import math
 from typing import List
 
@@ -6,22 +7,16 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.encoders import ENCODERS_BY_TYPE
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
-# from facility_api import fetch_facilities
-# from air import get_air_quality_by_gps
-# from weather import get_weather_by_gps
-# from firebase_service import send_push_notification
+from facility_api import fetch_facilities
+from air import get_air_quality_by_gps
+from weather import get_weather_by_gps
+from weather_alert import get_warning_for_gps
+from firebase_service import send_push_notification
+from gemini_descriptions import generate_environment_description
 
-from backend.facility_api import fetch_facilities
-from backend.air import get_air_quality_by_gps
-from backend.weather import get_weather_by_gps
-from backend.firebase_service import send_push_notification
-
-# import models
-# import schemas
-# from database import Base, engine, get_db
-
-from backend import models, schemas
-from backend.database import Base, engine, get_db
+import models
+import schemas
+from database import Base, engine, get_db
 
 from contextlib import asynccontextmanager
 import secrets
@@ -29,21 +24,34 @@ from datetime import date, datetime, timedelta, timezone
 import random
 import string
 
-# from lmtad_runtime import LMTADRuntime
-from backend.lmtad_runtime import LMTADRuntime
+from lmtad_runtime import LMTADRuntime
 import os
 import random
 from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
-# from inference_service import run_gps_inference
-from backend.inference_service import run_gps_inference
+from inference_service import run_gps_inference
 import requests
-
-from google.oauth2 import id_token
-from google.auth.transport import requests as google_requests
+import bcrypt
 
 lmtad_runtime: LMTADRuntime | None = None
 Base.metadata.create_all(bind=engine)
+
+
+def hash_password(password: str) -> str:
+    return bcrypt.hashpw(
+        password.encode("utf-8"),
+        bcrypt.gensalt(),
+    ).decode("utf-8")
+
+
+def verify_password(password: str, password_hash: str) -> bool:
+    try:
+        return bcrypt.checkpw(
+            password.encode("utf-8"),
+            password_hash.encode("utf-8"),
+        )
+    except (ValueError, TypeError, AttributeError):
+        return False
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -217,6 +225,309 @@ def create_alerts_for_subject(
     db.flush()
 
     return alerts
+
+
+RISK_DANGER_REPEAT_MINUTES = int(
+    os.getenv("RISK_DANGER_REPEAT_MINUTES", "5")
+)
+RISK_DANGER_TO_CAUTION_MINUTES = int(
+    os.getenv("RISK_DANGER_TO_CAUTION_MINUTES", "10")
+)
+
+
+def send_push_to_user(
+    db: Session,
+    *,
+    user_type: str,
+    user_id: int,
+    title: str,
+    body: str,
+    data: dict,
+):
+    tokens = (
+        db.query(models.DeviceToken)
+        .filter(
+            models.DeviceToken.user_type == user_type,
+            models.DeviceToken.user_id == user_id,
+        )
+        .all()
+    )
+
+    for device in tokens:
+        try:
+            send_push_notification(
+                token=device.token,
+                title=title,
+                body=body,
+                data={
+                    key: str(value)
+                    for key, value in data.items()
+                },
+            )
+        except Exception as error:
+            print(
+                "[FCM] Push failed "
+                f"user_type={user_type}, "
+                f"user_id={user_id}: {error}"
+            )
+
+
+def get_guardian_ids_for_subject(
+    db: Session,
+    subject_id: int,
+) -> list[int]:
+    return [
+        link.guardian_id
+        for link in (
+            db.query(models.GuardianRegistration)
+            .filter(
+                models.GuardianRegistration.subject_id
+                == subject_id
+            )
+            .all()
+        )
+    ]
+
+
+def get_manager_ids_for_subject(
+    db: Session,
+    subject_id: int,
+) -> list[int]:
+    return [
+        assignment.manager_id
+        for assignment in (
+            db.query(models.ManagerAssignment)
+            .filter(
+                models.ManagerAssignment.subject_id
+                == subject_id
+            )
+            .all()
+        )
+    ]
+
+
+def get_nearby_facilities_for_alert(
+    db: Session,
+    *,
+    latitude: float,
+    longitude: float,
+    limit: int = 3,
+) -> list[dict]:
+    facilities = []
+
+    for institution in (
+        db.query(models.Institution)
+        .filter(
+            models.Institution.latitude.isnot(None),
+            models.Institution.longitude.isnot(None),
+        )
+        .all()
+    ):
+        distance = haversine_km(
+            latitude,
+            longitude,
+            institution.latitude,
+            institution.longitude,
+        )
+        facilities.append(
+            {
+                "name": institution.name,
+                "distance_km": round(distance, 2),
+                "address": institution.address,
+                "phone": institution.phone,
+            }
+        )
+
+    facilities.sort(
+        key=lambda item: item["distance_km"]
+    )
+    return facilities[:limit]
+
+
+def format_nearby_facilities(
+    facilities: list[dict],
+) -> str:
+    if not facilities:
+        return "인근 시설 정보 없음"
+
+    return " / ".join(
+        (
+            f"{facility['name']} "
+            f"({facility['distance_km']}km, "
+            f"{facility.get('address') or '주소 없음'}, "
+            f"{facility.get('phone') or '전화번호 없음'})"
+        )
+        for facility in facilities
+    )
+
+
+def build_alert_risk_factors(
+    *,
+    lmtad_score: float | None,
+    weather_score: float | None,
+    air_score: float | None,
+    weather_description: str | None = None,
+    air_description: str | None = None,
+) -> list[dict]:
+    """알림 생성 시점의 위험요인을 스냅샷 형태로 고정합니다."""
+
+    gps = float(lmtad_score or 0)
+    weather = float(weather_score or 0)
+    air = float(air_score or 0)
+    factor_total = gps + weather + air
+
+    def percentage(score: float) -> int:
+        return round(score / factor_total * 100) if factor_total > 0 else 0
+
+    return [
+        {
+            "type": "gps_deviation",
+            "name": "GPS 이상",
+            "score": gps,
+            "percentage": percentage(gps),
+            "description": (
+                "평소 이동 패턴과 다른 움직임이 감지되었습니다."
+                # lmtad_score_from_anomaly()는 원본 anomaly_score가 임계값에
+                # 도달한 지점을 70점으로 변환합니다.
+                if gps >= 70
+                else "현재 GPS 이동 패턴에서 이상 기준에는 도달하지 않았습니다."
+            ),
+        },
+        {
+            "type": "weather",
+            "name": "기상",
+            "score": weather,
+            "percentage": percentage(weather),
+            "description": weather_description
+            or (
+                "기상 위험 점수가 높아 관찰이 필요합니다."
+                if weather >= 40
+                else "현재 관측값에서 추가 기상 위험 요인이 확인되지 않았습니다."
+            ),
+        },
+        {
+            "type": "air",
+            "name": "대기",
+            "score": air,
+            "percentage": percentage(air),
+            "description": air_description
+            or (
+                "대기질 위험 점수가 높아 관찰이 필요합니다."
+                if air >= 40
+                else "현재 관측값에서 추가 대기질 위험 요인이 확인되지 않았습니다."
+            ),
+        },
+    ]
+
+
+def notify_risk_transition(
+    db: Session,
+    *,
+    subject: models.Subject,
+    alert_type: str,
+    risk_level: str,
+    risk_score: float,
+    message: str,
+    notify_guardians: bool,
+    notify_subject: bool,
+    notify_managers: bool,
+    nearby_facilities: list[dict] | None = None,
+    lmtad_score: float | None = None,
+    weather_score: float | None = None,
+    air_score: float | None = None,
+    lmtad_reason: str | None = None,
+    weather_reason: str | None = None,
+    air_reason: str | None = None,
+    factors: list[dict] | None = None,
+):
+    risk_snapshot = {
+        "risk_level": risk_level,
+        "risk_score": risk_score,
+        "lmtad_score": lmtad_score,
+        "weather_score": weather_score,
+        "air_score": air_score,
+        "lmtad_reason": lmtad_reason,
+        "weather_reason": weather_reason,
+        "air_reason": air_reason,
+        # 모달은 이 배열을 사용해 '현재'가 아닌 알림 발생 당시 분석을 표시합니다.
+        "factors": factors or build_alert_risk_factors(
+            lmtad_score=lmtad_score,
+            weather_score=weather_score,
+            air_score=air_score,
+            weather_description=weather_reason,
+            air_description=air_reason,
+        ),
+    }
+
+    guardian_ids = (
+        get_guardian_ids_for_subject(db, subject.id)
+        if notify_guardians
+        else []
+    )
+    manager_ids = (
+        get_manager_ids_for_subject(db, subject.id)
+        if notify_managers
+        else []
+    )
+
+    if notify_guardians:
+        for guardian_id in guardian_ids:
+            db.add(
+                models.Alert(
+                    type=alert_type,
+                    subject_id=subject.id,
+                    guardian_id=guardian_id,
+                    message=message,
+                    risk_score=risk_score,
+                    risk_snapshot=risk_snapshot,
+                    is_read=False,
+                )
+            )
+
+    db.commit()
+
+    push_data = {
+        "type": alert_type,
+        "subject_id": subject.id,
+        "risk_level": risk_level,
+        "risk_score": risk_score,
+    }
+    if nearby_facilities is not None:
+        push_data["nearby_facilities"] = json.dumps(
+            nearby_facilities,
+            ensure_ascii=False,
+        )
+
+    for guardian_id in guardian_ids:
+        send_push_to_user(
+            db,
+            user_type="guardian",
+            user_id=guardian_id,
+            title="안심하랑께 위험도 알림",
+            body=message,
+            data=push_data,
+        )
+
+    if notify_subject:
+        send_push_to_user(
+            db,
+            user_type="subject",
+            user_id=subject.id,
+            title="안심하랑께 위험도 알림",
+            body=message,
+            data=push_data,
+        )
+
+    for manager_id in manager_ids:
+        send_push_to_user(
+            db,
+            user_type="institution_manager",
+            user_id=manager_id,
+            title="안심하랑께 기관 위험 알림",
+            body=message,
+            data=push_data,
+        )
+
 
 def haversine_km(
     latitude1: float,
@@ -406,7 +717,10 @@ def get_latest_gps_or_404(
     gps_record = (
         db.query(models.GPSRecord)
         .filter(models.GPSRecord.subject_id == subject_id)
-        .order_by(models.GPSRecord.gps_id.desc())
+        .order_by(
+            models.GPSRecord.measured_at.desc(),
+            models.GPSRecord.gps_id.desc(),
+        )
         .first()
     )
 
@@ -1000,6 +1314,7 @@ def guardian_registration_to_detail(
         "guardian_id": registration.guardian_id,
         "subject_id": registration.subject_id,
         "relationship_code": registration.relationship_code,
+        "relationship_note": registration.relationship_note,
         "guardian_role_code": registration.guardian_role_code,
         "is_primary": registration.is_primary,
         "contact_priority": registration.contact_priority,
@@ -1211,7 +1526,26 @@ def create_institution_manager(
     if not institution:
         raise HTTPException(status_code=404, detail="기관을 찾을 수 없습니다.")
 
-    manager = models.InstitutionManager(**manager_data.model_dump())
+    existing_manager = (
+        db.query(models.InstitutionManager)
+        .filter(
+            (models.InstitutionManager.login_id == manager_data.login_id.strip())
+            | (models.InstitutionManager.email == manager_data.email.strip().lower())
+        )
+        .first()
+    )
+    if existing_manager:
+        raise HTTPException(status_code=409, detail="이미 사용 중인 아이디 또는 이메일입니다.")
+
+    manager = models.InstitutionManager(
+        institution_id=manager_data.institution_id,
+        name=manager_data.name.strip(),
+        phone=manager_data.phone.strip(),
+        email=manager_data.email.strip().lower(),
+        login_id=manager_data.login_id.strip(),
+        password_hash=hash_password(manager_data.password),
+        position=manager_data.position,
+    )
     db.add(manager)
     db.commit()
     db.refresh(manager)
@@ -1299,178 +1633,74 @@ def delete_institution_manager(
     db.commit()
     return {"message": "기관 관리자가 삭제되었습니다.", "manager_id": manager_id}
 @app.post(
-    "/auth/social/login",
-    response_model=schemas.SocialLoginResponse,
+    "/institution-managers/signup",
+    response_model=schemas.InstitutionManagerAuthResponse,
+    status_code=status.HTTP_201_CREATED,
     tags=["기관 관리자 인증"],
 )
-def social_login(
-    data: schemas.SocialLoginRequest,
+def signup_institution_manager(
+    data: schemas.InstitutionManagerSignup,
     db: Session = Depends(get_db),
 ):
-    provider = data.provider.strip().lower()
+    institution = db.get(models.Institution, data.institution_id)
+    if not institution:
+        raise HTTPException(status_code=404, detail="기관을 찾을 수 없습니다.")
 
-    if provider not in ("google", "kakao"):
-        raise HTTPException(
-            status_code=400,
-            detail="지원하지 않는 소셜 로그인입니다.",
-        )
+    login_id = data.login_id.strip()
+    email = data.email.strip().lower()
 
-    provider_user_id = None
-    email = None
+    if db.query(models.InstitutionManager).filter(
+        models.InstitutionManager.login_id == login_id
+    ).first():
+        raise HTTPException(status_code=409, detail="이미 사용 중인 아이디입니다.")
 
-    # =====================================================
-    # Google 로그인
-    # =====================================================
-    if provider == "google":
-        google_client_id = os.getenv(
-            "GOOGLE_CLIENT_ID"
-        )
+    if db.query(models.InstitutionManager).filter(
+        models.InstitutionManager.email == email
+    ).first():
+        raise HTTPException(status_code=409, detail="이미 사용 중인 이메일입니다.")
 
-        if not google_client_id:
-            raise HTTPException(
-                status_code=500,
-                detail="GOOGLE_CLIENT_ID가 설정되지 않았습니다.",
-            )
-
-        try:
-            id_info = id_token.verify_oauth2_token(
-                data.token,
-                google_requests.Request(),
-                google_client_id,
-            )
-
-            provider_user_id = id_info.get("sub")
-            email = id_info.get("email")
-
-        except Exception as e:
-            print(
-                f"[GOOGLE LOGIN ERROR] "
-                f"{type(e).__name__}: {e}"
-            )
-
-            raise HTTPException(
-                status_code=401,
-                detail="Google 로그인 인증에 실패했습니다.",
-            )
-
-    # =====================================================
-    # Kakao 로그인
-    # =====================================================
-    elif provider == "kakao":
-        try:
-            response = requests.get(
-                "https://kapi.kakao.com/v2/user/me",
-                headers={
-                    "Authorization": (
-                        f"Bearer {data.token}"
-                    )
-                },
-                timeout=10,
-            )
-
-            if response.status_code != 200:
-                raise HTTPException(
-                    status_code=401,
-                    detail="Kakao 로그인 인증에 실패했습니다.",
-                )
-
-            kakao_user = response.json()
-
-            provider_user_id = str(
-                kakao_user.get("id")
-            )
-
-            kakao_account = (
-                kakao_user.get("kakao_account")
-                or {}
-            )
-
-            email = kakao_account.get("email")
-
-        except HTTPException:
-            raise
-
-        except Exception as e:
-            print(
-                f"[KAKAO LOGIN ERROR] "
-                f"{type(e).__name__}: {e}"
-            )
-
-            raise HTTPException(
-                status_code=401,
-                detail="Kakao 로그인 인증에 실패했습니다.",
-            )
-
-    # =====================================================
-    # 소셜 계정 ID 확인
-    # =====================================================
-    if not provider_user_id:
-        raise HTTPException(
-            status_code=401,
-            detail="소셜 사용자 정보를 확인할 수 없습니다.",
-        )
-
-    # =====================================================
-    # 기존 관리자 조회
-    # =====================================================
-    manager = (
-        db.query(models.InstitutionManager)
-        .filter(
-            models.InstitutionManager.provider
-            == provider,
-            models.InstitutionManager.provider_user_id
-            == provider_user_id,
-        )
-        .first()
+    manager = models.InstitutionManager(
+        institution_id=data.institution_id,
+        name=data.name.strip(),
+        phone=data.phone.strip(),
+        email=email,
+        login_id=login_id,
+        password_hash=hash_password(data.password),
     )
+    db.add(manager)
+    db.commit()
+    db.refresh(manager)
+    return manager
 
-    # =====================================================
-    # 최초 로그인 → 관리자 기본 계정 생성
-    # =====================================================
-    if not manager:
-        manager = models.InstitutionManager(
-            provider=provider,
-            provider_user_id=provider_user_id,
-            email=email,
-        )
 
-        db.add(manager)
-        db.commit()
-        db.refresh(manager)
-
-    # 소셜 서비스에서 이메일이 변경된 경우 갱신
-    elif email and manager.email != email:
-        manager.email = email
-        db.commit()
-        db.refresh(manager)
-
-    profile_completed = all(
-        [
-            manager.name,
-            manager.phone,
-            manager.institution_id,
-        ]
-    )
-
-    return {
-        "id": manager.id,
-        "institution_id": manager.institution_id,
-        "name": manager.name,
-        "phone": manager.phone,
-        "email": manager.email,
-        "provider": manager.provider,
-        "position": manager.position,
-        "profile_completed": profile_completed,
-    }
-
-@app.patch(
-    "/institution-managers/{manager_id}/complete-profile",
-    response_model=schemas.SocialLoginResponse,
+@app.post(
+    "/institution-managers/login",
+    response_model=schemas.InstitutionManagerAuthResponse,
     tags=["기관 관리자 인증"],
 )
-def complete_social_profile(
+def login_institution_manager(
+    data: schemas.InstitutionManagerLogin,
+    db: Session = Depends(get_db),
+):
+    manager = db.query(models.InstitutionManager).filter(
+        models.InstitutionManager.login_id == data.login_id.strip()
+    ).first()
+
+    if not manager or not verify_password(data.password, manager.password_hash):
+        raise HTTPException(
+            status_code=401,
+            detail="아이디 또는 비밀번호가 올바르지 않습니다.",
+        )
+
+    return manager
+
+@app.patch(
+    "/institution-managers/{manager_id}/change-password",
+    tags=["기관 관리자 인증"],
+)
+def change_institution_manager_password(
     manager_id: int,
-    data: schemas.SocialProfileComplete,
+    data: schemas.InstitutionManagerPasswordChange,
     db: Session = Depends(get_db),
 ):
     manager = db.get(
@@ -1484,34 +1714,33 @@ def complete_social_profile(
             detail="기관 관리자를 찾을 수 없습니다.",
         )
 
-    institution = db.get(
-        models.Institution,
-        data.institution_id,
-    )
-
-    if not institution:
+    if not verify_password(
+        data.current_password,
+        manager.password_hash,
+    ):
         raise HTTPException(
-            status_code=404,
-            detail="기관을 찾을 수 없습니다.",
+            status_code=401,
+            detail="현재 비밀번호가 올바르지 않습니다.",
         )
 
-    manager.name = data.name
-    manager.phone = data.phone
-    manager.institution_id = data.institution_id
-    manager.position = data.position
+    if verify_password(
+        data.new_password,
+        manager.password_hash,
+    ):
+        raise HTTPException(
+            status_code=400,
+            detail="새 비밀번호는 현재 비밀번호와 달라야 합니다.",
+        )
+
+    manager.password_hash = hash_password(
+        data.new_password
+    )
 
     db.commit()
-    db.refresh(manager)
 
     return {
-        "id": manager.id,
-        "institution_id": manager.institution_id,
-        "name": manager.name,
-        "phone": manager.phone,
-        "email": manager.email,
-        "provider": manager.provider,
-        "position": manager.position,
-        "profile_completed": True,
+        "message": "비밀번호가 변경되었습니다.",
+        "manager_id": manager_id,
     }
 
 # =========================================================
@@ -1681,10 +1910,69 @@ def save_gps(
     if not subject:
         raise HTTPException(status_code=404, detail="보호대상자를 찾을 수 없습니다.")
 
-    gps_record = models.GPSRecord(**gps_data.model_dump())
+    from pyproj import Transformer
+
+    # 위경도 -> EPSG:5179
+    transformer = Transformer.from_crs(
+        "EPSG:4326",
+        "EPSG:5179",
+        always_xy=True,
+    )
+
+    x, y = transformer.transform(
+        gps_data.longitude,
+        gps_data.latitude,
+    )
+
+    # 팀 전처리와 동일한 50m 격자
+    grid_size_m = 50
+    x_d = int(x // grid_size_m)
+    y_d = int(y // grid_size_m)
+
+    # LMTAD에서 사용하는 GPS 토큰 문자열
+    gps_token = f"gps_{x_d}_{y_d}"
+
+    # vocab에 등록된 경우 숫자 token id 저장
+    token_id = None
+    if lmtad_runtime is not None:
+        token_id = lmtad_runtime.vocab.get(
+            gps_token
+        )
+
+    measured_at = (
+        gps_data.measured_at
+        or datetime.now(timezone.utc)
+    )
+
+    # 요일 저장
+    dayofweek = measured_at.astimezone(
+        ZoneInfo("Asia/Seoul")
+    ).strftime("%A").lower()
+
+    gps_record = models.GPSRecord(
+        subject_id=gps_data.subject_id,
+        latitude=gps_data.latitude,
+        longitude=gps_data.longitude,
+        measured_at=measured_at,
+        dayofweek=dayofweek,
+    )
+
     db.add(gps_record)
+    db.flush()
+
+    inference_record = models.Inference(
+        gps_id=gps_record.gps_id,
+        subject_id=gps_data.subject_id,
+        token=token_id,
+        token_probability=None,
+        anomaly_score=None,
+        scored_at=None,
+    )
+
+    db.add(inference_record)
     db.commit()
     db.refresh(gps_record)
+
     return gps_record
 
 
@@ -1876,7 +2164,7 @@ def recommend_institutions_for_subject(
 @app.post(
     "/subjects/{subject_id}/auth-code",
     response_model=schemas.AuthCodeResponse,
-    tags=["알림"],
+    tags=["인증코드"],
 )
 def issue_subject_auth_code(
     subject_id: int,
@@ -1896,17 +2184,13 @@ def issue_subject_auth_code(
     # 6자리 인증코드 생성
     code = generate_unique_auth_code(db)
 
-    # 현재 시간 기준 10분 유효
-    expires_at = (
-        datetime.now(timezone.utc)
-        + timedelta(minutes=10)
-    )
+    # subjects.auth_code에는 현재 최신 인증코드 저장
+    subject.auth_code = code
 
-    # 인증코드 DB 저장
+    # subject_auth_codes에는 인증코드 발급 이력 저장
     auth_code = models.SubjectAuthCode(
         subject_id=subject_id,
         code=code,
-        expires_at=expires_at,
     )
 
     db.add(auth_code)
@@ -1918,8 +2202,7 @@ def issue_subject_auth_code(
         alert_type="auth_request",
         message=(
             "앱에서 보호자 인증을 요청했습니다. "
-            f"인증코드: {code} "
-            "(10분간 유효)"
+            f"인증코드: {code}"
         ),
     )
 
@@ -1933,7 +2216,6 @@ def issue_subject_auth_code(
     return {
         "subject_id": subject_id,
         "auth_code": code,
-        "expires_at": expires_at.astimezone(ZoneInfo("Asia/Seoul")),
         "created_alert_ids": [
             alert.id
             for alert in created_alerts
@@ -1997,8 +2279,6 @@ def verify_auth_code(
         db.query(models.SubjectAuthCode)
         .filter(
             models.SubjectAuthCode.code == auth_code,
-            models.SubjectAuthCode.expires_at
-            > datetime.now(timezone.utc),
         )
         .order_by(
             models.SubjectAuthCode.created_at.desc()
@@ -2058,7 +2338,17 @@ def save_auth_code(
             detail="보호대상자를 찾을 수 없습니다.",
         )
 
-    subject.auth_code = data.auth_code
+    code = data.auth_code.strip()
+
+    # subjects.auth_code에는 현재 최신 인증코드 저장
+    subject.auth_code = code
+
+    # 호환용 PATCH도 새 인증코드 테이블에 저장
+    auth_code = models.SubjectAuthCode(
+        subject_id=subject_id,
+        code=code,
+    )
+    db.add(auth_code)
 
     # 이 보호대상자와 연결된 보호자들 찾기
     guardian_links = (
@@ -2077,20 +2367,65 @@ def save_auth_code(
             type="auth",
             message=(
                 f"{subject.name}님의 인증 요청이 있습니다. "
-                f"인증코드: {subject.auth_code}"
+                f"인증코드: {code}"
             ),
             is_read=False,
         )
         db.add(alert)
 
-    # 인증코드 저장 + 알림 저장을 한 번에 commit
     db.commit()
-    db.refresh(subject)
+    db.refresh(auth_code)
 
     return {
         "subject_id": subject.id,
-        "auth_code": subject.auth_code,
+        "auth_code": code,
     }
+@app.get(
+    "/environment/weather-warning/{subject_id}",
+    tags=["환경정보"],
+)
+def read_weather_warning(
+    subject_id: int,
+    db: Session = Depends(get_db),
+):
+    subject = db.get(
+        models.Subject,
+        subject_id,
+    )
+
+    if not subject:
+        raise HTTPException(
+            status_code=404,
+            detail="보호대상자를 찾을 수 없습니다.",
+        )
+
+    latest_gps = get_latest_gps_or_404(
+        db,
+        subject_id,
+    )
+
+    warning_data = get_warning_for_gps(
+        latest_gps.latitude,
+        latest_gps.longitude,
+    )
+
+    return {
+        "subject_id": subject_id,
+        "gps": {
+            "latitude": latest_gps.latitude,
+            "longitude": latest_gps.longitude,
+        },
+        "region": warning_data.get("region"),
+        "warnings": warning_data.get(
+            "warnings",
+            [],
+        ),
+        "highest_level": warning_data.get(
+            "highest_level"
+        ),
+    }
+
+
 @app.get(
     "/environment/air/{subject_id}",
     tags=["환경정보"],
@@ -2262,6 +2597,16 @@ def receive_risk_result(
         data.risk_level
     )
 
+    # 현재 위험 상태 기록
+    # Cron Job이 이 테이블의 최신 상태를 보고
+    # danger 상태가 유지되는 동안 5분마다 알림을 재전송함
+    risk_status = models.RiskStatusHistory(
+        subject_id=data.subject_id,
+        risk_level=normalized,
+        risk_score=data.risk_score,
+    )
+    db.add(risk_status)
+
     created_alerts = []
 
     latitude = data.latitude
@@ -2401,6 +2746,26 @@ def create_risk_status(
             detail="risk_level은 safe, caution, danger 중 하나여야 합니다.",
         )
 
+    # 저장 전 직전 위험 단계 확인
+    previous_status = (
+        db.query(models.RiskStatusHistory)
+        .filter(
+            models.RiskStatusHistory.subject_id
+            == data.subject_id
+        )
+        .order_by(
+            models.RiskStatusHistory.created_at.desc(),
+            models.RiskStatusHistory.id.desc(),
+        )
+        .first()
+    )
+
+    previous_level = (
+        previous_status.risk_level
+        if previous_status
+        else None
+    )
+
     risk_status = models.RiskStatusHistory(
         subject_id=data.subject_id,
         risk_level=data.risk_level,
@@ -2408,11 +2773,89 @@ def create_risk_status(
         lmtad_score=data.lmtad_score,
         weather_score=data.weather_score,
         air_score=data.air_score,
+        lmtad_reason=data.lmtad_reason,
+        weather_reason=data.weather_reason,
+        air_reason=data.air_reason,
     )
 
     db.add(risk_status)
     db.commit()
     db.refresh(risk_status)
+
+    # Swagger 수동 위험도 입력도 실제 알림 흐름에 연결
+    if data.risk_level == "danger" and previous_level != "danger":
+        notify_risk_transition(
+            db,
+            subject=subject,
+            alert_type="risk_danger",
+            risk_level="danger",
+            risk_score=float(data.risk_score or 0),
+            lmtad_score=data.lmtad_score,
+            weather_score=data.weather_score,
+            air_score=data.air_score,
+            lmtad_reason=data.lmtad_reason,
+            weather_reason=data.weather_reason,
+            air_reason=data.air_reason,
+            message=(
+                f"{subject.name}님이 위험 단계에 "
+                f"진입했습니다. "
+                f"(위험 점수: {float(data.risk_score or 0):g})"
+            ),
+            notify_guardians=True,
+            notify_subject=True,
+            notify_managers=True,
+        )
+
+    elif (
+        data.risk_level == "caution"
+        and previous_level != "caution"
+    ):
+        notify_risk_transition(
+            db,
+            subject=subject,
+            alert_type="risk_caution",
+            risk_level="caution",
+            risk_score=float(data.risk_score or 0),
+            lmtad_score=data.lmtad_score,
+            weather_score=data.weather_score,
+            air_score=data.air_score,
+            lmtad_reason=data.lmtad_reason,
+            weather_reason=data.weather_reason,
+            air_reason=data.air_reason,
+            message=(
+                f"{subject.name}님이 주의 단계에 "
+                f"진입했습니다. "
+                f"(위험 점수: {float(data.risk_score or 0):g})"
+            ),
+            notify_guardians=True,
+            notify_subject=True,
+            notify_managers=False,
+        )
+
+    elif (
+        data.risk_level == "safe"
+        and previous_level in {"caution", "danger"}
+    ):
+        notify_risk_transition(
+            db,
+            subject=subject,
+            alert_type="risk_recovered_safe",
+            risk_level="safe",
+            risk_score=float(data.risk_score or 0),
+            lmtad_score=data.lmtad_score,
+            weather_score=data.weather_score,
+            air_score=data.air_score,
+            lmtad_reason=data.lmtad_reason,
+            weather_reason=data.weather_reason,
+            air_reason=data.air_reason,
+            message=(
+                f"{subject.name}님의 위험 단계가 "
+                "안전으로 변경되었습니다."
+            ),
+            notify_guardians=True,
+            notify_subject=False,
+            notify_managers=False,
+        )
 
     return risk_status
 
@@ -2514,12 +2957,6 @@ def get_alerts(
 
     return query.order_by(models.Alert.created_at.desc()).all()
 
-@app.patch(
-    "/alerts/{alert_id}/read",
-    response_model=schemas.AlertResponse,
-    tags=["알림"]
-)
-
 @app.post(
     "/guardians/{guardian_id}/test-push",
     tags=["알림"],
@@ -2594,9 +3031,14 @@ def test_push(
         "results": results,
     }
 
+@app.patch(
+    "/alerts/{alert_id}/read",
+    response_model=schemas.AlertResponse,
+    tags=["알림"],
+)
 def mark_alert_as_read(
     alert_id: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     alert = (
         db.query(models.Alert)
@@ -2634,9 +3076,14 @@ def register_push_token(
             models.Guardian,
             data.user_id,
         )
-    else:
+    elif data.user_type == "subject":
         user = db.get(
             models.Subject,
+            data.user_id,
+        )
+    else:
+        user = db.get(
+            models.InstitutionManager,
             data.user_id,
         )
 
@@ -2725,43 +3172,13 @@ def calculate_integrated_risk(
 # GPS AI 추론
 # =========================================================
 @app.post(
-    "/subjects/{subject_id}/gps-inference",
-    response_model=schemas.GPSInferenceResponse,
-    tags=["AI"],
-)
-def infer_subject_gps(
-    subject_id: int,
-    target_date: date = Query(default_factory=date.today),
-    db: Session = Depends(get_db),
-):
-    try:
-        result = run_gps_inference(
-            db=db,
-            subject_id=subject_id,
-            target_date=target_date,
-        )
-    except ValueError as error:
-        raise HTTPException(
-            status_code=422,
-            detail=str(error),
-        )
-
-    result["risk_level"] = (
-        "danger"
-        if result.pop("is_anomaly")
-        else "safe"
-    )
-
-    return result
-
-@app.post(
     "/subjects/{subject_id}/integrated-risk",
     response_model=schemas.RiskStatusResponse,
     tags=["위험도"],
 )
 def calculate_subject_integrated_risk(
     subject_id: int,
-    lmtad_score: float,
+    lmtad_score: float = Query(ge=0, le=100),
     db: Session = Depends(get_db),
 ):
     subject = db.get(
@@ -2845,6 +3262,82 @@ def calculate_subject_integrated_risk(
         )
     )
 
+    # 직전 상태를 먼저 조회해 단계 변화를 판단합니다.
+    previous_status = (
+        db.query(models.RiskStatusHistory)
+        .filter(
+            models.RiskStatusHistory.subject_id
+            == subject_id
+        )
+        .order_by(
+            models.RiskStatusHistory.created_at.desc(),
+            models.RiskStatusHistory.id.desc(),
+        )
+        .first()
+    )
+    previous_level = (
+        previous_status.risk_level
+        if previous_status
+        else None
+    )
+
+    # 세부 위험 원인
+    lmtad_reason = (
+        "GPS 이동 경로 이상 감지"
+        if lmtad_score >= 70
+        else "GPS 이동 경로 이상 없음"
+    )
+
+    weather_reason = (
+        "기상 위험 요소 감지"
+        if weather_score >= 40
+        else "기상 위험 요소 없음"
+    )
+
+    air_reason = (
+        "대기질 위험 요소 감지"
+        if air_score >= 40
+        else "대기질 위험 요소 없음"
+    )
+
+    # 알림 스냅샷에는 현재 화면을 다시 조회한 값이 아닌, 이 계산 시점의
+    # 관측값으로 만든 설명을 함께 저장합니다.
+    weather_warning = weather_data.get("weather_warning") or {}
+    alert_weather_description = generate_environment_description(
+        factor_name="기상",
+        observations={
+            "temperature_c": weather_data.get("temperature"),
+            "apparent_temperature_c": weather_data.get("apparent_temperature"),
+            "rainfall_1h_mm": weather_data.get("rainfall_1h"),
+            "precipitation_type": weather_data.get("precipitation_type"),
+            "wind_speed_mps": weather_data.get("wind_speed"),
+            "weather_warning": {
+                "highest_level": weather_warning.get("highest_level"),
+                "warnings": weather_warning.get("warnings", []),
+            },
+        },
+    ) if weather_score >= 40 else None
+    alert_air_description = generate_environment_description(
+        factor_name="대기질",
+        observations={
+                "pm10_ug_m3": air_quality.get("pm10"),
+                "pm25_ug_m3": air_quality.get("pm25"),
+                "ozone_ppm": air_quality.get("o3"),
+                "nitrogen_dioxide_ppm": air_quality.get("no2"),
+                "carbon_monoxide_ppm": air_quality.get("co"),
+                "sulfur_dioxide_ppm": air_quality.get("so2"),
+                "khai": air_quality.get("khai"),
+            "station_name": air_quality.get("station_name"),
+        },
+    ) if air_score >= 40 else None
+    alert_factors = build_alert_risk_factors(
+        lmtad_score=lmtad_score,
+        weather_score=weather_score,
+        air_score=air_score,
+        weather_description=alert_weather_description or weather_reason,
+        air_description=alert_air_description or air_reason,
+    )
+
     # DB 이력 저장
     risk_status = models.RiskStatusHistory(
         subject_id=subject_id,
@@ -2853,15 +3346,179 @@ def calculate_subject_integrated_risk(
         lmtad_score=lmtad_score,
         weather_score=weather_score,
         air_score=air_score,
+        lmtad_reason=lmtad_reason,
+        weather_reason=weather_reason,
+        air_reason=air_reason,
     )
 
     db.add(risk_status)
     db.commit()
     db.refresh(risk_status)
 
+    now = datetime.now(timezone.utc)
+
+    if risk_level == "safe":
+        if previous_level in {"caution", "danger"}:
+            notify_risk_transition(
+                db,
+                subject=subject,
+                alert_type="risk_recovered_safe",
+                risk_level=risk_level,
+                risk_score=final_score,
+                lmtad_score=lmtad_score,
+                weather_score=weather_score,
+                air_score=air_score,
+                lmtad_reason=lmtad_reason,
+                weather_reason=weather_reason,
+                air_reason=air_reason,
+                factors=alert_factors,
+                message=(
+                    f"{subject.name}님의 위험 단계가 "
+                    "안전으로 변경되었습니다."
+                ),
+                notify_guardians=True,
+                notify_subject=False,
+                notify_managers=False,
+            )
+
+    elif risk_level == "caution":
+        if previous_level in {None, "safe"}:
+            notify_risk_transition(
+                db,
+                subject=subject,
+                alert_type="risk_caution",
+                risk_level=risk_level,
+                risk_score=final_score,
+                lmtad_score=lmtad_score,
+                weather_score=weather_score,
+                air_score=air_score,
+                lmtad_reason=lmtad_reason,
+                weather_reason=weather_reason,
+                air_reason=air_reason,
+                factors=alert_factors,
+                message=(
+                    f"{subject.name}님이 주의 단계에 "
+                    f"진입했습니다. (위험 점수: {final_score:g})"
+                ),
+                notify_guardians=True,
+                notify_subject=True,
+                notify_managers=False,
+            )
+
+        elif previous_level == "caution":
+            last_non_caution = (
+                db.query(models.RiskStatusHistory)
+                .filter(
+                    models.RiskStatusHistory.subject_id
+                    == subject_id,
+                    models.RiskStatusHistory.risk_level
+                    != "caution",
+                )
+                .order_by(
+                    models.RiskStatusHistory.created_at.desc(),
+                    models.RiskStatusHistory.id.desc(),
+                )
+                .first()
+            )
+
+            if (
+                last_non_caution
+                and last_non_caution.risk_level == "danger"
+                and last_non_caution.created_at
+                <= now
+                - timedelta(
+                    minutes=RISK_DANGER_TO_CAUTION_MINUTES
+                )
+            ):
+                already_notified = (
+                    db.query(models.Alert)
+                    .filter(
+                        models.Alert.subject_id == subject_id,
+                        models.Alert.type
+                        == "risk_danger_to_caution",
+                        models.Alert.created_at
+                        >= last_non_caution.created_at,
+                    )
+                    .first()
+                )
+
+                if not already_notified:
+                    notify_risk_transition(
+                        db,
+                        subject=subject,
+                        alert_type="risk_danger_to_caution",
+                        risk_level=risk_level,
+                        risk_score=final_score,
+                        lmtad_score=lmtad_score,
+                        weather_score=weather_score,
+                        air_score=air_score,
+                        lmtad_reason=lmtad_reason,
+                        weather_reason=weather_reason,
+                        air_reason=air_reason,
+                        factors=alert_factors,
+                        message=(
+                            f"{subject.name}님의 위험 단계가 "
+                            f"{RISK_DANGER_TO_CAUTION_MINUTES}분 동안 "
+                            "주의로 유지되어 단계가 완화되었습니다."
+                        ),
+                        notify_guardians=True,
+                        notify_subject=False,
+                        notify_managers=False,
+                    )
+
+    else:
+        repeat_cutoff = now - timedelta(
+            minutes=RISK_DANGER_REPEAT_MINUTES
+        )
+        recent_danger_alert = (
+            db.query(models.Alert)
+            .filter(
+                models.Alert.subject_id == subject_id,
+                models.Alert.type == "risk_danger",
+                models.Alert.created_at >= repeat_cutoff,
+            )
+            .first()
+        )
+
+        if previous_level != "danger" or not recent_danger_alert:
+            nearby_facilities = (
+                get_nearby_facilities_for_alert(
+                    db,
+                    latitude=latitude,
+                    longitude=longitude,
+                )
+            )
+            facility_text = format_nearby_facilities(
+                nearby_facilities
+            )
+
+            notify_risk_transition(
+                db,
+                subject=subject,
+                alert_type="risk_danger",
+                risk_level=risk_level,
+                risk_score=final_score,
+                lmtad_score=lmtad_score,
+                weather_score=weather_score,
+                air_score=air_score,
+                lmtad_reason=lmtad_reason,
+                weather_reason=weather_reason,
+                air_reason=air_reason,
+                factors=alert_factors,
+                message=(
+                    f"{subject.name}님이 위험 단계에 "
+                    f"진입했습니다. (위험 점수: {final_score:g}) "
+                    f"인근 시설: {facility_text}"
+                ),
+                notify_guardians=True,
+                notify_subject=True,
+                notify_managers=True,
+                nearby_facilities=nearby_facilities,
+            )
+
     return risk_status
 
-#gps inference
+# GPS inference
 @app.post(
     "/subjects/{subject_id}/gps-inference",
     response_model=schemas.GPSInferenceResponse,
@@ -2913,10 +3570,7 @@ def get_risk_analysis(
     subject_id: int,
     db: Session = Depends(get_db),
 ):
-    subject = db.get(
-        models.Subject,
-        subject_id,
-    )
+    subject = db.get(models.Subject, subject_id)
 
     if not subject:
         raise HTTPException(
@@ -2927,8 +3581,7 @@ def get_risk_analysis(
     risk_status = (
         db.query(models.RiskStatusHistory)
         .filter(
-            models.RiskStatusHistory.subject_id
-            == subject_id
+            models.RiskStatusHistory.subject_id == subject_id
         )
         .order_by(
             models.RiskStatusHistory.created_at.desc(),
@@ -2943,16 +3596,9 @@ def get_risk_analysis(
             detail="위험도 기록이 없습니다.",
         )
 
-    # 장시간 정지는 사용하지 않음
-    gps_score = float(
-        risk_status.lmtad_score or 0
-    )
-    weather_score = float(
-        risk_status.weather_score or 0
-    )
-    air_score = float(
-        risk_status.air_score or 0
-    )
+    gps_score = float(risk_status.lmtad_score or 0)
+    weather_score = float(risk_status.weather_score or 0)
+    air_score = float(risk_status.air_score or 0)
 
     factor_total = (
         gps_score
@@ -2960,8 +3606,6 @@ def get_risk_analysis(
         + air_score
     )
 
-    # 기존 최종 위험 점수가 있으면 그대로 사용
-    # 없으면 세부 점수 합계를 사용
     total_score = float(
         risk_status.risk_score
         if risk_status.risk_score is not None
@@ -2976,6 +3620,338 @@ def get_risk_analysis(
             score / factor_total * 100
         )
 
+    # -----------------------------------------------------
+    # GPS 설명
+    # -----------------------------------------------------
+    if gps_score >= 70:
+        # LMTAD는 이상 정도를 점수화합니다. 모델이 제공하지 않은 구체적인
+        # 이탈 거리나 정지 원인을 추측하지 않고 패턴 차이만 설명합니다.
+        gps_description = "평소 이동 패턴과 다른 움직임이 감지되었습니다."
+    else:
+        gps_description = (
+            "현재 GPS 이동 패턴에서 특이사항이 감지되지 않았습니다."
+        )
+
+    # -----------------------------------------------------
+    # 최신 GPS 위치 기준 실제 환경정보 조회
+    # -----------------------------------------------------
+    weather_data = None
+    air_data = None
+
+    latest_gps = (
+        db.query(models.GPSRecord)
+        .filter(
+            models.GPSRecord.subject_id == subject_id
+        )
+        .order_by(
+            models.GPSRecord.measured_at.desc(),
+            models.GPSRecord.gps_id.desc(),
+        )
+        .first()
+    )
+
+    if latest_gps:
+        try:
+            weather_data = get_weather_by_gps(
+                latest_gps.latitude,
+                latest_gps.longitude,
+            )
+        except Exception as exc:
+            print(
+                "[RISK ANALYSIS] weather lookup failed:",
+                exc,
+            )
+
+        try:
+            air_data = get_air_quality_by_gps(
+                latest_gps.latitude,
+                latest_gps.longitude,
+            )
+        except Exception as exc:
+            print(
+                "[RISK ANALYSIS] air lookup failed:",
+                exc,
+            )
+
+    # -----------------------------------------------------
+    # 기상 설명
+    # -----------------------------------------------------
+    weather_reasons = []
+
+    if weather_data:
+        temperature = weather_data.get("temperature")
+        apparent_temperature = weather_data.get(
+            "apparent_temperature"
+        )
+        rainfall = weather_data.get("rainfall_1h")
+        wind_speed = weather_data.get("wind_speed")
+        precipitation_type = weather_data.get(
+            "precipitation_type"
+        )
+
+        warning = weather_data.get(
+            "weather_warning"
+        ) or {}
+
+        warning_level = warning.get(
+            "highest_level"
+        )
+
+        if warning_level:
+            weather_reasons.append(
+                f"현재 지역에 {warning_level} 단계의 "
+                "기상특보가 적용되어 있습니다."
+            )
+
+        try:
+            apparent = float(apparent_temperature)
+        except (TypeError, ValueError):
+            apparent = None
+
+        try:
+            temp = float(temperature)
+        except (TypeError, ValueError):
+            temp = None
+
+        try:
+            rain = float(rainfall)
+        except (TypeError, ValueError):
+            rain = 0.0
+
+        try:
+            wind = float(wind_speed)
+        except (TypeError, ValueError):
+            wind = 0.0
+
+        if apparent is not None:
+            if apparent >= 35:
+                weather_reasons.append(
+                    f"체감온도가 {apparent:g}℃로 매우 높아 "
+                    "폭염 위험이 있습니다."
+                )
+            elif apparent >= 30:
+                weather_reasons.append(
+                    f"체감온도가 {apparent:g}℃로 높아 "
+                    "장시간 야외 활동에 주의가 필요합니다."
+                )
+            elif apparent <= -5:
+                weather_reasons.append(
+                    f"체감온도가 {apparent:g}℃로 낮아 "
+                    "한랭 위험이 있습니다."
+                )
+        elif temp is not None:
+            weather_reasons.append(
+                f"현재 기온은 {temp:g}℃입니다."
+            )
+
+        if rain >= 30:
+            weather_reasons.append(
+                f"최근 1시간 강수량이 {rain:g}mm로 "
+                "매우 강한 비가 내리고 있습니다."
+            )
+        elif rain >= 15:
+            weather_reasons.append(
+                f"최근 1시간 강수량이 {rain:g}mm로 "
+                "강한 비가 내리고 있습니다."
+            )
+        elif rain >= 5:
+            weather_reasons.append(
+                f"최근 1시간 강수량이 {rain:g}mm로 "
+                "보행 시 미끄럼에 주의가 필요합니다."
+            )
+
+        precipitation_names = {
+            "1": "비",
+            "2": "비 또는 눈",
+            "3": "눈",
+            "5": "빗방울",
+            "6": "빗방울 또는 눈날림",
+            "7": "눈날림",
+        }
+
+        pty_name = precipitation_names.get(
+            str(precipitation_type)
+        )
+
+        if pty_name and rain <= 0:
+            weather_reasons.append(
+                f"현재 {pty_name}가 관측되고 있어 "
+                "이동 시 주의가 필요합니다."
+            )
+
+        if wind >= 15:
+            weather_reasons.append(
+                f"풍속이 {wind:g}m/s로 매우 강해 "
+                "보행 안전에 주의가 필요합니다."
+            )
+        elif wind >= 10:
+            weather_reasons.append(
+                f"풍속이 {wind:g}m/s로 강한 편입니다."
+            )
+
+    if weather_score < 40:
+        weather_description = f"기상 위험 점수 {weather_score:g}점으로 안전 범위입니다."
+    elif weather_reasons:
+        weather_description = " ".join(
+            weather_reasons[:3]
+        )
+    elif weather_data:
+        weather_description = (
+            f"기상 위험 점수 {weather_score:g}점으로 "
+            f"{'위험' if weather_score >= 70 else '주의'} 단계입니다."
+        )
+    else:
+        weather_description = "기상 관측 정보를 불러오지 못해 추가 위험 요인을 확인할 수 없습니다."
+
+    # 기상 위험 판단과 점수는 기존 로직을 그대로 사용합니다. Gemini는 실제
+    # 관측값을 보호자가 이해하기 쉬운 문장으로 바꾸는 역할만 합니다.
+    if weather_data and weather_score >= 40 and weather_reasons:
+        gemini_weather_description = generate_environment_description(
+            factor_name="기상",
+            observations={
+                "temperature_c": weather_data.get("temperature"),
+                "apparent_temperature_c": weather_data.get("apparent_temperature"),
+                "rainfall_1h_mm": weather_data.get("rainfall_1h"),
+                "precipitation_type": weather_data.get("precipitation_type"),
+                "wind_speed_mps": weather_data.get("wind_speed"),
+                "weather_warning": {
+                    "highest_level": warning_level,
+                    "warnings": (weather_data.get("weather_warning") or {}).get("warnings", []),
+                },
+            },
+        )
+        if gemini_weather_description:
+            weather_description = gemini_weather_description
+
+    # -----------------------------------------------------
+    # 대기질 설명
+    # -----------------------------------------------------
+    air_reasons = []
+
+    if air_data:
+        quality = air_data.get(
+            "air_quality"
+        ) or {}
+
+        pm10 = quality.get("pm10")
+        pm25 = quality.get("pm25")
+        o3 = quality.get("o3")
+        no2 = quality.get("no2")
+        co = quality.get("co")
+        so2 = quality.get("so2")
+        khai = quality.get("khai")
+        station = quality.get("station_name")
+
+        def to_float(value):
+            try:
+                return float(value)
+            except (TypeError, ValueError):
+                return None
+
+        pm10_value = to_float(pm10)
+        pm25_value = to_float(pm25)
+        o3_value = to_float(o3)
+        no2_value = to_float(no2)
+        co_value = to_float(co)
+        so2_value = to_float(so2)
+
+        if pm10_value is not None:
+            if pm10_value > 150:
+                air_reasons.append(
+                    f"미세먼지(PM10)가 {pm10_value:g}㎍/㎥로 "
+                    "매우 나쁨 수준입니다."
+                )
+            elif pm10_value > 80:
+                air_reasons.append(
+                    f"미세먼지(PM10)가 {pm10_value:g}㎍/㎥로 "
+                    "나쁨 수준입니다."
+                )
+
+        if pm25_value is not None:
+            if pm25_value > 75:
+                air_reasons.append(
+                    f"초미세먼지(PM2.5)가 {pm25_value:g}㎍/㎥로 "
+                    "매우 나쁨 수준입니다."
+                )
+            elif pm25_value > 35:
+                air_reasons.append(
+                    f"초미세먼지(PM2.5)가 {pm25_value:g}㎍/㎥로 "
+                    "나쁨 수준입니다."
+                )
+
+        if o3_value is not None:
+            if o3_value > 0.15:
+                air_reasons.append(
+                    f"오존 농도가 {o3_value:g}ppm으로 높아 "
+                    "야외 활동에 주의가 필요합니다."
+                )
+            elif o3_value > 0.09:
+                air_reasons.append(
+                    f"오존 농도가 {o3_value:g}ppm으로 "
+                    "주의가 필요한 수준입니다."
+                )
+
+        def grade_value(value):
+            try:
+                return int(value)
+            except (TypeError, ValueError):
+                return None
+
+        def append_gas_reason(label, value, grade):
+            grade_number = grade_value(grade)
+            if grade_number is None or grade_number < 3:
+                return
+            level = "매우 나쁨" if grade_number >= 4 else "나쁨"
+            value_text = f" {value:g}ppm" if value is not None else ""
+            air_reasons.append(f"{label} 농도가{value_text}로 {level} 수준입니다.")
+
+        # AirKorea가 내려주는 오염물질 등급(나쁨/매우 나쁨)도 함께 반영합니다.
+        append_gas_reason("이산화질소(NO₂)", no2_value, quality.get("no2_grade"))
+        append_gas_reason("일산화탄소(CO)", co_value, quality.get("co_grade"))
+        append_gas_reason("아황산가스(SO₂)", so2_value, quality.get("so2_grade"))
+
+        if not air_reasons and khai is not None:
+            air_reasons.append(
+                f"통합대기환경지수(KHAI)는 {khai}입니다."
+            )
+
+        if station and air_reasons:
+            air_reasons.append(
+                f"{station} 측정소의 최신 관측값을 기준으로 분석했습니다."
+            )
+
+    if air_score < 40:
+        air_description = f"대기질 위험 점수 {air_score:g}점으로 안전 범위입니다."
+    elif air_reasons:
+        air_description = " ".join(
+            air_reasons[:3]
+        )
+    elif air_data:
+        air_description = (
+            f"대기질 위험 점수 {air_score:g}점으로 "
+            f"{'위험' if air_score >= 70 else '주의'} 단계입니다."
+        )
+    else:
+        air_description = "대기질 관측 정보를 불러오지 못해 추가 위험 요인을 확인할 수 없습니다."
+
+    # 대기질도 관측값으로 이미 산출한 점수는 건드리지 않고 설명문만 생성합니다.
+    if air_data and air_score >= 40 and air_reasons:
+        gemini_air_description = generate_environment_description(
+            factor_name="대기질",
+            observations={
+                "pm10_ug_m3": pm10,
+                "pm25_ug_m3": pm25,
+                "ozone_ppm": o3,
+                "nitrogen_dioxide_ppm": no2,
+                "carbon_monoxide_ppm": co,
+                "sulfur_dioxide_ppm": so2,
+                "khai": khai,
+                "station_name": station,
+            },
+        )
+        if gemini_air_description:
+            air_description = gemini_air_description
+
     factors = [
         {
             "type": "gps_deviation",
@@ -2984,14 +3960,7 @@ def get_risk_analysis(
             "percentage": percentage(
                 gps_score
             ),
-            "description": (
-                "평소 이동 패턴과 다른 위치 이동이 "
-                "감지되었습니다."
-                if gps_score > 0
-                else
-                "현재 GPS 이동 패턴에서 "
-                "특이사항이 없습니다."
-            ),
+            "description": gps_description,
         },
         {
             "type": "weather",
@@ -3000,14 +3969,7 @@ def get_risk_analysis(
             "percentage": percentage(
                 weather_score
             ),
-            "description": (
-                "현재 위치의 기상 상황이 "
-                "위험도에 영향을 주고 있습니다."
-                if weather_score > 0
-                else
-                "현재 기상으로 인한 "
-                "추가 위험이 없습니다."
-            ),
+            "description": weather_description,
         },
         {
             "type": "air",
@@ -3016,14 +3978,7 @@ def get_risk_analysis(
             "percentage": percentage(
                 air_score
             ),
-            "description": (
-                "현재 위치의 대기질이 "
-                "위험도에 영향을 주고 있습니다."
-                if air_score > 0
-                else
-                "현재 대기질로 인한 "
-                "추가 위험이 없습니다."
-            ),
+            "description": air_description,
         },
     ]
 
@@ -3033,4 +3988,39 @@ def get_risk_analysis(
         "risk_level": risk_status.risk_level,
         "measured_at": risk_status.created_at,
         "factors": factors,
+    }
+
+
+@app.post(
+    "/subjects/{subject_id}/test-push",
+    tags=["알림"],
+)
+def test_subject_push(
+    subject_id: int,
+    db: Session = Depends(get_db),
+):
+    subject = db.get(models.Subject, subject_id)
+
+    if not subject:
+        raise HTTPException(
+            status_code=404,
+            detail="보호대상자를 찾을 수 없습니다.",
+        )
+
+    result = send_push_to_user(
+        db,
+        user_type="subject",
+        user_id=subject_id,
+        title="안심하랑께 테스트 알림",
+        body="FCM 푸시 알림 테스트입니다.",
+        data={
+            "type": "test",
+            "subject_id": str(subject_id),
+        },
+    )
+
+    return {
+        "message": "테스트 푸시 전송을 시도했습니다.",
+        "subject_id": subject_id,
+        "result": result,
     }

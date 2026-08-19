@@ -138,7 +138,7 @@ function deriveFactorPercents(factors: RiskFactor[], totalScore: number): RiskFa
   }));
 }
 
-function toCurrentRiskStatus(value: unknown): CurrentRiskStatus {
+export function parseRiskStatus(value: unknown): CurrentRiskStatus {
   const payload = asRecord(value) ?? {};
   const nested = asRecord(payload.risk_status ?? payload.data ?? payload.result);
   const source = nested ?? payload;
@@ -156,7 +156,14 @@ function toCurrentRiskStatus(value: unknown): CurrentRiskStatus {
 export async function getCurrentRiskStatus(subjectId: number): Promise<CurrentRiskStatus> {
   const response = await fetch(`${API_BASE_URL}/subjects/${encodeURIComponent(String(subjectId))}/risk-status`);
   if (!response.ok) throw new Error('현재 위험도를 불러오지 못했습니다.');
-  return toCurrentRiskStatus(await response.json());
+  return parseRiskStatus(await response.json());
+}
+
+// 화면용 현재 분석 API: 총점, 단계, 항목별 점수·비율·상세 이유를 함께 제공합니다.
+export async function getRiskAnalysis(subjectId: number): Promise<CurrentRiskStatus> {
+  const response = await fetch(`${API_BASE_URL}/subjects/${encodeURIComponent(String(subjectId))}/risk-analysis`);
+  if (!response.ok) throw new Error('위험요인 분석을 불러오지 못했습니다.');
+  return parseRiskStatus(await response.json());
 }
 
 export async function getRiskHistory(subjectId: number): Promise<CurrentRiskStatus[]> {
@@ -171,5 +178,5 @@ export async function getRiskHistory(subjectId: number): Promise<CurrentRiskStat
       : Array.isArray(asRecord(payload)?.items)
         ? (asRecord(payload)?.items as unknown[])
         : [];
-  return list.map(toCurrentRiskStatus);
+  return list.map(parseRiskStatus);
 }

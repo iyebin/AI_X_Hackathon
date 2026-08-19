@@ -3,12 +3,17 @@ import { useRouter } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import { Animated, Easing, ImageBackground, StyleSheet, View } from 'react-native';
 import { getSavedSession, setCurrentGuardian } from '@/features/auth/current-session';
-import { getAlerts } from '@/features/alerts/alerts-api';
+import { getAlert } from '@/features/alerts/alerts-api';
 import { setProtectorPhone } from '@/features/contacts/protector-contact-store';
 
 function asPositiveInteger(value: unknown): number | undefined {
   const numberValue = typeof value === 'number' ? value : Number(value);
   return Number.isInteger(numberValue) && numberValue > 0 ? numberValue : undefined;
+}
+
+function isDangerPush(data: Notifications.Notification['request']['content']['data'], alertKind?: string): boolean {
+  const value = String(data.risk_level ?? data.riskLevel ?? data.type ?? '').toLowerCase();
+  return ['danger', 'risk', 'risk_danger', 'risk_danger_repeat'].includes(value) || alertKind === 'danger';
 }
 
 export default function LoadingScreen() {
@@ -53,14 +58,9 @@ export default function LoadingScreen() {
 
               const data = response.notification.request.content.data;
               const alertId = String(data.alert_id ?? data.alertId ?? '');
-              const alert = alertId
-                ? await getAlerts()
-                  .then((alerts) => alerts.find((item) => item.id === alertId))
-                  .catch(() => undefined)
-                : undefined;
+              const alert = alertId ? await getAlert(alertId).catch(() => undefined) : undefined;
               const subjectId = asPositiveInteger(data.subject_id ?? data.subjectId) ?? alert?.subjectId;
-              const severity = String(data.risk_level ?? data.riskLevel ?? data.type ?? '').toLowerCase();
-              if (alertId && subjectId && (severity === 'danger' || severity === 'risk' || alert?.kind === 'danger')) {
+              if (subjectId && isDangerPush(data, alert?.kind)) {
                 setTimeout(() => {
                   router.push({
                     pathname: '/danger-modal',
@@ -69,6 +69,8 @@ export default function LoadingScreen() {
                       subjectId: String(subjectId),
                       dangerScore: String(data.risk_score ?? data.riskScore ?? alert?.riskScore ?? ''),
                       dangerReasons: String(data.reason ?? alert?.reason ?? alert?.message ?? ''),
+                      alertCreatedAt: alert?.createdAt ?? '',
+                      riskSnapshot: alert?.riskSnapshot ? JSON.stringify(alert.riskSnapshot) : '',
                     },
                   });
                 }, 700);
@@ -93,14 +95,9 @@ export default function LoadingScreen() {
 
             const data = response.notification.request.content.data;
             const alertId = String(data.alert_id ?? data.alertId ?? '');
-            const alert = alertId
-              ? await getAlerts()
-                .then((alerts) => alerts.find((item) => item.id === alertId))
-                .catch(() => undefined)
-              : undefined;
+            const alert = alertId ? await getAlert(alertId).catch(() => undefined) : undefined;
             const receivedSubjectId = asPositiveInteger(data.subject_id ?? data.subjectId) ?? alert?.subjectId ?? session.userId;
-            const severity = String(data.risk_level ?? data.riskLevel ?? data.type ?? '').toLowerCase();
-            if (alertId && receivedSubjectId && (severity === 'danger' || severity === 'risk' || alert?.kind === 'danger')) {
+            if (receivedSubjectId && isDangerPush(data, alert?.kind)) {
               setTimeout(() => {
                 router.push({
                   pathname: '/danger-modal',
@@ -109,6 +106,8 @@ export default function LoadingScreen() {
                     subjectId: String(receivedSubjectId),
                     dangerScore: String(data.risk_score ?? data.riskScore ?? alert?.riskScore ?? ''),
                     dangerReasons: String(data.reason ?? alert?.reason ?? alert?.message ?? ''),
+                    alertCreatedAt: alert?.createdAt ?? '',
+                    riskSnapshot: alert?.riskSnapshot ? JSON.stringify(alert.riskSnapshot) : '',
                     viewerRole: 'protected',
                   },
                 });

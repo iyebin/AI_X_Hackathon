@@ -2616,6 +2616,8 @@ async function loadBaseData() {
 
     populateInstitutionSelect();
 
+populateRelationUserSelects();
+
     renderUserManagement();
 
     renderAuthManagement();
@@ -3907,21 +3909,99 @@ function populateInstitutionSelect() {
   }
 }
 
+function populateRelationUserSelects() {
+  const subjectExistingGuardian =
+    document.getElementById("subjectExistingGuardian");
+
+  const guardianExistingSubject =
+    document.getElementById("guardianExistingSubject");
+
+  if (subjectExistingGuardian) {
+    subjectExistingGuardian.innerHTML =
+      `<option value="">보호자를 선택하세요.</option>` +
+      guardians
+        .map(
+          (guardian) => `
+            <option value="${guardian.id}">
+              ${escapeHtml(guardian.name)}
+              ·
+              ${escapeHtml(guardian.phone || "-")}
+            </option>
+          `
+        )
+        .join("");
+  }
+
+  if (guardianExistingSubject) {
+    guardianExistingSubject.innerHTML =
+      `<option value="">보호대상자를 선택하세요.</option>` +
+      subjects
+        .map(
+          (subject) => `
+            <option value="${subject.id}">
+              ${escapeHtml(subject.name)}
+              ·
+              ${escapeHtml(subject.phone || "-")}
+            </option>
+          `
+        )
+        .join("");
+  }
+}
 
 async function createSubject(event) {
 
   event.preventDefault();
 
 
-  if (
-    !subjectAddress.value.trim()
-  ) {
+  if (!subjectAddress.value.trim()) {
 
     alert(
       "주소 검색을 통해 주소를 선택해주세요."
     );
 
     return;
+  }
+
+
+  const guardianMode =
+    document.getElementById(
+      "subjectGuardianMode"
+    )?.value;
+
+
+  const relationshipCode =
+    document.getElementById(
+      "subjectRelationship"
+    )?.value;
+
+
+  if (!relationshipCode) {
+
+    alert(
+      "보호자와의 관계를 선택해주세요."
+    );
+
+    return;
+  }
+
+
+  if (guardianMode === "existing") {
+
+    const selectedGuardianId =
+      document.getElementById(
+        "subjectExistingGuardian"
+      )?.value;
+
+
+    if (!selectedGuardianId) {
+
+      alert(
+        "연결할 보호자를 선택해주세요."
+      );
+
+      return;
+    }
   }
 
 
@@ -3970,22 +4050,193 @@ async function createSubject(event) {
       "추가 중...";
 
 
-    await apiRequest(
-      "/subjects",
-      {
-        method: "POST",
+    /* ======================================
+       1. 보호대상자 생성
+    ====================================== */
 
-        headers: {
-          "Content-Type":
-            "application/json"
-        },
+    const createdSubject =
+      await apiRequest(
+        "/subjects",
+        {
+          method: "POST",
 
-        body:
-          JSON.stringify(
-            payload
-          )
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
+
+          body:
+            JSON.stringify(
+              payload
+            )
+        }
+      );
+
+
+    if (!createdSubject?.id) {
+
+      throw new Error(
+        "생성된 보호대상자의 ID를 확인할 수 없습니다."
+      );
+    }
+
+
+    const subjectId =
+      createdSubject.id;
+console.log(
+  "새 보호대상자 생성 결과:",
+  createdSubject,
+  "subjectId:",
+  subjectId
+);
+
+    let guardianId;
+
+
+    /* ======================================
+       2-A. 기존 보호자 연결
+    ====================================== */
+
+    if (
+      guardianMode ===
+      "existing"
+    ) {
+
+      guardianId =
+        Number(
+          document.getElementById(
+            "subjectExistingGuardian"
+          ).value
+        );
+    }
+
+
+    /* ======================================
+       2-B. 새 보호자 생성
+    ====================================== */
+
+    else {
+
+      const newGuardianName =
+        document.getElementById(
+          "subjectNewGuardianName"
+        )?.value.trim();
+
+
+      const newGuardianGender =
+        document.getElementById(
+          "subjectNewGuardianGender"
+        )?.value;
+
+
+      const newGuardianPhone =
+        document.getElementById(
+          "subjectNewGuardianPhone"
+        )?.value.trim();
+
+
+      const newGuardianBirthDate =
+        document.getElementById(
+          "subjectNewGuardianBirthDate"
+        )?.value;
+
+
+      const newGuardianAddress =
+        document.getElementById(
+          "subjectNewGuardianAddress"
+        )?.value.trim();
+
+
+      const newGuardianAddressDetail =
+        document.getElementById(
+          "subjectNewGuardianAddressDetail"
+        )?.value.trim();
+
+
+      if (
+        !newGuardianName ||
+        !newGuardianGender ||
+        !newGuardianPhone ||
+        !newGuardianBirthDate ||
+        !newGuardianAddress
+      ) {
+
+        throw new Error(
+          "새 보호자 정보를 모두 입력해주세요."
+        );
       }
+
+
+      const createdGuardian =
+        await apiRequest(
+          "/guardians",
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type":
+                "application/json"
+            },
+
+            body:
+              JSON.stringify({
+
+                name:
+                  newGuardianName,
+
+                gender:
+                  newGuardianGender,
+
+                phone:
+                  newGuardianPhone,
+
+                birth_date:
+                  newGuardianBirthDate,
+
+                address:
+                  makeFullAddress(
+                    newGuardianAddress,
+                    newGuardianAddressDetail
+                  )
+              })
+          }
+        );
+
+
+      if (!createdGuardian?.id) {
+
+        throw new Error(
+          "생성된 보호자의 ID를 확인할 수 없습니다."
+        );
+      }
+
+
+      guardianId =
+        createdGuardian.id;
+    }
+
+
+    /* ======================================
+       3. 보호대상자 ↔ 보호자 관계 생성
+    ====================================== */
+console.log(
+  "관계 생성 요청:",
+  {
+    subjectId,
+    guardianId,
+    relationshipCode
+  }
+);
+    await createGuardianRegistration(
+      subjectId,
+      guardianId,
+      relationshipCode
     );
+
+
+    /* 기존 관계 캐시 제거 */
+
+    relationCache.clear();
 
 
     userTab =
@@ -3999,14 +4250,20 @@ async function createSubject(event) {
 
 
     alert(
-      "보호대상자가 DB에 추가되었습니다."
+      "보호대상자와 보호자가 함께 등록되었습니다."
     );
 
 
   } catch (error) {
 
+    console.error(
+      "보호대상자 등록 실패:",
+      error
+    );
+
+
     alert(
-      `보호대상자 추가 실패\n${error.message}`
+      `보호대상자 등록 실패\n${error.message}`
     );
 
 
@@ -4021,23 +4278,42 @@ async function createSubject(event) {
   }
 }
 
-
 async function createGuardian(event) {
 
   event.preventDefault();
 
-
-  if (
-    !guardianAddress.value.trim()
-  ) {
-
-    alert(
-      "주소 검색을 통해 주소를 선택해주세요."
-    );
-
+  if (!guardianAddress.value.trim()) {
+    alert("주소 검색을 통해 주소를 선택해주세요.");
     return;
   }
 
+  const subjectMode =
+    document.getElementById(
+      "guardianSubjectMode"
+    )?.value;
+
+  const relationshipCode =
+    document.getElementById(
+      "guardianRelationship"
+    )?.value;
+
+  if (!relationshipCode) {
+    alert("보호대상자와의 관계를 선택해주세요.");
+    return;
+  }
+
+  if (subjectMode === "existing") {
+
+    const selectedSubjectId =
+      document.getElementById(
+        "guardianExistingSubject"
+      )?.value;
+
+    if (!selectedSubjectId) {
+      alert("연결할 보호대상자를 선택해주세요.");
+      return;
+    }
+  }
 
   const payload = {
 
@@ -4060,68 +4336,276 @@ async function createGuardian(event) {
       )
   };
 
-
   try {
 
-    submitGuardianButton.disabled =
-      true;
+    submitGuardianButton.disabled = true;
+    submitGuardianButton.textContent = "추가 중...";
 
 
-    submitGuardianButton.textContent =
-      "추가 중...";
+    /* ======================================
+       1. 보호자 생성
+    ====================================== */
+
+    const createdGuardian =
+      await apiRequest(
+        "/guardians",
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type": "application/json"
+          },
+
+          body: JSON.stringify(payload)
+        }
+      );
+
+    if (!createdGuardian?.id) {
+      throw new Error(
+        "생성된 보호자의 ID를 확인할 수 없습니다."
+      );
+    }
+
+    const guardianId =
+      createdGuardian.id;
+
+    let subjectId;
 
 
-    await apiRequest(
-      "/guardians",
-      {
-        method: "POST",
+    /* ======================================
+       2-A. 기존 보호대상자 연결
+    ====================================== */
 
-        headers: {
-          "Content-Type":
-            "application/json"
-        },
+    if (subjectMode === "existing") {
 
-        body:
-          JSON.stringify(
-            payload
-          )
+      subjectId =
+        Number(
+          document.getElementById(
+            "guardianExistingSubject"
+          ).value
+        );
+    }
+
+
+    /* ======================================
+       2-B. 새 보호대상자 생성
+    ====================================== */
+
+    else {
+
+      const newSubjectName =
+        document.getElementById(
+          "guardianNewSubjectName"
+        )?.value.trim();
+
+      const newSubjectGender =
+        document.getElementById(
+          "guardianNewSubjectGender"
+        )?.value;
+
+      const newSubjectPhone =
+        document.getElementById(
+          "guardianNewSubjectPhone"
+        )?.value.trim();
+
+      const newSubjectBirthDate =
+        document.getElementById(
+          "guardianNewSubjectBirthDate"
+        )?.value;
+
+      const newSubjectAddress =
+        document.getElementById(
+          "guardianNewSubjectAddress"
+        )?.value.trim();
+
+      const newSubjectAddressDetail =
+        document.getElementById(
+          "guardianNewSubjectAddressDetail"
+        )?.value.trim();
+
+      const newSubjectType =
+        document.getElementById(
+          "guardianNewSubjectType"
+        )?.value;
+
+      const newSubjectInstitution =
+        document.getElementById(
+          "guardianNewSubjectInstitution"
+        )?.value;
+
+      const newSubjectSpecialNotes =
+        document.getElementById(
+          "guardianNewSubjectSpecialNotes"
+        )?.value.trim();
+
+
+      if (
+        !newSubjectName ||
+        !newSubjectGender ||
+        !newSubjectPhone ||
+        !newSubjectBirthDate ||
+        !newSubjectAddress ||
+        !newSubjectType
+      ) {
+        throw new Error(
+          "새 보호대상자의 필수 정보를 모두 입력해주세요."
+        );
       }
+
+
+      const createdSubject =
+        await apiRequest(
+          "/subjects",
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({
+
+              name:
+                newSubjectName,
+
+              gender:
+                newSubjectGender,
+
+              phone:
+                newSubjectPhone,
+
+              birth_date:
+                newSubjectBirthDate,
+
+              address:
+                makeFullAddress(
+                  newSubjectAddress,
+                  newSubjectAddressDetail
+                ),
+
+              subject_type:
+                newSubjectType,
+
+              institution_id:
+                newSubjectInstitution
+                  ? Number(newSubjectInstitution)
+                  : null,
+
+              special_notes:
+                newSubjectSpecialNotes || ""
+            })
+          }
+        );
+
+      if (!createdSubject?.id) {
+        throw new Error(
+          "생성된 보호대상자의 ID를 확인할 수 없습니다."
+        );
+      }
+
+      subjectId =
+        createdSubject.id;
+    }
+
+
+    /* ======================================
+       3. 보호자 ↔ 보호대상자 관계 생성
+    ====================================== */
+
+    await createGuardianRegistration(
+      subjectId,
+      guardianId,
+      relationshipCode
     );
 
 
-    userTab =
-      "guardians";
+    relationCache.clear();
 
+    userTab = "guardians";
 
     closeUserAddModal();
 
-
     await loadBaseData();
 
-
     alert(
-      "보호자가 DB에 추가되었습니다."
+      "보호자와 보호대상자가 함께 등록되었습니다."
     );
 
 
   } catch (error) {
 
-    alert(
-      `보호자 추가 실패\n${error.message}`
+    console.error(
+      "보호자 등록 실패:",
+      error
     );
 
+    alert(
+      `보호자 등록 실패\n${error.message}`
+    );
 
   } finally {
 
-    submitGuardianButton.disabled =
-      false;
-
-
-    submitGuardianButton.textContent =
-      "보호자 추가";
+    submitGuardianButton.disabled = false;
+    submitGuardianButton.textContent = "보호자 추가";
   }
 }
 
+async function createGuardianRegistration(
+  subjectId,
+  guardianId,
+  relationshipCode
+) {
+
+  let relationshipNote = null;
+
+
+  if (relationshipCode === "other") {
+
+    const subjectEtcInput =
+      document.getElementById(
+        "subjectRelationshipEtc"
+      );
+
+    const guardianEtcInput =
+      document.getElementById(
+        "guardianRelationshipEtc"
+      );
+
+
+    relationshipNote =
+      subjectEtcInput?.value?.trim() ||
+      guardianEtcInput?.value?.trim() ||
+      "";
+
+
+    if (!relationshipNote) {
+
+      throw new Error(
+        "기타 관계에 대한 메모를 입력해주세요."
+      );
+    }
+  }
+
+
+  return apiRequest(
+    "/guardian-registrations",
+    {
+      method: "POST",
+
+      headers: {
+        "Content-Type": "application/json"
+      },
+
+      body: JSON.stringify({
+        subject_id: Number(subjectId),
+        guardian_id: Number(guardianId),
+        relationship_code: relationshipCode,
+        relationship_note: relationshipNote,
+        is_primary: false
+      })
+    }
+  );
+}
 
 /* ==================================================
    RELATION
@@ -4385,12 +4869,13 @@ async function openUserDetail(
                 </strong>
 
                 <p>
-                  관계 ·
-                  ${escapeHtml(
-                    relation.relationship_code ||
-                    "-"
-                  )}
-                </p>
+  관계 ·
+  ${escapeHtml(
+    relation.relationship_code === "other"
+      ? `기타 (${relation.relationship_note || "-"})`
+      : relation.relationship_code || "-"
+  )}
+</p>
 
                 <p>
                   전화번호 ·
@@ -4521,6 +5006,86 @@ async function openUserDetail(
       "";
   }
 
+    /* ======================================
+     정보 수정 버튼
+  ====================================== */
+
+  document
+    .getElementById(
+      "userEditActionArea"
+    )
+    ?.remove();
+
+
+  const editActionArea =
+    document.createElement(
+      "div"
+    );
+
+
+  editActionArea.id =
+    "userEditActionArea";
+
+
+  editActionArea.style.cssText =
+    `
+      display:flex;
+      justify-content:flex-end;
+      padding:18px 0 4px;
+    `;
+
+
+  const editButton =
+    document.createElement(
+      "button"
+    );
+
+
+  editButton.type =
+    "button";
+
+
+  editButton.id =
+    "editUserButton";
+
+
+  editButton.textContent =
+    "정보 수정";
+
+
+  editButton.style.cssText =
+    `
+      height:38px;
+      padding:0 18px;
+      border:0;
+      border-radius:7px;
+      background:#1688cf;
+      color:#ffffff;
+      font-size:12px;
+      font-weight:700;
+      cursor:pointer;
+    `;
+
+
+  editActionArea.appendChild(
+    editButton
+  );
+
+    editButton.addEventListener(
+    "click",
+    () => {
+
+      openUserEditModal(
+        type,
+        user
+      );
+    }
+  );
+
+  userExtraInfo.insertAdjacentElement(
+    "afterend",
+    editActionArea
+  );
 
   document.body.classList.add(
     "drawer-open"
@@ -4537,6 +5102,919 @@ async function openUserDetail(
   }
 }
 
+function openUserEditModal(type, user) {
+
+  document
+    .getElementById("userEditOverlay")
+    ?.remove();
+
+
+  const overlay =
+    document.createElement("div");
+
+  overlay.id = "userEditOverlay";
+  overlay.className = "account-overlay";
+
+
+  const isSubject =
+    type === "subjects";
+
+
+  const institutionOptions =
+    institutions
+      .map(institution => `
+        <option
+          value="${institution.id}"
+          ${
+            Number(user.institution_id) ===
+            Number(institution.id)
+              ? "selected"
+              : ""
+          }
+        >
+          ${escapeHtml(
+            institution.name ||
+            `기관 ${institution.id}`
+          )}
+        </option>
+      `)
+      .join("");
+
+
+  const subjectFields =
+    isSubject
+      ? `
+        <div class="user-edit-field">
+
+          <label>유형 *</label>
+
+          <select id="editUserSubjectType">
+
+            <option
+              value="child"
+              ${user.subject_type === "child" ? "selected" : ""}
+            >
+              아동
+            </option>
+
+            <option
+              value="dementia"
+              ${user.subject_type === "dementia" ? "selected" : ""}
+            >
+              치매환자
+            </option>
+
+            <option
+              value="elderly"
+              ${user.subject_type === "elderly" ? "selected" : ""}
+            >
+              노인
+            </option>
+
+            <option
+              value="disability"
+              ${user.subject_type === "disability" ? "selected" : ""}
+            >
+              장애인
+            </option>
+
+            <option
+              value="general"
+              ${user.subject_type === "general" ? "selected" : ""}
+            >
+              일반
+            </option>
+
+            <option
+              value="other"
+              ${user.subject_type === "other" ? "selected" : ""}
+            >
+              기타
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <div class="user-edit-field">
+
+          <label>소속 기관</label>
+
+          <select id="editUserInstitution">
+
+            <option value="">
+              소속 기관 없음
+            </option>
+
+            ${institutionOptions}
+
+          </select>
+
+        </div>
+
+
+        <div class="user-edit-field full">
+
+          <label>특이사항</label>
+
+          <textarea
+            id="editUserSpecialNotes"
+            placeholder="필요한 특이사항을 입력하세요."
+          >${escapeHtml(
+            user.special_notes || ""
+          )}</textarea>
+
+        </div>
+      `
+      : "";
+
+
+  overlay.innerHTML = `
+
+    <div class="user-edit-dialog">
+
+      <div class="user-edit-header">
+
+        <div>
+
+          <h2>
+            ${
+              isSubject
+                ? "보호대상자 정보 수정"
+                : "보호자 정보 수정"
+            }
+          </h2>
+
+          <p>
+            등록된 사용자 정보를 수정합니다.
+          </p>
+
+        </div>
+
+
+        <button
+          id="closeUserEditModal"
+          class="user-edit-close"
+          type="button"
+        >
+          <i data-lucide="x"></i>
+        </button>
+
+      </div>
+
+
+      <div class="user-edit-body">
+
+        <div class="user-edit-grid">
+
+
+          <div class="user-edit-field">
+
+            <label>이름 *</label>
+
+            <input
+              id="editUserName"
+              type="text"
+              value="${escapeHtml(
+                user.name || ""
+              )}"
+            />
+
+          </div>
+
+
+          <div class="user-edit-field">
+
+            <label>성별 *</label>
+
+            <select id="editUserGender">
+
+              <option
+                value="male"
+                ${user.gender === "male" ? "selected" : ""}
+              >
+                남성
+              </option>
+
+              <option
+                value="female"
+                ${user.gender === "female" ? "selected" : ""}
+              >
+                여성
+              </option>
+
+              <option
+                value="unknown"
+                ${user.gender === "unknown" ? "selected" : ""}
+              >
+                미상
+              </option>
+
+            </select>
+
+          </div>
+
+
+          <div class="user-edit-field">
+
+            <label>전화번호 *</label>
+
+            <input
+              id="editUserPhone"
+              type="text"
+              value="${escapeHtml(
+                user.phone || ""
+              )}"
+              placeholder="010-0000-0000"
+            />
+
+          </div>
+
+
+          <div class="user-edit-field">
+
+            <label>생년월일 *</label>
+
+            <input
+              id="editUserBirthDate"
+              type="date"
+              value="${
+                user.birth_date
+                  ? String(user.birth_date).split("T")[0]
+                  : ""
+              }"
+            />
+
+          </div>
+
+
+<div class="user-edit-field full">
+
+  <label>주소 *</label>
+
+  <div class="user-edit-address-row">
+
+    <input
+      id="editUserAddress"
+      type="text"
+      value="${escapeHtml(
+        user.address || ""
+      )}"
+      placeholder="주소 검색을 눌러주세요."
+      readonly
+    />
+
+    <button
+      id="editUserAddressSearchButton"
+      type="button"
+      class="user-edit-address-button"
+    >
+      <i data-lucide="search"></i>
+      주소 검색
+    </button>
+
+  </div>
+
+</div>
+
+
+<div class="user-edit-field full">
+
+  <label>상세주소</label>
+
+  <input
+    id="editUserAddressDetail"
+    type="text"
+    placeholder="동, 호수 등 상세주소를 입력하세요."
+  />
+
+</div>
+
+
+          ${subjectFields}
+
+
+        </div>
+
+
+        <div class="user-edit-actions">
+
+          <button
+            id="cancelUserEditButton"
+            class="user-edit-cancel"
+            type="button"
+          >
+            취소
+          </button>
+
+          <button
+            id="saveUserEditButton"
+            class="user-edit-save"
+            type="button"
+          >
+            수정 완료
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+  `;
+
+
+  document.body.appendChild(overlay);
+
+
+  /* 수정창 전용 디자인 */
+  const style =
+    document.createElement("style");
+
+  style.id = "userEditStyle";
+
+  style.textContent = `
+
+    .user-edit-dialog {
+      width: min(760px, calc(100vw - 48px));
+      max-height: calc(100vh - 60px);
+      overflow-y: auto;
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(12, 29, 41, 0.18);
+    }
+
+    .user-edit-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      padding: 25px 28px 20px;
+      border-bottom: 1px solid #edf1f3;
+    }
+
+    .user-edit-header h2 {
+      margin: 0 0 6px;
+      color: #172027;
+      font-size: 20px;
+      font-weight: 800;
+    }
+
+    .user-edit-header p {
+      margin: 0;
+      color: #8a959c;
+      font-size: 12px;
+    }
+
+    .user-edit-close {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border: 0;
+      background: transparent;
+      color: #68747b;
+      cursor: pointer;
+    }
+
+    .user-edit-close svg {
+      width: 21px;
+      height: 21px;
+    }
+
+    .user-edit-body {
+      padding: 25px 28px 27px;
+    }
+
+    .user-edit-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px 18px;
+    }
+
+    .user-edit-field {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .user-edit-field.full {
+      grid-column: 1 / -1;
+    }
+
+    .user-edit-field label {
+      color: #172027;
+      font-size: 12px;
+      font-weight: 750;
+    }
+
+    .user-edit-field input,
+    .user-edit-field select,
+    .user-edit-field textarea {
+      width: 100%;
+      box-sizing: border-box;
+      border: 1px solid #d8e1e6;
+      border-radius: 9px;
+      background: #ffffff;
+      color: #263238;
+      font-family: inherit;
+      font-size: 13px;
+      outline: none;
+    }
+
+    .user-edit-field input,
+    .user-edit-field select {
+      height: 46px;
+      padding: 0 14px;
+    }
+
+    .user-edit-field textarea {
+      min-height: 95px;
+      padding: 13px 14px;
+      resize: vertical;
+    }
+
+    .user-edit-field input:focus,
+    .user-edit-field select:focus,
+    .user-edit-field textarea:focus {
+      border-color: #1688cf;
+    }
+
+    .user-edit-address-row {
+      display: grid;
+      grid-template-columns: 1fr 130px;
+      gap: 10px;
+    }
+
+    .user-edit-address-button {
+      height: 46px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      border: 1px solid #1688cf;
+      border-radius: 9px;
+      background: #ffffff;
+      color: #1688cf;
+      font-size: 12px;
+      font-weight: 750;
+      cursor: pointer;
+    }
+
+    .user-edit-address-button svg {
+      width: 17px;
+      height: 17px;
+    }
+
+    .user-edit-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 9px;
+      margin-top: 27px;
+    }
+
+    .user-edit-cancel,
+    .user-edit-save {
+      height: 43px;
+      padding: 0 20px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 750;
+      cursor: pointer;
+    }
+
+    .user-edit-cancel {
+      border: 1px solid #d6dfe4;
+      background: #ffffff;
+      color: #68747b;
+    }
+
+    .user-edit-save {
+      border: 0;
+      background: #1688cf;
+      color: #ffffff;
+    }
+
+    @media (max-width: 650px) {
+
+      .user-edit-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .user-edit-field.full {
+        grid-column: auto;
+      }
+
+      .user-edit-address-row {
+        grid-template-columns: 1fr 110px;
+      }
+    }
+  `;
+
+
+  document
+    .getElementById("userEditStyle")
+    ?.remove();
+
+  document.head.appendChild(style);
+
+
+  const closeEditModal =
+    () => {
+
+      overlay.remove();
+
+      document
+        .getElementById("userEditStyle")
+        ?.remove();
+    };
+
+
+  document
+    .getElementById("closeUserEditModal")
+    ?.addEventListener(
+      "click",
+      closeEditModal
+    );
+
+
+  document
+    .getElementById("cancelUserEditButton")
+    ?.addEventListener(
+      "click",
+      closeEditModal
+    );
+
+    document
+  .getElementById(
+    "saveUserEditButton"
+  )
+  ?.addEventListener(
+    "click",
+    async () => {
+
+      const saveButton =
+        document.getElementById(
+          "saveUserEditButton"
+        );
+
+
+      const name =
+        document
+          .getElementById(
+            "editUserName"
+          )
+          ?.value.trim();
+
+
+      const gender =
+        document
+          .getElementById(
+            "editUserGender"
+          )
+          ?.value;
+
+
+      const phone =
+        document
+          .getElementById(
+            "editUserPhone"
+          )
+          ?.value.trim();
+
+
+      const birthDate =
+        document
+          .getElementById(
+            "editUserBirthDate"
+          )
+          ?.value;
+
+
+      const baseAddress =
+        document
+          .getElementById(
+            "editUserAddress"
+          )
+          ?.value.trim();
+
+
+      const detailAddress =
+        document
+          .getElementById(
+            "editUserAddressDetail"
+          )
+          ?.value.trim();
+
+
+      if (
+        !name ||
+        !gender ||
+        !phone ||
+        !birthDate ||
+        !baseAddress
+      ) {
+
+        alert(
+          "필수 정보를 모두 입력해주세요."
+        );
+
+        return;
+      }
+
+
+      const address =
+        makeFullAddress(
+          baseAddress,
+          detailAddress || ""
+        );
+
+
+      const payload = {};
+
+
+      if (
+        name !==
+        String(user.name || "")
+      ) {
+        payload.name =
+          name;
+      }
+
+
+      if (
+        gender !==
+        String(user.gender || "")
+      ) {
+        payload.gender =
+          gender;
+      }
+
+
+      if (
+        phone !==
+        String(user.phone || "")
+      ) {
+        payload.phone =
+          phone;
+      }
+
+
+      const oldBirthDate =
+        user.birth_date
+          ? String(
+              user.birth_date
+            ).split("T")[0]
+          : "";
+
+
+      if (
+        birthDate !==
+        oldBirthDate
+      ) {
+        payload.birth_date =
+          birthDate;
+      }
+
+
+      /*
+        주소는 주소 검색을 새로 했거나
+        상세주소를 입력한 경우만 변경
+      */
+
+      if (
+        address !==
+        String(user.address || "")
+      ) {
+        payload.address =
+          address;
+      }
+
+
+      /*
+        보호대상자 전용 필드
+      */
+
+      if (isSubject) {
+
+        const subjectType =
+          document
+            .getElementById(
+              "editUserSubjectType"
+            )
+            ?.value;
+
+
+        const institutionValue =
+          document
+            .getElementById(
+              "editUserInstitution"
+            )
+            ?.value;
+
+
+        const specialNotes =
+          document
+            .getElementById(
+              "editUserSpecialNotes"
+            )
+            ?.value.trim() || "";
+
+
+        const institutionId =
+          institutionValue
+            ? Number(
+                institutionValue
+              )
+            : null;
+
+
+        if (
+          subjectType !==
+          String(
+            user.subject_type ||
+            ""
+          )
+        ) {
+          payload.subject_type =
+            subjectType;
+        }
+
+
+        const oldInstitutionId =
+          user.institution_id ===
+            null ||
+          user.institution_id ===
+            undefined
+            ? null
+            : Number(
+                user.institution_id
+              );
+
+
+        if (
+          institutionId !==
+          oldInstitutionId
+        ) {
+          payload.institution_id =
+            institutionId;
+        }
+
+
+        if (
+          specialNotes !==
+          String(
+            user.special_notes ||
+            ""
+          )
+        ) {
+          payload.special_notes =
+            specialNotes;
+        }
+      }
+
+
+      if (
+        Object.keys(
+          payload
+        ).length === 0
+      ) {
+
+        alert(
+          "변경된 정보가 없습니다."
+        );
+
+        return;
+      }
+
+
+      const endpoint =
+        isSubject
+          ? `/subjects/${user.id}`
+          : `/guardians/${user.id}`;
+
+
+      try {
+
+        saveButton.disabled =
+          true;
+
+
+        saveButton.textContent =
+          "수정 중...";
+
+
+        await apiRequest(
+          endpoint,
+          {
+            method:
+              "PATCH",
+
+            headers: {
+              "Content-Type":
+                "application/json"
+            },
+
+            body:
+              JSON.stringify(
+                payload
+              )
+          }
+        );
+
+
+        relationCache.clear();
+
+
+        closeEditModal();
+
+
+        await loadBaseData();
+
+
+        await openUserDetail(
+          type,
+          user.id
+        );
+
+
+        alert(
+          "사용자 정보가 수정되었습니다."
+        );
+
+
+      } catch (error) {
+
+        console.error(
+          "사용자 정보 수정 실패:",
+          error
+        );
+
+
+        alert(
+          `사용자 정보 수정 실패\n${error.message}`
+        );
+
+
+      } finally {
+
+        if (
+          document.body.contains(
+            saveButton
+          )
+        ) {
+
+          saveButton.disabled =
+            false;
+
+
+          saveButton.textContent =
+            "수정 완료";
+        }
+      }
+    }
+  );
+
+  overlay.addEventListener(
+    "click",
+    event => {
+
+      if (event.target === overlay) {
+        closeEditModal();
+      }
+    }
+  );
+
+
+  const editAddressInput =
+    document.getElementById(
+      "editUserAddress"
+    );
+
+const editAddressDetailInput =
+  document.getElementById(
+    "editUserAddressDetail"
+  );
+
+  document
+    .getElementById(
+      "editUserAddressSearchButton"
+    )
+    ?.addEventListener(
+      "click",
+      () => {
+
+        openPostcodeSearch(
+  editAddressInput,
+  editAddressDetailInput
+);
+      }
+    );
+
+
+  if (window.lucide) {
+    lucide.createIcons();
+  }
+}
 
 /* ==================================================
    AUTH
@@ -8514,21 +9992,345 @@ startApp();
         );
 
 
-      document
-        .getElementById(
-          "passwordChangeButton"
-        )
-        ?.addEventListener(
-          "click",
-          () => {
-
-            alert(
-              "비밀번호 변경 API는 아직 연결되지 않았습니다."
-            );
-          }
-        );
+    document
+  .getElementById(
+    "passwordChangeButton"
+  )
+  ?.addEventListener(
+    "click",
+    openPasswordChangeModal
+  );
     };
 
+    function openPasswordChangeModal() {
+
+  const manager =
+    getLoggedInManager();
+
+
+  if (!manager?.id) {
+
+    alert(
+      "로그인한 관리자 정보를 확인할 수 없습니다."
+    );
+
+    return;
+  }
+
+
+  const overlay =
+    document.createElement(
+      "div"
+    );
+
+
+  overlay.id =
+    "passwordChangeOverlay";
+
+
+  overlay.className =
+    "account-overlay";
+
+
+  overlay.innerHTML = `
+
+    <div class="account-dialog">
+
+      <div class="account-dialog-header">
+
+        <h2>
+          비밀번호 변경
+        </h2>
+
+        <button
+          class="account-dialog-close"
+          type="button"
+          id="closePasswordChangeDialog"
+        >
+          <i data-lucide="x"></i>
+        </button>
+
+      </div>
+
+
+      <div class="account-dialog-body">
+
+        <div class="settings-field">
+
+          <label>
+            현재 비밀번호
+          </label>
+
+          <input
+            id="currentPasswordInput"
+            type="password"
+            placeholder="현재 비밀번호를 입력하세요"
+          />
+
+        </div>
+
+
+        <div class="settings-field">
+
+          <label>
+            새 비밀번호
+          </label>
+
+          <input
+            id="newPasswordInput"
+            type="password"
+            placeholder="새 비밀번호를 입력하세요"
+          />
+
+        </div>
+
+
+        <div class="settings-field">
+
+          <label>
+            비밀번호 확인
+          </label>
+
+          <input
+            id="newPasswordConfirmInput"
+            type="password"
+            placeholder="새 비밀번호를 다시 입력하세요"
+          />
+
+        </div>
+
+
+        <div class="settings-action-row">
+
+          <button
+            class="settings-button cancel"
+            type="button"
+            id="passwordChangeCancelButton"
+          >
+            취소
+          </button>
+
+
+          <button
+            class="settings-button save"
+            type="button"
+            id="passwordChangeSaveButton"
+          >
+            변경
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+  `;
+
+
+  document.body.appendChild(
+    overlay
+  );
+
+
+  function closePasswordModal() {
+
+    overlay.remove();
+  }
+
+
+  document
+    .getElementById(
+      "closePasswordChangeDialog"
+    )
+    ?.addEventListener(
+      "click",
+      closePasswordModal
+    );
+
+
+  document
+    .getElementById(
+      "passwordChangeCancelButton"
+    )
+    ?.addEventListener(
+      "click",
+      closePasswordModal
+    );
+
+
+  overlay.addEventListener(
+    "click",
+    event => {
+
+      if (
+        event.target === overlay
+      ) {
+
+        closePasswordModal();
+      }
+    }
+  );
+
+
+  document
+    .getElementById(
+      "passwordChangeSaveButton"
+    )
+    ?.addEventListener(
+      "click",
+      async () => {
+
+        const currentPassword =
+          document
+            .getElementById(
+              "currentPasswordInput"
+            )
+            ?.value;
+
+
+        const newPassword =
+          document
+            .getElementById(
+              "newPasswordInput"
+            )
+            ?.value;
+
+
+        const confirmPassword =
+          document
+            .getElementById(
+              "newPasswordConfirmInput"
+            )
+            ?.value;
+
+
+        if (
+          !currentPassword ||
+          !newPassword ||
+          !confirmPassword
+        ) {
+
+          alert(
+            "모든 항목을 입력해주세요."
+          );
+
+          return;
+        }
+
+
+        if (
+          newPassword !==
+          confirmPassword
+        ) {
+
+          alert(
+            "새 비밀번호가 일치하지 않습니다."
+          );
+
+          return;
+        }
+
+
+        if (
+          currentPassword ===
+          newPassword
+        ) {
+
+          alert(
+            "새 비밀번호는 현재 비밀번호와 다르게 설정해주세요."
+          );
+
+          return;
+        }
+
+
+        const saveButton =
+          document.getElementById(
+            "passwordChangeSaveButton"
+          );
+
+
+        try {
+
+          saveButton.disabled =
+            true;
+
+
+          saveButton.textContent =
+            "변경 중...";
+
+
+          await apiRequest(
+            `/institution-managers/${manager.id}/change-password`,
+            {
+              method: "PATCH",
+
+              headers: {
+                "Content-Type":
+                  "application/json"
+              },
+
+              body:
+                JSON.stringify({
+                  current_password:
+                    currentPassword,
+
+                  new_password:
+                    newPassword
+                })
+            }
+          );
+
+
+        alert(
+  "비밀번호가 변경되었습니다.\n새 비밀번호로 다시 로그인해주세요."
+);
+
+sessionStorage.removeItem(
+  "ansim_manager_session"
+);
+
+window.location.href =
+  "index.html";
+
+        } catch (error) {
+
+          console.error(
+            "비밀번호 변경 실패:",
+            error
+          );
+
+
+          alert(
+            `비밀번호 변경 실패\n${error.message}`
+          );
+
+
+        } finally {
+
+          if (
+            document.body.contains(
+              saveButton
+            )
+          ) {
+
+            saveButton.disabled =
+              false;
+
+
+            saveButton.textContent =
+              "변경";
+          }
+        }
+      }
+    );
+
+
+  if (window.lucide) {
+
+    lucide.createIcons();
+  }
+}
 
   /* ================================================
      현재 상단 이름도 세션 기준으로 맞춤
@@ -8569,3 +10371,153 @@ startApp();
   );
 
 })();
+
+/* =========================================================
+   USER RELATION FORM TOGGLE
+========================================================= */
+
+const subjectGuardianMode =
+  document.getElementById("subjectGuardianMode");
+
+const subjectExistingGuardianBox =
+  document.getElementById("subjectExistingGuardianBox");
+
+const subjectNewGuardianBox =
+  document.getElementById("subjectNewGuardianBox");
+
+
+const guardianSubjectMode =
+  document.getElementById("guardianSubjectMode");
+
+const guardianExistingSubjectBox =
+  document.getElementById("guardianExistingSubjectBox");
+
+const guardianNewSubjectBox =
+  document.getElementById("guardianNewSubjectBox");
+
+
+subjectGuardianMode?.addEventListener("change", () => {
+
+  const isNew =
+    subjectGuardianMode.value === "new";
+
+  subjectExistingGuardianBox?.classList.toggle(
+    "hidden",
+    isNew
+  );
+
+  subjectNewGuardianBox?.classList.toggle(
+    "hidden",
+    !isNew
+  );
+
+});
+
+
+guardianSubjectMode?.addEventListener("change", () => {
+
+  const isNew =
+    guardianSubjectMode.value === "new";
+
+  guardianExistingSubjectBox?.classList.toggle(
+    "hidden",
+    isNew
+  );
+
+  guardianNewSubjectBox?.classList.toggle(
+    "hidden",
+    !isNew
+  );
+
+});
+const subjectNewGuardianAddress =
+  document.getElementById("subjectNewGuardianAddress");
+
+const subjectNewGuardianAddressDetail =
+  document.getElementById("subjectNewGuardianAddressDetail");
+
+const subjectNewGuardianAddressSearchButton =
+  document.getElementById("subjectNewGuardianAddressSearchButton");
+
+
+const guardianNewSubjectAddress =
+  document.getElementById("guardianNewSubjectAddress");
+
+const guardianNewSubjectAddressDetail =
+  document.getElementById("guardianNewSubjectAddressDetail");
+
+const guardianNewSubjectAddressSearchButton =
+  document.getElementById("guardianNewSubjectAddressSearchButton");
+
+
+subjectNewGuardianAddressSearchButton?.addEventListener(
+  "click",
+  () => {
+    openPostcodeSearch(
+      subjectNewGuardianAddress,
+      subjectNewGuardianAddressDetail
+    );
+  }
+);
+
+
+guardianNewSubjectAddressSearchButton?.addEventListener(
+  "click",
+  () => {
+    openPostcodeSearch(
+      guardianNewSubjectAddress,
+      guardianNewSubjectAddressDetail
+    );
+  }
+);
+
+const subjectRelationship =
+  document.getElementById("subjectRelationship");
+
+const subjectRelationshipEtcBox =
+  document.getElementById("subjectRelationshipEtcBox");
+
+const subjectRelationshipEtc =
+  document.getElementById("subjectRelationshipEtc");
+
+
+const guardianRelationship =
+  document.getElementById("guardianRelationship");
+
+const guardianRelationshipEtcBox =
+  document.getElementById("guardianRelationshipEtcBox");
+
+const guardianRelationshipEtc =
+  document.getElementById("guardianRelationshipEtc");
+
+
+subjectRelationship?.addEventListener("change", () => {
+
+  const isOther =
+    subjectRelationship.value === "other";
+
+  subjectRelationshipEtcBox?.classList.toggle(
+    "hidden",
+    !isOther
+  );
+
+  if (!isOther && subjectRelationshipEtc) {
+    subjectRelationshipEtc.value = "";
+  }
+});
+
+
+guardianRelationship?.addEventListener("change", () => {
+
+  const isOther =
+    guardianRelationship.value === "other";
+
+  guardianRelationshipEtcBox?.classList.toggle(
+    "hidden",
+    !isOther
+  );
+
+  if (!isOther && guardianRelationshipEtc) {
+    guardianRelationshipEtc.value = "";
+  }
+});

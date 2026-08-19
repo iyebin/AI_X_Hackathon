@@ -16,7 +16,7 @@ CHECKPOINT_PATH = Path(
         str(
             BACKEND_DIR
             / "artifacts"
-            / "lmtad_deploy.pt"
+            / "ckptepoch_49_batch_389.pt"
         ),
     )
 ).resolve()

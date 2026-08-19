@@ -1,7 +1,8 @@
 # backend/check_gps.py
 
-from backend.database import SessionLocal
-from backend.models import GPSRecord
+from database import SessionLocal
+from models import GPSRecord
+
 
 def main():
     db = SessionLocal()
@@ -11,8 +12,9 @@ def main():
             db.query(GPSRecord)
             .order_by(
                 GPSRecord.measured_at.desc(),
-                GPSRecord.gps_id.desc(),
+                GPSRecord.id.desc(),
             )
+            .limit(10)
             .all()
         )
 
@@ -21,14 +23,11 @@ def main():
         for record in records:
             print(
                 {
-                    "gps_id": record.gps_id,
+                    "id": record.id,
                     "subject_id": record.subject_id,
                     "latitude": record.latitude,
                     "longitude": record.longitude,
                     "measured_at": record.measured_at,
-                    "x": record.x,
-                    "y": record.y,
-                    "x_d": record.x_d
                 }
             )
     finally:

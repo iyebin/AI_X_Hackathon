@@ -20,6 +20,51 @@ LM-TAD 모델에 대한 페이지는 다음과 같습니다.
 https://github.com/jonathankabala/LMTAD
 <img width="1252" height="678" alt="image" src="https://github.com/user-attachments/assets/25a4bb2e-7293-4d46-9426-f628b254023c" />
 
+---
+
+### POL 데이터 생성
+
+https://drive.google.com/drive/folders/1RGi5-AYUKt7TvVKBa0iqyUNp8vfA_6ia?usp=sharing
+
+아래 내용을 확인해주세요.
+
+- incheon ~ seoul 생성된 POL 데이터
+- incheon ~ seoul 전처리 데이터
+- generate-mobility-dataset에서 추가적으로 필요한 파일
+
+#### bounding box 설정
+
+POL 데이터셋 github 페이지: https://github.com/onspatial/generate-mobility-dataset
+
+```bash
+git clone https://github.com/onspatial/generate-mobility-dataset.git
+```
+
+src/main/python/map_generation/maps.py 파일에서 bounding box 값 변경
+
+```python
+bounding_box = [126.6233889470779,
+                    37.36953124923263,
+                    127.0869083706714,
+                    37.62778383803697]
+```
+
+#### run.bat 파일 실행(윈도우)
+
+- 파라미터 설정: modified.properties
+- outlier 설정: manipulations.json
+
+실행 후 Checkin.tsv 파일을 학습 폴더의 데이터로 사용
+
+
+### 전처리, 학습, 추론
+
+
+https://github.com/jonathankabala/LMTAD 
+위 페이지와 동일하게 진행함
+
+---
+
 ## 안심하랑께 백엔드
 
 ### 실행

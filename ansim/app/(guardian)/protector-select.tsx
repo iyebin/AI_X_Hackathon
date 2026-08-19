@@ -8,7 +8,7 @@ import NotificationView from '@/components/notifications/alarm';
 import SettingView from '@/components/settings/setting-view';
 import { getAge, getSubjectsForGuardian } from '@/features/relationships/guardian-registration';
 import { getCurrentGuardianId } from '@/features/auth/current-session';
-import { getCurrentRiskStatus, RiskLevel } from '@/features/risk/risk-api';
+import { getRiskAnalysis, RiskLevel } from '@/features/risk/risk-api';
 import { formatTimeSince, getLatestGps } from '@/features/gps/gps-api';
 import { registerPushNotifications } from '@/features/notifications/push-registration';
 
@@ -61,7 +61,7 @@ export default function ProtectorSelectScreen() {
         const targetsWithRisk = await Promise.all(subjects.map(async (subject) => {
           try {
             const [riskResult, gpsResult] = await Promise.allSettled([
-              getCurrentRiskStatus(subject.id),
+              getRiskAnalysis(subject.id),
               getLatestGps(subject.id),
             ]);
             const risk = riskResult.status === 'fulfilled' ? riskResult.value : null;
@@ -158,7 +158,7 @@ export default function ProtectorSelectScreen() {
   const content = activeTab === 'home'
     ? renderHome()
     : activeTab === 'notification'
-      ? <NotificationView targets={targets} />
+      ? <NotificationView targets={targets} recipientType="guardian" recipientId={activeGuardianId} />
       : <SettingView isProtected={false} notificationUser={activeGuardianId ? { userId: activeGuardianId, userType: 'guardian' } : undefined} />;
 
   return (
