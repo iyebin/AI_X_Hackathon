@@ -3,6 +3,8 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Linking, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Text } from '@/components/common/scaled-text';
+import TutorialTarget from '@/components/tutorial/tutorial-target';
+import { useProtectedHelp } from '@/features/tutorial/protected-help-flow';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { markAlertAsRead } from '@/features/alerts/alerts-api';
 import { getSavedSession } from '@/features/auth/current-session';
@@ -52,6 +54,7 @@ function getAlertReason(value?: string): string {
 
 export default function DangerModalScreen() {
   const router = useRouter();
+  const { step: tutorialStep } = useProtectedHelp();
   const params = useLocalSearchParams<{
     alertId?: string;
     subjectId?: string;
@@ -80,6 +83,7 @@ export default function DangerModalScreen() {
   const isCaution = ['caution', 'warning'].includes((params.riskLevel ?? '').toLowerCase());
   const modalColor = isCaution ? '#F7931E' : '#FF3030';
   const factorColors = isCaution ? CAUTION_FACTOR_COLORS : DANGER_FACTOR_COLORS;
+  const isTutorialAlertModal = tutorialStep === 'alert-modal';
 
   useEffect(() => {
     if (params.alertId) void markAlertAsRead(params.alertId).catch(() => {});
@@ -185,17 +189,23 @@ export default function DangerModalScreen() {
     <View style={styles.container}>
       <View style={[styles.dangerHeader, { backgroundColor: modalColor }]}>
         <SafeAreaView edges={['top']} style={styles.headerSafeArea}>
-          <TouchableOpacity style={styles.closeButton} onPress={() => router.back()} hitSlop={12}>
-            <Ionicons name="close" size={38} color="#FFFFFF" />
-          </TouchableOpacity>
-          <View style={styles.headerContent}>
+          <TutorialTarget target="close" style={styles.tutorialCloseSpacing}>
+            <TouchableOpacity style={[styles.closeButton, styles.tutorialCloseButton]} onPress={() => router.back()} hitSlop={12}>
+              <Ionicons name="close" size={38} color="#FFFFFF" />
+            </TouchableOpacity>
+          </TutorialTarget>
+          <View style={[styles.headerContent, isTutorialAlertModal && styles.tutorialDimmed]}>
             <Ionicons name="warning" size={60} color="#FFFFFF" />
             <Text style={styles.headerTitle}>{isCaution ? '주의가 감지되었습니다!' : '위험이 감지되었습니다!'}</Text>
           </View>
         </SafeAreaView>
       </View>
 
-      <ScrollView contentContainerStyle={styles.bodyContent} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={styles.bodyContent}
+        showsVerticalScrollIndicator={false}
+        scrollEnabled={!isTutorialAlertModal}
+        pointerEvents={isTutorialAlertModal ? 'none' : 'auto'}>
         <View style={styles.profileCard}>
           <View style={styles.profileCircle} />
           <View style={styles.profileInfo}>
@@ -251,16 +261,16 @@ export default function DangerModalScreen() {
         </View>
 
         <View style={styles.buttonGroup}>
-          <TouchableOpacity style={[styles.actionButton, styles.locationButton]} onPress={handleLocationCheck}>
+          <TouchableOpacity disabled={isTutorialAlertModal} style={[styles.actionButton, styles.locationButton, isTutorialAlertModal && styles.tutorialDimmed]} onPress={handleLocationCheck}>
             <Text style={styles.actionButtonText}>위치 확인</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.actionButton, styles.callButton]} onPress={() => void handleCall()}>
+          <TouchableOpacity disabled={isTutorialAlertModal} style={[styles.actionButton, styles.callButton, isTutorialAlertModal && styles.tutorialDimmed]} onPress={() => void handleCall()}>
             <Text style={styles.actionButtonText}>전화하기</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.actionButton, styles.emergencyButton]} onPress={() => void Linking.openURL('tel:112')}>
+          <TouchableOpacity disabled={isTutorialAlertModal} style={[styles.actionButton, styles.emergencyButton, isTutorialAlertModal && styles.tutorialDimmed]} onPress={() => void Linking.openURL('tel:112')}>
             <Text style={styles.actionButtonText}>112 신고</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.actionButton, styles.borderEmergencyButton]} onPress={() => void Linking.openURL('tel:119')}>
+          <TouchableOpacity disabled={isTutorialAlertModal} style={[styles.actionButton, styles.borderEmergencyButton, isTutorialAlertModal && styles.tutorialDimmed]} onPress={() => void Linking.openURL('tel:119')}>
             <Text style={[styles.actionButtonText, styles.borderEmergencyText]}>119 신고</Text>
           </TouchableOpacity>
         </View>
@@ -274,6 +284,8 @@ const styles = StyleSheet.create({
   dangerHeader: { backgroundColor: '#FF3030', paddingHorizontal: 20, paddingBottom: 30 },
   headerSafeArea: { position: 'relative' },
   closeButton: { alignSelf: 'flex-end', marginTop: 8 },
+  tutorialCloseSpacing: { alignSelf: 'flex-end', marginTop: 8 },
+  tutorialCloseButton: { marginTop: 0 },
   headerContent: { alignItems: 'center', marginTop: 8 },
   headerTitle: { color: '#FFFFFF', fontSize: 25, fontWeight: '900', marginTop: 15, marginBottom: 14 },
   bodyContent: { paddingHorizontal: 20, paddingTop: 22, paddingBottom: 24 },
@@ -307,4 +319,5 @@ const styles = StyleSheet.create({
   borderEmergencyButton: { backgroundColor: '#FFFFFF', borderWidth: 1.5, borderColor: '#FF3030' },
   actionButtonText: { color: '#FFFFFF', fontSize: 22, fontWeight: 'bold' },
   borderEmergencyText: { color: '#9B1C1C' },
+  tutorialDimmed: { opacity: 0.28 },
 });

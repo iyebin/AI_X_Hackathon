@@ -1,10 +1,13 @@
 import * as Notifications from 'expo-notifications';
 import { Stack, useRouter } from 'expo-router';
 import { useEffect, useRef } from 'react';
+import { View } from 'react-native';
 
 import { getAlert } from '@/features/alerts/alerts-api';
 import { getSavedSession } from '@/features/auth/current-session';
 import { TextSizeProvider } from '@/features/accessibility/text-size';
+import { ProtectedHelpProvider } from '@/features/tutorial/protected-help-flow';
+import ProtectedHelpCoach from '@/components/tutorial/protected-help-coach';
 
 function asPositiveInteger(value: unknown): number | undefined {
   const numberValue = typeof value === 'number' ? value : Number(value);
@@ -80,7 +83,12 @@ export default function RootLayout() {
 
   return (
     <TextSizeProvider>
-      <Stack screenOptions={{ headerShown: false }} />
+      <ProtectedHelpProvider>
+        <View style={{ flex: 1 }}>
+          <Stack screenOptions={{ headerShown: false }} />
+          <ProtectedHelpCoach />
+        </View>
+      </ProtectedHelpProvider>
     </TextSizeProvider>
   );
 }

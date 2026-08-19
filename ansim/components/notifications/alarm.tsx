@@ -3,6 +3,8 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useMemo, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Text } from '@/components/common/scaled-text';
+import TutorialTarget from '@/components/tutorial/tutorial-target';
+import { useProtectedHelp } from '@/features/tutorial/protected-help-flow';
 import { AlertRecipientType, AppAlert, getAlerts, markAlertAsRead } from '@/features/alerts/alerts-api';
 
 interface NotificationViewProps {
@@ -69,10 +71,12 @@ export default function NotificationView({
   recipientId,
 }: NotificationViewProps) {
   const router = useRouter();
+  const { step: tutorialStep } = useProtectedHelp();
   const [selectedCategory, setSelectedCategory] = useState<Filter>('전체');
   const [alarms, setAlarms] = useState<AppAlert[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const isTutorialAlertStep = tutorialStep === 'notification-alert';
 
   const loadAlerts = useCallback(async () => {
     setLoading(true);
@@ -149,13 +153,14 @@ export default function NotificationView({
         <View style={[styles.headerBadge, { backgroundColor: themeColor }]}><Text style={styles.headerBadgeText}>알림</Text></View>
       </View>
       <View style={styles.topDivider} />
-      <View style={styles.filterRow}>
+      <View style={[styles.filterRow, isTutorialAlertStep && styles.tutorialDimmed]}>
         {(['전체', '위험', '주의', '안전'] as const).map((category) => {
           const isSelected = selectedCategory === category;
           return (
             <TouchableOpacity
               key={category}
               style={[styles.chip, isSelected && { backgroundColor: themeColor, borderColor: themeColor }]}
+              disabled={isTutorialAlertStep}
               onPress={() => setSelectedCategory(category)}
             >
               <Text style={[styles.chipText, isSelected && styles.chipTextActive]}>{category}</Text>
@@ -164,6 +169,20 @@ export default function NotificationView({
         })}
       </View>
       <View style={styles.sectionDivider} />
+
+      {isTutorialAlertStep && (
+        <TutorialTarget target="alert">
+          <TouchableOpacity style={[styles.alarmRow, { backgroundColor: '#FF252512' }]} activeOpacity={0.75}>
+            <View style={[styles.iconCircle, { backgroundColor: '#FF2525' }]}><Ionicons name="warning" size={22} color="#FFFFFF" /></View>
+            <View style={styles.alarmContent}>
+              <Text style={styles.alarmTitle}>위험</Text>
+              <Text style={styles.targetNameText}>{filterTargetName ?? '보호대상자'}</Text>
+              <Text style={styles.scoreText}>위험도 85점</Text>
+            </View>
+            <Text style={styles.timeText}>지금</Text>
+          </TouchableOpacity>
+        </TutorialTarget>
+      )}
 
       {loading ? <View style={styles.state}><ActivityIndicator color={themeColor} /><Text style={styles.stateText}>알림을 불러오는 중입니다.</Text></View> : null}
       {error ? <View style={styles.state}><Text style={styles.stateText}>{error}</Text><TouchableOpacity onPress={() => void loadAlerts()}><Text style={[styles.retryText, { color: themeColor }]}>다시 시도</Text></TouchableOpacity></View> : null}
@@ -178,7 +197,8 @@ export default function NotificationView({
             return (
               <TouchableOpacity
                 key={item.id}
-                style={[styles.alarmRow, !item.isRead && { backgroundColor: `${info.color}12` }]}
+                style={[styles.alarmRow, !item.isRead && { backgroundColor: `${info.color}12` }, isTutorialAlertStep && styles.tutorialDimmed]}
+                disabled={isTutorialAlertStep}
                 onPress={() => void handleAlarmPress(item)}
                 activeOpacity={0.75}
               >
@@ -212,6 +232,7 @@ const styles = StyleSheet.create({
   chipText: { fontSize: 16, fontWeight: 'bold', color: '#555555' },
   chipTextActive: { color: '#FFFFFF' },
   sectionDivider: { height: 1, backgroundColor: '#EAEAEA', marginBottom: 8 },
+  tutorialDimmed: { opacity: 0.28 },
   group: { borderBottomWidth: 1, borderBottomColor: '#EAEAEA', paddingBottom: 10, marginBottom: 8 },
   groupTitle: { fontSize: 22, fontWeight: 'bold', color: '#111111', marginTop: 12, marginBottom: 6, paddingHorizontal: 10 },
   alarmRow: { flexDirection: 'row', alignItems: 'flex-start', paddingVertical: 14, paddingHorizontal: 10, borderRadius: 12 },

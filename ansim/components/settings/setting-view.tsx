@@ -9,6 +9,7 @@ import {
   Linking,
   Modal,
   Platform,
+  Pressable,
   ScrollView,
   StyleSheet,
   Switch,
@@ -23,18 +24,23 @@ import { isGpsTrackingEnabled, stopGpsTracking } from '@/features/gps/tracking';
 import { registerPushNotifications, PushUserType } from '@/features/notifications/push-registration';
 import { isPushNotificationEnabled, setPushNotificationEnabled } from '@/features/notifications/push-preference';
 import { useTextSize, type TextSizeMode } from '@/features/accessibility/text-size';
+import TutorialTarget from '@/components/tutorial/tutorial-target';
+import { useProtectedHelp } from '@/features/tutorial/protected-help-flow';
 
 interface SettingViewProps {
   isProtected?: boolean;
   notificationUser?: { userId: number; userType: PushUserType };
   onEmergencyContactSaved?: () => void;
   onLocationTrackingChange?: (enabled: boolean) => Promise<boolean>;
-  onStartTutorial?: () => void;
 }
 
-export default function SettingView({ isProtected = false, notificationUser, onEmergencyContactSaved, onLocationTrackingChange, onStartTutorial }: SettingViewProps) {
+export default function SettingView({ isProtected = false, notificationUser, onEmergencyContactSaved, onLocationTrackingChange }: SettingViewProps) {
   const router = useRouter();
   const { mode: textSizeMode, setMode: setTextSizeMode } = useTextSize();
+  const { step: tutorialStep, advanceTutorial } = useProtectedHelp();
+  const isTutorialSettings = isProtected && Boolean(tutorialStep);
+  const isTutorialFrequent = isProtected && tutorialStep === 'frequent-places';
+  const isTutorialContactModal = isProtected && tutorialStep === 'settings-contact-modal';
 
   const [isNotificationEnabled, setIsNotificationEnabled] = useState(true);
   const [isLocationEnabled, setIsLocationEnabled] = useState(false);
@@ -236,6 +242,7 @@ export default function SettingView({ isProtected = false, notificationUser, onE
       <View style={styles.topDivider} />
 
       <Text style={styles.sectionTitle}>화면 설정</Text>
+      <TutorialTarget target="font-size">
       <View style={styles.menuCard}>
         <View style={styles.fontSizeHeader}>
           <View style={styles.menuLeft}>
@@ -246,6 +253,7 @@ export default function SettingView({ isProtected = false, notificationUser, onE
         </View>
         <View style={styles.fontSizeOptions}>
           <TouchableOpacity
+            disabled={isTutorialSettings}
             style={[styles.fontSizeOption, textSizeMode === 'default' && { borderColor: activeColor, backgroundColor: `${activeColor}14` }]}
             onPress={() => handleTextSizeMode('default')}
             activeOpacity={0.75}
@@ -254,6 +262,7 @@ export default function SettingView({ isProtected = false, notificationUser, onE
             <Text style={styles.fontSizePreview}>가</Text>
           </TouchableOpacity>
           <TouchableOpacity
+            disabled={isTutorialSettings}
             style={[styles.fontSizeOption, textSizeMode === 'large' && { borderColor: activeColor, backgroundColor: `${activeColor}14` }]}
             onPress={() => handleTextSizeMode('large')}
             activeOpacity={0.75}
@@ -263,8 +272,10 @@ export default function SettingView({ isProtected = false, notificationUser, onE
           </TouchableOpacity>
         </View>
       </View>
+      </TutorialTarget>
 
       <Text style={styles.sectionTitle}>알림 설정</Text>
+      <TutorialTarget target="notification-settings">
       <View style={styles.menuCard}>
         <View style={styles.menuItemRow}>
           <View style={styles.menuLeft}>
@@ -272,6 +283,7 @@ export default function SettingView({ isProtected = false, notificationUser, onE
             <Text style={styles.menuText}>알림 수신 설정</Text>
           </View>
           <Switch
+            disabled={isTutorialSettings}
             value={isNotificationEnabled}
             onValueChange={handleToggleNotification}
             trackColor={{ false: '#E0E0E0', true: activeColor }}
@@ -287,6 +299,7 @@ export default function SettingView({ isProtected = false, notificationUser, onE
             <Text style={styles.menuText}>위치 정보 설정</Text>
           </View>
           <Switch
+            disabled={isTutorialSettings}
             value={isLocationEnabled}
             onValueChange={handleToggleLocation}
             trackColor={{ false: '#E0E0E0', true: activeColor }}
@@ -294,13 +307,15 @@ export default function SettingView({ isProtected = false, notificationUser, onE
           />
         </View>}
       </View>
+      </TutorialTarget>
 
       <Text style={styles.sectionTitle}>계정 설정</Text>
       <View style={styles.menuCard}>
         {!isProtected && (
           <>
             <TouchableOpacity
-              style={styles.menuItem}
+              disabled={isTutorialSettings}
+              style={[styles.menuItem, isTutorialFrequent && styles.tutorialDimmed]}
               onPress={handleManageTarget}
               activeOpacity={0.7}
             >
@@ -314,6 +329,7 @@ export default function SettingView({ isProtected = false, notificationUser, onE
 
         {isProtected && (
           <>
+            <TutorialTarget target="contact" onTutorialPress={handleEmergencyContact}>
             <TouchableOpacity
               style={styles.menuItem}
               onPress={handleEmergencyContact}
@@ -322,55 +338,52 @@ export default function SettingView({ isProtected = false, notificationUser, onE
               <Ionicons name="call-outline" size={24} color="#333333" style={styles.menuIcon} />
               <Text style={styles.menuText}>긴급 연락처 관리</Text>
             </TouchableOpacity>
+            </TutorialTarget>
 
             <View style={styles.itemDivider} />
 
             {/* 💡 새로 추가된 자주 가는 장소 관리 */}
-            <TouchableOpacity
-              style={styles.menuItem}
-              onPress={handleFrequentPlaces}
-              activeOpacity={0.7}
-            >
-              <Ionicons name="location-outline" size={24} color="#333333" style={styles.menuIcon} />
-              <Text style={styles.menuText}>자주 가는 장소 관리</Text>
-            </TouchableOpacity>
+            <TutorialTarget target="frequent">
+              <TouchableOpacity
+                style={styles.menuItem}
+                onPress={handleFrequentPlaces}
+                activeOpacity={0.7}
+              >
+                <Ionicons name="location-outline" size={24} color="#333333" style={styles.menuIcon} />
+                <Text style={styles.menuText}>자주 가는 장소 관리</Text>
+              </TouchableOpacity>
+            </TutorialTarget>
 
             <View style={styles.itemDivider} />
           </>
         )}
 
-        <TouchableOpacity
-          style={styles.menuItem}
-          onPress={() => handleSimpleMenu('계정 정보')}
-          activeOpacity={0.7}
-        >
-          <Ionicons name="information-circle-outline" size={24} color="#333333" style={styles.menuIcon} />
-          <Text style={styles.menuText}>계정 정보</Text>
-        </TouchableOpacity>
+        <TutorialTarget target="account">
+          <TouchableOpacity
+            style={styles.menuItem}
+            onPress={() => handleSimpleMenu('계정 정보')}
+            activeOpacity={0.7}
+          >
+            <Ionicons name="information-circle-outline" size={24} color="#333333" style={styles.menuIcon} />
+            <Text style={styles.menuText}>계정 정보</Text>
+          </TouchableOpacity>
+        </TutorialTarget>
 
-        {isProtected && onStartTutorial && (
-          <>
-            <View style={styles.itemDivider} />
-            <TouchableOpacity
-              style={styles.menuItem}
-              onPress={onStartTutorial}
-              activeOpacity={0.7}
-            >
-              <Ionicons name="help-circle-outline" size={24} color="#333333" style={styles.menuIcon} />
-              <Text style={styles.menuText}>도움말</Text>
-            </TouchableOpacity>
-          </>
-        )}
       </View>
 
-      <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout} activeOpacity={0.8}>
+      <TouchableOpacity disabled={isTutorialSettings} style={styles.logoutBtn} onPress={handleLogout} activeOpacity={0.8}>
         <Text style={styles.logoutBtnText}>로그아웃</Text>
       </TouchableOpacity>
     </ScrollView>
 
     <Modal visible={isContactModalVisible} transparent animationType="fade" onRequestClose={() => setIsContactModalVisible(false)}>
-      <View style={styles.modalOverlay}>
-        <View style={styles.modalContent}>
+      <Pressable
+        style={styles.modalOverlay}
+        onPress={isTutorialContactModal ? () => {
+          setIsContactModalVisible(false);
+          advanceTutorial();
+        } : undefined}>
+        <View style={styles.modalContent} pointerEvents={isTutorialContactModal ? 'none' : 'auto'}>
           <Text style={styles.modalTitle}>긴급 연락처 관리</Text>
           <Text style={styles.modalDescription}>홈에서 전화하기를 누르면 이 번호로 연결됩니다.</Text>
           <TextInput
@@ -390,7 +403,7 @@ export default function SettingView({ isProtected = false, notificationUser, onE
             </TouchableOpacity>
           </View>
         </View>
-      </View>
+      </Pressable>
     </Modal>
     </>
   );
@@ -446,4 +459,5 @@ const styles = StyleSheet.create({
   cancelText: { color: '#555555', fontSize: 17, fontWeight: 'bold' },
   saveContactButton: { flex: 1, height: 50, justifyContent: 'center', alignItems: 'center', borderRadius: 13 },
   saveContactText: { color: '#FFFFFF', fontSize: 17, fontWeight: 'bold' },
+  tutorialDimmed: { opacity: 0.28 },
 });
