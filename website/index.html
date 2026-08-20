@@ -110,9 +110,7 @@
           <div>
             <h1>대시보드</h1>
 
-            <p>
-              보호대상자의 현재 상태와 주요 현황을 확인하세요.
-            </p>
+          
           </div>
 
         </div>
@@ -316,14 +314,21 @@
 
           </div>
 
+          <div class="table-footer dashboard-table-footer">
+  <span
+    id="dashboardRiskTotalCount"
+    class="total-count"
+  >
+    전체 0건
+  </span>
+</div>
 
           <div class="dashboard-info">
 
             <i data-lucide="info"></i>
 
             <span>
-              현재 위험도와 주요 위험요인은 임시 데이터를 사용하고 있으며,
-              추후 AI 분석 결과 및 최신 GPS 데이터와 연동됩니다.
+              현재 위험도와 주요 위험요인은 최신 AI 분석 결과를 기준으로 표시됩니다.
             </span>
 
           </div>
@@ -346,7 +351,7 @@
 
           <div>
             <h1>사용자 관리</h1>
-            <p>보호대상자와 보호자 정보를 관리합니다.</p>
+            
           </div>
 
           <button
@@ -487,9 +492,7 @@
           <div>
             <h1>실시간 관제</h1>
 
-            <p>
-              보호대상자의 실시간 위치와 주변 기관을 확인합니다.
-            </p>
+            
           </div>
 
           <button
@@ -798,9 +801,7 @@
           <div>
             <h1>인증코드 관리</h1>
 
-            <p>
-              사용자의 인증코드를 발급하고 관리합니다.
-            </p>
+           
           </div>
 
           <button
@@ -905,9 +906,7 @@
           <div>
             <h1>알림 내역</h1>
 
-            <p>
-              보호대상자의 위험 알림과 사용자 요청을 확인하고 처리합니다.
-            </p>
+        
           </div>
 
           <button
@@ -920,57 +919,6 @@
         </div>
 
 
-        <div class="alert-tabs">
-
-          <button
-            class="alert-tab active"
-            data-alert-tab="all"
-          >
-            전체
-
-            <span
-              id="allAlertCount"
-              class="alert-tab-count"
-            >
-              0
-            </span>
-          </button>
-
-
-          <button
-            class="alert-tab"
-            data-alert-tab="danger"
-          >
-            <i data-lucide="shield-alert"></i>
-
-            위험 알림
-
-            <span
-              id="dangerAlertCount"
-              class="alert-tab-count danger"
-            >
-              0
-            </span>
-          </button>
-
-
-          <button
-            class="alert-tab"
-            data-alert-tab="auth"
-          >
-            <i data-lucide="key-round"></i>
-
-            인증 요청
-
-            <span
-              id="authAlertCount"
-              class="alert-tab-count auth"
-            >
-              0
-            </span>
-          </button>
-
-        </div>
 
 
         <div class="alert-filter-row">
@@ -1000,61 +948,58 @@
         </div>
 
 
-        <section class="alert-table-card">
+        
+<section class="table-card alert-table-card">
 
-          <div class="alert-table-scroll">
+  <div class="table-area">
 
-            <table class="alert-table">
+    <div class="table-scroll">
 
-              <thead>
+      <table class="alert-table">
 
-                <tr>
-                  <th>발생 시간</th>
-                  <th>사용자</th>
-                  <th>유형</th>
-                  <th>알림 내용</th>
-                  <th>상태</th>
-                  <th>관리</th>
-                </tr>
+        <thead>
 
-              </thead>
+          <tr>
+            <th>발생 시간</th>
+            <th>사용자</th>
+            <th>유형</th>
+            <th>알림 내용</th>
+            <th>상태</th>
+            <th>관리</th>
+          </tr>
 
-              <tbody id="alertTableBody"></tbody>
+        </thead>
 
-            </table>
+        <tbody id="alertTableBody"></tbody>
 
-          </div>
+      </table>
 
-
-          <div class="alert-table-footer">
-
-            <div></div>
-
-            <div
-              id="alertPagination"
-              class="alert-pagination"
-            ></div>
-
-            <span
-              id="alertTotalCount"
-              class="total-count"
-            >
-              전체 0건
-            </span>
-
-          </div>
-
-        </section>
-
-      </section>
+    </div>
 
 
-      <!-- 사용자 상세 -->
+    <div class="table-footer">
 
-      <aside
-        id="userDetailDrawer"
-        class="detail-drawer"
+      <span
+        id="alertTotalCount"
+        class="total-count"
       >
+        전체 0건
+      </span>
+
+    </div>
+
+  </div>
+
+</section>
+
+</section>  <!-- alertPage 닫기 -->
+
+<!-- 사용자 상세 -->
+
+<aside
+  id="userDetailDrawer"
+  class="detail-drawer"
+>
 
         <div class="drawer-header">
 
@@ -2076,7 +2021,6 @@
 
 </div>
 
-<script src="api-config.js"></script>
 <script src="login.js"></script>
 <script src="script.js"></script>
 

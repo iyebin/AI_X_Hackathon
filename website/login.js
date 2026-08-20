@@ -8,8 +8,8 @@
    - 전화번호 인증: SMS API 연결 전 시연용
 ========================================================= */
 
-const LOGIN_API_BASE = window.ANSIM_API_BASE_URL;
-
+const LOGIN_API_BASE =
+  "https://ai-x-hackathon-backend.onrender.com";
 const LOGIN_SESSION_KEY =
   "ansim_manager_session";
 
@@ -1212,7 +1212,7 @@ async function handleManagerLogin(
 
           const institutionResponse =
             await fetch(
-              `${LOGIN_API_BASE}/institutions?skip=0&limit=500`
+              `${LOGIN_API_BASE}/institutions`
             );
 
 
@@ -2485,7 +2485,7 @@ async function loadSignupInstitutions() {
 
     const response =
       await fetch(
-        `${LOGIN_API_BASE}/institutions?skip=0&limit=500`
+        `${LOGIN_API_BASE}/institutions`
       );
 
 
@@ -4760,7 +4760,7 @@ async function loadSignupInstitutions(
 
     const response =
       await fetch(
-        `${LOGIN_API_BASE}/institutions?skip=0&limit=500`
+        `${LOGIN_API_BASE}/institutions`
       );
 
 
