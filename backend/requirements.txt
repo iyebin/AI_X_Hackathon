@@ -13,3 +13,4 @@ requests
 pyproj
 firebase-admin
 bcrypt
+huggingface_hub
