@@ -98,15 +98,15 @@ class LMTADRuntime:
         self.model.to(self.device)
         self.model.eval()
 
-        threshold_value = os.getenv(
-            "ANOMALY_THRESHOLD"
-        )
+        # threshold_value = os.getenv(
+        #     "ANOMALY_THRESHOLD"
+        # )
 
-        self.threshold = (
-            float(threshold_value)
-            if threshold_value
-            else None
-        )
+        # self.threshold = (
+        #     float(threshold_value)
+        #     if threshold_value
+        #     else None
+        # )
 
     def _validate_vocab(self):
         if len(self.vocab) != self.vocab_size:
