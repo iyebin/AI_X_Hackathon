@@ -1,0 +1,21 @@
+table_name,column_name,constraint_type,referenced_table,referenced_column,constraint_name
+facilities,id,PRIMARY KEY,null,null,facilities_pkey
+gps_records,subject_id,FOREIGN KEY,subjects,id,gps_records_subject_id_fkey
+gps_records,id,PRIMARY KEY,null,null,gps_records_pkey
+guardian_registrations,guardian_id,FOREIGN KEY,guardians,id,guardian_registrations_guardian_id_fkey
+guardian_registrations,subject_id,FOREIGN KEY,subjects,id,guardian_registrations_subject_id_fkey
+guardian_registrations,guardian_id,PRIMARY KEY,null,null,uq_guardian_subject
+guardian_registrations,subject_id,PRIMARY KEY,null,null,uq_guardian_subject
+guardians,id,PRIMARY KEY,null,null,guardians_pkey
+institution_managers,institution_id,FOREIGN KEY,institutions,id,institution_managers_institution_id_fkey
+institution_managers,id,PRIMARY KEY,null,null,institution_managers_pkey
+institutions,id,PRIMARY KEY,null,null,institutions_pkey
+manager_assignments,manager_id,FOREIGN KEY,institution_managers,id,manager_assignments_manager_id_fkey
+manager_assignments,subject_id,FOREIGN KEY,subjects,id,manager_assignments_subject_id_fkey
+manager_assignments,manager_id,PRIMARY KEY,null,null,uq_manager_subject
+manager_assignments,subject_id,PRIMARY KEY,null,null,uq_manager_subject
+subject_guardians,guardian_id,FOREIGN KEY,guardians,id,subject_guardians_guardian_id_fkey
+subject_guardians,subject_id,FOREIGN KEY,subjects,id,subject_guardians_subject_id_fkey
+subject_guardians,id,PRIMARY KEY,null,null,subject_guardians_pkey
+subjects,institution_id,FOREIGN KEY,institutions,id,subjects_institution_id_fkey
+subjects,id,PRIMARY KEY,null,null,subjects_pkey
