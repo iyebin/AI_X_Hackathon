@@ -16,7 +16,7 @@ CHECKPOINT_PATH = Path(
         str(
             BACKEND_DIR
             / "artifacts"
-            / "ckptepoch_49_batch_389.pt"
+            / "converted_ckpt_finetuned_iter_200.pt"
         ),
     )
 ).resolve()
@@ -27,7 +27,7 @@ VOCAB_PATH = Path(
         str(
             BACKEND_DIR
             / "artifacts"
-            / "vocab_place.json"
+            / "vocab_gps.full_bbox.user1100.json"
         ),
     )
 ).resolve()
