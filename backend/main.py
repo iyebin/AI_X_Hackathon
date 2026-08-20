@@ -30,6 +30,8 @@ import random
 from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 from backend.inference_service import run_gps_inference
+from risk_policy import calculate_integrated_risk
+
 import requests
 import bcrypt
 
@@ -3351,39 +3353,6 @@ def register_push_token(
         "user_id": device_token.user_id,
         "push_token": device_token.token,
     }
-
-def calculate_integrated_risk(
-    lmtad_score: float,
-    weather_score: float,
-    air_score: float,
-):
-    # 임시 가중치
-    lmtad_weight = 0.60
-    weather_weight = 0.25
-    air_weight = 0.15
-
-    final_score = (
-        lmtad_score * lmtad_weight
-        + weather_score * weather_weight
-        + air_score * air_weight
-    )
-
-    final_score = max(
-        0.0,
-        min(100.0, final_score),
-    )
-
-    if final_score >= 70:
-        risk_level = "danger"
-
-    elif final_score >= 40:
-        risk_level = "caution"
-
-    else:
-        risk_level = "safe"
-
-    return round(final_score, 2), risk_level
-
 # =========================================================
 # GPS AI 추론
 # =========================================================
@@ -3766,11 +3735,12 @@ def infer_subject_gps(
             detail=str(error),
         )
 
-    result["risk_level"] = (
-        "danger"
-        if result.pop("is_anomaly")
-        else "safe"
-    )
+    result["risk_level"] = result[
+        "integrated_risk_level"
+    ]
+
+    # 내부 판정값은 API 응답에서 제거합니다.
+    result.pop("is_anomaly", None)
 
     return result
 
