@@ -1,3 +1,173 @@
+{"gps_id": 932, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 931, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 930, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 929, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 928, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": 3.11502075195312, "scored_at": "2026-08-20 05:58:10.031721+00:00"}
+{"gps_id": 927, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": 3.11502075195312, "scored_at": "2026-08-20 05:55:47.719826+00:00"}
+{"gps_id": 926, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": 3.11502075195312, "scored_at": "2026-08-20 05:55:23.086915+00:00"}
+{"gps_id": 925, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 924, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 923, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 922, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 921, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 920, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 919, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 918, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 917, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 916, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 915, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": 3.11502075195312, "scored_at": "2026-08-20 05:54:57.784008+00:00"}
+{"gps_id": 914, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 913, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 912, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 911, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 910, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 909, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 908, "subject_id": 3, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": 5.71072912216187, "scored_at": "2026-08-20 05:47:23.009798+00:00"}
+{"gps_id": 907, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 906, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 905, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 904, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 903, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 902, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": 3.11502075195312, "scored_at": "2026-08-20 05:49:58.302714+00:00"}
+{"gps_id": 901, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 900, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 899, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 898, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 897, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 896, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 895, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 894, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 893, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 892, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 891, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 890, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 889, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 888, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 887, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 886, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 885, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 884, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 883, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 882, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 881, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": 3.11502075195312, "scored_at": "2026-08-20 05:44:39.237263+00:00"}
+{"gps_id": 880, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 879, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 878, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 877, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 876, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 875, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 874, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 873, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 872, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 871, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 870, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 869, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 868, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 867, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 866, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": 3.11502075195312, "scored_at": "2026-08-20 05:31:54.866616+00:00"}
+{"gps_id": 865, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": 3.11502075195312, "scored_at": "2026-08-20 05:29:58.250241+00:00"}
+{"gps_id": 864, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": 3.11502075195312, "scored_at": "2026-08-20 05:29:24.944080+00:00"}
+{"gps_id": 863, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": 3.11502075195312, "scored_at": "2026-08-20 05:29:20.067424+00:00"}
+{"gps_id": 862, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 861, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 860, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 859, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 858, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 857, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 856, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 855, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 854, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 853, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 852, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": 3.11502075195312, "scored_at": "2026-08-20 05:29:15.609137+00:00"}
+{"gps_id": 851, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": 3.11502075195312, "scored_at": "2026-08-20 05:17:41.652538+00:00"}
+{"gps_id": 850, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": 3.11502075195312, "scored_at": "2026-08-20 05:17:36.092392+00:00"}
+{"gps_id": 849, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": 3.11502075195312, "scored_at": "2026-08-20 05:17:31.498677+00:00"}
+{"gps_id": 848, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": 3.11502075195312, "scored_at": "2026-08-20 05:17:26.344720+00:00"}
+{"gps_id": 847, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": 3.11502075195312, "scored_at": "2026-08-20 05:17:21.230962+00:00"}
+{"gps_id": 846, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": 3.11502075195312, "scored_at": "2026-08-20 05:17:16.286512+00:00"}
+{"gps_id": 845, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": 3.11502075195312, "scored_at": "2026-08-20 05:17:11.394735+00:00"}
+{"gps_id": 844, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": 3.11502075195312, "scored_at": "2026-08-20 05:17:06.020692+00:00"}
+{"gps_id": 843, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": 3.11502075195312, "scored_at": "2026-08-20 05:17:01.351905+00:00"}
+{"gps_id": 842, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": 3.11502075195312, "scored_at": "2026-08-20 05:16:56.206911+00:00"}
+{"gps_id": 841, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": 3.11502075195312, "scored_at": "2026-08-20 05:16:51.191415+00:00"}
+{"gps_id": 840, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 839, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 838, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 837, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 836, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 835, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": 3.11502075195312, "scored_at": "2026-08-20 05:16:46.300767+00:00"}
+{"gps_id": 834, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 833, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 832, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 831, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 830, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 829, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 828, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 827, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 826, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 825, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 824, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 823, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 822, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 821, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 820, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 819, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": 4.57345294952393, "scored_at": "2026-08-20 04:20:41.765833+00:00"}
+{"gps_id": 818, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 817, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 816, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 815, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 814, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 813, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 812, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 811, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 810, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 809, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 808, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 807, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 806, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 805, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 804, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": 7.34622573852539, "scored_at": "2026-08-20 04:13:23.276576+00:00"}
+{"gps_id": 803, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": 10.2498359680176, "scored_at": "2026-08-20 04:10:12.077854+00:00"}
+{"gps_id": 802, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": 10.2498359680176, "scored_at": "2026-08-20 04:10:06.157885+00:00"}
+{"gps_id": 801, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 800, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 799, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 798, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 797, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 796, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 795, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 794, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 793, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 792, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 791, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 790, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": 10.2498359680176, "scored_at": "2026-08-20 04:10:02.989460+00:00"}
+{"gps_id": 789, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": 10.2498359680176, "scored_at": "2026-08-20 04:08:18.927578+00:00"}
+{"gps_id": 788, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": 10.2498359680176, "scored_at": "2026-08-20 04:07:51.494649+00:00"}
+{"gps_id": 787, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": 10.2498359680176, "scored_at": "2026-08-20 04:07:28.186800+00:00"}
+{"gps_id": 786, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": 10.2498359680176, "scored_at": "2026-08-20 04:07:03.310789+00:00"}
+{"gps_id": 785, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": 10.2498359680176, "scored_at": "2026-08-20 04:06:39.401038+00:00"}
+{"gps_id": 784, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": 10.2498359680176, "scored_at": "2026-08-20 04:06:13.234816+00:00"}
+{"gps_id": 783, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": 10.2498359680176, "scored_at": "2026-08-20 04:05:48.976483+00:00"}
+{"gps_id": 782, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": 10.2498359680176, "scored_at": "2026-08-20 04:05:23.698513+00:00"}
+{"gps_id": 781, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": 10.2498359680176, "scored_at": "2026-08-20 04:04:57.928599+00:00"}
+{"gps_id": 780, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": 10.2498359680176, "scored_at": "2026-08-20 04:04:33.232188+00:00"}
+{"gps_id": 779, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": 10.2498359680176, "scored_at": "2026-08-20 04:04:06.130433+00:00"}
+{"gps_id": 778, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": 10.2498359680176, "scored_at": "2026-08-20 04:03:43.727063+00:00"}
+{"gps_id": 777, "subject_id": 3, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": 5.35515880584717, "scored_at": "2026-08-20 03:40:24.442500+00:00"}
+{"gps_id": 776, "subject_id": 3, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 775, "subject_id": 3, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 774, "subject_id": 3, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 773, "subject_id": 3, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 772, "subject_id": 3, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 771, "subject_id": 3, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 770, "subject_id": 3, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 769, "subject_id": 3, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 768, "subject_id": 3, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 767, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 766, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 765, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 764, "subject_id": 5, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
+{"gps_id": 763, "subject_id": 3, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
 {"gps_id": 762, "subject_id": 3, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
 {"gps_id": 761, "subject_id": 3, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}
 {"gps_id": 760, "subject_id": 3, "x": null, "y": null, "x_d": null, "y_d": null, "token": null, "token_probability": null, "anomaly_score": null, "scored_at": null}

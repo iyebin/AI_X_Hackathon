@@ -1,0 +1,119 @@
+{
+  "description": "정상 이동: care center -> apartment (평소 이동 시간대 18:00~19:00, 파인튜닝에 쓰인 실제 좌표/간격 그대로 사용)",
+  "user_ref": "user_1100 (finetune vocab)",
+  "interval_minutes": 5,
+  "points": [
+    {
+      "offset_min": 0,
+      "latitude": 37.537671,
+      "longitude": 126.959274,
+      "x": 952229.0255528395,
+      "y": 1948843.001159478,
+      "venue": "carecenter"
+    },
+    {
+      "offset_min": 5,
+      "latitude": 37.53815,
+      "longitude": 126.9585,
+      "x": 952160.9512478889,
+      "y": 1948896.5371297463,
+      "venue": "transit"
+    },
+    {
+      "offset_min": 10,
+      "latitude": 37.5387,
+      "longitude": 126.9577,
+      "x": 952090.6262626478,
+      "y": 1948957.9639884296,
+      "venue": "transit"
+    },
+    {
+      "offset_min": 15,
+      "latitude": 37.5392,
+      "longitude": 126.9568,
+      "x": 952011.4357907285,
+      "y": 1949013.8952544546,
+      "venue": "transit"
+    },
+    {
+      "offset_min": 20,
+      "latitude": 37.5397,
+      "longitude": 126.95585,
+      "x": 951927.8291667346,
+      "y": 1949069.8528514532,
+      "venue": "transit"
+    },
+    {
+      "offset_min": 25,
+      "latitude": 37.5402,
+      "longitude": 126.9548,
+      "x": 951835.3892933165,
+      "y": 1949125.8625240726,
+      "venue": "transit"
+    },
+    {
+      "offset_min": 30,
+      "latitude": 37.5407,
+      "longitude": 126.95365,
+      "x": 951734.1163462778,
+      "y": 1949181.92456902,
+      "venue": "transit"
+    },
+    {
+      "offset_min": 35,
+      "latitude": 37.54115,
+      "longitude": 126.95245,
+      "x": 951628.3953249617,
+      "y": 1949232.4663510781,
+      "venue": "transit"
+    },
+    {
+      "offset_min": 40,
+      "latitude": 37.54165,
+      "longitude": 126.95115,
+      "x": 951513.873748877,
+      "y": 1949288.6082946893,
+      "venue": "transit"
+    },
+    {
+      "offset_min": 45,
+      "latitude": 37.5421,
+      "longitude": 126.9499,
+      "x": 951403.7383209666,
+      "y": 1949339.1787555446,
+      "venue": "transit"
+    },
+    {
+      "offset_min": 50,
+      "latitude": 37.54255,
+      "longitude": 126.94865,
+      "x": 951293.6042175966,
+      "y": 1949389.7506937848,
+      "venue": "transit"
+    },
+    {
+      "offset_min": 55,
+      "latitude": 37.54295,
+      "longitude": 126.94745,
+      "x": 951187.8558608309,
+      "y": 1949434.7509110775,
+      "venue": "transit"
+    },
+    {
+      "offset_min": 60,
+      "latitude": 37.543317,
+      "longitude": 126.94643,
+      "x": 951097.9882821462,
+      "y": 1949475.9976753446,
+      "venue": "apartment"
+    },
+    {
+      "offset_min": 65,
+      "latitude": 37.543317,
+      "longitude": 126.94643,
+      "x": 951097.9882821462,
+      "y": 1949475.9976753446,
+      "venue": "apartment"
+    }
+  ]
+}

@@ -1,0 +1,98 @@
+{
+  "description": "이상 이동: care center 에서 평소 이동 시간대(18:05 출발)에 출발하지만, apartment 가 아니라 user_1100 이 한 번도 방문한 적 없는 낯선 장소로 이동 (위치 이상 시나리오). bounding box 안이라 vocab 에는 있지만, user_1100 파인튜닝 데이터에는 없던 token 이라 이상치로 나올 것으로 기대.",
+  "user_ref": "user_1100 (finetune vocab)",
+  "interval_minutes": 5,
+  "points": [
+    {
+      "offset_min": 0,
+      "latitude": 37.537671,
+      "longitude": 126.959274,
+      "venue": "carecenter"
+    },
+    {
+      "offset_min": 5,
+      "latitude": 37.53245086,
+      "longitude": 126.96642331,
+      "venue": "transit"
+    },
+    {
+      "offset_min": 10,
+      "latitude": 37.52723027,
+      "longitude": 126.97357162,
+      "venue": "transit"
+    },
+    {
+      "offset_min": 15,
+      "latitude": 37.52200924,
+      "longitude": 126.98071893,
+      "venue": "transit"
+    },
+    {
+      "offset_min": 20,
+      "latitude": 37.51678777,
+      "longitude": 126.98786525,
+      "venue": "transit"
+    },
+    {
+      "offset_min": 25,
+      "latitude": 37.51156585,
+      "longitude": 126.99501057,
+      "venue": "transit"
+    },
+    {
+      "offset_min": 30,
+      "latitude": 37.50634349,
+      "longitude": 127.0021549,
+      "venue": "transit"
+    },
+    {
+      "offset_min": 35,
+      "latitude": 37.50112068,
+      "longitude": 127.00929824,
+      "venue": "transit"
+    },
+    {
+      "offset_min": 40,
+      "latitude": 37.49589743,
+      "longitude": 127.01644058,
+      "venue": "transit"
+    },
+    {
+      "offset_min": 45,
+      "latitude": 37.49067374,
+      "longitude": 127.02358192,
+      "venue": "transit"
+    },
+    {
+      "offset_min": 50,
+      "latitude": 37.4854496,
+      "longitude": 127.03072228,
+      "venue": "transit"
+    },
+    {
+      "offset_min": 55,
+      "latitude": 37.48022502,
+      "longitude": 127.03786163,
+      "venue": "transit"
+    },
+    {
+      "offset_min": 60,
+      "latitude": 37.475,
+      "longitude": 127.045,
+      "venue": "unfamiliar_location"
+    },
+    {
+      "offset_min": 65,
+      "latitude": 37.475,
+      "longitude": 127.045,
+      "venue": "unfamiliar_location"
+    },
+    {
+      "offset_min": 70,
+      "latitude": 37.475,
+      "longitude": 127.045,
+      "venue": "unfamiliar_location"
+
+    }
+  ]
+}
