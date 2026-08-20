@@ -1,11 +1,11 @@
 import { Ionicons } from '@expo/vector-icons';
-import * as Location from 'expo-location';
 import React, { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Text } from '@/components/common/scaled-text';
 import { WebView } from 'react-native-webview';
 import HeaderBadge from '@/components/common/header-badge';
 import { getWeatherSummary } from '@/features/environment/weather-api';
+import { formatTimeSince, getLatestGps } from '@/features/gps/gps-api';
 
 interface ProtectedMapViewProps {
   subjectId?: number;
@@ -27,47 +27,38 @@ export default function ProtectedMapView({
   const [refreshKey, setRefreshKey] = useState(0);
   const [currentLocation, setCurrentLocation] = useState({ latitude, longitude });
   const [locationError, setLocationError] = useState<string | null>(null);
-  const [lastMeasuredAt, setLastMeasuredAt] = useState<Date | null>(null);
+  const [lastMeasuredAt, setLastMeasuredAt] = useState<string | undefined>();
   const [serverWeatherText, setServerWeatherText] = useState<string | null>('날씨 정보를 불러오는 중입니다.');
   const displayWeatherText = serverWeatherText ?? weatherText;
 
-  const updateCurrentLocation = async () => {
-    const permission = await Location.requestForegroundPermissionsAsync();
-    if (permission.status !== 'granted') {
-      setLocationError('현재 위치 권한이 필요합니다.');
+  useEffect(() => {
+    const numericSubjectId = Number(subjectId);
+    if (!Number.isInteger(numericSubjectId) || numericSubjectId <= 0) {
+      setLocationError('보호대상자 정보를 확인할 수 없습니다.');
       return;
     }
 
-    const location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
-    setCurrentLocation({ latitude: location.coords.latitude, longitude: location.coords.longitude });
-    setLastMeasuredAt(new Date(location.timestamp));
-    setLocationError(null);
-  };
-
-  useEffect(() => {
-    let subscription: Location.LocationSubscription | undefined;
-
-    const startWatchingLocation = async () => {
+    let isActive = true;
+    const loadLatestGps = async () => {
       try {
-        await updateCurrentLocation();
-        const permission = await Location.getForegroundPermissionsAsync();
-        if (!permission.granted) return;
-        subscription = await Location.watchPositionAsync(
-          { accuracy: Location.Accuracy.High, timeInterval: 5000, distanceInterval: 5 },
-          (location) => {
-            setCurrentLocation({ latitude: location.coords.latitude, longitude: location.coords.longitude });
-            setLastMeasuredAt(new Date(location.timestamp));
-            setLocationError(null);
-          }
-        );
-      } catch {
-        setLocationError('현재 위치를 가져오지 못했습니다.');
+        const gps = await getLatestGps(numericSubjectId);
+        if (!isActive) return;
+        setCurrentLocation({ latitude: gps.latitude, longitude: gps.longitude });
+        setLastMeasuredAt(gps.measuredAt);
+        setLocationError(null);
+      } catch (error) {
+        if (!isActive) return;
+        setLocationError(error instanceof Error ? error.message : '저장된 위치를 불러오지 못했습니다.');
       }
     };
 
-    startWatchingLocation();
-    return () => subscription?.remove();
-  }, []);
+    void loadLatestGps();
+    const intervalId = setInterval(() => void loadLatestGps(), 15_000);
+    return () => {
+      isActive = false;
+      clearInterval(intervalId);
+    };
+  }, [subjectId, refreshKey]);
 
   useEffect(() => {
     const numericSubjectId = Number(subjectId);
@@ -83,7 +74,6 @@ export default function ProtectedMapView({
 
   const handleRefresh = () => {
     setRefreshKey((previous) => previous + 1);
-    updateCurrentLocation().catch(() => setLocationError('현재 위치를 가져오지 못했습니다.'));
   };
 
   const mapHtml = `
@@ -114,7 +104,7 @@ export default function ProtectedMapView({
         <Text style={styles.statusSectionTitle}>현재 상태</Text>
         <View style={styles.statusRow}>
           <Ionicons name="time-outline" size={26} color="#59A03D" style={styles.statusIcon} />
-          <Text style={styles.statusText}>최근 업데이트 {lastMeasuredAt ? '방금 전' : lastUpdated}</Text>
+          <Text style={styles.statusText}>최근 업데이트 {lastMeasuredAt ? `${formatTimeSince(lastMeasuredAt)} 전` : lastUpdated}</Text>
         </View>
         {displayWeatherText ? <View style={styles.statusRow}>
           <Ionicons name="cloudy-outline" size={26} color="#59A03D" style={styles.statusIcon} />
