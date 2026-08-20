@@ -30,7 +30,8 @@ import random
 from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 from backend.inference_service import run_gps_inference
-from risk_policy import calculate_integrated_risk
+from backend.risk_policy import calculate_integrated_risk
+
 
 import requests
 import bcrypt
