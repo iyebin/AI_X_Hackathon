@@ -433,6 +433,11 @@ class AlertResponse(BaseModel):
     type: str
     subject_id: int | None = None
     guardian_id: int | None = None
+
+    # 신규 필드 - 기존 API 호환을 위해 optional
+    recipient_type: str | None = None
+    recipient_id: int | None = None
+
     message: str
     risk_score: float | None = None
     risk_snapshot: dict | None = None

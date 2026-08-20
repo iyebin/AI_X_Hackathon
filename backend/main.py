@@ -487,7 +487,7 @@ def notify_risk_transition(
     air_reason: str | None = None,
     factors: list[dict] | None = None,
 ):
-    risk_snapshot = {
+    base_snapshot = {
         "risk_level": risk_level,
         "risk_score": risk_score,
         "lmtad_score": lmtad_score,
@@ -511,66 +511,119 @@ def notify_risk_transition(
         if notify_guardians
         else []
     )
+
     manager_ids = (
         get_manager_ids_for_subject(db, subject.id)
         if notify_managers
         else []
     )
 
-    if notify_guardians:
-        for guardian_id in guardian_ids:
-            db.add(
-                models.Alert(
-                    type=alert_type,
-                    subject_id=subject.id,
-                    guardian_id=guardian_id,
-                    message=message,
-                    risk_score=risk_score,
-                    risk_snapshot=risk_snapshot,
-                    is_read=False,
-                )
-            )
+    # 각 수신자별로 독립된 alert row를 생성한다.
+    # DB 컬럼 추가 없이 risk_snapshot에 recipient 정보를 저장한다.
+    recipient_alerts = []
 
-    db.commit()
+    for guardian_id in guardian_ids:
+        snapshot = {
+            **base_snapshot,
+            "recipient_type": "guardian",
+            "recipient_id": guardian_id,
+        }
 
-    push_data = {
+        alert = models.Alert(
+            type=alert_type,
+            subject_id=subject.id,
+            guardian_id=guardian_id,
+            message=message,
+            risk_score=risk_score,
+            risk_snapshot=snapshot,
+            is_read=False,
+        )
+        db.add(alert)
+        recipient_alerts.append(
+            ("guardian", guardian_id, alert)
+        )
+
+    if notify_subject:
+        snapshot = {
+            **base_snapshot,
+            "recipient_type": "subject",
+            "recipient_id": subject.id,
+        }
+
+        alert = models.Alert(
+            type=alert_type,
+            subject_id=subject.id,
+            guardian_id=None,
+            message=message,
+            risk_score=risk_score,
+            risk_snapshot=snapshot,
+            is_read=False,
+        )
+        db.add(alert)
+        recipient_alerts.append(
+            ("subject", subject.id, alert)
+        )
+
+    for manager_id in manager_ids:
+        snapshot = {
+            **base_snapshot,
+            "recipient_type": "institution_manager",
+            "recipient_id": manager_id,
+        }
+
+        alert = models.Alert(
+            type=alert_type,
+            subject_id=subject.id,
+            guardian_id=None,
+            message=message,
+            risk_score=risk_score,
+            risk_snapshot=snapshot,
+            is_read=False,
+        )
+        db.add(alert)
+        recipient_alerts.append(
+            ("institution_manager", manager_id, alert)
+        )
+
+    # alert.id를 FCM data에 넣어야 하므로 먼저 ID를 발급받는다.
+    db.flush()
+
+    push_common = {
         "type": alert_type,
         "subject_id": subject.id,
         "risk_level": risk_level,
         "risk_score": risk_score,
     }
+
     if nearby_facilities is not None:
-        push_data["nearby_facilities"] = json.dumps(
+        push_common["nearby_facilities"] = json.dumps(
             nearby_facilities,
             ensure_ascii=False,
         )
 
-    for guardian_id in guardian_ids:
-        send_push_to_user(
-            db,
-            user_type="guardian",
-            user_id=guardian_id,
-            title="안심하랑께 위험도 알림",
-            body=message,
-            data=push_data,
-        )
+    db.commit()
 
-    if notify_subject:
-        send_push_to_user(
-            db,
-            user_type="subject",
-            user_id=subject.id,
-            title="안심하랑께 위험도 알림",
-            body=message,
-            data=push_data,
-        )
+    # 각 수신자의 alert_id를 해당 사용자 FCM에 넣어 전송한다.
+    for recipient_type, recipient_id, alert in recipient_alerts:
+        db.refresh(alert)
 
-    for manager_id in manager_ids:
+        push_data = {
+            **push_common,
+            "alert_id": alert.id,
+            "recipient_type": recipient_type,
+            "recipient_id": recipient_id,
+        }
+
+        if recipient_type == "institution_manager":
+            title = "안심하랑께 기관 위험 알림"
+        else:
+            title = "안심하랑께 위험도 알림"
+
         send_push_to_user(
             db,
-            user_type="institution_manager",
-            user_id=manager_id,
-            title="안심하랑께 기관 위험 알림",
+            user_type=recipient_type,
+            user_id=recipient_id,
+            title=title,
             body=message,
             data=push_data,
         )
@@ -2568,6 +2621,7 @@ def send_risk_push_to_guardian(
     subject_name: str,
     risk_level: str,
     risk_score=None,
+    alert_id: int | None = None,
 ):
     tokens = (
     db.query(models.DeviceToken)
@@ -2598,10 +2652,17 @@ def send_risk_push_to_guardian(
                 ),
                 data={
                     "type": "risk",
+                    "alert_id": str(
+                        alert_id
+                        if alert_id is not None
+                        else ""
+                    ),
                     "subject_id": str(subject_id),
                     "guardian_id": str(
                         guardian_id
                     ),
+                    "recipient_type": "guardian",
+                    "recipient_id": str(guardian_id),
                     "risk_level": str(
                         risk_level
                     ),
@@ -2748,6 +2809,7 @@ def receive_risk_result(
             subject_name=subject.name,
             risk_level=normalized,
             risk_score=data.risk_score,
+            alert_id=alert.id,
         )
 
     return {
@@ -2984,6 +3046,41 @@ def get_risk_history(
 
     return history
 
+def alert_to_response(
+    alert: models.Alert,
+) -> dict:
+    snapshot = alert.risk_snapshot or {}
+
+    recipient_type = snapshot.get(
+        "recipient_type"
+    )
+    recipient_id = snapshot.get(
+        "recipient_id"
+    )
+
+    # 기존 보호자 알림 하위 호환
+    if (
+        recipient_type is None
+        and alert.guardian_id is not None
+    ):
+        recipient_type = "guardian"
+        recipient_id = alert.guardian_id
+
+    return {
+        "id": alert.id,
+        "type": alert.type,
+        "subject_id": alert.subject_id,
+        "guardian_id": alert.guardian_id,
+        "recipient_type": recipient_type,
+        "recipient_id": recipient_id,
+        "message": alert.message,
+        "risk_score": alert.risk_score,
+        "risk_snapshot": alert.risk_snapshot,
+        "is_read": alert.is_read,
+        "created_at": alert.created_at,
+    }
+
+
 @app.get(
     "/alerts",
     response_model=list[schemas.AlertResponse],
@@ -2992,17 +3089,89 @@ def get_risk_history(
 def get_alerts(
     is_read: bool | None = None,
     alert_type: str | None = None,
-    db: Session = Depends(get_db)
+    recipient_type: str | None = None,
+    recipient_id: int | None = None,
+    db: Session = Depends(get_db),
 ):
     query = db.query(models.Alert)
 
     if is_read is not None:
-        query = query.filter(models.Alert.is_read == is_read)
+        query = query.filter(
+            models.Alert.is_read == is_read
+        )
 
     if alert_type:
-        query = query.filter(models.Alert.type == alert_type)
+        query = query.filter(
+            models.Alert.type == alert_type
+        )
 
-    return query.order_by(models.Alert.created_at.desc()).all()
+    alerts = query.order_by(
+        models.Alert.created_at.desc()
+    ).all()
+
+    # recipient 필터가 없으면 기존 GET /alerts와 동일하게 전체 반환
+    if recipient_type is None and recipient_id is None:
+        return [
+            alert_to_response(alert)
+            for alert in alerts
+        ]
+
+    filtered = []
+
+    for alert in alerts:
+        snapshot = alert.risk_snapshot or {}
+
+        stored_type = snapshot.get("recipient_type")
+        stored_id = snapshot.get("recipient_id")
+
+        # 기존 guardian 알림은 recipient 정보가 없을 수도 있으므로
+        # guardian_id를 하위 호환 fallback으로 사용한다.
+        if stored_type is None and alert.guardian_id is not None:
+            stored_type = "guardian"
+            stored_id = alert.guardian_id
+
+        if (
+            recipient_type is not None
+            and stored_type != recipient_type
+        ):
+            continue
+
+        if recipient_id is not None:
+            try:
+                normalized_stored_id = int(stored_id)
+            except (TypeError, ValueError):
+                continue
+
+            if normalized_stored_id != recipient_id:
+                continue
+
+        filtered.append(alert_to_response(alert))
+
+    return filtered
+
+
+@app.get(
+    "/alerts/{alert_id}",
+    response_model=schemas.AlertResponse,
+    tags=["알림"],
+)
+def get_alert(
+    alert_id: int,
+    db: Session = Depends(get_db),
+):
+    alert = db.get(
+        models.Alert,
+        alert_id,
+    )
+
+    if not alert:
+        raise HTTPException(
+            status_code=404,
+            detail="알림을 찾을 수 없습니다.",
+        )
+
+    return alert_to_response(alert)
+
 
 @app.post(
     "/guardians/{guardian_id}/test-push",
