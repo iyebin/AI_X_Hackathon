@@ -27,7 +27,7 @@ VOCAB_PATH = Path(
         str(
             BACKEND_DIR
             / "artifacts"
-            / "vocab_place.json"
+            / "vocab_gps.full_bbox.user1100.json"
         ),
     )
 ).resolve()
