@@ -16,7 +16,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { AuthRole, verifyAuthCode } from '@/features/auth/verify-code';
 import { saveSession, setCurrentGuardian } from '@/features/auth/current-session';
 import { clearProtectorPhone, setProtectorPhone } from '@/features/contacts/protector-contact-store';
-import { startGpsTracking } from '@/features/gps/tracking';
 import { getGuardiansForSubject } from '@/features/relationships/guardian-registration';
 
 export default function CodeScreen() {
@@ -61,16 +60,6 @@ export default function CodeScreen() {
         if (!subjectId) {
           throw new Error('서버 응답에 보호대상자 ID(subject_id)가 없습니다.');
         }
-        try {
-          await startGpsTracking(subjectId);
-        } catch (error) {
-          Alert.alert(
-            '위치 추적을 시작할 수 없습니다',
-            error instanceof Error ? error.message : '위치 권한을 확인해 주세요.'
-          );
-          return;
-        }
-
         let emergencyPhone: string | undefined;
         try {
           const guardians = await getGuardiansForSubject(subjectId);

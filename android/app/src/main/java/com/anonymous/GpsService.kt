@@ -159,7 +159,7 @@ class GpsService : Service() {
     }
 
     companion object {
-        private const val API_BASE_URL = "https://edinburgh-jelsoft-tattoo-anyone.trycloudflare.com"
+        private const val API_BASE_URL = "https://ai-x-hackathon-backend.onrender.com"
         private const val CHANNEL_ID = "GpsServiceChannel"
         private const val NOTIFICATION_ID = 1001
     }
