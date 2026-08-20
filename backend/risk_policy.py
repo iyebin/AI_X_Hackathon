@@ -38,7 +38,6 @@ def lmtad_score_from_anomaly(
         70.0 + min(30.0, (ratio - 1.0) * 30.0)
     )
 
-
 def calculate_integrated_risk(
     lmtad_score: float | None,
     weather_score: float | None,
@@ -60,11 +59,24 @@ def calculate_integrated_risk(
     ]
 
     if not available:
-        raise ValueError("통합 위험도 계산에 사용할 점수가 없습니다.")
+        raise ValueError(
+            "통합 위험도 계산에 사용할 점수가 없습니다."
+        )
 
-    weight_sum = sum(weight for _, weight in available)
+    weight_sum = sum(
+        weight
+        for _, weight in available
+    )
+
     final_score = clamp_risk_score(
-        sum(score * weight for score, weight in available)
+        sum(
+            score * weight
+            for score, weight in available
+        )
         / weight_sum
     )
-    return final_score, risk_level_from_score(final_score)
+
+    return (
+        final_score,
+        risk_level_from_score(final_score),
+    )

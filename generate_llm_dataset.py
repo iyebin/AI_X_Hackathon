@@ -189,304 +189,305 @@ def create_answer(
     }
 
 
-gps = pd.read_csv(GPS_PATH)
+if __name__ == "__main__":
+    gps = pd.read_csv(GPS_PATH)
 
-facilities = pd.read_csv(
-    FACILITY_PATH,
-    low_memory=False,
-)
-
-facilities = facilities[
-    facilities["latitude"].notna()
-    & facilities["longitude"].notna()
-].copy()
-
-gps = gps.reset_index(drop=True)
-
-print(f"GPS 포인트: {len(gps)}")
-print(f"시설 수: {len(facilities)}")
-print("주변시설 캐시 생성 시작...")
-
-
-# ---------------------------------------------------------
-# 핵심 최적화:
-# 실제 GPS 599개에 대해서만 주변시설을 한 번 계산한다.
-# ---------------------------------------------------------
-
-facility_cache = {}
-
-for idx, gps_row in gps.iterrows():
-    latitude = float(gps_row["latitude"])
-    longitude = float(gps_row["longitude"])
-
-    facility_cache[idx] = nearest_facilities_for_point(
-        latitude,
-        longitude,
-        facilities,
-        limit=3,
+    facilities = pd.read_csv(
+        FACILITY_PATH,
+        low_memory=False,
     )
 
-    if (
-        (idx + 1) % 50 == 0
-        or idx + 1 == len(gps)
-    ):
-        percent = (
-            (idx + 1)
-            / len(gps)
-            * 100
+    facilities = facilities[
+        facilities["latitude"].notna()
+        & facilities["longitude"].notna()
+    ].copy()
+
+    gps = gps.reset_index(drop=True) #
+
+    print(f"GPS 포인트: {len(gps)}")
+    print(f"시설 수: {len(facilities)}")
+    print("주변시설 캐시 생성 시작...")
+
+
+    # ---------------------------------------------------------
+    # 핵심 최적화:
+    # 실제 GPS 599개에 대해서만 주변시설을 한 번 계산한다.
+    # ---------------------------------------------------------
+
+    facility_cache = {}
+
+    for idx, gps_row in gps.iterrows():
+        latitude = float(gps_row["latitude"])
+        longitude = float(gps_row["longitude"])
+
+        facility_cache[idx] = nearest_facilities_for_point(
+            latitude,
+            longitude,
+            facilities,
+            limit=3,
         )
 
-        print(
-            f"[시설 캐시] "
-            f"{idx + 1}/{len(gps)} "
-            f"({percent:.1f}%)"
-        )
-
-print("주변시설 캐시 완료")
-print("30,000개 학습 시나리오 생성 시작...")
-
-
-records = []
-
-for i in range(TOTAL):
-    gps_idx = random.randrange(
-        len(gps)
-    )
-
-    gps_row = gps.iloc[gps_idx]
-
-    latitude = float(
-        gps_row["latitude"]
-    )
-    longitude = float(
-        gps_row["longitude"]
-    )
-
-    # 너무 동일한 좌표만 반복하지 않도록
-    # 소폭 위치 변동
-    latitude += random.uniform(
-        -0.003,
-        0.003,
-    )
-    longitude += random.uniform(
-        -0.003,
-        0.003,
-    )
-
-    subject_type = random.choice(
-        SUBJECT_TYPES
-    )
-
-    (
-        weather_condition,
-        weather_warning,
-        weather_score,
-    ) = random.choice(
-        WEATHER_CASES
-    )
-
-    (
-        air_condition,
-        air_score,
-    ) = random.choice(
-        AIR_CASES
-    )
-
-    mode = random.random()
-
-    if mode < 0.45:
-        lmtad_score = random.randint(
-            0,
-            35,
-        )
-    elif mode < 0.75:
-        lmtad_score = random.randint(
-            36,
-            69,
-        )
-    else:
-        lmtad_score = random.randint(
-            70,
-            100,
-        )
-
-    score = round(
-        0.65 * lmtad_score
-        + 0.20 * weather_score
-        + 0.15 * air_score,
-        1,
-    )
-
-    if (
-        lmtad_score >= 85
-        and (
-            weather_score >= 18
-            or air_score >= 12
-        )
-    ):
-        score = max(
-            score,
-            random.uniform(
-                70,
-                95,
-            ),
-        )
-
-    score = round(
-        min(
-            100,
-            max(
-                0,
-                score,
-            ),
-        ),
-        1,
-    )
-
-    level = risk_level(
-        score
-    )
-
-    nearby = facility_cache[
-        gps_idx
-    ]
-
-    user_payload = {
-        "subject": {
-            "subject_type": subject_type,
-        },
-        "location": {
-            "latitude": round(
-                latitude,
-                6,
-            ),
-            "longitude": round(
-                longitude,
-                6,
-            ),
-            "source": "gps",
-        },
-        "risk": {
-            "risk_score": score,
-            "risk_level": level,
-            "lmtad_score": lmtad_score,
-            "weather_score": weather_score,
-            "air_score": air_score,
-        },
-        "environment": {
-            "weather_condition": weather_condition,
-            "weather_warning": weather_warning,
-            "air_condition": air_condition,
-        },
-        "nearby_facilities": nearby,
-    }
-
-    answer = create_answer(
-        subject_type=subject_type,
-        level=level,
-        lmtad_score=lmtad_score,
-        weather_warning=weather_warning,
-        air_condition=air_condition,
-        nearby=nearby,
-    )
-
-    records.append({
-        "messages": [
-            {
-                "role": "system",
-                "content": (
-                    "당신은 안전취약계층 위험상황 설명 AI입니다. "
-                    "입력된 위험도와 환경정보를 변경하거나 새로 계산하지 말고, "
-                    "위험 이유와 보호자가 취할 행동을 간결하고 정확하게 설명하세요. "
-                    "반드시 JSON 형식으로 답하세요."
-                ),
-            },
-            {
-                "role": "user",
-                "content": json.dumps(
-                    user_payload,
-                    ensure_ascii=False,
-                ),
-            },
-            {
-                "role": "assistant",
-                "content": json.dumps(
-                    answer,
-                    ensure_ascii=False,
-                ),
-            },
-        ]
-    })
-
-    if (
-        (i + 1) % 1000 == 0
-        or i + 1 == TOTAL
-    ):
-        percent = (
-            (i + 1)
-            / TOTAL
-            * 100
-        )
-
-        print(
-            f"[시나리오] "
-            f"{i + 1}/{TOTAL} "
-            f"({percent:.1f}%)"
-        )
-
-
-random.shuffle(
-    records
-)
-
-train_end = int(
-    len(records) * 0.8
-)
-
-valid_end = int(
-    len(records) * 0.9
-)
-
-datasets = {
-    "train.jsonl":
-        records[:train_end],
-
-    "validation.jsonl":
-        records[
-            train_end:valid_end
-        ],
-
-    "test.jsonl":
-        records[
-            valid_end:
-        ],
-}
-
-for filename, rows in datasets.items():
-    path = (
-        OUT_DIR
-        / filename
-    )
-
-    with path.open(
-        "w",
-        encoding="utf-8",
-    ) as f:
-        for row in rows:
-            f.write(
-                json.dumps(
-                    row,
-                    ensure_ascii=False,
-                )
-                + "\n"
+        if (
+            (idx + 1) % 50 == 0
+            or idx + 1 == len(gps)
+        ):
+            percent = (
+                (idx + 1)
+                / len(gps)
+                * 100
             )
 
-    print(
-        filename,
-        len(rows),
+            print(
+                f"[시설 캐시] "
+                f"{idx + 1}/{len(gps)} "
+                f"({percent:.1f}%)"
+            )
+
+    print("주변시설 캐시 완료")
+    print("30,000개 학습 시나리오 생성 시작...")
+
+
+    records = []
+
+    for i in range(TOTAL):
+        gps_idx = random.randrange(
+            len(gps)
+        )
+
+        gps_row = gps.iloc[gps_idx]
+
+        latitude = float(
+            gps_row["latitude"]
+        )
+        longitude = float(
+            gps_row["longitude"]
+        )
+
+        # 너무 동일한 좌표만 반복하지 않도록
+        # 소폭 위치 변동
+        latitude += random.uniform(
+            -0.003,
+            0.003,
+        )
+        longitude += random.uniform(
+            -0.003,
+            0.003,
+        )
+
+        subject_type = random.choice(
+            SUBJECT_TYPES
+        )
+
+        (
+            weather_condition,
+            weather_warning,
+            weather_score,
+        ) = random.choice(
+            WEATHER_CASES
+        )
+
+        (
+            air_condition,
+            air_score,
+        ) = random.choice(
+            AIR_CASES
+        )
+
+        mode = random.random()
+
+        if mode < 0.45:
+            lmtad_score = random.randint(
+                0,
+                35,
+            )
+        elif mode < 0.75:
+            lmtad_score = random.randint(
+                36,
+                69,
+            )
+        else:
+            lmtad_score = random.randint(
+                70,
+                100,
+            )
+
+        score = round(
+            0.65 * lmtad_score
+            + 0.20 * weather_score
+            + 0.15 * air_score,
+            1,
+        )
+
+        if (
+            lmtad_score >= 85
+            and (
+                weather_score >= 18
+                or air_score >= 12
+            )
+        ):
+            score = max(
+                score,
+                random.uniform(
+                    70,
+                    95,
+                ),
+            )
+
+        score = round(
+            min(
+                100,
+                max(
+                    0,
+                    score,
+                ),
+            ),
+            1,
+        )
+
+        level = risk_level(
+            score
+        )
+
+        nearby = facility_cache[
+            gps_idx
+        ]
+
+        user_payload = {
+            "subject": {
+                "subject_type": subject_type,
+            },
+            "location": {
+                "latitude": round(
+                    latitude,
+                    6,
+                ),
+                "longitude": round(
+                    longitude,
+                    6,
+                ),
+                "source": "gps",
+            },
+            "risk": {
+                "risk_score": score,
+                "risk_level": level,
+                "lmtad_score": lmtad_score,
+                "weather_score": weather_score,
+                "air_score": air_score,
+            },
+            "environment": {
+                "weather_condition": weather_condition,
+                "weather_warning": weather_warning,
+                "air_condition": air_condition,
+            },
+            "nearby_facilities": nearby,
+        }
+
+        answer = create_answer(
+            subject_type=subject_type,
+            level=level,
+            lmtad_score=lmtad_score,
+            weather_warning=weather_warning,
+            air_condition=air_condition,
+            nearby=nearby,
+        )
+
+        records.append({
+            "messages": [
+                {
+                    "role": "system",
+                    "content": (
+                        "당신은 안전취약계층 위험상황 설명 AI입니다. "
+                        "입력된 위험도와 환경정보를 변경하거나 새로 계산하지 말고, "
+                        "위험 이유와 보호자가 취할 행동을 간결하고 정확하게 설명하세요. "
+                        "반드시 JSON 형식으로 답하세요."
+                    ),
+                },
+                {
+                    "role": "user",
+                    "content": json.dumps(
+                        user_payload,
+                        ensure_ascii=False,
+                    ),
+                },
+                {
+                    "role": "assistant",
+                    "content": json.dumps(
+                        answer,
+                        ensure_ascii=False,
+                    ),
+                },
+            ]
+        })
+
+        if (
+            (i + 1) % 1000 == 0
+            or i + 1 == TOTAL
+        ):
+            percent = (
+                (i + 1)
+                / TOTAL
+                * 100
+            )
+
+            print(
+                f"[시나리오] "
+                f"{i + 1}/{TOTAL} "
+                f"({percent:.1f}%)"
+            )
+
+
+    random.shuffle(
+        records
     )
 
-print(
-    "완료:",
-    OUT_DIR.resolve(),
-)
+    train_end = int(
+        len(records) * 0.8
+    )
+
+    valid_end = int(
+        len(records) * 0.9
+    )
+
+    datasets = {
+        "train.jsonl":
+            records[:train_end],
+
+        "validation.jsonl":
+            records[
+                train_end:valid_end
+            ],
+
+        "test.jsonl":
+            records[
+                valid_end:
+            ],
+    }
+
+    for filename, rows in datasets.items():
+        path = (
+            OUT_DIR
+            / filename
+        )
+
+        with path.open(
+            "w",
+            encoding="utf-8",
+        ) as f:
+            for row in rows:
+                f.write(
+                    json.dumps(
+                        row,
+                        ensure_ascii=False,
+                    )
+                    + "\n"
+                )
+
+        print(
+            filename,
+            len(rows),
+        )
+
+    print(
+        "완료:",
+        OUT_DIR.resolve(),
+    )

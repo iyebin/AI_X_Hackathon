@@ -110,6 +110,7 @@ class GpsService : Service() {
 
                 // 💡 GPS 저장이 성공하면(2xx) 주변 기관 조회 API를 이어서 호출
                 if (responseCode in 200..299) {
+                    requestRiskInference(subjectId)
                     fetchNearestInstitutions(subjectId)
                 }
             } catch (e: Exception) {
@@ -159,7 +160,7 @@ class GpsService : Service() {
     }
 
     companion object {
-        private const val API_BASE_URL = "https://medal-bacterial-nvidia-customize.trycloudflare.com"
+        private const val API_BASE_URL = "https://ai-x-hackathon-backend.onrender.com"
         private const val CHANNEL_ID = "GpsServiceChannel"
         private const val NOTIFICATION_ID = 1001
     }

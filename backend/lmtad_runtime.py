@@ -16,7 +16,7 @@ CHECKPOINT_PATH = Path(
         str(
             BACKEND_DIR
             / "artifacts"
-            / "ckptepoch_49_batch_389.pt"
+            / "converted_ckpt_finetuned_iter_200.pt"
         ),
     )
 ).resolve()
@@ -109,9 +109,9 @@ class LMTADRuntime:
         )
 
     def _validate_vocab(self):
-        if len(self.vocab) != self.vocab_size:
+        if len(self.vocab) > self.vocab_size:
             raise RuntimeError(
-                "체크포인트와 vocab 크기가 다릅니다. "
+                "vocab이 체크포인트 출력 크기보다 큽니다. "
                 f"checkpoint={self.vocab_size}, "
                 f"vocab={len(self.vocab)}"
             )
