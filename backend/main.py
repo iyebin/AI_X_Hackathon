@@ -4108,3 +4108,40 @@ def test_subject_push(
         "subject_id": subject_id,
         "result": result,
     }
+
+
+# =========================================================
+# 데모용 위험 시나리오
+# =========================================================
+@app.get(
+    "/demo/scenarios",
+    tags=["데모"],
+)
+def list_demo_scenarios():
+    from backend.demo_scenarios import DEMO_SCENARIOS
+
+    return {
+        "scenarios": [
+            {
+                "code": code,
+                "name": data["name"],
+            }
+            for code, data in DEMO_SCENARIOS.items()
+        ]
+    }
+
+
+@app.get(
+    "/demo/scenarios/{scenario}",
+    tags=["데모"],
+)
+def run_demo_scenario(scenario: str):
+    from backend.demo_scenarios import get_demo_scenario
+
+    try:
+        return get_demo_scenario(scenario)
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=404,
+            detail=str(exc),
+        ) from exc
