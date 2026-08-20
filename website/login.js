@@ -9,8 +9,7 @@
 ========================================================= */
 
 const LOGIN_API_BASE =
-  "https://ai-x-hackathon-backend.onrender.com";
-
+  "https://medal-bacterial-nvidia-customize.trycloudflare.com";
 const LOGIN_SESSION_KEY =
   "ansim_manager_session";
 
@@ -1213,7 +1212,7 @@ async function handleManagerLogin(
 
           const institutionResponse =
             await fetch(
-              `${LOGIN_API_BASE}/institutions?skip=0&limit=500`
+              `${LOGIN_API_BASE}/institutions`
             );
 
 
@@ -2486,7 +2485,7 @@ async function loadSignupInstitutions() {
 
     const response =
       await fetch(
-        `${LOGIN_API_BASE}/institutions?skip=0&limit=500`
+        `${LOGIN_API_BASE}/institutions`
       );
 
 
@@ -4761,7 +4760,7 @@ async function loadSignupInstitutions(
 
     const response =
       await fetch(
-        `${LOGIN_API_BASE}/institutions?skip=0&limit=500`
+        `${LOGIN_API_BASE}/institutions`
       );
 
 

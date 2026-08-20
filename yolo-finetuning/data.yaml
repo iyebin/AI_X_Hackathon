@@ -1,0 +1,35 @@
+path: dataset
+
+train: images/train
+val: images/val
+
+names:
+  0: traffic_light_controller
+  1: power_controller
+  2: wheelchair
+  3: truck
+  4: tree_trunk
+  5: traffic_sign
+  6: traffic_light
+  7: table
+  8: stroller
+  9: stop
+  10: scooter
+  11: potted_plant
+  12: pole
+  13: person
+  14: parking_meter
+  15: movable_signage
+  16: motorcycle
+  17: kiosk
+  18: fire_hydrant
+  19: dog
+  20: chair
+  21: cat
+  22: carrier
+  23: car
+  24: bus
+  25: bollard
+  26: bicycle
+  27: bench
+  28: barricade

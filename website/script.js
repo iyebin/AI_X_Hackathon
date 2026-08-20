@@ -1,6 +1,4 @@
-const API_BASE_URL =
-  "https://ai-x-hackathon-backend.onrender.com";
-
+const API_BASE_URL = "https://medal-bacterial-nvidia-customize.trycloudflare.com";
 
 const SUBJECT_TYPE_LABELS = {
   child: "아동",
@@ -67,63 +65,6 @@ let alertSearchKeyword = "";
 ================================================== */
 
 
-/*
-  임시 위험도 데이터
-
-  실제 위험도 API가 생기면
-  generateMockRiskData() 부분만 교체
-*/
-
-const MOCK_RISK_SCORES = [
-  85,
-  76,
-  72,
-  68,
-  54,
-  35,
-  31,
-  28,
-  24,
-  21,
-  18,
-  16,
-  14,
-  12,
-  10,
-  8,
-  6,
-  5,
-  4,
-  3
-];
-
-
-const MOCK_RISK_FACTORS = [
-  "GPS 경로 이탈",
-  "장시간 위치 정지",
-  "위험지역 접근",
-  "이동 패턴 이상",
-  "평소 경로 이탈",
-  "-",
-  "-",
-  "-",
-  "-",
-  "-"
-];
-
-
-const MOCK_UPDATE_TIMES = [
-  "1분 전",
-  "3분 전",
-  "4분 전",
-  "5분 전",
-  "6분 전",
-  "8분 전",
-  "10분 전",
-  "12분 전",
-  "15분 전",
-  "18분 전"
-];
 
 
 /* ==================================================
@@ -218,6 +159,11 @@ const dashboardTodayAlerts =
 
 const dashboardRiskTableBody =
   document.getElementById("dashboardRiskTableBody");
+
+  const dashboardRiskTotalCount =
+  document.getElementById(
+    "dashboardRiskTotalCount"
+  );
 
 const dashboardViewAllButton =
   document.getElementById("dashboardViewAllButton");
@@ -2194,69 +2140,137 @@ function getRiskLevelLabel(level) {
   return "안전";
 }
 
+async function loadDashboardRiskData() {
 
-function generateMockRiskData() {
+  const results = await Promise.all(
 
-  return subjects.map(
-    (subject, index) => {
+    subjects.map(async subject => {
 
-      let score =
-        MOCK_RISK_SCORES[index];
+      let status = null;
+      let analysis = null;
 
+      try {
+        status = await apiRequest(
+          `/subjects/${subject.id}/risk-status`
+        );
+      } catch (error) {
+        console.warn(
+          `risk-status 조회 실패: ${subject.id}`,
+          error
+        );
+      }
 
-      if (
-        score === undefined
-      ) {
-
-        score =
-          Math.max(
-            1,
-            8 -
-            (
-              index %
-              8
-            )
-          );
+      try {
+        analysis = await apiRequest(
+          `/subjects/${subject.id}/risk-analysis`
+        );
+      } catch (error) {
+        console.warn(
+          `risk-analysis 조회 실패: ${subject.id}`,
+          error
+        );
       }
 
 
-      const level =
-        getRiskLevel(score);
+      const score =
+        Number(
+          analysis?.total_score ??
+          status?.risk_score ??
+          0
+        ) || 0;
 
 
-      const mainRiskFactor =
-        level === "safe"
-          ? "-"
-          : (
-              MOCK_RISK_FACTORS[index] ||
-              "이동 패턴 이상"
-            );
+      let level =
+        String(
+          analysis?.risk_level ??
+          status?.risk_level ??
+          ""
+        )
+          .trim()
+          .toLowerCase();
+
+
+      if (
+        !["danger", "caution", "safe"].includes(level)
+      ) {
+        level = getRiskLevel(score);
+      }
+
+
+      let mainRiskFactor = "-";
+
+
+      if (
+        Array.isArray(analysis?.factors) &&
+        analysis.factors.length > 0
+      ) {
+
+        const factor =
+          [...analysis.factors]
+            .sort(
+              (a, b) =>
+                Number(b.score || 0) -
+                Number(a.score || 0)
+            )[0];
+
+
+        mainRiskFactor =
+          factor?.name ||
+          factor?.description ||
+          "-";
+
+      } else {
+
+        const reasons = [
+          {
+            score: Number(status?.lntd_score || 0),
+            reason: status?.lntd_reason
+          },
+          {
+            score: Number(status?.weather_score || 0),
+            reason: status?.weather_reason
+          },
+          {
+            score: Number(status?.air_score || 0),
+            reason: status?.air_reason
+          }
+        ]
+          .filter(item => item.reason)
+          .sort(
+            (a, b) =>
+              b.score - a.score
+          );
+
+
+        mainRiskFactor =
+          reasons[0]?.reason || "-";
+      }
+
+
+      const time =
+        analysis?.measured_at ||
+        status?.created_at ||
+        null;
 
 
       return {
-
-        subjectId:
-          subject.id,
-
+        subjectId: subject.id,
         subject,
-
-        riskScore:
-          score,
-
-        riskLevel:
-          level,
-
+        riskScore: score,
+        riskLevel: level,
         mainRiskFactor,
-
         updatedAt:
-          MOCK_UPDATE_TIMES[
-            index %
-            MOCK_UPDATE_TIMES.length
-          ] ||
-          "10분 전"
+          time
+            ? formatDateTime(time)
+            : "-"
       };
-    }
+
+    })
+
   );
+
+
+  return results;
 }
 
 
@@ -2316,7 +2330,7 @@ function isToday(value) {
 }
 
 
-function renderDashboard() {
+async function renderDashboard() {
 
   if (
     !dashboardTotalSubjects ||
@@ -2326,13 +2340,17 @@ function renderDashboard() {
   }
 
 
-  const riskData =
-    generateMockRiskData();
+const riskData =
+  await loadDashboardRiskData();
 
 
   const total =
     riskData.length;
 
+    if (dashboardRiskTotalCount) {
+  dashboardRiskTotalCount.textContent =
+    `전체 ${total}건`;
+}
 
   const danger =
     riskData.filter(
@@ -2611,11 +2629,10 @@ async function loadBaseData() {
 
 
     try {
-
-      const institutionData =
-        await apiRequest(
-          "/institutions?skip=0&limit=100"
-        );
+const institutionData =
+  await apiRequest(
+    "/institutions"
+  );
 
 
       institutions =
@@ -4641,51 +4658,46 @@ async function createGuardianRegistration(
    RELATION
 ================================================== */
 
-async function getSubjectRelations(id) {
-
-  const key =
-    `subject-${id}`;
-
-
-  if (
-    relationCache.has(key)
-  ) {
-
-    return relationCache.get(
-      key
-    );
-  }
-
+async function getSubjectRelations(subjectId) {
 
   try {
 
-    const data =
-      await apiRequest(
-        `/subjects/${id}/guardians`
+    const response =
+      await fetch(
+        `${API_BASE_URL}/subjects/${subjectId}/guardians`
       );
 
 
-    const result =
-      Array.isArray(data)
-        ? data
-        : [];
+    if (!response.ok) {
+
+      console.warn(
+        `보호자 관계 조회 실패: ${response.status}`
+      );
+
+      return [];
+    }
 
 
-    relationCache.set(
-      key,
-      result
+    const data =
+      await response.json();
+
+
+    return Array.isArray(data)
+      ? data
+      : [];
+
+
+  } catch (error) {
+
+    console.warn(
+      "보호자 관계 조회 실패:",
+      error
     );
 
-
-    return result;
-
-
-  } catch (_) {
 
     return [];
   }
 }
-
 
 async function getGuardianRelations(id) {
 
@@ -4779,6 +4791,12 @@ async function openUserDetail(
   type,
   id
 ) {
+
+  console.log(
+    "openUserDetail 실행됨:",
+    type,
+    id
+  );
 
   closeDrawers();
 
@@ -6215,6 +6233,12 @@ function openAuthDetail(
   type,
   id
 ) {
+
+  console.log(
+    "openAuthDetail 실행됨:",
+    type,
+    id
+  );
 
   closeDrawers();
 
@@ -8542,16 +8566,20 @@ async function loadNearestInstitutions(
     );
 
 
-  if (!nearest.length) {
+ if (!nearest.length) {
 
-    nearest =
-      calculateNearestInstitutions(
-        gps.latitude,
-        gps.longitude,
-        institutions,
-        5
-      );
-  }
+  nearest =
+    calculateNearestInstitutions(
+      gps.latitude,
+      gps.longitude,
+      institutions,
+      5
+    )
+    .filter(
+      item =>
+        Number(item.distance_km) <= 10
+    );
+}
 
 
   nearest =

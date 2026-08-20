@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://ai-x-hackathon-backend.onrender.com';
+const API_BASE_URL = 'https://medal-bacterial-nvidia-customize.trycloudflare.com';
 
 type WeatherResponse = {
   temperature?: string | number;

@@ -90,7 +90,7 @@ class GpsService : Service() {
 
         thread {
             try {
-                val url = URL("https://ai-x-hackathon-backend.onrender.com/gps")
+                val url = URL("https://medal-bacterial-nvidia-customize.trycloudflare.com/gps")
                 val conn = url.openConnection() as HttpURLConnection
                 conn.requestMethod = "POST"
                 conn.setRequestProperty("Content-Type", "application/json; utf-8")
@@ -122,7 +122,7 @@ class GpsService : Service() {
     private fun fetchNearestInstitutions(subjectId: Int) {
         thread {
             try {
-                val url = URL("https://ai-x-hackathon-backend.onrender.com/subjects/$subjectId/institutions/nearest")
+                val url = URL("https://medal-bacterial-nvidia-customize.trycloudflare.com/subjects/$subjectId/institutions/nearest")
                 val conn = url.openConnection() as HttpURLConnection
                 conn.requestMethod = "GET"
 

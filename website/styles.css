@@ -3089,3 +3089,21 @@ td {
 #alertPage .table-footer {
   flex: 0 0 auto;
 }
+
+/* =========================================
+   DASHBOARD TABLE FOOTER
+========================================= */
+
+.dashboard-table-footer {
+  flex: 0 0 45px;
+  height: 45px;
+
+  display: flex;
+  align-items: center;
+
+  padding: 0 15px;
+
+  border-top: 1px solid #e5e9eb;
+
+  background: #ffffff;
+}

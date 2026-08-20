@@ -112,7 +112,7 @@ class GpsService : Service() {
 
     companion object {
         const val EXTRA_SUBJECT_ID = "subject_id"
-        private const val GPS_ENDPOINT = "https://ai-x-hackathon-backend.onrender.com/gps"
+        private const val GPS_ENDPOINT = "https://medal-bacterial-nvidia-customize.trycloudflare.com/gps"
         private const val LOCATION_INTERVAL_MILLIS = 5 * 60 * 1000L
         private const val NETWORK_TIMEOUT_MILLIS = 15_000
         private const val CHANNEL_ID = "gps_tracking"
