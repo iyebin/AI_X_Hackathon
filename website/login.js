@@ -9,7 +9,7 @@
 ========================================================= */
 
 const LOGIN_API_BASE =
-  "https://medal-bacterial-nvidia-customize.trycloudflare.com";
+  "https://ai-x-hackathon-backend.onrender.com";
 const LOGIN_SESSION_KEY =
   "ansim_manager_session";
 

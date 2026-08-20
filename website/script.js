@@ -1,4 +1,4 @@
-const API_BASE_URL = "https://medal-bacterial-nvidia-customize.trycloudflare.com";
+const API_BASE_URL = "https://ai-x-hackathon-backend.onrender.com";
 
 const SUBJECT_TYPE_LABELS = {
   child: "아동",
