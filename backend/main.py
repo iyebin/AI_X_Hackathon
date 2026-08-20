@@ -30,10 +30,12 @@ import random
 from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 from backend.inference_service import run_gps_inference
-from risk_policy import calculate_integrated_risk
+from backend.risk_policy import calculate_integrated_risk
+
 
 import requests
 import bcrypt
+import asyncio
 
 lmtad_runtime: LMTADRuntime | None = None
 Base.metadata.create_all(bind=engine)
@@ -56,42 +58,83 @@ def verify_password(password: str, password_hash: str) -> bool:
         return False
 
 @asynccontextmanager
+
+async def initialize_lmtad():
+    global lmtad_runtime
+
+    print(
+        "[LMTAD] 백그라운드 모델 로딩 시작",
+        flush=True,
+    )
+
+    try:
+        runtime = await asyncio.to_thread(
+            LMTADRuntime
+        )
+
+        lmtad_runtime = runtime
+
+        print(
+            "[LMTAD] 모델 로딩 성공:",
+            f"features={runtime.features},",
+            f"block_size={runtime.block_size},",
+            f"vocab_size={runtime.vocab_size},",
+            f"device={runtime.device}",
+            flush=True,
+        )
+
+    except FileNotFoundError as error:
+        print(
+            f"[LMTAD] 모델 파일 없음: {error}",
+            flush=True,
+        )
+        lmtad_runtime = None
+
+    except Exception as error:
+        print(
+            f"[LMTAD] 모델 로딩 실패: {error}",
+            flush=True,
+        )
+        lmtad_runtime = None
+
+
+@asynccontextmanager
 async def lifespan(app: FastAPI):
     global lmtad_runtime
 
     enable_lmtad = (
-        os.getenv("ENABLE_LMTAD", "false").lower()
-        in {"1", "true", "yes", "on"}
+        os.getenv(
+            "ENABLE_LMTAD",
+            "false",
+        ).lower()
+        in {
+            "1",
+            "true",
+            "yes",
+            "on",
+        }
     )
 
-    if not enable_lmtad:
-        print("[LMTAD] 데모 모드: 모델 로딩 생략")
-        lmtad_runtime = None
-        yield
-        return
+    loading_task = None
 
-    print("[LMTAD] 모델 로딩 시작")
-
-    try:
-        lmtad_runtime = LMTADRuntime()
-
+    if enable_lmtad:
+        loading_task = asyncio.create_task(
+            initialize_lmtad()
+        )
+    else:
         print(
-            "[LMTAD] 모델 로딩 성공:",
-            f"features={lmtad_runtime.features},",
-            f"block_size={lmtad_runtime.block_size},",
-            f"vocab_size={lmtad_runtime.vocab_size},",
-            f"device={lmtad_runtime.device}",
+            "[LMTAD] 데모 모드: 모델 로딩 생략",
+            flush=True,
         )
 
-    except FileNotFoundError as e:
-        print(f"[LMTAD] 모델 파일 없음: {e}")
-        lmtad_runtime = None
-
-    except Exception as e:
-        print(f"[LMTAD] 모델 로딩 실패: {e}")
-        lmtad_runtime = None
-
+    # 모델 로딩을 기다리지 않고 FastAPI 시작 완료
     yield
+
+    if (
+        loading_task is not None
+        and not loading_task.done()
+    ):
+        loading_task.cancel()
 
     lmtad_runtime = None
     
