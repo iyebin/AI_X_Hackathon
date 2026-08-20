@@ -17,7 +17,7 @@ import NotificationView from '@/components/notifications/alarm';
 import SettingView from '@/components/settings/setting-view';
 import { getAlerts } from '@/features/alerts/alerts-api';
 import { getProtectorPhone } from '@/features/contacts/protector-contact-store';
-import { startGpsTracking, stopGpsTracking } from '@/features/gps/tracking';
+import { stopGpsTracking } from '@/features/gps/tracking';
 import { registerPushNotifications } from '@/features/notifications/push-registration';
 import { getWeatherSummary } from '@/features/environment/weather-api';
 import { useTextSize } from '@/features/accessibility/text-size';
@@ -54,6 +54,15 @@ export default function ProtectedMainScreen() {
     void getSavedSession().then((session) => {
       if (session?.role === 'protected' && session.userName) setSavedUserName(session.userName);
     });
+  }, []);
+
+  // 시연 중에는 기기 GPS 수집·전송을 중지하고 서버에 저장된 좌표만 표시합니다.
+  useEffect(() => {
+    try {
+      stopGpsTracking();
+    } catch {
+      // Android GPS 모듈이 없는 환경에서는 중지할 서비스가 없습니다.
+    }
   }, []);
 
   useEffect(() => {
@@ -192,26 +201,9 @@ export default function ProtectedMainScreen() {
     ]);
   };
 
-  const handleLocationTrackingChange = async (enabled: boolean) => {
-    const numericSubjectId = Number(subjectId);
-    if (!Number.isInteger(numericSubjectId) || numericSubjectId <= 0) {
-      Alert.alert('위치 추적 실패', '보호대상자 정보를 찾을 수 없습니다.');
-      return false;
-    }
-
-    try {
-      if (enabled) {
-        await startGpsTracking(numericSubjectId);
-        Alert.alert('위치 추적 시작', '5분 간격으로 현재 위치를 전송합니다.');
-      } else {
-        stopGpsTracking();
-        Alert.alert('위치 추적 중지', 'GPS 수집과 위치 전송을 중지했습니다.');
-      }
-      return true;
-    } catch (error) {
-      Alert.alert('위치 추적 실패', error instanceof Error ? error.message : '위치 추적 설정을 변경하지 못했습니다.');
-      return false;
-    }
+  const handleLocationTrackingChange = async () => {
+    Alert.alert('위치 수집 일시 중지', '현재는 서버에 저장된 GPS 위치만 지도에 표시합니다.');
+    return false;
   };
 
   const renderContent = () => {

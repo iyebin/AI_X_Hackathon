@@ -6,17 +6,37 @@ import torch
 from torch.nn import functional as F
 
 from backend.lmtad.model import LMTAD, LMTADConfig
-
+from backend.lmtad.lmtad_service import (
+    download_lmtad_checkpoint,
+)
 
 BACKEND_DIR = Path(__file__).resolve().parent
+BACKEND_DIR = Path(__file__).resolve().parent
+LMTAD_DIR = BACKEND_DIR / "lmtad"
 
-CHECKPOINT_PATH = Path(
+
+def resolve_checkpoint_path() -> Path:
+    local_path = os.getenv(
+        "LMTAD_CHECKPOINT_PATH"
+    )
+
+    # 로컬 경로가 명시된 경우 우선 사용
+    if local_path:
+        return Path(local_path).expanduser().resolve()
+
+    # Render에서는 Hugging Face에서 다운로드
+    return Path(
+        download_lmtad_checkpoint()
+    ).resolve()
+
+
+VOCAB_PATH = Path(
     os.getenv(
-        "LMTAD_CHECKPOINT_PATH",
+        "LMTAD_VOCAB_PATH",
         str(
-            BACKEND_DIR
+            LMTAD_DIR
             / "artifacts"
-            / "converted_ckpt_finetuned_iter_200.pt"
+            / "vocab_gps.full_bbox.user1100.json"
         ),
     )
 ).resolve()
@@ -41,10 +61,12 @@ class LMTADRuntime:
             else "cpu"
         )
 
-        if not CHECKPOINT_PATH.exists():
+        checkpoint_path = resolve_checkpoint_path()
+
+        if not checkpoint_path.exists():
             raise FileNotFoundError(
                 f"체크포인트가 없습니다: "
-                f"{CHECKPOINT_PATH}"
+                f"{checkpoint_path}"
             )
 
         if not VOCAB_PATH.exists():
@@ -53,7 +75,7 @@ class LMTADRuntime:
             )
 
         checkpoint = torch.load(
-            CHECKPOINT_PATH,
+            checkpoint_path,
             map_location=self.device,
             weights_only=True,
         )
@@ -98,15 +120,15 @@ class LMTADRuntime:
         self.model.to(self.device)
         self.model.eval()
 
-        threshold_value = os.getenv(
-            "ANOMALY_THRESHOLD"
-        )
+        # threshold_value = os.getenv(
+        #     "ANOMALY_THRESHOLD"
+        # )
 
-        self.threshold = (
-            float(threshold_value)
-            if threshold_value
-            else None
-        )
+        # self.threshold = (
+        #     float(threshold_value)
+        #     if threshold_value
+        #     else None
+        # )
 
     def _validate_vocab(self):
         if len(self.vocab) > self.vocab_size:

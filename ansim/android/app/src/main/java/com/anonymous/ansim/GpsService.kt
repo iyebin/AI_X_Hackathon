@@ -188,6 +188,7 @@ class GpsService : Service() {
 
     companion object {
         const val EXTRA_SUBJECT_ID = "subject_id"
+<<<<<<< .merge_file_i1ghrD
 
         private const val API_BASE_URL =
             "https://ai-x-hackathon-backend.onrender.com"
@@ -207,6 +208,12 @@ class GpsService : Service() {
         private const val CHANNEL_ID =
             "gps_tracking"
 
+=======
+        private const val GPS_ENDPOINT = "https://ai-x-hackathon-backend.onrender.com/gps"
+        private const val LOCATION_INTERVAL_MILLIS = 5 * 60 * 1000L
+        private const val NETWORK_TIMEOUT_MILLIS = 15_000
+        private const val CHANNEL_ID = "gps_tracking"
+>>>>>>> .merge_file_zkL9y5
         private const val NOTIFICATION_ID = 1001
         private const val TAG = "GpsService"
     }
