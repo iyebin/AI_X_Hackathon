@@ -57,6 +57,17 @@ def verify_password(password: str, password_hash: str) -> bool:
 async def lifespan(app: FastAPI):
     global lmtad_runtime
 
+    enable_lmtad = (
+        os.getenv("ENABLE_LMTAD", "false").lower()
+        in {"1", "true", "yes", "on"}
+    )
+
+    if not enable_lmtad:
+        print("[LMTAD] 데모 모드: 모델 로딩 생략")
+        lmtad_runtime = None
+        yield
+        return
+
     print("[LMTAD] 모델 로딩 시작")
 
     try:
@@ -4017,7 +4028,11 @@ def get_risk_analysis(
     # LoRA LLM으로 종합 위험 설명 생성
     # LLM 서버가 꺼져 있어도 기존 위험 분석 API는 정상 동작하도록 합니다.
     ai_explanation = None
-    llm_api_url = os.getenv("LLM_API_URL")
+    enable_llm = (
+        os.getenv("ENABLE_LLM", "false").lower()
+        in {"1", "true", "yes", "on"}
+    )
+    llm_api_url = os.getenv("LLM_API_URL") if enable_llm else None
 
     if llm_api_url:
         try:
@@ -4135,7 +4150,8 @@ def list_demo_scenarios():
     "/demo/scenarios/{scenario}",
     tags=["데모"],
 )
-def run_demo_scenario(scenario: str):
+def get_demo_scenario_detail(scenario: str):
+    """데모 시나리오 내용을 조회합니다. DB에는 저장하지 않습니다."""
     from backend.demo_scenarios import get_demo_scenario
 
     try:
@@ -4145,3 +4161,79 @@ def run_demo_scenario(scenario: str):
             status_code=404,
             detail=str(exc),
         ) from exc
+
+
+@app.post(
+    "/demo/scenarios/{scenario}/run",
+    tags=["데모"],
+)
+def run_demo_scenario(
+    scenario: str,
+    subject_id: int,
+    db: Session = Depends(get_db),
+):
+    """데모 시나리오를 실행하고 위험도 결과를 DB에 저장합니다."""
+    from backend.demo_scenarios import get_demo_scenario
+
+    subject = db.get(models.Subject, subject_id)
+
+    if not subject:
+        raise HTTPException(
+            status_code=404,
+            detail="보호대상자를 찾을 수 없습니다.",
+        )
+
+    try:
+        result = get_demo_scenario(scenario)
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=404,
+            detail=str(exc),
+        ) from exc
+
+    risk_status = models.RiskStatusHistory(
+        subject_id=subject_id,
+        risk_level=result["risk_level"],
+        risk_score=result["total_score"],
+        lmtad_score=result["lmtad_score"],
+        weather_score=result["weather_score"],
+        air_score=result["air_score"],
+        lmtad_reason=result["lmtad_reason"],
+        weather_reason=result["weather_reason"],
+        air_reason=result["air_reason"],
+    )
+
+    try:
+        db.add(risk_status)
+        db.commit()
+        db.refresh(risk_status)
+    except Exception as exc:
+        db.rollback()
+        raise HTTPException(
+            status_code=500,
+            detail=f"데모 결과 DB 저장 실패: {exc}",
+        ) from exc
+
+    return {
+        "message": "데모 시나리오 결과가 DB에 저장되었습니다.",
+        "saved": True,
+        "history_id": risk_status.id,
+        "subject_id": subject_id,
+        "scenario": scenario,
+        "name": result["name"],
+        "risk_level": risk_status.risk_level,
+        "risk_score": risk_status.risk_score,
+        "lmtad_score": risk_status.lmtad_score,
+        "weather_score": risk_status.weather_score,
+        "air_score": risk_status.air_score,
+        "lmtad_reason": risk_status.lmtad_reason,
+        "weather_reason": risk_status.weather_reason,
+        "air_reason": risk_status.air_reason,
+        "created_at": risk_status.created_at,
+        "location": {
+            "latitude": result["latitude"],
+            "longitude": result["longitude"],
+        },
+        "weather": result["weather"],
+        "air": result["air"],
+    }
