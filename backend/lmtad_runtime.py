@@ -14,21 +14,18 @@ BACKEND_DIR = Path(__file__).resolve().parent
 BACKEND_DIR = Path(__file__).resolve().parent
 LMTAD_DIR = BACKEND_DIR / "lmtad"
 
+BACKEND_DIR = Path(__file__).resolve().parent
 
-def resolve_checkpoint_path() -> Path:
-    local_path = os.getenv(
-        "LMTAD_CHECKPOINT_PATH"
+CHECKPOINT_PATH = Path(
+    os.getenv(
+        "LMTAD_CHECKPOINT_PATH",
+        str(
+            BACKEND_DIR
+            / "artifacts"
+            / "converted_ckpt_finetuned_iter_200.pt"
+        ),
     )
-
-    # 로컬 경로가 명시된 경우 우선 사용
-    if local_path:
-        return Path(local_path).expanduser().resolve()
-
-    # Render에서는 Hugging Face에서 다운로드
-    return Path(
-        download_lmtad_checkpoint()
-    ).resolve()
-
+).resolve()
 
 VOCAB_PATH = Path(
     os.getenv(
@@ -61,8 +58,11 @@ class LMTADRuntime:
             else "cpu"
         )
 
-        checkpoint_path = resolve_checkpoint_path()
-
+        checkpoint_path = (
+            Path(download_lmtad_checkpoint()).resolve()
+            if os.getenv("HF_REPO_ID")
+            else CHECKPOINT_PATH
+        )
         if not checkpoint_path.exists():
             raise FileNotFoundError(
                 f"체크포인트가 없습니다: "
@@ -78,7 +78,7 @@ class LMTADRuntime:
             checkpoint_path,
             map_location=self.device,
             weights_only=True,
-        )
+)
 
         config_values = dict(
             checkpoint["model_config"]
