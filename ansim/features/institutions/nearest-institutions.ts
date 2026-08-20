@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://ai-x-hackathon-backend.onrender.com';
+import { API_BASE_URL } from '../api/api-config';
 
 // 개발용: 실제 보호대상자 GPS 대신 광주 좌표로 주변 기관을 확인합니다.
 // 실제 연동 전환 시 false로 바꾸면 subject_id의 최신 GPS 기준 API를 다시 사용합니다.

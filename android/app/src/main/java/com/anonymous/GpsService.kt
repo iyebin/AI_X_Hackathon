@@ -90,7 +90,7 @@ class GpsService : Service() {
 
         thread {
             try {
-                val url = URL("https://ai-x-hackathon-backend.onrender.com/gps")
+                val url = URL("$API_BASE_URL/gps")
                 val conn = url.openConnection() as HttpURLConnection
                 conn.requestMethod = "POST"
                 conn.setRequestProperty("Content-Type", "application/json; utf-8")
@@ -110,6 +110,7 @@ class GpsService : Service() {
 
                 // 💡 GPS 저장이 성공하면(2xx) 주변 기관 조회 API를 이어서 호출
                 if (responseCode in 200..299) {
+                    requestRiskInference(subjectId)
                     fetchNearestInstitutions(subjectId)
                 }
             } catch (e: Exception) {
@@ -122,7 +123,7 @@ class GpsService : Service() {
     private fun fetchNearestInstitutions(subjectId: Int) {
         thread {
             try {
-                val url = URL("https://ai-x-hackathon-backend.onrender.com/subjects/$subjectId/institutions/nearest")
+                val url = URL("$API_BASE_URL/subjects/$subjectId/institutions/nearest")
                 val conn = url.openConnection() as HttpURLConnection
                 conn.requestMethod = "GET"
 
@@ -159,6 +160,7 @@ class GpsService : Service() {
     }
 
     companion object {
+        private const val API_BASE_URL = "https://ai-x-hackathon-backend.onrender.com"
         private const val CHANNEL_ID = "GpsServiceChannel"
         private const val NOTIFICATION_ID = 1001
     }

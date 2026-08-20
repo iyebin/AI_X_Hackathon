@@ -152,7 +152,7 @@ def score_gps_record(
 
         # 첨부 데이터는 한 궤적당 최대 26개
         # GPS-only 모델의 block_size는 user/day/EOT 공간까지 포함
-        max_gps_count = block_size - 3
+        max_gps_count = block_size - 3 #user, day, EOT 예약 
 
         if len(daily_records) > max_gps_count:
             daily_records = daily_records[-max_gps_count:]

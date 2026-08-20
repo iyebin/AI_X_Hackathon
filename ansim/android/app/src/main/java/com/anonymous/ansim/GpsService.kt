@@ -87,7 +87,22 @@ class GpsService : Service() {
                 val body = "{\"subject_id\":$currentSubjectId,\"latitude\":$latitude,\"longitude\":$longitude,\"measured_at\":\"$measuredAt\"}"
                 OutputStreamWriter(connection.outputStream, Charsets.UTF_8).use { writer -> writer.write(body) }
                 val responseCode = connection.responseCode
-                if (responseCode !in 200..299) android.util.Log.w(TAG, "GPS 저장 실패: HTTP $responseCode")
+
+                if (responseCode in 200..299) {
+                    android.util.Log.i(
+                        TAG,
+                        "GPS 저장 성공: HTTP $responseCode",
+                        connection.disconnect()
+                        connection = null
+                    )
+
+                    requestRiskInference(currentSubjectId)
+                } else {
+                    android.util.Log.w(
+                        TAG,
+                        "GPS 저장 실패: HTTP $responseCode",
+                    )
+                }
             } catch (exception: Exception) {
                 android.util.Log.e(TAG, "GPS 서버 전송 실패", exception)
             } finally {
@@ -95,11 +110,72 @@ class GpsService : Service() {
             }
         }
     }
+    private fun requestRiskInference(
+        currentSubjectId: Int,
+    ) {
+        var connection: HttpURLConnection? = null
 
-    override fun onDestroy() {
-        fusedLocationClient.removeLocationUpdates(locationCallback)
-        super.onDestroy()
+        try {
+            val endpoint =
+                "$API_BASE_URL/subjects/" +
+                    "$currentSubjectId/gps-inference"
+
+            connection =
+                URL(endpoint).openConnection()
+                    as HttpURLConnection
+
+            connection.requestMethod = "POST"
+            connection.connectTimeout =
+                NETWORK_TIMEOUT_MILLIS
+            connection.readTimeout =
+                INFERENCE_TIMEOUT_MILLIS
+
+            val responseCode = connection.responseCode
+
+            val responseStream =
+                if (responseCode in 200..299) {
+                    connection.inputStream
+                } else {
+                    connection.errorStream
+                }
+
+            val responseBody =
+                responseStream
+                    ?.bufferedReader()
+                    ?.use { reader ->
+                        reader.readText()
+                    }
+                    ?: ""
+
+            if (responseCode in 200..299) {
+                android.util.Log.i(
+                    TAG,
+                    "위험도 추론 성공: " +
+                        "HTTP $responseCode / " +
+                        responseBody,
+                )
+            } else {
+                android.util.Log.w(
+                    TAG,
+                    "위험도 추론 생략 또는 실패: " +
+                        "HTTP $responseCode / " +
+                        responseBody,
+                )
+            }
+        } catch (exception: Exception) {
+            android.util.Log.e(
+                TAG,
+                "위험도 추론 요청 실패",
+                exception,
+            )
+        } finally {
+            connection?.disconnect()
+        }
     }
+    override fun onDestroy() {
+            fusedLocationClient.removeLocationUpdates(locationCallback)
+            super.onDestroy()
+        }
 
     override fun onBind(intent: Intent?): IBinder? = null
 
@@ -112,10 +188,25 @@ class GpsService : Service() {
 
     companion object {
         const val EXTRA_SUBJECT_ID = "subject_id"
-        private const val GPS_ENDPOINT = "https://ai-x-hackathon-backend.onrender.com/gps"
-        private const val LOCATION_INTERVAL_MILLIS = 5 * 60 * 1000L
-        private const val NETWORK_TIMEOUT_MILLIS = 15_000
-        private const val CHANNEL_ID = "gps_tracking"
+
+        private const val API_BASE_URL =
+            "https://ai-x-hackathon-backend.onrender.com"
+
+        private const val GPS_ENDPOINT =
+            "$API_BASE_URL/gps"
+
+        private const val LOCATION_INTERVAL_MILLIS =
+            5 * 60 * 1000L
+
+        private const val NETWORK_TIMEOUT_MILLIS =
+            15_000
+
+        private const val INFERENCE_TIMEOUT_MILLIS =
+            120_000
+
+        private const val CHANNEL_ID =
+            "gps_tracking"
+
         private const val NOTIFICATION_ID = 1001
         private const val TAG = "GpsService"
     }

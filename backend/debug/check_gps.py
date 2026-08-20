@@ -26,9 +26,10 @@ def main():
                     "latitude": record.latitude,
                     "longitude": record.longitude,
                     "measured_at": record.measured_at,
-                    "x": record.x,
-                    "y": record.y,
-                    "x_d": record.x_d
+                    # "x": record.x,
+                    # "y": record.y,
+                    # "x_d": record.x_d,
+                    # "y_d": record.y_d,
                 }
             )
     finally:

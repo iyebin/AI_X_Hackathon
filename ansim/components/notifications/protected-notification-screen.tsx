@@ -5,10 +5,10 @@ import {
   ActivityIndicator,
   SectionList,
   StyleSheet,
-  Text,
   TouchableOpacity,
   View,
 } from 'react-native';
+import { Text } from '@/components/common/scaled-text';
 import { AppAlert, getAlerts, markAlertAsRead } from '@/features/alerts/alerts-api';
 
 interface ProtectedNotificationScreenProps {
@@ -73,7 +73,11 @@ export default function ProtectedNotificationScreen({ subjectId }: ProtectedNoti
     setLoading(true);
     setError(null);
     try {
-      const alerts = await getAlerts(Number.isInteger(subjectId) && (subjectId ?? 0) > 0 ? subjectId : undefined);
+      const alerts = await getAlerts({
+        subjectId: Number.isInteger(subjectId) && (subjectId ?? 0) > 0 ? subjectId : undefined,
+        recipientType: 'subject',
+        recipientId: subjectId,
+      });
       setAlerts(
         alerts.filter((alert) => {
           const type = alert.type.toLowerCase();
@@ -95,7 +99,7 @@ export default function ProtectedNotificationScreen({ subjectId }: ProtectedNoti
   }, [loadAlerts]);
 
   const handlePressAlert = async (alert: AppAlert) => {
-    if (alert.kind === 'danger' && alert.subjectId) {
+    if ((alert.kind === 'danger' || alert.kind === 'warning') && alert.subjectId) {
       router.push({
         pathname: '/danger-modal',
         params: {
@@ -103,6 +107,7 @@ export default function ProtectedNotificationScreen({ subjectId }: ProtectedNoti
           subjectId: String(alert.subjectId),
           dangerScore: String(alert.riskScore ?? ''),
           dangerReasons: alert.reason ?? alert.message ?? '',
+          riskLevel: alert.kind,
           viewerRole: 'protected',
         },
       });

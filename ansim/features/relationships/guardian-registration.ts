@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://ai-x-hackathon-backend.onrender.com';
+import { API_BASE_URL } from '../api/api-config';
 
 type Person = {
   id: number;

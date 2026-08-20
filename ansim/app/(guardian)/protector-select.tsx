@@ -1,7 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { Alert, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, Image, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Text } from '@/components/common/scaled-text';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import HeaderBadge from '@/components/common/header-badge';
 import NotificationView from '@/components/notifications/alarm';
@@ -158,7 +159,7 @@ export default function ProtectorSelectScreen() {
   const content = activeTab === 'home'
     ? renderHome()
     : activeTab === 'notification'
-      ? <NotificationView targets={targets} />
+      ? <NotificationView targets={targets} recipientType="guardian" recipientId={activeGuardianId} />
       : <SettingView isProtected={false} notificationUser={activeGuardianId ? { userId: activeGuardianId, userType: 'guardian' } : undefined} />;
 
   return (

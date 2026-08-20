@@ -4,8 +4,11 @@ import requests
 
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
+from dotenv import load_dotenv
 
-from weather_alert import get_warning_for_gps
+from backend.weather_alert import get_warning_for_gps
+
+load_dotenv()
 
 
 WEATHER_URL = (
@@ -150,6 +153,16 @@ def fetch_weather(
             "resultMsg",
             "기상청 API 오류",
         )
+
+        # 기상청이 해당 발표시각의 데이터를 아직 제공하지 않는 경우
+        # 서버 오류(500)가 아니라 빈 데이터로 처리한다.
+        if result_code == "03":
+            print(
+                f"[WEATHER API] 데이터 없음: "
+                f"{base_date} {base_time} "
+                f"({result_code} {result_msg})"
+            )
+            return []
 
         raise RuntimeError(
             f"기상청 API 오류: "

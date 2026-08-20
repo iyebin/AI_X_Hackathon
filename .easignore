@@ -1,0 +1,25 @@
+# Expo 앱(ansim/)만 EAS Android 빌드에 포함합니다.
+# 이 저장소의 AI·백엔드·웹 자료는 APK 생성에 필요하지 않습니다.
+/ai/
+/android/
+/backend/
+/facility_csv/
+/llm_dataset/
+/website/
+/air_api.py
+/facilities_geocode_failed.csv
+/facilities_import.csv
+/generate_llm_dataset.py
+/geocode_facilities.py
+/gps_preprocess.py
+/gps_records_only_inference.txt
+/gps_records.txt
+/gwangju_air_api.py
+/weather.py
+
+# Expo 앱 내부의 로컬 캐시와 빌드 결과물도 제외합니다.
+/ansim/node_modules/
+/ansim/.expo/
+/ansim/android/.gradle/
+/ansim/android/build/
+/ansim/android/app/build/

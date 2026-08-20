@@ -1,0 +1,48 @@
+table_name,ordinal_position,column_name,data_type,udt_name,is_nullable,column_default
+gps_records,1,id,integer,int4,NO,nextval('gps_records_id_seq'::regclass)
+gps_records,2,subject_id,integer,int4,NO,null
+gps_records,3,latitude,double precision,float8,NO,null
+gps_records,4,longitude,double precision,float8,NO,null
+gps_records,5,measured_at,timestamp without time zone,timestamp,NO,now()
+guardian_registrations,1,guardian_id,integer,int4,NO,null
+guardian_registrations,2,subject_id,integer,int4,NO,null
+guardian_registrations,3,relationship_code,character varying,varchar,NO,null
+guardian_registrations,4,guardian_role_code,character varying,varchar,YES,null
+guardian_registrations,5,is_primary,boolean,bool,NO,null
+guardian_registrations,6,contact_priority,integer,int4,NO,null
+guardian_registrations,7,living_together,boolean,bool,NO,null
+guardian_registrations,8,protection_start_date,date,date,YES,null
+guardian_registrations,9,protection_end_date,date,date,YES,null
+guardian_registrations,10,created_at,timestamp with time zone,timestamptz,NO,now()
+guardians,1,id,integer,int4,NO,nextval('guardians_id_seq'::regclass)
+guardians,2,name,character varying,varchar,NO,null
+guardians,3,phone,character varying,varchar,NO,null
+guardians,4,gender,USER-DEFINED,gendertype,NO,'UNKNOWN'::gendertype
+guardians,5,birth_date,date,date,YES,null
+guardians,6,address,character varying,varchar,YES,null
+guardians,7,created_at,timestamp with time zone,timestamptz,NO,now()
+guardians,8,updated_at,timestamp with time zone,timestamptz,NO,now()
+institution_managers,1,id,integer,int4,NO,nextval('institution_managers_id_seq'::regclass)
+institution_managers,2,institution_id,integer,int4,NO,null
+institution_managers,3,name,character varying,varchar,NO,null
+institution_managers,4,phone,character varying,varchar,NO,null
+institution_managers,5,position,character varying,varchar,YES,null
+institution_managers,6,created_at,timestamp with time zone,timestamptz,NO,now()
+institution_managers,7,updated_at,timestamp with time zone,timestamptz,NO,now()
+manager_assignments,1,manager_id,integer,int4,NO,null
+manager_assignments,2,subject_id,integer,int4,NO,null
+manager_assignments,3,is_primary_manager,boolean,bool,NO,null
+manager_assignments,4,assignment_start_date,date,date,YES,null
+manager_assignments,5,assignment_end_date,date,date,YES,null
+manager_assignments,6,created_at,timestamp with time zone,timestamptz,NO,now()
+subjects,1,id,integer,int4,NO,nextval('subjects_id_seq'::regclass)
+subjects,2,name,character varying,varchar,NO,null
+subjects,3,phone,character varying,varchar,YES,null
+subjects,4,special_notes,text,text,YES,null
+subjects,5,gender,USER-DEFINED,gendertype,NO,'UNKNOWN'::gendertype
+subjects,6,birth_date,date,date,YES,null
+subjects,7,address,character varying,varchar,YES,null
+subjects,8,subject_type,USER-DEFINED,subjecttype,NO,'GENERAL'::subjecttype
+subjects,9,institution_id,integer,int4,YES,null
+subjects,10,created_at,timestamp with time zone,timestamptz,NO,now()
+subjects,11,updated_at,timestamp with time zone,timestamptz,NO,now()

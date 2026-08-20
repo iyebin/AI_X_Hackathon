@@ -7,15 +7,16 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.encoders import ENCODERS_BY_TYPE
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
-from facility_api import fetch_facilities
-from air import get_air_quality_by_gps
-from weather import get_weather_by_gps
-from weather_alert import get_warning_for_gps
-from firebase_service import send_push_notification
+from backend.facility_api import fetch_facilities
+from backend.air import get_air_quality_by_gps
+from backend.weather import get_weather_by_gps
+from backend.weather_alert import get_warning_for_gps
+from backend.firebase_service import send_push_notification
+from backend.gemini_descriptions import generate_environment_description
 
-import models
-import schemas
-from database import Base, engine, get_db
+from backend import models
+from backend import schemas
+from backend.database import Base, engine, get_db
 
 from contextlib import asynccontextmanager
 import secrets
@@ -23,12 +24,14 @@ from datetime import date, datetime, timedelta, timezone
 import random
 import string
 
-from lmtad_runtime import LMTADRuntime
+from backend.lmtad_runtime import LMTADRuntime
 import os
 import random
 from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
-from inference_service import run_gps_inference
+from backend.inference_service import run_gps_inference
+from risk_policy import calculate_integrated_risk
+
 import requests
 import bcrypt
 
@@ -55,6 +58,17 @@ def verify_password(password: str, password_hash: str) -> bool:
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     global lmtad_runtime
+
+    enable_lmtad = (
+        os.getenv("ENABLE_LMTAD", "false").lower()
+        in {"1", "true", "yes", "on"}
+    )
+
+    if not enable_lmtad:
+        print("[LMTAD] 데모 모드: 모델 로딩 생략")
+        lmtad_runtime = None
+        yield
+        return
 
     print("[LMTAD] 모델 로딩 시작")
 
@@ -252,9 +266,19 @@ def send_push_to_user(
         .all()
     )
 
+    if not tokens:
+        return {
+            "token_count": 0,
+            "sent_count": 0,
+            "failed_count": 0,
+            "results": [],
+        }
+
+    results = []
+
     for device in tokens:
         try:
-            send_push_notification(
+            result = send_push_notification(
                 token=device.token,
                 title=title,
                 body=body,
@@ -263,12 +287,38 @@ def send_push_to_user(
                     for key, value in data.items()
                 },
             )
+
+            results.append({
+                "token_id": device.id,
+                "success": result != "mock_not_sent",
+                "result": result,
+            })
+
         except Exception as error:
             print(
                 "[FCM] Push failed "
                 f"user_type={user_type}, "
                 f"user_id={user_id}: {error}"
             )
+
+            results.append({
+                "token_id": device.id,
+                "success": False,
+                "error": str(error),
+            })
+
+    return {
+        "token_count": len(tokens),
+        "sent_count": sum(
+            1 for item in results
+            if item.get("success")
+        ),
+        "failed_count": sum(
+            1 for item in results
+            if not item.get("success")
+        ),
+        "results": results,
+    }
 
 
 def get_guardian_ids_for_subject(
@@ -360,6 +410,65 @@ def format_nearby_facilities(
     )
 
 
+def build_alert_risk_factors(
+    *,
+    lmtad_score: float | None,
+    weather_score: float | None,
+    air_score: float | None,
+    weather_description: str | None = None,
+    air_description: str | None = None,
+) -> list[dict]:
+    """알림 생성 시점의 위험요인을 스냅샷 형태로 고정합니다."""
+
+    gps = float(lmtad_score or 0)
+    weather = float(weather_score or 0)
+    air = float(air_score or 0)
+    factor_total = gps + weather + air
+
+    def percentage(score: float) -> int:
+        return round(score / factor_total * 100) if factor_total > 0 else 0
+
+    return [
+        {
+            "type": "gps_deviation",
+            "name": "GPS 이상",
+            "score": gps,
+            "percentage": percentage(gps),
+            "description": (
+                "평소 이동 패턴과 다른 움직임이 감지되었습니다."
+                # lmtad_score_from_anomaly()는 원본 anomaly_score가 임계값에
+                # 도달한 지점을 70점으로 변환합니다.
+                if gps >= 70
+                else "현재 GPS 이동 패턴에서 이상 기준에는 도달하지 않았습니다."
+            ),
+        },
+        {
+            "type": "weather",
+            "name": "기상",
+            "score": weather,
+            "percentage": percentage(weather),
+            "description": weather_description
+            or (
+                "기상 위험 점수가 높아 관찰이 필요합니다."
+                if weather >= 40
+                else "현재 관측값에서 추가 기상 위험 요인이 확인되지 않았습니다."
+            ),
+        },
+        {
+            "type": "air",
+            "name": "대기",
+            "score": air,
+            "percentage": percentage(air),
+            "description": air_description
+            or (
+                "대기질 위험 점수가 높아 관찰이 필요합니다."
+                if air >= 40
+                else "현재 관측값에서 추가 대기질 위험 요인이 확인되지 않았습니다."
+            ),
+        },
+    ]
+
+
 def notify_risk_transition(
     db: Session,
     *,
@@ -378,6 +487,7 @@ def notify_risk_transition(
     lmtad_reason: str | None = None,
     weather_reason: str | None = None,
     air_reason: str | None = None,
+    factors: list[dict] | None = None,
 ):
     base_snapshot = {
         "risk_level": risk_level,
@@ -388,6 +498,14 @@ def notify_risk_transition(
         "lmtad_reason": lmtad_reason,
         "weather_reason": weather_reason,
         "air_reason": air_reason,
+        # 모달은 이 배열을 사용해 '현재'가 아닌 알림 발생 당시 분석을 표시합니다.
+        "factors": factors or build_alert_risk_factors(
+            lmtad_score=lmtad_score,
+            weather_score=weather_score,
+            air_score=air_score,
+            weather_description=weather_reason,
+            air_description=air_reason,
+        ),
     }
 
     guardian_ids = (
@@ -3235,39 +3353,6 @@ def register_push_token(
         "user_id": device_token.user_id,
         "push_token": device_token.token,
     }
-
-def calculate_integrated_risk(
-    lmtad_score: float,
-    weather_score: float,
-    air_score: float,
-):
-    # 임시 가중치
-    lmtad_weight = 0.60
-    weather_weight = 0.25
-    air_weight = 0.15
-
-    final_score = (
-        lmtad_score * lmtad_weight
-        + weather_score * weather_weight
-        + air_score * air_weight
-    )
-
-    final_score = max(
-        0.0,
-        min(100.0, final_score),
-    )
-
-    if final_score >= 70:
-        risk_level = "danger"
-
-    elif final_score >= 40:
-        risk_level = "caution"
-
-    else:
-        risk_level = "safe"
-
-    return round(final_score, 2), risk_level
-
 # =========================================================
 # GPS AI 추론
 # =========================================================
@@ -3384,20 +3469,58 @@ def calculate_subject_integrated_risk(
     # 세부 위험 원인
     lmtad_reason = (
         "GPS 이동 경로 이상 감지"
-        if lmtad_score > 0
+        if lmtad_score >= 70
         else "GPS 이동 경로 이상 없음"
     )
 
     weather_reason = (
         "기상 위험 요소 감지"
-        if weather_score > 0
+        if weather_score >= 40
         else "기상 위험 요소 없음"
     )
 
     air_reason = (
         "대기질 위험 요소 감지"
-        if air_score > 0
+        if air_score >= 40
         else "대기질 위험 요소 없음"
+    )
+
+    # 알림 스냅샷에는 현재 화면을 다시 조회한 값이 아닌, 이 계산 시점의
+    # 관측값으로 만든 설명을 함께 저장합니다.
+    weather_warning = weather_data.get("weather_warning") or {}
+    alert_weather_description = generate_environment_description(
+        factor_name="기상",
+        observations={
+            "temperature_c": weather_data.get("temperature"),
+            "apparent_temperature_c": weather_data.get("apparent_temperature"),
+            "rainfall_1h_mm": weather_data.get("rainfall_1h"),
+            "precipitation_type": weather_data.get("precipitation_type"),
+            "wind_speed_mps": weather_data.get("wind_speed"),
+            "weather_warning": {
+                "highest_level": weather_warning.get("highest_level"),
+                "warnings": weather_warning.get("warnings", []),
+            },
+        },
+    ) if weather_score >= 40 else None
+    alert_air_description = generate_environment_description(
+        factor_name="대기질",
+        observations={
+                "pm10_ug_m3": air_quality.get("pm10"),
+                "pm25_ug_m3": air_quality.get("pm25"),
+                "ozone_ppm": air_quality.get("o3"),
+                "nitrogen_dioxide_ppm": air_quality.get("no2"),
+                "carbon_monoxide_ppm": air_quality.get("co"),
+                "sulfur_dioxide_ppm": air_quality.get("so2"),
+                "khai": air_quality.get("khai"),
+            "station_name": air_quality.get("station_name"),
+        },
+    ) if air_score >= 40 else None
+    alert_factors = build_alert_risk_factors(
+        lmtad_score=lmtad_score,
+        weather_score=weather_score,
+        air_score=air_score,
+        weather_description=alert_weather_description or weather_reason,
+        air_description=alert_air_description or air_reason,
     )
 
     # DB 이력 저장
@@ -3409,8 +3532,10 @@ def calculate_subject_integrated_risk(
         weather_score=weather_score,
         air_score=air_score,
         lmtad_reason=lmtad_reason,
-        weather_reason=weather_reason,
-        air_reason=air_reason,
+        # 계산 당시의 관측값으로 만든 상세 설명을 이력에도 같이 보관합니다.
+        # 이후 화면이 현재 환경을 다시 조회해 원인을 바꿔 보여주지 않게 합니다.
+        weather_reason=alert_weather_description or weather_reason,
+        air_reason=alert_air_description or air_reason,
     )
 
     db.add(risk_status)
@@ -3433,6 +3558,7 @@ def calculate_subject_integrated_risk(
                 lmtad_reason=lmtad_reason,
                 weather_reason=weather_reason,
                 air_reason=air_reason,
+                factors=alert_factors,
                 message=(
                     f"{subject.name}님의 위험 단계가 "
                     "안전으로 변경되었습니다."
@@ -3456,6 +3582,7 @@ def calculate_subject_integrated_risk(
                 lmtad_reason=lmtad_reason,
                 weather_reason=weather_reason,
                 air_reason=air_reason,
+                factors=alert_factors,
                 message=(
                     f"{subject.name}님이 주의 단계에 "
                     f"진입했습니다. (위험 점수: {final_score:g})"
@@ -3515,6 +3642,7 @@ def calculate_subject_integrated_risk(
                         lmtad_reason=lmtad_reason,
                         weather_reason=weather_reason,
                         air_reason=air_reason,
+                        factors=alert_factors,
                         message=(
                             f"{subject.name}님의 위험 단계가 "
                             f"{RISK_DANGER_TO_CAUTION_MINUTES}분 동안 "
@@ -3563,6 +3691,7 @@ def calculate_subject_integrated_risk(
                 lmtad_reason=lmtad_reason,
                 weather_reason=weather_reason,
                 air_reason=air_reason,
+                factors=alert_factors,
                 message=(
                     f"{subject.name}님이 위험 단계에 "
                     f"진입했습니다. (위험 점수: {final_score:g}) "
@@ -3606,11 +3735,12 @@ def infer_subject_gps(
             detail=str(error),
         )
 
-    result["risk_level"] = (
-        "danger"
-        if result.pop("is_anomaly")
-        else "safe"
-    )
+    result["risk_level"] = result[
+        "integrated_risk_level"
+    ]
+
+    # 내부 판정값은 API 응답에서 제거합니다.
+    result.pop("is_anomaly", None)
 
     return result
 
@@ -3681,21 +3811,10 @@ def get_risk_analysis(
     # -----------------------------------------------------
     # GPS 설명
     # -----------------------------------------------------
-    if gps_score >= 80:
-        gps_description = (
-            "평소 이동 패턴과 크게 다른 경로가 감지되었습니다. "
-            f"GPS 이동 이상 점수가 {gps_score:g}점으로 매우 높습니다."
-        )
-    elif gps_score >= 50:
-        gps_description = (
-            "평소 이동 패턴과 다른 이동이 감지되었습니다. "
-            f"GPS 이동 이상 점수가 {gps_score:g}점으로 주의가 필요합니다."
-        )
-    elif gps_score > 0:
-        gps_description = (
-            "평소 경로와 일부 다른 이동이 감지되었습니다. "
-            f"GPS 이동 이상 점수는 {gps_score:g}점입니다."
-        )
+    if gps_score >= 70:
+        # LMTAD는 이상 정도를 점수화합니다. 모델이 제공하지 않은 구체적인
+        # 이탈 거리나 정지 원인을 추측하지 않고 패턴 차이만 설명합니다.
+        gps_description = "평소 이동 패턴과 다른 움직임이 감지되었습니다."
     else:
         gps_description = (
             "현재 GPS 이동 패턴에서 특이사항이 감지되지 않았습니다."
@@ -3858,20 +3977,41 @@ def get_risk_analysis(
                 f"풍속이 {wind:g}m/s로 강한 편입니다."
             )
 
-    if weather_score <= 0 and not weather_reasons:
-        weather_description = (
-            "현재 위치에서는 기상으로 인한 "
-            "추가 위험이 감지되지 않았습니다."
-        )
+    if weather_score < 40:
+        weather_description = f"기상 위험 점수 {weather_score:g}점으로 안전 범위입니다."
     elif weather_reasons:
         weather_description = " ".join(
             weather_reasons[:3]
         )
-    else:
+    elif weather_data:
         weather_description = (
-            f"기상 위험 점수가 {weather_score:g}점으로 "
-            "현재 기상 상황에 주의가 필요합니다."
+            f"기상 위험 점수 {weather_score:g}점으로 "
+            f"{'위험' if weather_score >= 70 else '주의'} 단계입니다."
         )
+    else:
+        weather_description = "기상 관측 정보를 불러오지 못해 추가 위험 요인을 확인할 수 없습니다."
+
+    # 기상 위험 판단과 점수는 기존 로직을 그대로 사용합니다. Gemini는 실제
+    # 관측값을 보호자가 이해하기 쉬운 문장으로 바꾸는 역할만 합니다.
+    if weather_data and weather_score >= 40 and weather_reasons:
+        gemini_weather_description = generate_environment_description(
+            factor_name="기상",
+            observations={
+                "temperature_c": weather_data.get("temperature"),
+                "apparent_temperature_c": weather_data.get("apparent_temperature"),
+                "rainfall_1h_mm": weather_data.get("rainfall_1h"),
+                "precipitation_type": weather_data.get("precipitation_type"),
+                "wind_speed_mps": weather_data.get("wind_speed"),
+                "weather_warning": {
+                    "highest_level": warning_level,
+                    "warnings": (weather_data.get("weather_warning") or {}).get("warnings", []),
+                },
+            },
+        )
+        # 수치·특보 근거를 우선 노출합니다. LLM 문장이 이를 덮어쓰면
+        # 사용자가 어떤 기상 항목 때문에 점수가 올랐는지 알 수 없기 때문입니다.
+        if gemini_weather_description and not weather_reasons:
+            weather_description = gemini_weather_description
 
     # -----------------------------------------------------
     # 대기질 설명
@@ -3886,6 +4026,9 @@ def get_risk_analysis(
         pm10 = quality.get("pm10")
         pm25 = quality.get("pm25")
         o3 = quality.get("o3")
+        no2 = quality.get("no2")
+        co = quality.get("co")
+        so2 = quality.get("so2")
         khai = quality.get("khai")
         station = quality.get("station_name")
 
@@ -3898,6 +4041,9 @@ def get_risk_analysis(
         pm10_value = to_float(pm10)
         pm25_value = to_float(pm25)
         o3_value = to_float(o3)
+        no2_value = to_float(no2)
+        co_value = to_float(co)
+        so2_value = to_float(so2)
 
         if pm10_value is not None:
             if pm10_value > 150:
@@ -3935,6 +4081,25 @@ def get_risk_analysis(
                     "주의가 필요한 수준입니다."
                 )
 
+        def grade_value(value):
+            try:
+                return int(value)
+            except (TypeError, ValueError):
+                return None
+
+        def append_gas_reason(label, value, grade):
+            grade_number = grade_value(grade)
+            if grade_number is None or grade_number < 3:
+                return
+            level = "매우 나쁨" if grade_number >= 4 else "나쁨"
+            value_text = f" {value:g}ppm" if value is not None else ""
+            air_reasons.append(f"{label} 농도가{value_text}로 {level} 수준입니다.")
+
+        # AirKorea가 내려주는 오염물질 등급(나쁨/매우 나쁨)도 함께 반영합니다.
+        append_gas_reason("이산화질소(NO₂)", no2_value, quality.get("no2_grade"))
+        append_gas_reason("일산화탄소(CO)", co_value, quality.get("co_grade"))
+        append_gas_reason("아황산가스(SO₂)", so2_value, quality.get("so2_grade"))
+
         if not air_reasons and khai is not None:
             air_reasons.append(
                 f"통합대기환경지수(KHAI)는 {khai}입니다."
@@ -3945,20 +4110,84 @@ def get_risk_analysis(
                 f"{station} 측정소의 최신 관측값을 기준으로 분석했습니다."
             )
 
-    if air_score <= 0 and not air_reasons:
-        air_description = (
-            "현재 위치에서는 대기질로 인한 "
-            "추가 위험이 감지되지 않았습니다."
-        )
+    if air_score < 40:
+        air_description = f"대기질 위험 점수 {air_score:g}점으로 안전 범위입니다."
     elif air_reasons:
         air_description = " ".join(
             air_reasons[:3]
         )
-    else:
+    elif air_data:
         air_description = (
-            f"대기 위험 점수가 {air_score:g}점으로 "
-            "외부 활동 시 주의가 필요합니다."
+            f"대기질 위험 점수 {air_score:g}점으로 "
+            f"{'위험' if air_score >= 70 else '주의'} 단계입니다."
         )
+    else:
+        air_description = "대기질 관측 정보를 불러오지 못해 추가 위험 요인을 확인할 수 없습니다."
+
+    # 대기질도 관측값으로 이미 산출한 점수는 건드리지 않고 설명문만 생성합니다.
+    if air_data and air_score >= 40 and air_reasons:
+        gemini_air_description = generate_environment_description(
+            factor_name="대기질",
+            observations={
+                "pm10_ug_m3": pm10,
+                "pm25_ug_m3": pm25,
+                "ozone_ppm": o3,
+                "nitrogen_dioxide_ppm": no2,
+                "carbon_monoxide_ppm": co,
+                "sulfur_dioxide_ppm": so2,
+                "khai": khai,
+                "station_name": station,
+            },
+        )
+        # PM10·PM2.5·오존·NO₂·CO·SO₂의 기준 초과 사실을 먼저 보여줍니다.
+        if gemini_air_description and not air_reasons:
+            air_description = gemini_air_description
+
+    # 위험 상태를 만들 때 함께 저장한 상세 사유가 있으면 우선 사용합니다.
+    # 같은 점수라도 이후의 날씨·대기 상태가 바뀌어 원인이 달라 보이는 문제를 막습니다.
+    generic_weather_reasons = {
+        "기상 위험 요소 감지",
+        "기상 위험 요소 없음",
+        "기상 위험점수 자동 조회",
+        "기상 위험점수 조회 실패",
+    }
+    generic_air_reasons = {
+        "대기질 위험 요소 감지",
+        "대기질 위험 요소 없음",
+        "대기 위험점수 자동 조회",
+        "대기 위험점수 조회 실패",
+    }
+    stored_weather_reason = (risk_status.weather_reason or "").strip()
+    stored_air_reason = (risk_status.air_reason or "").strip()
+    if stored_weather_reason and stored_weather_reason not in generic_weather_reasons:
+        weather_description = stored_weather_reason
+    if stored_air_reason and stored_air_reason not in generic_air_reasons:
+        air_description = stored_air_reason
+
+    # LoRA LLM으로 종합 위험 설명 생성
+    # LLM 서버가 꺼져 있어도 기존 위험 분석 API는 정상 동작하도록 합니다.
+    ai_explanation = None
+    enable_llm = (
+        os.getenv("ENABLE_LLM", "false").lower()
+        in {"1", "true", "yes", "on"}
+    )
+    llm_api_url = os.getenv("LLM_API_URL") if enable_llm else None
+
+    if llm_api_url:
+        try:
+            llm_response = requests.post(
+                f"{llm_api_url.rstrip('/')}/risk-explanation",
+                json={
+                    "gps_score": gps_score,
+                    "weather_score": weather_score,
+                    "air_score": air_score,
+                },
+                timeout=30,
+            )
+            llm_response.raise_for_status()
+            ai_explanation = llm_response.json().get("explanation")
+        except Exception as e:
+            print(f"[LLM] risk explanation failed: {e}")
 
     factors = [
         {
@@ -3996,6 +4225,7 @@ def get_risk_analysis(
         "risk_level": risk_status.risk_level,
         "measured_at": risk_status.created_at,
         "factors": factors,
+        "ai_explanation": ai_explanation,
     }
 
 
@@ -4031,4 +4261,118 @@ def test_subject_push(
         "message": "테스트 푸시 전송을 시도했습니다.",
         "subject_id": subject_id,
         "result": result,
+    }
+
+
+# =========================================================
+# 데모용 위험 시나리오
+# =========================================================
+@app.get(
+    "/demo/scenarios",
+    tags=["데모"],
+)
+def list_demo_scenarios():
+    from backend.demo_scenarios import DEMO_SCENARIOS
+
+    return {
+        "scenarios": [
+            {
+                "code": code,
+                "name": data["name"],
+            }
+            for code, data in DEMO_SCENARIOS.items()
+        ]
+    }
+
+
+@app.get(
+    "/demo/scenarios/{scenario}",
+    tags=["데모"],
+)
+def get_demo_scenario_detail(scenario: str):
+    """데모 시나리오 내용을 조회합니다. DB에는 저장하지 않습니다."""
+    from backend.demo_scenarios import get_demo_scenario
+
+    try:
+        return get_demo_scenario(scenario)
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=404,
+            detail=str(exc),
+        ) from exc
+
+
+@app.post(
+    "/demo/scenarios/{scenario}/run",
+    tags=["데모"],
+)
+def run_demo_scenario(
+    scenario: str,
+    subject_id: int,
+    db: Session = Depends(get_db),
+):
+    """데모 시나리오를 실행하고 위험도 결과를 DB에 저장합니다."""
+    from backend.demo_scenarios import get_demo_scenario
+
+    subject = db.get(models.Subject, subject_id)
+
+    if not subject:
+        raise HTTPException(
+            status_code=404,
+            detail="보호대상자를 찾을 수 없습니다.",
+        )
+
+    try:
+        result = get_demo_scenario(scenario)
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=404,
+            detail=str(exc),
+        ) from exc
+
+    risk_status = models.RiskStatusHistory(
+        subject_id=subject_id,
+        risk_level=result["risk_level"],
+        risk_score=result["total_score"],
+        lmtad_score=result["lmtad_score"],
+        weather_score=result["weather_score"],
+        air_score=result["air_score"],
+        lmtad_reason=result["lmtad_reason"],
+        weather_reason=result["weather_reason"],
+        air_reason=result["air_reason"],
+    )
+
+    try:
+        db.add(risk_status)
+        db.commit()
+        db.refresh(risk_status)
+    except Exception as exc:
+        db.rollback()
+        raise HTTPException(
+            status_code=500,
+            detail=f"데모 결과 DB 저장 실패: {exc}",
+        ) from exc
+
+    return {
+        "message": "데모 시나리오 결과가 DB에 저장되었습니다.",
+        "saved": True,
+        "history_id": risk_status.id,
+        "subject_id": subject_id,
+        "scenario": scenario,
+        "name": result["name"],
+        "risk_level": risk_status.risk_level,
+        "risk_score": risk_status.risk_score,
+        "lmtad_score": risk_status.lmtad_score,
+        "weather_score": risk_status.weather_score,
+        "air_score": risk_status.air_score,
+        "lmtad_reason": risk_status.lmtad_reason,
+        "weather_reason": risk_status.weather_reason,
+        "air_reason": risk_status.air_reason,
+        "created_at": risk_status.created_at,
+        "location": {
+            "latitude": result["latitude"],
+            "longitude": result["longitude"],
+        },
+        "weather": result["weather"],
+        "air": result["air"],
     }

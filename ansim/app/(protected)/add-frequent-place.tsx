@@ -2,10 +2,15 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Text } from '@/components/common/scaled-text';
+import { TextInput } from '@/components/common/scaled-text-input';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { WebView } from 'react-native-webview';
 import { PlaceCategory, addFrequentPlace, updateFrequentPlace } from '@/features/places/frequent-place-store';
+import { useTextSize } from '@/features/accessibility/text-size';
+import TutorialTarget from '@/components/tutorial/tutorial-target';
+import { useProtectedHelp } from '@/features/tutorial/protected-help-flow';
 
 const CATEGORIES: { label: PlaceCategory; icon: React.ComponentProps<typeof Ionicons>['name'] }[] = [
   { label: '집', icon: 'home' },
@@ -19,8 +24,12 @@ const DEFAULT_COORDS = { latitude: 37.6228, longitude: 127.0784 };
 
 export default function AddFrequentPlaceScreen() {
   const router = useRouter();
-  const params = useLocalSearchParams<{ mode?: 'add' | 'edit'; id?: string; name?: string; category?: PlaceCategory; address?: string; memo?: string }>();
+  const { step: tutorialStep } = useProtectedHelp();
+  const { mode: textSizeMode } = useTextSize();
+  const isLargeText = textSizeMode === 'large';
+  const params = useLocalSearchParams<{ mode?: 'add' | 'edit'; id?: string; name?: string; category?: PlaceCategory; address?: string; memo?: string; tutorial?: string }>();
   const isEditMode = params.mode === 'edit' && !!params.id;
+  const isTutorialRegister = tutorialStep === 'register-place' && params.tutorial === 'true';
   const [name, setName] = useState('');
   const [category, setCategory] = useState<PlaceCategory>('집');
   const [address, setAddress] = useState('');
@@ -29,11 +38,12 @@ export default function AddFrequentPlaceScreen() {
   const [isSearching, setIsSearching] = useState(false);
 
   useEffect(() => {
-    setName(isEditMode ? params.name ?? '' : '');
+    const isTutorial = params.tutorial === 'true';
+    setName(isEditMode ? params.name ?? '' : isTutorial ? '집' : '');
     setCategory(isEditMode ? params.category ?? '집' : '집');
-    setAddress(isEditMode ? params.address ?? '' : '');
+    setAddress(isEditMode ? params.address ?? '' : isTutorial ? '광주광역시' : '');
     setMemo(isEditMode ? params.memo ?? '' : '');
-  }, [isEditMode, params.name, params.category, params.address, params.memo]);
+  }, [isEditMode, params.name, params.category, params.address, params.memo, params.tutorial]);
 
   const searchAddress = useCallback(async (query: string) => {
     const trimmedQuery = query.trim();
@@ -101,7 +111,7 @@ export default function AddFrequentPlaceScreen() {
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView style={styles.keyboard} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <View style={styles.header}>
-          <TouchableOpacity accessibilityLabel="뒤로 가기" onPress={() => router.replace('/frequent-places')} hitSlop={12}>
+          <TouchableOpacity accessibilityLabel="뒤로 가기" disabled={isTutorialRegister} onPress={() => router.replace('/frequent-places')} hitSlop={12}>
             <Ionicons name="arrow-back" size={30} color="#111111" />
           </TouchableOpacity>
           <View style={styles.badge}><Text style={styles.badgeText}>자주 가는 장소</Text></View>
@@ -110,45 +120,51 @@ export default function AddFrequentPlaceScreen() {
 
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
           <Text style={styles.label}>장소 이름</Text>
-          <View style={styles.inputBox}>
-            <TextInput style={styles.input} value={name} onChangeText={setName} placeholder="예) 집, 학원, 병원, 경로당 등" placeholderTextColor="#B4B4B4" maxLength={20} />
-            <Text style={styles.count}>{name.length}/20자</Text>
+          <View style={[styles.inputBox, isLargeText && styles.inputBoxLarge, isLargeText && styles.nameInputBoxLarge]}>
+            <TextInput editable={!isTutorialRegister} style={[styles.input, isLargeText && styles.inputLarge]} value={name} onChangeText={setName} placeholder="예) 집, 학원, 병원, 경로당 등" placeholderTextColor="#B4B4B4" maxLength={20} />
+            <Text style={[styles.count, isLargeText && styles.countLarge]}>{name.length}/20자</Text>
           </View>
 
           <Text style={styles.label}>장소 종류</Text>
-          <View style={styles.categoryRow}>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={[styles.categoryRow, isLargeText && styles.categoryRowLarge]}
+          >
             {CATEGORIES.map((item) => {
               const selected = category === item.label;
               return (
-                <TouchableOpacity key={item.label} style={[styles.categoryBox, selected && styles.categorySelected]} onPress={() => setCategory(item.label)}>
+                <TouchableOpacity disabled={isTutorialRegister} key={item.label} style={[styles.categoryBox, isLargeText && styles.categoryBoxLarge, selected && styles.categorySelected]} onPress={() => setCategory(item.label)}>
                   <Ionicons name={item.icon} size={25} color={selected ? '#59A03D' : '#666666'} />
                   <Text style={[styles.categoryText, selected && styles.categoryTextSelected]}>{item.label}</Text>
                 </TouchableOpacity>
               );
             })}
-          </View>
+          </ScrollView>
 
           <Text style={styles.label}>장소 위치</Text>
           <View style={styles.mapBox}>
             <WebView originWhitelist={['*']} source={{ html: mapHtml }} scrollEnabled={false} />
           </View>
-          <View style={styles.addressBox}>
+          <View style={[styles.addressBox, isLargeText && styles.addressBoxLarge]}>
             <Ionicons name="location-outline" size={21} color="#666666" />
-            <TextInput style={styles.addressInput} value={address} onChangeText={setAddress} onSubmitEditing={() => searchAddress(address)} placeholder="주소를 입력해 주세요" placeholderTextColor="#999999" returnKeyType="search" />
-            <TouchableOpacity onPress={() => searchAddress(address)} disabled={isSearching} hitSlop={8}>
+            <TextInput editable={!isTutorialRegister} style={styles.addressInput} value={address} onChangeText={setAddress} onSubmitEditing={() => searchAddress(address)} placeholder="주소를 입력해 주세요" placeholderTextColor="#999999" returnKeyType="search" />
+            <TouchableOpacity onPress={() => searchAddress(address)} disabled={isSearching || isTutorialRegister} hitSlop={8}>
               <Text style={styles.searchText}>{isSearching ? '검색 중' : '위치 변경'}</Text>
             </TouchableOpacity>
           </View>
 
           <Text style={styles.label}>메모 <Text style={styles.optional}>(선택)</Text></Text>
           <View style={[styles.inputBox, styles.memoBox]}>
-            <TextInput style={styles.memoInput} value={memo} onChangeText={setMemo} placeholder="메모를 입력하세요." placeholderTextColor="#B4B4B4" multiline maxLength={50} textAlignVertical="top" />
+            <TextInput editable={!isTutorialRegister} style={styles.memoInput} value={memo} onChangeText={setMemo} placeholder="메모를 입력하세요." placeholderTextColor="#B4B4B4" multiline maxLength={50} textAlignVertical="top" />
             <Text style={styles.count}>{memo.length}/50자</Text>
           </View>
 
-          <TouchableOpacity style={styles.saveButton} onPress={handleSave} activeOpacity={0.8}>
-            <Text style={styles.saveText}>{isEditMode ? '수정하기' : '등록하기'}</Text>
-          </TouchableOpacity>
+          <TutorialTarget target="register">
+            <TouchableOpacity style={styles.saveButton} onPress={handleSave} activeOpacity={0.8}>
+              <Text style={styles.saveText}>{isEditMode ? '수정하기' : '등록하기'}</Text>
+            </TouchableOpacity>
+          </TutorialTarget>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -166,19 +182,27 @@ const styles = StyleSheet.create({
   label: { marginTop: 21, marginBottom: 9, color: '#111111', fontSize: 20, fontWeight: 'bold' },
   optional: { color: '#777777', fontSize: 14, fontWeight: 'normal' },
   inputBox: { minHeight: 56, flexDirection: 'row', alignItems: 'center', borderWidth: 1.5, borderColor: '#DFDFDF', borderRadius: 11, paddingHorizontal: 14 },
+  inputBoxLarge: { minHeight: 78, paddingVertical: 10 },
+  nameInputBoxLarge: { flexDirection: 'column', alignItems: 'stretch' },
   input: { flex: 1, color: '#111111', fontSize: 17, fontWeight: '600' },
+  inputLarge: { width: '100%', flex: 1 },
   count: { color: '#B8B8B8', fontSize: 14, fontWeight: 'bold' },
-  categoryRow: { flexDirection: 'row', gap: 7 },
-  categoryBox: { flex: 1, height: 74, justifyContent: 'center', alignItems: 'center', borderWidth: 1.5, borderColor: '#DFDFDF', borderRadius: 10 },
+  countLarge: { alignSelf: 'flex-end', marginTop: 3 },
+  categoryRow: { flexDirection: 'row', gap: 7, paddingRight: 2 },
+  categoryRowLarge: { gap: 10 },
+  categoryBox: { width: 82, height: 82, justifyContent: 'center', alignItems: 'center', borderWidth: 1.5, borderColor: '#DFDFDF', borderRadius: 10, paddingHorizontal: 5 },
+  categoryBoxLarge: { width: 112, height: 104, paddingHorizontal: 8 },
   categorySelected: { borderColor: '#59A03D' },
   categoryText: { marginTop: 4, color: '#666666', fontSize: 14, fontWeight: 'bold' },
   categoryTextSelected: { color: '#59A03D' },
   mapBox: { height: 142, overflow: 'hidden', borderWidth: 1.5, borderColor: '#CDE7C1', borderRadius: 10, backgroundColor: '#E8FFDD' },
-  addressBox: { height: 56, flexDirection: 'row', alignItems: 'center', gap: 8, borderWidth: 1.5, borderColor: '#DFDFDF', borderRadius: 10, marginTop: 2, paddingHorizontal: 12 },
+  addressBox: { minHeight: 56, flexDirection: 'row', alignItems: 'center', gap: 8, borderWidth: 1.5, borderColor: '#DFDFDF', borderRadius: 10, marginTop: 2, paddingHorizontal: 12 },
+  addressBoxLarge: { minHeight: 78, paddingVertical: 10 },
   addressInput: { flex: 1, color: '#333333', fontSize: 16, fontWeight: '600' },
   searchText: { color: '#666666', fontSize: 14, fontWeight: 'bold' },
   memoBox: { height: 92, flexDirection: 'column', alignItems: 'stretch', paddingHorizontal: 14, paddingTop: 10, paddingBottom: 6 },
   memoInput: { width: '100%', flex: 1, margin: 0, padding: 0, color: '#111111', fontSize: 16, fontWeight: '600', lineHeight: 20, includeFontPadding: false },
   saveButton: { height: 76, marginTop: 32, borderRadius: 17, justifyContent: 'center', alignItems: 'center', backgroundColor: '#59A03D' },
   saveText: { color: '#FFFFFF', fontSize: 26, fontWeight: 'bold' },
+  tutorialDimmed: { opacity: 0.28 },
 });

@@ -10,8 +10,8 @@ from pydantic import (
     model_validator,
 )
 
-from models import GenderType, InstitutionType, SubjectType
-from risk_policy import (
+from backend.models import GenderType, InstitutionType, SubjectType
+from backend.risk_policy import (
     calculate_integrated_risk,
     clamp_risk_score,
     risk_level_from_score,
@@ -542,6 +542,7 @@ class RiskAnalysisResponse(KSTBaseModel):
     risk_level: str
     measured_at: datetime
     factors: list[RiskFactorResponse]
+    ai_explanation: str | None = None
 
 
 class InstitutionManagerPasswordChange(BaseModel):

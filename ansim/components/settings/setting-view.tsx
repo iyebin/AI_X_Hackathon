@@ -9,19 +9,23 @@ import {
   Linking,
   Modal,
   Platform,
+  Pressable,
   ScrollView,
   StyleSheet,
   Switch,
-  Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
+import { Text } from '@/components/common/scaled-text';
+import { TextInput } from '@/components/common/scaled-text-input';
 import { getProtectorPhone, setProtectorPhone } from '@/features/contacts/protector-contact-store';
 import { clearSavedSession } from '@/features/auth/current-session';
 import { isGpsTrackingEnabled, stopGpsTracking } from '@/features/gps/tracking';
 import { registerPushNotifications, PushUserType } from '@/features/notifications/push-registration';
 import { isPushNotificationEnabled, setPushNotificationEnabled } from '@/features/notifications/push-preference';
+import { useTextSize, type TextSizeMode } from '@/features/accessibility/text-size';
+import TutorialTarget from '@/components/tutorial/tutorial-target';
+import { useProtectedHelp } from '@/features/tutorial/protected-help-flow';
 
 interface SettingViewProps {
   isProtected?: boolean;
@@ -32,6 +36,11 @@ interface SettingViewProps {
 
 export default function SettingView({ isProtected = false, notificationUser, onEmergencyContactSaved, onLocationTrackingChange }: SettingViewProps) {
   const router = useRouter();
+  const { mode: textSizeMode, setMode: setTextSizeMode } = useTextSize();
+  const { step: tutorialStep, advanceTutorial } = useProtectedHelp();
+  const isTutorialSettings = isProtected && Boolean(tutorialStep);
+  const isTutorialFrequent = isProtected && tutorialStep === 'frequent-places';
+  const isTutorialContactModal = isProtected && tutorialStep === 'settings-contact-modal';
 
   const [isNotificationEnabled, setIsNotificationEnabled] = useState(true);
   const [isLocationEnabled, setIsLocationEnabled] = useState(false);
@@ -213,6 +222,12 @@ export default function SettingView({ isProtected = false, notificationUser, onE
     Alert.alert('알림', `${menuName} 기능 준비 중입니다.`);
   };
 
+  const handleTextSizeMode = (mode: TextSizeMode) => {
+    void setTextSizeMode(mode).catch(() => {
+      Alert.alert('글씨 크기', '글씨 크기 설정을 저장하지 못했습니다.');
+    });
+  };
+
   const activeColor = isProtected ? '#59A03D' : '#F7931E';
 
   return (
@@ -226,7 +241,41 @@ export default function SettingView({ isProtected = false, notificationUser, onE
 
       <View style={styles.topDivider} />
 
+      <Text style={styles.sectionTitle}>화면 설정</Text>
+      <TutorialTarget target="font-size">
+      <View style={styles.menuCard}>
+        <View style={styles.fontSizeHeader}>
+          <View style={styles.menuLeft}>
+            <Ionicons name="text-outline" size={24} color="#333333" style={styles.menuIcon} />
+            <Text style={styles.menuText}>글씨 크기</Text>
+          </View>
+          <Text style={styles.fontSizeHint}>읽기 편한 크기 선택</Text>
+        </View>
+        <View style={styles.fontSizeOptions}>
+          <TouchableOpacity
+            disabled={isTutorialSettings}
+            style={[styles.fontSizeOption, textSizeMode === 'default' && { borderColor: activeColor, backgroundColor: `${activeColor}14` }]}
+            onPress={() => handleTextSizeMode('default')}
+            activeOpacity={0.75}
+          >
+            <Text style={styles.fontSizeOptionLabel}>기본 글씨</Text>
+            <Text style={styles.fontSizePreview}>가</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            disabled={isTutorialSettings}
+            style={[styles.fontSizeOption, textSizeMode === 'large' && { borderColor: activeColor, backgroundColor: `${activeColor}14` }]}
+            onPress={() => handleTextSizeMode('large')}
+            activeOpacity={0.75}
+          >
+            <Text style={styles.fontSizeOptionLabel}>큰 글씨</Text>
+            <Text style={styles.fontSizePreviewLarge}>가</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+      </TutorialTarget>
+
       <Text style={styles.sectionTitle}>알림 설정</Text>
+      <TutorialTarget target="notification-settings">
       <View style={styles.menuCard}>
         <View style={styles.menuItemRow}>
           <View style={styles.menuLeft}>
@@ -234,6 +283,7 @@ export default function SettingView({ isProtected = false, notificationUser, onE
             <Text style={styles.menuText}>알림 수신 설정</Text>
           </View>
           <Switch
+            disabled={isTutorialSettings}
             value={isNotificationEnabled}
             onValueChange={handleToggleNotification}
             trackColor={{ false: '#E0E0E0', true: activeColor }}
@@ -249,6 +299,7 @@ export default function SettingView({ isProtected = false, notificationUser, onE
             <Text style={styles.menuText}>위치 정보 설정</Text>
           </View>
           <Switch
+            disabled={isTutorialSettings}
             value={isLocationEnabled}
             onValueChange={handleToggleLocation}
             trackColor={{ false: '#E0E0E0', true: activeColor }}
@@ -256,13 +307,15 @@ export default function SettingView({ isProtected = false, notificationUser, onE
           />
         </View>}
       </View>
+      </TutorialTarget>
 
       <Text style={styles.sectionTitle}>계정 설정</Text>
       <View style={styles.menuCard}>
         {!isProtected && (
           <>
             <TouchableOpacity
-              style={styles.menuItem}
+              disabled={isTutorialSettings}
+              style={[styles.menuItem, isTutorialFrequent && styles.tutorialDimmed]}
               onPress={handleManageTarget}
               activeOpacity={0.7}
             >
@@ -276,6 +329,7 @@ export default function SettingView({ isProtected = false, notificationUser, onE
 
         {isProtected && (
           <>
+            <TutorialTarget target="contact" onTutorialPress={handleEmergencyContact}>
             <TouchableOpacity
               style={styles.menuItem}
               onPress={handleEmergencyContact}
@@ -284,41 +338,52 @@ export default function SettingView({ isProtected = false, notificationUser, onE
               <Ionicons name="call-outline" size={24} color="#333333" style={styles.menuIcon} />
               <Text style={styles.menuText}>긴급 연락처 관리</Text>
             </TouchableOpacity>
+            </TutorialTarget>
 
             <View style={styles.itemDivider} />
 
             {/* 💡 새로 추가된 자주 가는 장소 관리 */}
-            <TouchableOpacity
-              style={styles.menuItem}
-              onPress={handleFrequentPlaces}
-              activeOpacity={0.7}
-            >
-              <Ionicons name="location-outline" size={24} color="#333333" style={styles.menuIcon} />
-              <Text style={styles.menuText}>자주 가는 장소 관리</Text>
-            </TouchableOpacity>
+            <TutorialTarget target="frequent">
+              <TouchableOpacity
+                style={styles.menuItem}
+                onPress={handleFrequentPlaces}
+                activeOpacity={0.7}
+              >
+                <Ionicons name="location-outline" size={24} color="#333333" style={styles.menuIcon} />
+                <Text style={styles.menuText}>자주 가는 장소 관리</Text>
+              </TouchableOpacity>
+            </TutorialTarget>
 
             <View style={styles.itemDivider} />
           </>
         )}
 
-        <TouchableOpacity
-          style={styles.menuItem}
-          onPress={() => handleSimpleMenu('계정 정보')}
-          activeOpacity={0.7}
-        >
-          <Ionicons name="information-circle-outline" size={24} color="#333333" style={styles.menuIcon} />
-          <Text style={styles.menuText}>계정 정보</Text>
-        </TouchableOpacity>
+        <TutorialTarget target="account">
+          <TouchableOpacity
+            style={styles.menuItem}
+            onPress={() => handleSimpleMenu('계정 정보')}
+            activeOpacity={0.7}
+          >
+            <Ionicons name="information-circle-outline" size={24} color="#333333" style={styles.menuIcon} />
+            <Text style={styles.menuText}>계정 정보</Text>
+          </TouchableOpacity>
+        </TutorialTarget>
+
       </View>
 
-      <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout} activeOpacity={0.8}>
+      <TouchableOpacity disabled={isTutorialSettings} style={styles.logoutBtn} onPress={handleLogout} activeOpacity={0.8}>
         <Text style={styles.logoutBtnText}>로그아웃</Text>
       </TouchableOpacity>
     </ScrollView>
 
     <Modal visible={isContactModalVisible} transparent animationType="fade" onRequestClose={() => setIsContactModalVisible(false)}>
-      <View style={styles.modalOverlay}>
-        <View style={styles.modalContent}>
+      <Pressable
+        style={styles.modalOverlay}
+        onPress={isTutorialContactModal ? () => {
+          setIsContactModalVisible(false);
+          advanceTutorial();
+        } : undefined}>
+        <View style={styles.modalContent} pointerEvents={isTutorialContactModal ? 'none' : 'auto'}>
           <Text style={styles.modalTitle}>긴급 연락처 관리</Text>
           <Text style={styles.modalDescription}>홈에서 전화하기를 누르면 이 번호로 연결됩니다.</Text>
           <TextInput
@@ -338,7 +403,7 @@ export default function SettingView({ isProtected = false, notificationUser, onE
             </TouchableOpacity>
           </View>
         </View>
-      </View>
+      </Pressable>
     </Modal>
     </>
   );
@@ -365,6 +430,13 @@ const styles = StyleSheet.create({
   menuLeft: { flexDirection: 'row', alignItems: 'center' },
   menuIcon: { marginRight: 14 },
   menuText: { fontSize: 18, fontWeight: 'bold', color: '#333333' },
+  fontSizeHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingTop: 12, paddingBottom: 10 },
+  fontSizeHint: { color: '#777777', fontSize: 13 },
+  fontSizeOptions: { flexDirection: 'row', gap: 10, paddingBottom: 12 },
+  fontSizeOption: { flex: 1, minHeight: 76, alignItems: 'center', justifyContent: 'center', borderWidth: 1.5, borderColor: '#DADADA', borderRadius: 14 },
+  fontSizeOptionLabel: { color: '#333333', fontSize: 15, fontWeight: '700' },
+  fontSizePreview: { color: '#333333', fontSize: 18, fontWeight: '700', marginTop: 2 },
+  fontSizePreviewLarge: { color: '#333333', fontSize: 24, fontWeight: '700', marginTop: 1 },
   itemDivider: { height: 1, backgroundColor: '#EAEAEA' },
   logoutBtn: {
     height: 58,
@@ -387,4 +459,5 @@ const styles = StyleSheet.create({
   cancelText: { color: '#555555', fontSize: 17, fontWeight: 'bold' },
   saveContactButton: { flex: 1, height: 50, justifyContent: 'center', alignItems: 'center', borderRadius: 13 },
   saveContactText: { color: '#FFFFFF', fontSize: 17, fontWeight: 'bold' },
+  tutorialDimmed: { opacity: 0.28 },
 });

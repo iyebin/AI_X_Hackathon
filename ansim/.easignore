@@ -1,0 +1,8 @@
+# EAS 서버에서 package-lock.json 기준으로 의존성을 새로 설치합니다.
+node_modules/
+.expo/
+
+# 로컬 Android 빌드 캐시는 업로드하지 않습니다.
+android/.gradle/
+android/build/
+android/app/build/

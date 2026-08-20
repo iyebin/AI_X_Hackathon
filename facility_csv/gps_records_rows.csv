@@ -1,0 +1,2 @@
+gps_id,subject_id,latitude,longitude,measured_at,x,y,x_d,y_d,token,dayofweek,token_probability,anomaly_score,scored_at
+584,3,35.1595,126.8526,2026-08-18 04:55:21.400783,941038.117283184,1685108.05058144,18820,33702,,tuesday,,,

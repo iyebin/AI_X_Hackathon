@@ -7,10 +7,10 @@ import {
   Linking,
   ScrollView,
   StyleSheet,
-  Text,
   TouchableOpacity,
   View,
 } from 'react-native';
+import { Text } from '@/components/common/scaled-text';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import ProtectedMapView from '@/components/map/protected-map';
 import NotificationView from '@/components/notifications/alarm';
@@ -20,9 +20,15 @@ import { getProtectorPhone } from '@/features/contacts/protector-contact-store';
 import { startGpsTracking, stopGpsTracking } from '@/features/gps/tracking';
 import { registerPushNotifications } from '@/features/notifications/push-registration';
 import { getWeatherSummary } from '@/features/environment/weather-api';
+import { useTextSize } from '@/features/accessibility/text-size';
+import { getSavedSession } from '@/features/auth/current-session';
+import { useProtectedHelp } from '@/features/tutorial/protected-help-flow';
+import TutorialTarget from '@/components/tutorial/tutorial-target';
 
 export default function ProtectedMainScreen() {
   const router = useRouter();
+  const { mode: textSizeMode } = useTextSize();
+  const isLargeText = textSizeMode === 'large';
 
   const { userName, protectorPhone, subjectId, tab } = useLocalSearchParams<{
     userName?: string;
@@ -31,11 +37,13 @@ export default function ProtectedMainScreen() {
     tab?: 'home' | 'map' | 'notification' | 'setting';
   }>();
 
-  const displayName = userName || '슝슝슝';
+  const [savedUserName, setSavedUserName] = useState('');
+  const displayName = userName || savedUserName || '슝슝슝';
   const [targetPhone, setTargetPhone] = useState(getProtectorPhone() || protectorPhone || '');
   const numericSubjectId = Number(subjectId);
 
   const [activeTab, setActiveTab] = useState<string>(tab ?? 'home');
+  const { step: tutorialStep, checkFirstTutorial, startTutorial } = useProtectedHelp();
   const [weatherNotice, setWeatherNotice] = useState('날씨 정보를 불러오는 중입니다.');
   const [weatherAdvisory, setWeatherAdvisory] = useState('기상 특보 정보를 불러오는 중입니다.');
   const lastVisibleDangerAlertId = useRef<string | null>(null);
@@ -43,8 +51,26 @@ export default function ProtectedMainScreen() {
   const isAppForeground = useRef(AppState.currentState === 'active');
 
   useEffect(() => {
+    void getSavedSession().then((session) => {
+      if (session?.role === 'protected' && session.userName) setSavedUserName(session.userName);
+    });
+  }, []);
+
+  useEffect(() => {
     if (tab) setActiveTab(tab);
   }, [tab]);
+
+  useEffect(() => {
+    if (!Number.isInteger(numericSubjectId) || numericSubjectId <= 0) return;
+    if (tutorialStep) return;
+    setActiveTab('home');
+    void checkFirstTutorial(numericSubjectId);
+  }, [checkFirstTutorial, numericSubjectId, tutorialStep]);
+
+  const startTutorialFromHelp = () => {
+    setActiveTab('home');
+    if (Number.isInteger(numericSubjectId) && numericSubjectId > 0) startTutorial(numericSubjectId);
+  };
 
   useEffect(() => {
     if (!Number.isInteger(numericSubjectId) || numericSubjectId <= 0) return;
@@ -81,7 +107,7 @@ export default function ProtectedMainScreen() {
     let isDisposed = false;
     const establishBaseline = async () => {
       try {
-        const latestDanger = (await getAlerts(numericSubjectId)).find((alert) => alert.kind === 'danger' && !alert.isRead);
+        const latestDanger = (await getAlerts({ subjectId: numericSubjectId, recipientType: 'subject', recipientId: numericSubjectId })).find((alert) => ['danger', 'warning'].includes(alert.kind) && !alert.isRead);
         if (!isDisposed) {
           lastVisibleDangerAlertId.current = latestDanger?.id ?? null;
           isAlertBaselineReady.current = true;
@@ -94,7 +120,7 @@ export default function ProtectedMainScreen() {
     const checkNewForegroundDangerAlert = async () => {
       if (isDisposed || !isAppForeground.current || !isAlertBaselineReady.current) return;
       try {
-        const latestDanger = (await getAlerts(numericSubjectId)).find((alert) => alert.kind === 'danger' && !alert.isRead);
+        const latestDanger = (await getAlerts({ subjectId: numericSubjectId, recipientType: 'subject', recipientId: numericSubjectId })).find((alert) => ['danger', 'warning'].includes(alert.kind) && !alert.isRead);
         if (!latestDanger || latestDanger.id === lastVisibleDangerAlertId.current) return;
 
         lastVisibleDangerAlertId.current = latestDanger.id;
@@ -109,6 +135,7 @@ export default function ProtectedMainScreen() {
             dangerReasons: latestDanger.reason ?? latestDanger.message ?? '위험 요인 정보 없음',
             alertCreatedAt: latestDanger.createdAt ?? '',
             riskSnapshot: latestDanger.riskSnapshot ? JSON.stringify(latestDanger.riskSnapshot) : '',
+            riskLevel: latestDanger.kind,
             viewerRole: 'protected',
           },
         });
@@ -210,34 +237,44 @@ export default function ProtectedMainScreen() {
 
             <Text style={styles.subGreeting}>오늘도 안전한 하루 되세요😊</Text>
 
-            <TouchableOpacity
-              style={[styles.cardButton, styles.callCard]}
-              onPress={handleCallProtector}
-              activeOpacity={0.7}
-            >
-              <Ionicons name="call" size={36} color="#59A03D" />
-              <Text style={styles.cardText}>보호자에게 전화하기</Text>
-            </TouchableOpacity>
+            <TutorialTarget target="call">
+              <TouchableOpacity
+                style={[styles.cardButton, isLargeText && styles.cardButtonLarge, styles.callCard, styles.tutorialCardButton]}
+                onPress={handleCallProtector}
+                activeOpacity={0.7}
+              >
+                <Ionicons name="call" size={36} color="#59A03D" />
+                <Text style={styles.cardText}>보호자에게 전화하기</Text>
+              </TouchableOpacity>
+            </TutorialTarget>
+            <View style={styles.tutorialCardGap} />
 
-            <TouchableOpacity
-              style={[styles.cardButton, styles.facilityCard]}
-              onPress={handleFindFacility}
-              activeOpacity={0.7}
-            >
-              <MaterialCommunityIcons name="office-building" size={36} color="#3182CE" />
-              <Text style={styles.cardText}>가까운 복지시설 찾기</Text>
-            </TouchableOpacity>
+            <TutorialTarget target="facility">
+              <TouchableOpacity
+                style={[styles.cardButton, isLargeText && styles.cardButtonLarge, styles.facilityCard, styles.tutorialCardButton]}
+                onPress={handleFindFacility}
+                activeOpacity={0.7}
+              >
+                <MaterialCommunityIcons name="office-building" size={36} color="#3182CE" />
+                <Text style={styles.cardText}>가까운 복지시설 찾기</Text>
+              </TouchableOpacity>
+            </TutorialTarget>
+            <View style={styles.tutorialCardGap} />
 
-            <TouchableOpacity
-              style={[styles.cardButton, styles.emergencyCard]}
-              onPress={handleEmergencyCall}
-              activeOpacity={0.7}
-            >
-              <MaterialCommunityIcons name="lightbulb-on" size={36} color="#E53E3E" />
-              <Text style={styles.cardText}>긴급신고</Text>
-            </TouchableOpacity>
+            <TutorialTarget target="emergency">
+              <TouchableOpacity
+                style={[styles.cardButton, isLargeText && styles.cardButtonLarge, styles.emergencyCard, styles.tutorialCardButton]}
+                onPress={handleEmergencyCall}
+                activeOpacity={0.7}
+              >
+                <MaterialCommunityIcons name="lightbulb-on" size={36} color="#E53E3E" />
+                <Text style={styles.cardText}>긴급신고</Text>
+              </TouchableOpacity>
+            </TutorialTarget>
+            <View style={styles.tutorialCardGap} />
 
-            <View style={styles.noticeRow}>
+            <TutorialTarget target="weather">
+            <TouchableOpacity activeOpacity={1} style={styles.noticeRow}>
               <View style={[styles.noticeBox, styles.weatherNoticeBox]}>
                 <Ionicons name="thermometer-outline" size={25} color="#E05A2A" />
                 <Text style={styles.noticeTitle}>현재 날씨</Text>
@@ -248,7 +285,15 @@ export default function ProtectedMainScreen() {
                 <Text style={styles.noticeTitle}>기상 특보</Text>
                 <Text style={styles.noticeContent}>{weatherAdvisory}</Text>
               </View>
-            </View>
+            </TouchableOpacity>
+            </TutorialTarget>
+
+            <TutorialTarget target="help">
+              <TouchableOpacity style={styles.homeHelpButton} onPress={startTutorialFromHelp} activeOpacity={0.8}>
+                <Ionicons name="help-circle-outline" size={22} color="#59A03D" />
+                <Text style={styles.homeHelpText}>도움말</Text>
+              </TouchableOpacity>
+            </TutorialTarget>
           </ScrollView>
         );
 
@@ -269,6 +314,8 @@ export default function ProtectedMainScreen() {
             targetPhone={targetPhone}
             themeColor="#59A03D"
             viewerRole="protected"
+            recipientType="subject"
+            recipientId={numericSubjectId}
           />
         );
 
@@ -285,7 +332,7 @@ export default function ProtectedMainScreen() {
       <View style={styles.contentContainer}>{renderContent()}</View>
 
       <View style={styles.bottomTabBar}>
-        <TouchableOpacity style={styles.tabItem} onPress={() => setActiveTab('home')}>
+        <TutorialTarget target="home" style={styles.tabItem}><TouchableOpacity style={styles.tabItem} onPress={() => setActiveTab('home')}>
           <Ionicons
             name="home"
             size={28}
@@ -294,9 +341,9 @@ export default function ProtectedMainScreen() {
           <Text style={[styles.tabLabel, { color: activeTab === 'home' ? '#55A238' : '#8E8E93' }]}>
             홈
           </Text>
-        </TouchableOpacity>
+        </TouchableOpacity></TutorialTarget>
 
-        <TouchableOpacity style={styles.tabItem} onPress={() => setActiveTab('map')}>
+        <TutorialTarget target="map" style={styles.tabItem}><TouchableOpacity style={styles.tabItem} onPress={() => setActiveTab('map')}>
           <Ionicons
             name="map-outline"
             size={28}
@@ -305,9 +352,9 @@ export default function ProtectedMainScreen() {
           <Text style={[styles.tabLabel, { color: activeTab === 'map' ? '#55A238' : '#8E8E93' }]}>
             지도
           </Text>
-        </TouchableOpacity>
+        </TouchableOpacity></TutorialTarget>
 
-        <TouchableOpacity style={styles.tabItem} onPress={() => setActiveTab('notification')}>
+        <TutorialTarget target="notification" style={styles.tabItem}><TouchableOpacity style={styles.tabItem} onPress={() => setActiveTab('notification')}>
           <Ionicons
             name="notifications-outline"
             size={28}
@@ -316,9 +363,9 @@ export default function ProtectedMainScreen() {
           <Text style={[styles.tabLabel, { color: activeTab === 'notification' ? '#55A238' : '#8E8E93' }]}>
             알림
           </Text>
-        </TouchableOpacity>
+        </TouchableOpacity></TutorialTarget>
 
-        <TouchableOpacity style={styles.tabItem} onPress={() => setActiveTab('setting')}>
+        <TutorialTarget target="setting" style={styles.tabItem}><TouchableOpacity style={styles.tabItem} onPress={() => setActiveTab('setting')}>
           <Ionicons
             name="settings-outline"
             size={28}
@@ -327,7 +374,7 @@ export default function ProtectedMainScreen() {
           <Text style={[styles.tabLabel, { color: activeTab === 'setting' ? '#55A238' : '#8E8E93' }]}>
             설정
           </Text>
-        </TouchableOpacity>
+        </TouchableOpacity></TutorialTarget>
       </View>
     </SafeAreaView>
   );
@@ -351,10 +398,13 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     backgroundColor: '#FFFFFF',
   },
+  cardButtonLarge: { height: 108, paddingVertical: 12 },
+  tutorialCardGap: { height: 20 },
+  tutorialCardButton: { marginBottom: 0 },
   callCard: { borderColor: '#C6E8B3' },
   facilityCard: { borderColor: '#BEE3F8' },
   emergencyCard: { borderColor: '#FEB2B2' },
-  cardText: { fontSize: 20, fontWeight: 'bold', color: '#333333', marginLeft: 16 },
+  cardText: { flex: 1, flexShrink: 1, fontSize: 20, fontWeight: 'bold', color: '#333333', marginLeft: 16 },
   noticeRow: {
     flexDirection: 'row',
     gap: 12,
@@ -371,6 +421,8 @@ const styles = StyleSheet.create({
   advisoryNoticeBox: { backgroundColor: '#FFF7E8', borderColor: '#FEE0A5' },
   noticeTitle: { fontSize: 16, fontWeight: 'bold', color: '#1F2937', marginTop: 8, marginBottom: 8 },
   noticeContent: { fontSize: 15, fontWeight: '600', color: '#4A5568', lineHeight: 21 },
+  homeHelpButton: { alignSelf: 'center', flexDirection: 'row', alignItems: 'center', gap: 7, marginTop: 20, marginBottom: 4, paddingHorizontal: 18, height: 46, borderWidth: 1.5, borderColor: '#B9DEAA', borderRadius: 14, backgroundColor: '#F4FBEF' },
+  homeHelpText: { color: '#3F832A', fontSize: 17, fontWeight: '800' },
   bottomTabBar: {
     flexDirection: 'row',
     height: 65,

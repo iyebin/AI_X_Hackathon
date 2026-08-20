@@ -5,18 +5,38 @@ from pathlib import Path
 import torch
 from torch.nn import functional as F
 
-from lmtad.model import LMTAD, LMTADConfig
-
+from backend.lmtad.model import LMTAD, LMTADConfig
+from backend.lmtad.lmtad_service import (
+    download_lmtad_checkpoint,
+)
 
 BACKEND_DIR = Path(__file__).resolve().parent
+BACKEND_DIR = Path(__file__).resolve().parent
+LMTAD_DIR = BACKEND_DIR / "lmtad"
 
-CHECKPOINT_PATH = Path(
+
+def resolve_checkpoint_path() -> Path:
+    local_path = os.getenv(
+        "LMTAD_CHECKPOINT_PATH"
+    )
+
+    # 로컬 경로가 명시된 경우 우선 사용
+    if local_path:
+        return Path(local_path).expanduser().resolve()
+
+    # Render에서는 Hugging Face에서 다운로드
+    return Path(
+        download_lmtad_checkpoint()
+    ).resolve()
+
+
+VOCAB_PATH = Path(
     os.getenv(
-        "LMTAD_CHECKPOINT_PATH",
+        "LMTAD_VOCAB_PATH",
         str(
-            BACKEND_DIR
+            LMTAD_DIR
             / "artifacts"
-            / "ckptepoch_49_batch_389.pt"
+            / "vocab_gps.full_bbox.user1100.json"
         ),
     )
 ).resolve()
@@ -27,7 +47,7 @@ VOCAB_PATH = Path(
         str(
             BACKEND_DIR
             / "artifacts"
-            / "vocab_place.json"
+            / "vocab_gps.full_bbox.user1100.json"
         ),
     )
 ).resolve()
@@ -41,10 +61,12 @@ class LMTADRuntime:
             else "cpu"
         )
 
-        if not CHECKPOINT_PATH.exists():
+        checkpoint_path = resolve_checkpoint_path()
+
+        if not checkpoint_path.exists():
             raise FileNotFoundError(
                 f"체크포인트가 없습니다: "
-                f"{CHECKPOINT_PATH}"
+                f"{checkpoint_path}"
             )
 
         if not VOCAB_PATH.exists():
@@ -53,7 +75,7 @@ class LMTADRuntime:
             )
 
         checkpoint = torch.load(
-            CHECKPOINT_PATH,
+            checkpoint_path,
             map_location=self.device,
             weights_only=True,
         )
@@ -109,9 +131,9 @@ class LMTADRuntime:
         )
 
     def _validate_vocab(self):
-        if len(self.vocab) != self.vocab_size:
+        if len(self.vocab) > self.vocab_size:
             raise RuntimeError(
-                "체크포인트와 vocab 크기가 다릅니다. "
+                "vocab이 체크포인트 출력 크기보다 큽니다. "
                 f"checkpoint={self.vocab_size}, "
                 f"vocab={len(self.vocab)}"
             )

@@ -1,0 +1,69 @@
+table_name,column_name,data_type
+facilities,id,integer
+facilities,external_id,character varying
+facilities,name,character varying
+facilities,address,character varying
+facilities,latitude,double precision
+facilities,longitude,double precision
+gps_records,id,integer
+gps_records,subject_id,integer
+gps_records,latitude,double precision
+gps_records,longitude,double precision
+gps_records,measured_at,timestamp without time zone
+guardian_registrations,guardian_id,integer
+guardian_registrations,subject_id,integer
+guardian_registrations,relationship_code,character varying
+guardian_registrations,guardian_role_code,character varying
+guardian_registrations,is_primary,boolean
+guardian_registrations,contact_priority,integer
+guardian_registrations,living_together,boolean
+guardian_registrations,protection_start_date,date
+guardian_registrations,protection_end_date,date
+guardian_registrations,created_at,timestamp with time zone
+guardians,id,integer
+guardians,name,character varying
+guardians,phone,character varying
+guardians,gender,USER-DEFINED
+guardians,birth_date,date
+guardians,address,character varying
+guardians,created_at,timestamp with time zone
+guardians,updated_at,timestamp with time zone
+institution_managers,id,integer
+institution_managers,institution_id,integer
+institution_managers,name,character varying
+institution_managers,phone,character varying
+institution_managers,position,character varying
+institution_managers,created_at,timestamp with time zone
+institution_managers,updated_at,timestamp with time zone
+institutions,id,integer
+institutions,institution_code,character varying
+institutions,name,character varying
+institutions,institution_type,USER-DEFINED
+institutions,address,character varying
+institutions,phone,character varying
+institutions,operating_hours,character varying
+institutions,latitude,double precision
+institutions,longitude,double precision
+institutions,created_at,timestamp with time zone
+institutions,updated_at,timestamp with time zone
+manager_assignments,manager_id,integer
+manager_assignments,subject_id,integer
+manager_assignments,is_primary_manager,boolean
+manager_assignments,assignment_start_date,date
+manager_assignments,assignment_end_date,date
+manager_assignments,created_at,timestamp with time zone
+subject_guardians,id,integer
+subject_guardians,subject_id,integer
+subject_guardians,guardian_id,integer
+subject_guardians,relationship_type,character varying
+subjects,id,integer
+subjects,name,character varying
+subjects,phone,character varying
+subjects,special_notes,text
+subjects,gender,USER-DEFINED
+subjects,birth_date,date
+subjects,address,character varying
+subjects,subject_type,USER-DEFINED
+subjects,institution_id,integer
+subjects,created_at,timestamp with time zone
+subjects,updated_at,timestamp with time zone
