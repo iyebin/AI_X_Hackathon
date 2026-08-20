@@ -10,7 +10,7 @@ import pandas as pd
 import torch
 from torch.utils.data import Dataset
 
-from utils import log
+from backend.lmtad.utils import log
 
 class VocabDictionary(object):
     """
