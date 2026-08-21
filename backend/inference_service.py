@@ -50,8 +50,8 @@ def run_gps_inference(
         target_date=target_date,
     )
 
-    if len(records) < 2:
-        raise ValueError("GPS 데이터가 부족합니다.")
+    # if len(records) < 2:
+    #     raise ValueError("GPS 데이터가 부족합니다.")
 
     gps_tokens = records_to_gps_tokens(
         records=records,

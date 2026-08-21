@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 
 from backend.database import SessionLocal
-from backend.models import Inference
+from backend.models import Final
 
 
 def main():
