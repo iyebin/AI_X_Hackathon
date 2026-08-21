@@ -149,7 +149,7 @@ def run(
  
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--api-base", type=str, default="http://127.0.0.1:8001/docs")
+    parser.add_argument("--api-base", type=str, default="https://ai-x-hackathon-backend.onrender.com")
     parser.add_argument("--subject-id", type=int, required=True, help="Supabase subjects.id", default=5)
     parser.add_argument("--playbook", type=Path, required=True)
     parser.add_argument(

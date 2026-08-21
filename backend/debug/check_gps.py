@@ -19,19 +19,20 @@ def main():
         print(f"조회된 GPS 수: {len(records)}")
 
         for record in records:
-            print(
-                {
-                    "gps_id": record.gps_id,
-                    "subject_id": record.subject_id,
-                    "latitude": record.latitude,
-                    "longitude": record.longitude,
-                    "measured_at": record.measured_at,
-                    # "x": record.x,
-                    # "y": record.y,
-                    # "x_d": record.x_d,
-                    # "y_d": record.y_d,
-                }
-            )
+            # print(
+            #     {
+            #         "gps_id": record.gps_id,
+            #         "subject_id": record.subject_id,
+            #         "latitude": record.latitude,
+            #         "longitude": record.longitude,
+            #         "measured_at": record.measured_at,
+            #         # "x": record.x,
+            #         # "y": record.y,
+            #         # "x_d": record.x_d,
+            #         # "y_d": record.y_d,
+            #     }
+            # )
+            pass
     finally:
         db.close()
 
